@@ -1,3 +1,7 @@
+if (window.Telegram) {
+  window.Telegram.WebApp.ready()
+  window.Telegram.WebApp.expand()
+}
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App'
