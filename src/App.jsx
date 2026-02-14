@@ -11,7 +11,9 @@ function App() {
           <div className="crash-title">
             UFO Crash
           </div>
-
+             <div className="multiplier">
+               &gt; x1.63
+             </div>
           <button className="launch-btn">
             Запустить НЛО
           </button>
