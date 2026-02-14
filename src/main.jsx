@@ -1,10 +1,12 @@
+import './style.css'
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import App from './App'
+
 if (window.Telegram) {
   window.Telegram.WebApp.ready()
   window.Telegram.WebApp.expand()
 }
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
