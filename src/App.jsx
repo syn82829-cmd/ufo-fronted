@@ -1,16 +1,8 @@
-import './style.css'
-
-function App() {
+export default function App() {
   return (
     <div className="app">
       <h1>UFO</h1>
-      <p className="subtitle">Cases • Roulette • Drops</p>
-
-      <div className="card">
-        <p>🎁 Open your first case</p>
-      </div>
+      <p>Mini App</p>
     </div>
   )
 }
-
-export default App
