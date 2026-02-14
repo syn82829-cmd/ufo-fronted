@@ -9,7 +9,7 @@ function App() {
       <div className="crash-panel">
 
         <img
-          src="/src/ufo.png.PNG"
+          src="/ufo.png.PNG"
           className="ufo-image"
         />
 
