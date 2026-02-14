@@ -54,7 +54,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding-top: 110px; /* чуть ниже */
+  padding-top: 110px;
 }
 
 
@@ -88,8 +88,8 @@ body {
 .crash-title {
 
   position: absolute;
-  top: 18px;      /* выше */
-  left: 25px;     /* ещё левее */
+  top: 18px;
+  left: 25px;
 
   font-size: 24px;
   font-weight: 600;
@@ -110,13 +110,34 @@ body {
 }
 
 
+/* ===== MULTIPLIER (NEW) ===== */
+
+.multiplier {
+
+  position: absolute;
+  left: 25px;
+  top: 65px;   /* между заголовком и кнопкой */
+
+  font-size: 26px;
+  font-weight: 700;
+
+  color: #00ffaa;
+
+  text-shadow:
+    0 0 10px rgba(0,255,170,0.8),
+    0 0 20px rgba(0,255,170,0.4);
+
+  letter-spacing: 1px;
+}
+
+
 /* ===== BUTTON (LEFT BOTTOM) ===== */
 
 .launch-btn {
 
   position: absolute;
-  left: 25px;     /* левый край */
-  bottom: 20px;   /* самый низ панели */
+  left: 25px;
+  bottom: 20px;
 
   padding: 14px 28px;
   font-size: 15px;
