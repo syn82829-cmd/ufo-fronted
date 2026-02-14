@@ -59,7 +59,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding-top: 60px; /* поднимаем блок выше */
+  padding-top: 95px; /* опустили немного ниже */
 }
 
 
@@ -72,19 +72,13 @@ body {
 
   aspect-ratio: 16 / 9;
 
-  background: rgba(255,255,255,0.006); /* почти прозрачное стекло */
+  background: rgba(255,255,255,0.006);
 
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
 
   border-radius: 26px;
   border: 1px solid rgba(255,255,255,0.22);
-
-  display: flex;
-  align-items: stretch;
-  justify-content: flex-start;
-
-  padding: 60px 0 50px 90px;
 
   position: relative;
   overflow: visible;
@@ -94,33 +88,25 @@ body {
 }
 
 
-/* ===== LEFT CONTENT ===== */
-
-.crash-left {
-  z-index: 3;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-
-/* ===== UFO CRASH TITLE ===== */
+/* ===== TITLE (RIGHT TOP) ===== */
 
 .crash-title {
 
-  font-size: 34px;
+  position: absolute;
+  top: 35px;
+  right: 50px;
+
+  font-size: 26px; /* меньше */
   font-weight: 600;
 
   background: linear-gradient(
     110deg,
-    #ffffff 0%,
-    #d2fff3 30%,
-    #7affd8 50%,
-    #ffffff 70%,
-    #aafff1 100%
+    #f5f5f5 0%,
+    #d9d9d9 25%,
+    #ffffff 50%,
+    #bfbfbf 75%,
+    #f0f0f0 100%
   );
-
-  background-size: 200% 100%;
 
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -129,11 +115,13 @@ body {
 }
 
 
-/* ===== GLASS BUTTON ===== */
+/* ===== LEFT BOTTOM BUTTON ===== */
 
 .launch-btn {
 
-  margin-top: auto; /* уводит кнопку вниз */
+  position: absolute;
+  left: 70px;
+  bottom: 45px;
 
   padding: 14px 28px;
   font-size: 15px;
