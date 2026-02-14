@@ -54,7 +54,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding-top: 95px;
+  padding-top: 110px; /* чуть ниже */
 }
 
 
@@ -62,7 +62,7 @@ body {
 
 .crash-panel {
 
-  width: 88%;
+  width: 90%;
   max-width: 920px;
 
   aspect-ratio: 16 / 9;
@@ -88,10 +88,10 @@ body {
 .crash-title {
 
   position: absolute;
-  top: 35px;
-  left: 60px;   /* теперь слева */
+  top: 18px;      /* выше */
+  left: 25px;     /* ещё левее */
 
-  font-size: 26px;
+  font-size: 24px;
   font-weight: 600;
 
   background: linear-gradient(
@@ -106,7 +106,7 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 
-  letter-spacing: 2px;
+  letter-spacing: 1.5px;
 }
 
 
@@ -115,8 +115,8 @@ body {
 .launch-btn {
 
   position: absolute;
-  left: 60px;     /* слева */
-  bottom: 45px;   /* снизу */
+  left: 25px;     /* левый край */
+  bottom: 20px;   /* самый низ панели */
 
   padding: 14px 28px;
   font-size: 15px;
@@ -155,7 +155,7 @@ body {
 
   position: absolute;
 
-  right: -8%;   /* сдвинули левее */
+  right: -8%;
   bottom: -8%;
 
   width: 52%;
