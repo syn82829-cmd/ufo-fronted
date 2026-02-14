@@ -57,11 +57,9 @@ body {
 .app {
   min-height: 100vh;
   display: flex;
-  justify-content: flex-start;
-  align-items: center;
-
-  /* поднимаем блок выше */
-  padding-top: 40px;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 60px; /* поднимаем блок выше */
 }
 
 
@@ -69,30 +67,30 @@ body {
 
 .crash-panel {
 
-  width: 82%;
-  max-width: 820px;
+  width: 88%;
+  max-width: 920px;
 
   aspect-ratio: 16 / 9;
 
-  background: rgba(255,255,255,0.012);
+  background: rgba(255,255,255,0.006); /* почти прозрачное стекло */
 
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
 
   border-radius: 26px;
-  border: 1px solid rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.22);
 
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: flex-start;
 
-  padding-left: 70px;
+  padding: 60px 0 50px 90px;
 
   position: relative;
   overflow: visible;
 
   box-shadow:
-    0 25px 70px rgba(0,0,0,0.8);
+    0 30px 80px rgba(0,0,0,0.85);
 }
 
 
@@ -100,6 +98,9 @@ body {
 
 .crash-left {
   z-index: 3;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 
@@ -107,18 +108,16 @@ body {
 
 .crash-title {
 
-  font-size: 46px;
-  font-weight: 700;
-  margin-bottom: 30px;
+  font-size: 34px;
+  font-weight: 600;
 
   background: linear-gradient(
     110deg,
     #ffffff 0%,
-    #d2fff3 25%,
-    #7affd8 45%,
-    #ffffff 60%,
-    #aafff1 75%,
-    #ffffff 100%
+    #d2fff3 30%,
+    #7affd8 50%,
+    #ffffff 70%,
+    #aafff1 100%
   );
 
   background-size: 200% 100%;
@@ -126,7 +125,7 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 
-  letter-spacing: 3px;
+  letter-spacing: 2px;
 }
 
 
@@ -134,25 +133,26 @@ body {
 
 .launch-btn {
 
-  padding: 18px 38px;
+  margin-top: auto; /* уводит кнопку вниз */
 
-  font-size: 18px;
+  padding: 14px 28px;
+  font-size: 15px;
   font-weight: 600;
 
   color: #ccfff2;
 
-  background: rgba(255,255,255,0.015);
+  background: rgba(255,255,255,0.01);
 
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 
-  border-radius: 16px;
+  border-radius: 14px;
 
-  border: 1px solid rgba(0,255,170,0.6);
+  border: 1px solid rgba(0,255,170,0.7);
 
   box-shadow:
-    0 0 18px rgba(0,255,170,0.25),
-    inset 0 0 10px rgba(255,255,255,0.05);
+    0 0 14px rgba(0,255,170,0.25),
+    inset 0 0 8px rgba(255,255,255,0.04);
 
   cursor: pointer;
 
@@ -176,20 +176,20 @@ body {
 
   position: absolute;
 
-  right: -12%;
-  bottom: -8%;
+  right: -16%;
+  bottom: -10%;
 
-  width: 52%;
-  max-width: 480px;
+  width: 58%;
+  max-width: 520px;
 
   z-index: 2;
 
   filter:
-    drop-shadow(0 50px 90px rgba(0,0,0,0.95));
+    drop-shadow(0 60px 100px rgba(0,0,0,0.95));
 
   transform:
-    perspective(900px)
-    rotateY(-10deg)
-    rotateX(3deg);
+    perspective(1000px)
+    rotateY(-14deg)
+    rotateX(4deg);
 
 }
