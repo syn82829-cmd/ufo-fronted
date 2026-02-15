@@ -1,6 +1,9 @@
+import { useState } from 'react'
 import './style.css'
 
 function App() {
+
+  const [activeTab, setActiveTab] = useState('Главная')
 
   const cases = [
     {
@@ -24,15 +27,20 @@ function App() {
     {
       id: 4,
       image: "/cases/case4.png.PNG",
-      name: "Random",
+      name: "Random Case",
       price: "999 ⭐️"
     }
   ]
 
+  const tabs = ['Бонусы', 'Розыгрыши', 'Главная', 'Профиль']
+
   return (
     <div className="app">
 
+      {/* ============================= */}
       {/* UFO CRASH PANEL */}
+      {/* ============================= */}
+
       <div className="crash-panel">
 
         <div className="crash-title">
@@ -56,18 +64,19 @@ function App() {
       </div>
 
 
+      {/* ============================= */}
       {/* CASES SECTION */}
+      {/* ============================= */}
+
       <div className="cases-section">
 
         {cases.map(caseItem => (
           <div className="case-card" key={caseItem.id}>
 
             {/* TITLE */}
-            {caseItem.name && (
-              <div className="case-title">
-                {caseItem.name}
-              </div>
-            )}
+            <div className="case-title">
+              {caseItem.name}
+            </div>
 
             {/* IMAGE */}
             <img
@@ -77,12 +86,29 @@ function App() {
             />
 
             {/* PRICE */}
-            {caseItem.price && (
-              <div className="case-price-badge">
-                {caseItem.price}
-              </div>
-            )}
+            <div className="case-price-badge">
+              {caseItem.price}
+            </div>
 
+          </div>
+        ))}
+
+      </div>
+
+
+      {/* ============================= */}
+      {/* BOTTOM NAVIGATION */}
+      {/* ============================= */}
+
+      <div className="bottom-nav">
+
+        {tabs.map(tab => (
+          <div
+            key={tab}
+            className={`nav-item ${activeTab === tab ? 'active' : ''}`}
+            onClick={() => setActiveTab(tab)}
+          >
+            {tab}
           </div>
         ))}
 
