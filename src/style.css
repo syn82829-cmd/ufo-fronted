@@ -315,3 +315,59 @@ body {
   font-size: 14px;
   opacity: 0.7;
 }
+/* ============================= */
+/* CASE TITLE */
+/* ============================= */
+
+.case-title {
+
+  position: absolute;
+  top: 14px;
+  width: 100%;
+
+  text-align: center;
+
+  font-size: 17px;
+  font-weight: 600;
+
+  color: white;
+
+  letter-spacing: 0.5px;
+
+  text-shadow:
+    0 0 8px rgba(255,255,255,0.25);
+
+}
+
+
+
+/* ============================= */
+/* GOLD PRICE BADGE */
+/* ============================= */
+
+.case-price-badge {
+
+  position: absolute;
+  bottom: 14px;
+
+  padding: 6px 18px;
+
+  font-size: 15px;
+  font-weight: 700;
+
+  color: #3a2a00;
+
+  background: linear-gradient(
+    135deg,
+    #ffd700,
+    #ffb300,
+    #ffe680
+  );
+
+  border-radius: 999px;
+
+  box-shadow:
+    0 4px 14px rgba(255,215,0,0.35),
+    inset 0 1px 4px rgba(255,255,255,0.6);
+
+}
