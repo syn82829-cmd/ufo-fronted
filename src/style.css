@@ -348,26 +348,27 @@ body {
 .case-price-badge {
 
   position: absolute;
-  bottom: 14px;
 
-  padding: 6px 18px;
+  bottom: 8px; /* было выше — опустили */
+  left: 50%;
+  transform: translateX(-50%);
 
-  font-size: 15px;
-  font-weight: 700;
+  padding: 5px 14px; /* уменьшили */
 
-  color: #3a2a00;
-
-  background: linear-gradient(
-    135deg,
-    #ffd700,
-    #ffb300,
-    #ffe680
-  );
+  font-size: 13px; /* меньше текст */
 
   border-radius: 999px;
 
-  box-shadow:
-    0 4px 14px rgba(255,215,0,0.35),
-    inset 0 1px 4px rgba(255,255,255,0.6);
+  background: linear-gradient(
+    120deg,
+    #ffd76a,
+    #ffb700,
+    #ffe38a
+  );
 
+  color: #2a1b00;
+  font-weight: 600;
+
+  box-shadow:
+    0 4px 14px rgba(255,190,0,0.35);
 }
