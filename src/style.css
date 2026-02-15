@@ -4,12 +4,23 @@
   box-sizing: border-box;
 }
 
-html, body, #root {
+/* ===== ОСНОВА СКРОЛЛА ===== */
+
+html, body {
+  height: 100%;
+  overflow-x: hidden;
+}
+
+#root {
   min-height: 100vh;
-  width: 100%;
 }
 
 body {
+
+  min-height: 100vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+
   background-image:
     linear-gradient(
       rgba(4, 8, 20, 0.55),
@@ -36,7 +47,7 @@ body {
   background-position: center;
   background-repeat: no-repeat;
 
-  /* ФОН СТАТИЧНЫЙ */
+  /* СТАТИЧНЫЙ ФОН */
   background-attachment: fixed;
 
   color: white;
@@ -49,7 +60,6 @@ body {
 }
 
 
-
 /* ===== MAIN CONTAINER ===== */
 
 .app {
@@ -58,6 +68,7 @@ body {
   flex-direction: column;
   align-items: center;
   padding-top: 110px;
+  padding-bottom: 60px;
 }
 
 
@@ -70,14 +81,13 @@ body {
 
   width: 90%;
   max-width: 920px;
-
   aspect-ratio: 16 / 9;
 
-  /* Почти прозрачное стекло */
-  background: rgba(255,255,255,0.006);
+  /* УСИЛИЛ СТЕКЛО */
+  background: rgba(255,255,255,0.04);
 
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 
   border-radius: 26px;
   border: 1px solid rgba(255,255,255,0.22);
@@ -137,19 +147,10 @@ body {
 /* BUTTON */
 /* ============================= */
 
-/* АНИМАЦИЯ ЗЕЛЁНОГО ПУЛЬСА */
 @keyframes greenPulse {
-  0% {
-    box-shadow: 0 0 0px rgba(0,255,120,0);
-  }
-
-  50% {
-    box-shadow: 0 0 28px rgba(0,255,120,0.9);
-  }
-
-  100% {
-    box-shadow: 0 0 0px rgba(0,255,120,0);
-  }
+  0% { box-shadow: 0 0 0px rgba(0,255,120,0); }
+  50% { box-shadow: 0 0 28px rgba(0,255,120,0.9); }
+  100% { box-shadow: 0 0 0px rgba(0,255,120,0); }
 }
 
 .launch-btn {
@@ -176,7 +177,6 @@ body {
   box-shadow:
     0 0 14px rgba(0,255,170,0.25);
 
-  /* Перелив раз в 5 сек */
   animation: greenPulse 5s infinite;
 }
 
@@ -187,7 +187,6 @@ body {
 .ufo-image {
 
   position: absolute;
-
   right: -8%;
   bottom: -8%;
 
@@ -216,7 +215,6 @@ body {
   grid-template-columns: repeat(2, 1fr);
 
   gap: 20px;
-
 }
 
 
@@ -230,17 +228,17 @@ body {
   width: 100%;
   aspect-ratio: 1 / 1;
 
-  background: rgba(255,255,255,0.015);
+  /* УСИЛИЛ ПРОСВЕТ */
+  background: rgba(255,255,255,0.05);
 
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 
   border-radius: 22px;
 
   border: 1px solid rgba(255,255,255,0.22);
 
   position: relative;
-
   overflow: hidden;
 
   display: flex;
@@ -255,7 +253,6 @@ body {
 }
 
 
-
 /* reflection effect */
 
 .case-card::before {
@@ -263,7 +260,6 @@ body {
   content: "";
 
   position: absolute;
-
   top: 0;
   left: -60%;
 
@@ -279,13 +275,11 @@ body {
 }
 
 
-
 /* hover */
 
 .case-card:hover {
   transform: translateY(-6px);
 }
-
 
 
 /* case image */
