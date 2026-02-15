@@ -44,15 +44,15 @@ function App() {
     },
     {
       id: 7,
-      image: "/cases/soon.png.PNG",
-      name: "Coming Soon",
-      price: "—"
+      image: "/cases/case7.png.PNG",
+      name: "Starfall",
+      price: "1299"
     },
     {
       id: 8,
-      image: "/cases/soon.png.PNG",
-      name: "Coming Soon",
-      price: "—"
+      image: "/cases/case8.png.PNG",
+      name: "Random Case",
+      price: "999"
     }
   ]
 
