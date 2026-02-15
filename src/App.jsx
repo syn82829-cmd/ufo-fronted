@@ -29,6 +29,30 @@ function App() {
       image: "/cases/case4.png.PNG",
       name: "Random Case",
       price: "999 ⭐️"
+    },
+    {
+      id: 5,
+      image: "/cases/soon.png.PNG",
+      name: "Coming Soon",
+      price: "—"
+    },
+    {
+      id: 6,
+      image: "/cases/soon.png.PNG",
+      name: "Coming Soon",
+      price: "—"
+    },
+    {
+      id: 7,
+      image: "/cases/soon.png.PNG",
+      name: "Coming Soon",
+      price: "—"
+    },
+    {
+      id: 8,
+      image: "/cases/soon.png.PNG",
+      name: "Coming Soon",
+      price: "—"
     }
   ]
 
