@@ -5,19 +5,27 @@ function App() {
   const cases = [
     {
       id: 1,
-      image: "/cases/case1.png.PNG"
+      image: "/cases/case1.png.PNG",
+      name: "First Pepe",
+      price: "9999⭐️"
     },
     {
       id: 2,
-      image: "/cases/case2.png.PNG"
+      image: "/cases/case2.png.PNG",
+      name: "",
+      price: ""
     },
     {
       id: 3,
-      image: "/cases/case3.png.PNG"
+      image: "/cases/case3.png.PNG",
+      name: "",
+      price: ""
     },
     {
       id: 4,
-      image: "/cases/case4.png.PNG"
+      image: "/cases/case4.png.PNG",
+      name: "",
+      price: ""
     }
   ]
 
@@ -54,11 +62,26 @@ function App() {
         {cases.map(caseItem => (
           <div className="case-card" key={caseItem.id}>
 
+            {/* TITLE */}
+            {caseItem.name && (
+              <div className="case-title">
+                {caseItem.name}
+              </div>
+            )}
+
+            {/* IMAGE */}
             <img
               src={caseItem.image}
               className="case-image"
               alt=""
             />
+
+            {/* PRICE */}
+            {caseItem.price && (
+              <div className="case-price-badge">
+                {caseItem.price}
+              </div>
+            )}
 
           </div>
         ))}
