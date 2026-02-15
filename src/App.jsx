@@ -15,24 +15,24 @@ function App() {
     {
       id: 2,
       image: "/cases/case2.png.PNG",
-      name: "Purple Hole",
+      name: "Crash",
       price: "4999 ⭐️"
     },
     {
       id: 3,
       image: "/cases/case3.png.PNG",
-      name: "Crash",
-      price: "2999 ⭐️"
+      name: "Purple Hole",
+      price: "2599 ⭐️"
     },
     {
       id: 4,
       image: "/cases/case4.png.PNG",
-      name: "Random Case",
-      price: "999 ⭐️"
+      name: "Space Trash",
+      price: "1599 ⭐️"
     },
     {
       id: 5,
-      image: "/cases/soon.png.PNG",
+      image: "/cases/case5.png.PNG",
       name: "Coming Soon",
       price: "—"
     },
