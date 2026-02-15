@@ -46,13 +46,13 @@ function App() {
       id: 7,
       image: "/cases/case7.png.PNG",
       name: "Starfall",
-      price: "1299"
+      price: "1299 ⭐️"
     },
     {
       id: 8,
       image: "/cases/case8.png.PNG",
       name: "Random Case",
-      price: "999"
+      price: "999 ⭐️"
     }
   ]
 
