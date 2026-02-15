@@ -7,7 +7,7 @@ function App() {
       id: 1,
       image: "/cases/case1.png.PNG",
       name: "First Pepe",
-      price: "9999⭐️"
+      price: "9999 ⭐️"
     },
     {
       id: 2,
