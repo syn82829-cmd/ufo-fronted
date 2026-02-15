@@ -5,19 +5,19 @@ function App() {
   const cases = [
     {
       id: 1,
-      image: "/cases/case1.png"
+      image: "/cases/case1.png.PNG"
     },
     {
       id: 2,
-      image: "/cases/case2.png"
+      image: "/cases/case2.png.PNG"
     },
     {
       id: 3,
-      image: "/cases/case3.png"
+      image: "/cases/case3.png.PNG"
     },
     {
       id: 4,
-      image: "/cases/case4.png"
+      image: "/cases/case4.png.PNG"
     }
   ]
 
