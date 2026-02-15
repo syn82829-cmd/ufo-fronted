@@ -12,20 +12,20 @@ function App() {
     {
       id: 2,
       image: "/cases/case2.png.PNG",
-      name: "",
-      price: ""
+      name: "Purple Hole",
+      price: "4999 ⭐️"
     },
     {
       id: 3,
       image: "/cases/case3.png.PNG",
-      name: "",
-      price: ""
+      name: "Crash",
+      price: "2999 ⭐️"
     },
     {
       id: 4,
       image: "/cases/case4.png.PNG",
-      name: "",
-      price: ""
+      name: "Random",
+      price: "999 ⭐️"
     }
   ]
 
