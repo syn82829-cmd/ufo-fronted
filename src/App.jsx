@@ -77,22 +77,26 @@ function App() {
       {activeTab === 'Профиль' && (
         <div className="profile-page">
 
+          {/* MAIN PROFILE CARD */}
           <div className="profile-card">
 
             <div className="profile-avatar">
               👽
             </div>
 
-            <div className="profile-name">
-              Гость
-            </div>
+            <div className="profile-info">
+              <div className="profile-name">
+                Гость
+              </div>
 
-            <div className="profile-id">
-              Telegram ID: —
+              <div className="profile-id">
+                Telegram ID: —
+              </div>
             </div>
 
           </div>
 
+          {/* STATS */}
           <div className="profile-stats">
 
             <div className="profile-stat">
