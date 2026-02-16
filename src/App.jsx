@@ -26,13 +26,13 @@ function App() {
     },
     {
       id: 4,
-      image: "/cases/case4.png .PNG",
+      image: "/cases/case4.png.PNG",
       name: "God Particle",
       price: "3599 ⭐️"
     },
     {
       id: 5,
-      image: "/cases/case5.png .PNG",
+      image: "/cases/case5.png.PNG",
       name: "Purple Hole",
       price: "1599 ⭐️"
     },
