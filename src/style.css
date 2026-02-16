@@ -514,8 +514,8 @@ body {
   transform: scale(0.97);
 }
 .inventory-block {
-  width: 100%;
-  max-width: 420px; /* такая же логика ширины как у profile */
+  width: 90%;
+  max-width: 920px;
   margin: 20px auto 0;
 
   padding: 20px;
