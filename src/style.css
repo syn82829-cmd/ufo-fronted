@@ -536,3 +536,8 @@ body {
   font-size: 16px;
   text-align: center;
 }
+.inventory-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
