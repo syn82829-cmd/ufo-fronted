@@ -460,28 +460,48 @@ body {
   color: rgba(255,255,255,0.65);
 }
 /* ============================= */
-/* BALANCE RIGHT */
+/* BALANCE BLOCK */
 /* ============================= */
 
-.profile-balance {
+.profile-balance-block {
 
   position: absolute;
 
   top: 18px;
   right: 18px;
 
-  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
 
 }
 
-.balance-label {
 
-  font-size: 13px;
-  color: rgba(255,255,255,0.6);
+/* строка: Баланс 0 ⭐️ */
+
+.profile-balance-row {
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
 
 }
 
-.balance-value {
+
+/* текст Баланс */
+
+.profile-balance-label {
+
+  font-size: 14px;
+
+  color: rgba(255,255,255,0.65);
+
+}
+
+
+/* значение */
+
+.profile-balance {
 
   font-size: 22px;
   font-weight: 700;
@@ -489,36 +509,35 @@ body {
   color: #00ffaa;
 
   text-shadow:
-    0 0 10px rgba(0,255,170,0.8);
+    0 0 12px rgba(0,255,170,0.6);
 
 }
 
 
-/* ============================= */
-/* DEPOSIT BUTTON */
-/* ============================= */
+/* кнопка */
 
 .deposit-btn {
 
-  position: absolute;
+  margin-top: 8px;
 
-  bottom: 18px;
-  left: 18px;
+  padding: 6px 14px;
 
-  padding: 10px 20px;
-
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
 
   color: #ccfff2;
 
-  background: rgba(255,255,255,0.02);
+  background: rgba(255,255,255,0.03);
 
-  border-radius: 14px;
+  border-radius: 12px;
 
   border: 1px solid rgba(0,255,170,0.7);
 
-  animation: greenPulse 5s infinite;
+  backdrop-filter: blur(4px);
+
+  box-shadow:
+    0 0 14px rgba(0,255,170,0.25);
 
   cursor: pointer;
+
 }
