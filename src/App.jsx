@@ -44,7 +44,7 @@ function App() {
         setUser({
           id: tgUser.id,
           username: tgUser.username || tgUser.first_name || 'User',
-          balance: 0 // позже загрузим с backend
+          balance: 0
         })
 
       }
@@ -129,6 +129,7 @@ function App() {
         <div className="profile-page">
 
 
+          {/* PROFILE CARD */}
           <div className="profile-card">
 
 
@@ -156,22 +157,37 @@ function App() {
             {/* BALANCE BLOCK */}
             <div className="profile-balance-block">
 
-              <div className="profile-balance-label">
-                Баланс
-              </div>
+              <div className="profile-balance-row">
 
-              <div className="profile-balance">
-                {user.balance} ⭐️
-              </div>
+                <div className="profile-balance-label">
+                  Баланс
+                </div>
 
-              <button className="deposit-btn">
-                Пополнить
-              </button>
+                <div className="profile-balance">
+                  {user.balance} ⭐️
+                </div>
+
+              </div>
 
             </div>
 
 
           </div>
+
+
+          {/* ACTION BUTTONS */}
+          <div className="profile-actions">
+
+            <button className="deposit-btn large">
+              Пополнить
+            </button>
+
+            <button className="withdraw-btn large">
+              Вывести
+            </button>
+
+          </div>
+
 
         </div>
 
