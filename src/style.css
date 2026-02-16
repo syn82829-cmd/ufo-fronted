@@ -515,10 +515,11 @@ body {
 }
 .inventory-block {
   width: 100%;
-  max-width: 420px; /* поставь такое же значение как у profile-card */
+  max-width: 420px; /* такая же логика ширины как у profile */
   margin: 20px auto 0;
 
   padding: 20px;
+
   min-height: 360px;
 
   border-radius: 20px;
@@ -529,5 +530,17 @@ body {
 
   display: flex;
   align-items: center;
+  justify-content: center;
+}
+
+.inventory-empty {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 16px;
+  text-align: center;
+}
+
+.inventory-wrapper {
+  width: 100%;
+  display: flex;
   justify-content: center;
 }
