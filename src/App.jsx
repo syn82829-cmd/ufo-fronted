@@ -1,9 +1,15 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './style.css'
 
 function App() {
 
   const [activeTab, setActiveTab] = useState('Главная')
+
+  const [user, setUser] = useState({
+    id: '—',
+    username: 'Гость',
+    balance: 0
+  })
 
   const cases = [
     { id: 1, image: "/cases/case1.png.PNG", name: "First Pepe", price: "9999 ⭐️" },
@@ -18,12 +24,49 @@ function App() {
 
   const tabs = ['Бонусы', 'Розыгрыши', 'Главная', 'Профиль']
 
+
+  /* ============================= */
+  /* TELEGRAM INIT */
+  /* ============================= */
+
+  useEffect(() => {
+
+    if (window.Telegram && window.Telegram.WebApp) {
+
+      const tg = window.Telegram.WebApp
+
+      tg.expand()
+
+      const tgUser = tg.initDataUnsafe?.user
+
+      if (tgUser) {
+
+        setUser({
+          id: tgUser.id,
+          username: tgUser.username || tgUser.first_name || 'User',
+          balance: 0 // позже загрузим с backend
+        })
+
+      }
+
+    }
+
+  }, [])
+
+
+
+  /* ============================= */
+  /* UI */
+  /* ============================= */
+
   return (
     <div className="app">
+
 
       {/* ============================= */}
       {/* HOME */}
       {/* ============================= */}
+
       {activeTab === 'Главная' && (
         <>
           <div className="crash-panel">
@@ -45,9 +88,12 @@ function App() {
               className="ufo-image"
               alt=""
             />
+
           </div>
 
+
           <div className="cases-section">
+
             {cases.map(caseItem => (
               <div className="case-card" key={caseItem.id}>
 
@@ -67,58 +113,98 @@ function App() {
 
               </div>
             ))}
+
           </div>
         </>
       )}
 
+
+
       {/* ============================= */}
       {/* PROFILE */}
       {/* ============================= */}
+
       {activeTab === 'Профиль' && (
+
         <div className="profile-page">
 
-          {/* 16:4 GLASS CARD */}
+
           <div className="profile-card">
+
 
             {/* AVATAR */}
             <div className="profile-avatar">
               👽
             </div>
 
+
             {/* USER INFO */}
             <div className="profile-text">
 
               <div className="profile-name">
-                username
+                {user.username}
               </div>
 
               <div className="profile-id">
-                telegram id
+                ID: {user.id}
               </div>
 
             </div>
 
+
+
+            {/* BALANCE BLOCK */}
+            <div className="profile-balance-block">
+
+              <div className="profile-balance-label">
+                Баланс
+              </div>
+
+              <div className="profile-balance">
+                {user.balance} ⭐️
+              </div>
+
+              <button className="deposit-btn">
+                Пополнить
+              </button>
+
+            </div>
+
+
           </div>
 
         </div>
+
       )}
 
+
+
       {/* ============================= */}
-      {/* BONUS / RAFFLES PLACEHOLDER */}
+      {/* BONUS / RAFFLES */}
       {/* ============================= */}
+
       {(activeTab === 'Бонусы' || activeTab === 'Розыгрыши') && (
+
         <div className="empty-page">
+
           <div className="empty-glass">
             {activeTab} — скоро 🚀
           </div>
+
         </div>
+
       )}
+
+
 
       {/* ============================= */}
       {/* BOTTOM NAV */}
       {/* ============================= */}
+
       <div className="bottom-nav">
+
         {tabs.map(tab => (
+
           <div
             key={tab}
             className={`nav-item ${activeTab === tab ? 'active' : ''}`}
@@ -126,8 +212,11 @@ function App() {
           >
             {tab}
           </div>
+
         ))}
+
       </div>
+
 
     </div>
   )
