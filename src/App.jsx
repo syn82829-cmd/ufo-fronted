@@ -10,43 +10,43 @@ function App() {
       id: 1,
       image: "/cases/case1.png.PNG",
       name: "First Pepe",
-      price: "9999 ⭐️"
+      price: "11999 ⭐️"
     },
     {
       id: 2,
       image: "/cases/case2.png.PNG",
       name: "Crash",
-      price: "4999 ⭐️"
+      price: "8999 ⭐️"
     },
     {
       id: 3,
       image: "/cases/case3.png.PNG",
-      name: "Purple Hole",
-      price: "2599 ⭐️"
+      name: "Dark Matter",
+      price: "4999 ⭐️"
     },
     {
       id: 4,
       image: "/cases/case4.png.PNG",
-      name: "Space Trash",
-      price: "1599 ⭐️"
+      name: "Purple Hole",
+      price: "2999 ⭐️"
     },
     {
       id: 5,
       image: "/cases/case5.png.PNG",
-      name: "Coming Soon",
-      price: "—"
+      name: "Get in Touch",
+      price: "899"
     },
     {
       id: 6,
-      image: "/cases/soon.png.PNG",
-      name: "Coming Soon",
-      price: "—"
+      image: "/cases/case6.png.PNG",
+      name: "Space Trash",
+      price: "599"
     },
     {
       id: 7,
       image: "/cases/case7.png.PNG",
       name: "Starfall",
-      price: "1299 ⭐️"
+      price: "499 ⭐️"
     },
     {
       id: 8,
