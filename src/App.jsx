@@ -124,20 +124,16 @@ function App() {
 
             </div>
 
-            {/* БЕЗ СЛОВА "Баланс" */}
             <div className="profile-balance-block">
-
               <div className="profile-balance-row">
-
                 <div className="profile-balance">
                   {user.balance} ⭐️
                 </div>
-
               </div>
-
             </div>
 
           </div>
+
 
           <div className="profile-actions">
 
@@ -149,6 +145,14 @@ function App() {
               Вывести
             </button>
 
+          </div>
+
+
+          {/* БОЛЬШОЙ БЛОК ИНВЕНТАРЯ */}
+          <div className="inventory-block">
+            <div className="inventory-empty">
+              В инвентаре пока пусто
+            </div>
           </div>
 
         </div>
