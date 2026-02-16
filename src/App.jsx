@@ -10,13 +10,13 @@ function App() {
       id: 1,
       image: "/cases/case1.png.PNG",
       name: "First Pepe",
-      price: "11999 ⭐️"
+      price: "9999 ⭐️"
     },
     {
       id: 2,
       image: "/cases/case2.png.PNG",
       name: "Crash",
-      price: "8999 ⭐️"
+      price: "7999 ⭐️"
     },
     {
       id: 3,
@@ -27,14 +27,14 @@ function App() {
     {
       id: 4,
       image: "/cases/case4.png.PNG",
-      name: "Purple Hole",
-      price: "2999 ⭐️"
+      name: "God Particle",
+      price: "3599 ⭐️"
     },
     {
       id: 5,
       image: "/cases/case5.png.PNG",
-      name: "Get in Touch",
-      price: "899 ⭐️"
+      name: "Purple Hole",
+      price: "1599 ⭐️"
     },
     {
       id: 6,
