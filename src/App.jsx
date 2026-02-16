@@ -77,41 +77,25 @@ function App() {
       {activeTab === 'Профиль' && (
         <div className="profile-page">
 
-          {/* MAIN PROFILE CARD */}
+          {/* 16:4 GLASS CARD */}
           <div className="profile-card">
 
+            {/* AVATAR */}
             <div className="profile-avatar">
               👽
             </div>
 
-            <div className="profile-info">
+            {/* USER INFO */}
+            <div className="profile-text">
+
               <div className="profile-name">
-                Гость
+                username
               </div>
 
               <div className="profile-id">
-                Telegram ID: —
+                telegram id
               </div>
-            </div>
 
-          </div>
-
-          {/* STATS */}
-          <div className="profile-stats">
-
-            <div className="profile-stat">
-              <span>Баланс</span>
-              <strong>0 ⭐️</strong>
-            </div>
-
-            <div className="profile-stat">
-              <span>Открыто кейсов</span>
-              <strong>0</strong>
-            </div>
-
-            <div className="profile-stat">
-              <span>UFO Crash</span>
-              <strong>—</strong>
             </div>
 
           </div>
