@@ -541,3 +541,75 @@ body {
   cursor: pointer;
 
 }
+/* ============================= */
+/* PROFILE ACTIONS */
+/* ============================= */
+
+.profile-actions {
+
+  margin-top: 18px;
+
+  display: flex;
+  gap: 14px;
+
+  width: 90%;
+  max-width: 920px;
+
+}
+
+
+/* ============================= */
+/* LARGE BUTTON BASE */
+/* ============================= */
+
+.deposit-btn.large,
+.withdraw-btn.large {
+
+  flex: 1;
+
+  height: 48px;
+
+  font-size: 16px;
+  font-weight: 600;
+
+  border-radius: 16px;
+
+  backdrop-filter: blur(6px);
+
+  cursor: pointer;
+
+  background: rgba(255,255,255,0.03);
+
+}
+
+
+/* ============================= */
+/* DEPOSIT BUTTON */
+/* ============================= */
+
+.deposit-btn.large {
+
+  color: #ccfff2;
+
+  border: 1px solid rgba(0,255,170,0.7);
+
+  box-shadow:
+    0 0 16px rgba(0,255,170,0.25);
+
+}
+
+
+/* ============================= */
+/* WITHDRAW BUTTON */
+/* ============================= */
+
+.withdraw-btn.large {
+
+  color: #7ad7ff;
+
+  border: 1px solid rgba(0,170,255,0.7);
+
+  box-shadow:
+    0 0 16px rgba(0,170,255,0.25);
+
+}
