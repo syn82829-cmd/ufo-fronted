@@ -459,3 +459,66 @@ body {
 
   color: rgba(255,255,255,0.65);
 }
+/* ============================= */
+/* BALANCE RIGHT */
+/* ============================= */
+
+.profile-balance {
+
+  position: absolute;
+
+  top: 18px;
+  right: 18px;
+
+  text-align: right;
+
+}
+
+.balance-label {
+
+  font-size: 13px;
+  color: rgba(255,255,255,0.6);
+
+}
+
+.balance-value {
+
+  font-size: 22px;
+  font-weight: 700;
+
+  color: #00ffaa;
+
+  text-shadow:
+    0 0 10px rgba(0,255,170,0.8);
+
+}
+
+
+/* ============================= */
+/* DEPOSIT BUTTON */
+/* ============================= */
+
+.deposit-btn {
+
+  position: absolute;
+
+  bottom: 18px;
+  left: 18px;
+
+  padding: 10px 20px;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  color: #ccfff2;
+
+  background: rgba(255,255,255,0.02);
+
+  border-radius: 14px;
+
+  border: 1px solid rgba(0,255,170,0.7);
+
+  animation: greenPulse 5s infinite;
+
+  cursor: pointer;
+}
