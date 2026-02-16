@@ -54,49 +54,20 @@ function App() {
       {activeTab === 'Главная' && (
         <>
           <div className="crash-panel">
-
-            <div className="crash-title">
-              UFO Crash
-            </div>
-
-            <div className="multiplier">
-              &gt; x1.63
-            </div>
-
-            <button className="launch-btn">
-              Запустить НЛО
-            </button>
-
-            <img
-              src="/ufo.png.PNG"
-              className="ufo-image"
-              alt=""
-            />
-
+            <div className="crash-title">UFO Crash</div>
+            <div className="multiplier">&gt; x1.63</div>
+            <button className="launch-btn">Запустить НЛО</button>
+            <img src="/ufo.png.PNG" className="ufo-image" alt="" />
           </div>
 
           <div className="cases-section">
-
             {cases.map(caseItem => (
               <div className="case-card" key={caseItem.id}>
-
-                <div className="case-title">
-                  {caseItem.name}
-                </div>
-
-                <img
-                  src={caseItem.image}
-                  className="case-image"
-                  alt=""
-                />
-
-                <div className="case-price-badge">
-                  {caseItem.price}
-                </div>
-
+                <div className="case-title">{caseItem.name}</div>
+                <img src={caseItem.image} className="case-image" alt="" />
+                <div className="case-price-badge">{caseItem.price}</div>
               </div>
             ))}
-
           </div>
         </>
       )}
@@ -108,20 +79,11 @@ function App() {
 
           <div className="profile-card">
 
-            <div className="profile-avatar">
-              👽
-            </div>
+            <div className="profile-avatar">👽</div>
 
             <div className="profile-text">
-
-              <div className="profile-name">
-                {user.username}
-              </div>
-
-              <div className="profile-id">
-                ID: {user.id}
-              </div>
-
+              <div className="profile-name">{user.username}</div>
+              <div className="profile-id">ID: {user.id}</div>
             </div>
 
             <div className="profile-balance-block">
@@ -136,22 +98,17 @@ function App() {
 
 
           <div className="profile-actions">
-
-            <button className="deposit-btn large">
-              Пополнить
-            </button>
-
-            <button className="withdraw-btn large">
-              Вывести
-            </button>
-
+            <button className="deposit-btn large">Пополнить</button>
+            <button className="withdraw-btn large">Вывести</button>
           </div>
 
 
-          {/* БОЛЬШОЙ БЛОК ИНВЕНТАРЯ */}
-          <div className="inventory-block">
-            <div className="inventory-empty">
-              В инвентаре пока пусто
+          {/* ОБЁРТКА С ТАКОЙ ЖЕ ШИРИНОЙ КАК PROFILE-CARD */}
+          <div className="inventory-wrapper">
+            <div className="inventory-block">
+              <div className="inventory-empty">
+                В инвентаре пока пусто
+              </div>
             </div>
           </div>
 
@@ -161,20 +118,15 @@ function App() {
 
 
       {(activeTab === 'Бонусы' || activeTab === 'Розыгрыши') && (
-
         <div className="empty-page">
-
           <div className="empty-glass">
             {activeTab} — скоро 🚀
           </div>
-
         </div>
-
       )}
 
 
       <div className="bottom-nav">
-
         {tabs.map(tab => (
           <div
             key={tab}
@@ -184,7 +136,6 @@ function App() {
             {tab}
           </div>
         ))}
-
       </div>
 
     </div>
