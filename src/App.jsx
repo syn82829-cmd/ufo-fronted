@@ -34,13 +34,13 @@ function App() {
       id: 5,
       image: "/cases/case5.png.PNG",
       name: "Get in Touch",
-      price: "899"
+      price: "899 ⭐️"
     },
     {
       id: 6,
       image: "/cases/case6.png.PNG",
       name: "Space Trash",
-      price: "599"
+      price: "599 ⭐️"
     },
     {
       id: 7,
