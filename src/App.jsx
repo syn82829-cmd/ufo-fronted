@@ -25,28 +25,21 @@ function App() {
   const tabs = ['Бонусы', 'Розыгрыши', 'Главная', 'Профиль']
 
 
-  /* ============================= */
-  /* TELEGRAM INIT */
-  /* ============================= */
-
   useEffect(() => {
 
     if (window.Telegram && window.Telegram.WebApp) {
 
       const tg = window.Telegram.WebApp
-
       tg.expand()
 
       const tgUser = tg.initDataUnsafe?.user
 
       if (tgUser) {
-
         setUser({
           id: tgUser.id,
           username: tgUser.username || tgUser.first_name || 'User',
           balance: 0
         })
-
       }
 
     }
@@ -55,17 +48,8 @@ function App() {
 
 
 
-  /* ============================= */
-  /* UI */
-  /* ============================= */
-
   return (
     <div className="app">
-
-
-      {/* ============================= */}
-      {/* HOME */}
-      {/* ============================= */}
 
       {activeTab === 'Главная' && (
         <>
@@ -90,7 +74,6 @@ function App() {
             />
 
           </div>
-
 
           <div className="cases-section">
 
@@ -119,27 +102,16 @@ function App() {
       )}
 
 
-
-      {/* ============================= */}
-      {/* PROFILE */}
-      {/* ============================= */}
-
       {activeTab === 'Профиль' && (
 
         <div className="profile-page">
 
-
-          {/* PROFILE CARD */}
           <div className="profile-card">
 
-
-            {/* AVATAR */}
             <div className="profile-avatar">
               👽
             </div>
 
-
-            {/* USER INFO */}
             <div className="profile-text">
 
               <div className="profile-name">
@@ -152,16 +124,10 @@ function App() {
 
             </div>
 
-
-
-            {/* BALANCE BLOCK */}
+            {/* БЕЗ СЛОВА "Баланс" */}
             <div className="profile-balance-block">
 
               <div className="profile-balance-row">
-
-                <div className="profile-balance-label">
-                  Баланс
-                </div>
 
                 <div className="profile-balance">
                   {user.balance} ⭐️
@@ -171,11 +137,8 @@ function App() {
 
             </div>
 
-
           </div>
 
-
-          {/* ACTION BUTTONS */}
           <div className="profile-actions">
 
             <button className="deposit-btn large">
@@ -188,16 +151,10 @@ function App() {
 
           </div>
 
-
         </div>
 
       )}
 
-
-
-      {/* ============================= */}
-      {/* BONUS / RAFFLES */}
-      {/* ============================= */}
 
       {(activeTab === 'Бонусы' || activeTab === 'Розыгрыши') && (
 
@@ -212,15 +169,9 @@ function App() {
       )}
 
 
-
-      {/* ============================= */}
-      {/* BOTTOM NAV */}
-      {/* ============================= */}
-
       <div className="bottom-nav">
 
         {tabs.map(tab => (
-
           <div
             key={tab}
             className={`nav-item ${activeTab === tab ? 'active' : ''}`}
@@ -228,11 +179,9 @@ function App() {
           >
             {tab}
           </div>
-
         ))}
 
       </div>
-
 
     </div>
   )
