@@ -8,8 +8,6 @@ function Home() {
 
   const navigate = useNavigate()
 
-  const [activeTab, setActiveTab] = useState("Главная")
-
   const [user, setUser] = useState({
     id: "—",
     username: "Гость",
@@ -27,8 +25,6 @@ function Home() {
     { id: 8, image: "/cases/case8.png.PNG", name: "Random Case", price: 999 }
   ]
 
-  const tabs = ["Бонусы", "Розыгрыши", "Главная", "Профиль"]
-
   /* ============================= */
   /* INIT USER */
   /* ============================= */
@@ -40,20 +36,26 @@ function Home() {
       let tgUser = null
 
       if (window.Telegram?.WebApp) {
+
         const tg = window.Telegram.WebApp
         tg.ready()
         tg.expand()
+
         tgUser = tg.initDataUnsafe?.user
+
       }
 
       if (!tgUser) {
+
         tgUser = {
           id: 999999999,
           username: "test_user"
         }
+
       }
 
       try {
+
         const dbUser = await createUser({
           id: tgUser.id,
           username: tgUser.username || ""
@@ -66,11 +68,15 @@ function Home() {
         })
 
       } catch (err) {
+
         console.error("INIT USER ERROR:", err)
+
       }
+
     }
 
     initUser()
+
   }, [])
 
   /* ============================= */
@@ -80,75 +86,70 @@ function Home() {
   return (
     <div className="app">
 
-      {activeTab === "Главная" && (
-        <>
-          <div className="crash-panel" onClick={() => navigate("/crash")}>
-            <div className="crash-title">UFO Crash</div>
-            <div className="multiplier">&gt; x1.63</div>
-            <button className="launch-btn">Запустить НЛО</button>
-            <img src="/ufo.png.PNG" className="ufo-image" alt="" />
-          </div>
+      {/* UFO Crash */}
+      <div
+        className="crash-panel"
+        onClick={() => navigate("/crash")}
+      >
+        <div className="crash-title">UFO Crash</div>
+        <div className="multiplier">&gt; x1.63</div>
 
-          <div className="cases-section">
-            {cases.map(item => (
-              <CaseCard
-                key={item.id}
-                caseItem={item}
-                onClick={() => navigate(`/case/${item.id}`)}
-              />
-            ))}
-          </div>
-        </>
-      )}
+        <button className="launch-btn">
+          Запустить НЛО
+        </button>
 
-      {activeTab === "Профиль" && (
-        <div className="profile-page">
+        <img
+          src="/ufo.png.PNG"
+          className="ufo-image"
+          alt=""
+        />
+      </div>
 
-          <div className="profile-card">
-            <div className="profile-avatar">👽</div>
+      {/* Cases */}
+      <div className="cases-section">
 
-            <div className="profile-text">
-              <div className="profile-name">{user.username}</div>
-              <div className="profile-id">ID: {user.id}</div>
-            </div>
+        {cases.map(item => (
 
-            <div className="profile-balance">
-              {user.balance} ⭐️
-            </div>
-          </div>
+          <CaseCard
+            key={item.id}
+            caseItem={item}
+            onClick={() => navigate(`/case/${item.id}`)}
+          />
 
-          <div className="profile-actions">
-            <button className="deposit-btn large">Пополнить</button>
-            <button className="withdraw-btn large">Вывести</button>
-          </div>
-
-          <div className="inventory-wrapper">
-            <div className="inventory-empty">
-              В инвентаре пока пусто
-            </div>
-          </div>
-
-        </div>
-      )}
-
-      {(activeTab === "Бонусы" || activeTab === "Розыгрыши") && (
-        <div className="empty-page">
-          <div className="empty-glass">
-            {activeTab} — скоро 🚀
-          </div>
-        </div>
-      )}
-
-      <div className="bottom-nav">
-        {tabs.map(tab => (
-          <div
-            key={tab}
-            className={`nav-item ${activeTab === tab ? "active" : ""}`}
-            onClick={() => setActiveTab(tab)}
-          >
-            {tab}
-          </div>
         ))}
+
+      </div>
+
+      {/* Bottom nav */}
+      <div className="bottom-nav">
+
+        <div
+          className="nav-item"
+          onClick={() => navigate("/bonus")}
+        >
+          Бонусы
+        </div>
+
+        <div
+          className="nav-item"
+          onClick={() => navigate("/giveaways")}
+        >
+          Розыгрыши
+        </div>
+
+        <div
+          className="nav-item active"
+        >
+          Главная
+        </div>
+
+        <div
+          className="nav-item"
+          onClick={() => navigate("/profile")}
+        >
+          Профиль
+        </div>
+
       </div>
 
     </div>
