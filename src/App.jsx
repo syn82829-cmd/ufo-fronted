@@ -34,51 +34,53 @@ function App() {
 
     async function initUser() {
 
-      if (!window.Telegram || !window.Telegram.WebApp) {
-        console.log("Telegram WebApp not found")
-        return
+      console.log("INIT USER START")
+
+      let tgUser = null
+
+      if (window.Telegram && window.Telegram.WebApp) {
+
+        const tg = window.Telegram.WebApp
+
+        tg.ready()
+        tg.expand()
+
+        tgUser = tg.initDataUnsafe?.user
+
+        console.log("Telegram user:", tgUser)
+
       }
 
-      const tg = window.Telegram.WebApp
-
-      tg.ready()
-      tg.expand()
-
-      const tgUser = tg.initDataUnsafe?.user
-
+      // 👇 fallback для теста вне Telegram
       if (!tgUser) {
-        console.log("Telegram user not found")
-        return
-      }
 
-      console.log("Telegram user:", tgUser)
+        console.log("TEST MODE: using fake user")
+
+        tgUser = {
+          id: 999999999,
+          username: "test_user"
+        }
+
+      }
 
       try {
 
-        // 🔥 ПЕРЕДАЁМ TG USER В BACKEND
         const dbUser = await createUser({
           id: tgUser.id,
-          username: tgUser.username || tgUser.first_name || ""
+          username: tgUser.username || ""
         })
 
-        console.log("DB user:", dbUser)
+        console.log("DB USER CREATED:", dbUser)
 
         setUser({
-          id: tgUser.id,
-          username: dbUser?.username || tgUser.username || tgUser.first_name,
-          balance: dbUser?.balance || 0
+          id: dbUser.id,
+          username: dbUser.username,
+          balance: dbUser.balance
         })
 
       } catch (error) {
 
-        console.error("INIT USER ERROR:", error)
-
-        // если backend лёг — всё равно показываем Telegram данные
-        setUser({
-          id: tgUser.id,
-          username: tgUser.username || tgUser.first_name,
-          balance: 0
-        })
+        console.error("CREATE USER ERROR:", error)
 
       }
 
