@@ -1,1 +1,52 @@
+import { useNavigate } from "react-router-dom"
+import "../style.css"
 
+function Bonus() {
+
+  const navigate = useNavigate()
+
+  return (
+    <div className="app">
+
+      <div className="empty-page">
+
+        <div className="empty-glass">
+          Бонусы — скоро 🚀
+        </div>
+
+      </div>
+
+      <div className="bottom-nav">
+
+        <div className="nav-item active">
+          Бонусы
+        </div>
+
+        <div
+          className="nav-item"
+          onClick={() => navigate("/giveaways")}
+        >
+          Розыгрыши
+        </div>
+
+        <div
+          className="nav-item"
+          onClick={() => navigate("/")}
+        >
+          Главная
+        </div>
+
+        <div
+          className="nav-item"
+          onClick={() => navigate("/profile")}
+        >
+          Профиль
+        </div>
+
+      </div>
+
+    </div>
+  )
+}
+
+export default Bonus
