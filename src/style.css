@@ -544,45 +544,112 @@ body {
   display: flex;
   justify-content: center;
 }
-/* CASE PAGE TOP IMAGE */
+/* ============================= */
+/* CASE PAGE HEADER (CASE + BACK BUTTON) */
+/* ============================= */
 
-.casepage-top {
+.casepage-header {
+  position: relative;
   display: flex;
   justify-content: center;
+  align-items: center;
   margin-top: 40px;
-  margin-bottom: 30px;
+  margin-bottom: 35px;
 }
 
+/* BACK BUTTON */
+
+.casepage-back-btn {
+  position: absolute;
+  left: 20px;
+
+  width: 52px;
+  height: 52px;
+
+  border-radius: 50%;
+  border: none;
+
+  backdrop-filter: blur(20px);
+  background: rgba(255,255,255,0.08);
+
+  color: white;
+  font-size: 24px;
+
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition: 0.2s ease;
+}
+
+.casepage-back-btn:hover {
+  transform: scale(1.06);
+  background: rgba(255,255,255,0.14);
+}
+
+/* CASE IMAGE */
+
 .casepage-case-image {
-  width: 180px;
+  width: 200px;
   object-fit: contain;
 }
 
+/* ============================= */
 /* DROPS GRID */
+/* ============================= */
 
 .casepage-drops {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-  padding: 0 20px 120px;
+
+  gap: 18px;
+
+  padding-left: 20px;
+  padding-right: 20px;
+
+  margin-top: 20px;
+  padding-bottom: 140px;
 }
 
-/* DROP CARD (glass like case cards) */
+/* ============================= */
+/* DROP CARD */
+/* ============================= */
 
 .drop-card {
-  backdrop-filter: blur(20px);
-  background: rgba(255,255,255,0.05);
-  border-radius: 16px;
-  padding: 14px;
+  backdrop-filter: blur(25px);
+  background: rgba(255,255,255,0.06);
+
+  border-radius: 18px;
+
+  padding: 18px;
+
   text-align: center;
+
+  transition: 0.2s ease;
 }
 
-.drop-image {
-  width: 80px;
-  margin-bottom: 8px;
+.drop-card:hover {
+  transform: translateY(-3px);
+  background: rgba(255,255,255,0.09);
 }
+
+/* DROP IMAGE */
+
+.drop-image {
+  width: 100px;
+  height: 100px;
+
+  object-fit: contain;
+
+  margin-bottom: 10px;
+}
+
+/* DROP NAME */
 
 .drop-name {
   color: white;
-  font-size: 14px;
+  font-size: 15px;
+  font-weight: 500;
 }
