@@ -653,3 +653,46 @@ body {
   font-size: 15px;
   font-weight: 500;
 }
+/* ============================= */
+/* OPEN BUTTON */
+/* ============================= */
+
+.casepage-open-wrapper {
+
+  position: fixed;
+
+  bottom: 30px;
+  left: 0;
+  right: 0;
+
+  display: flex;
+  justify-content: center;
+
+}
+
+.casepage-open-btn {
+
+  backdrop-filter: blur(25px);
+  background: rgba(255,255,255,0.10);
+
+  border: none;
+  border-radius: 16px;
+
+  padding: 16px 42px;
+
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+
+}
+
+.casepage-open-btn:hover {
+
+  transform: scale(1.05);
+  background: rgba(255,255,255,0.16);
+
+}
