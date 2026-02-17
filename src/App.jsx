@@ -1,5 +1,5 @@
-import { createUser, getBalance } from "./api"
 import { useState, useEffect } from 'react'
+import { createUser, getBalance } from "./api"
 import './style.css'
 
 function App() {
@@ -26,24 +26,49 @@ function App() {
   const tabs = ['Бонусы', 'Розыгрыши', 'Главная', 'Профиль']
 
 
+  /* ============================= */
+  /* INIT USER + DATABASE */
+  /* ============================= */
+
   useEffect(() => {
 
-    if (window.Telegram && window.Telegram.WebApp) {
+    async function initUser() {
 
-      const tg = window.Telegram.WebApp
-      tg.expand()
+      try {
 
-      const tgUser = tg.initDataUnsafe?.user
+        if (window.Telegram && window.Telegram.WebApp) {
 
-      if (tgUser) {
-        setUser({
-          id: tgUser.id,
-          username: tgUser.username || tgUser.first_name || 'User',
-          balance: 0
-        })
+          const tg = window.Telegram.WebApp
+          tg.expand()
+
+          const tgUser = tg.initDataUnsafe?.user
+
+          if (!tgUser) return
+
+          // создаем пользователя в базе
+          await createUser()
+
+          // получаем баланс из базы
+          const balanceData = await getBalance(tgUser.id)
+
+          // обновляем frontend
+          setUser({
+            id: tgUser.id,
+            username: tgUser.username || tgUser.first_name || 'User',
+            balance: balanceData.balance || 0
+          })
+
+        }
+
+      } catch (error) {
+
+        console.error("INIT USER ERROR:", error)
+
       }
 
     }
+
+    initUser()
 
   }, [])
 
@@ -52,6 +77,7 @@ function App() {
   return (
     <div className="app">
 
+      {/* HOME */}
       {activeTab === 'Главная' && (
         <>
           <div className="crash-panel">
@@ -74,6 +100,7 @@ function App() {
       )}
 
 
+      {/* PROFILE */}
       {activeTab === 'Профиль' && (
 
         <div className="profile-page">
@@ -104,7 +131,6 @@ function App() {
           </div>
 
 
-          {/* ОБЁРТКА С ТАКОЙ ЖЕ ШИРИНОЙ КАК PROFILE-CARD */}
           <div className="inventory-wrapper">
             <div className="inventory-block">
               <div className="inventory-empty">
@@ -118,6 +144,7 @@ function App() {
       )}
 
 
+      {/* OTHER TABS */}
       {(activeTab === 'Бонусы' || activeTab === 'Розыгрыши') && (
         <div className="empty-page">
           <div className="empty-glass">
@@ -127,6 +154,7 @@ function App() {
       )}
 
 
+      {/* NAV */}
       <div className="bottom-nav">
         {tabs.map(tab => (
           <div
