@@ -51,7 +51,7 @@ function App() {
 
       }
 
-      // 👇 fallback для теста вне Telegram
+      // fallback для теста вне Telegram
       if (!tgUser) {
 
         console.log("TEST MODE: using fake user")
@@ -70,12 +70,13 @@ function App() {
           username: tgUser.username || ""
         })
 
-        console.log("DB USER CREATED:", dbUser)
+        console.log("DB USER:", dbUser)
 
+        // 🔥 ВАЖНО: используем telegram_id вместо UUID
         setUser({
-          id: dbUser.id,
-          username: dbUser.username,
-          balance: dbUser.balance
+          id: dbUser?.telegram_id || tgUser.id,
+          username: dbUser?.username || tgUser.username || "Гость",
+          balance: dbUser?.balance ?? 0
         })
 
       } catch (error) {
