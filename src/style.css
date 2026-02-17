@@ -544,3 +544,45 @@ body {
   display: flex;
   justify-content: center;
 }
+/* CASE PAGE TOP IMAGE */
+
+.casepage-top {
+  display: flex;
+  justify-content: center;
+  margin-top: 40px;
+  margin-bottom: 30px;
+}
+
+.casepage-case-image {
+  width: 180px;
+  object-fit: contain;
+}
+
+/* DROPS GRID */
+
+.casepage-drops {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  padding: 0 20px 120px;
+}
+
+/* DROP CARD (glass like case cards) */
+
+.drop-card {
+  backdrop-filter: blur(20px);
+  background: rgba(255,255,255,0.05);
+  border-radius: 16px;
+  padding: 14px;
+  text-align: center;
+}
+
+.drop-image {
+  width: 80px;
+  margin-bottom: 8px;
+}
+
+.drop-name {
+  color: white;
+  font-size: 14px;
+}
