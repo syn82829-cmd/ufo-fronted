@@ -7,22 +7,23 @@ if (window.Telegram) {
   window.Telegram.WebApp.ready()
   window.Telegram.WebApp.expand()
 
-  const user = window.Telegram.WebApp.initDataUnsafe?.user
+  const tg = window.Telegram.WebApp
+  const user = tg.initDataUnsafe?.user
 
   if (user) {
-    fetch('https://ufo-backend-1.onrender.com/user', {
-      method: 'POST',
+    fetch("https://ufo-backend-1.onrender.com/user", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json"
       },
       body: JSON.stringify({
         id: user.id,
-        username: user.username
+        username: user.username || ""
       })
     })
-    .then(res => res.json())
-    .then(data => console.log('User synced:', data))
-    .catch(err => console.error('Sync error:', err))
+      .then(res => res.json())
+      .then(data => console.log("User created:", data))
+      .catch(err => console.error("Error:", err))
   }
 }
 
