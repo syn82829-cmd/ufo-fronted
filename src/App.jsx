@@ -26,47 +26,59 @@ function App() {
   const tabs = ['Бонусы', 'Розыгрыши', 'Главная', 'Профиль']
 
 
+  /* ============================= */
   /* INIT USER + DATABASE */
+  /* ============================= */
+
   useEffect(() => {
 
     async function initUser() {
 
+      if (!window.Telegram || !window.Telegram.WebApp) {
+        console.log("Telegram WebApp not found")
+        return
+      }
+
+      const tg = window.Telegram.WebApp
+
+      tg.ready()
+      tg.expand()
+
+      const tgUser = tg.initDataUnsafe?.user
+
+      if (!tgUser) {
+        console.log("Telegram user not found")
+        return
+      }
+
+      console.log("Telegram user:", tgUser)
+
       try {
 
-        if (!window.Telegram || !window.Telegram.WebApp) {
-          console.log("Telegram WebApp not found")
-          return
-        }
-
-        const tg = window.Telegram.WebApp
-
-        tg.ready()
-        tg.expand()
-
-        const tgUser = tg.initDataUnsafe?.user
-
-        if (!tgUser) {
-          console.log("Telegram user not found")
-          return
-        }
-
-        console.log("Telegram user:", tgUser)
-
-        // создаем / получаем пользователя из backend
-        const dbUser = await createUser()
+        // 🔥 ПЕРЕДАЁМ TG USER В BACKEND
+        const dbUser = await createUser({
+          id: tgUser.id,
+          username: tgUser.username || tgUser.first_name || ""
+        })
 
         console.log("DB user:", dbUser)
 
-        // используем данные ИЗ БАЗЫ (это важно)
         setUser({
-          id: dbUser.id,
-          username: dbUser.username || tgUser.first_name || 'User',
-          balance: dbUser.balance || 0
+          id: tgUser.id,
+          username: dbUser?.username || tgUser.username || tgUser.first_name,
+          balance: dbUser?.balance || 0
         })
 
       } catch (error) {
 
         console.error("INIT USER ERROR:", error)
+
+        // если backend лёг — всё равно показываем Telegram данные
+        setUser({
+          id: tgUser.id,
+          username: tgUser.username || tgUser.first_name,
+          balance: 0
+        })
 
       }
 
@@ -77,6 +89,10 @@ function App() {
   }, [])
 
 
+
+  /* ============================= */
+  /* UI */
+  /* ============================= */
 
   return (
     <div className="app">
@@ -102,9 +118,7 @@ function App() {
         </>
       )}
 
-
       {activeTab === 'Профиль' && (
-
         <div className="profile-page">
 
           <div className="profile-card">
@@ -126,12 +140,10 @@ function App() {
 
           </div>
 
-
           <div className="profile-actions">
             <button className="deposit-btn large">Пополнить</button>
             <button className="withdraw-btn large">Вывести</button>
           </div>
-
 
           <div className="inventory-wrapper">
             <div className="inventory-block">
@@ -142,9 +154,7 @@ function App() {
           </div>
 
         </div>
-
       )}
-
 
       {(activeTab === 'Бонусы' || activeTab === 'Розыгрыши') && (
         <div className="empty-page">
@@ -153,7 +163,6 @@ function App() {
           </div>
         </div>
       )}
-
 
       <div className="bottom-nav">
         {tabs.map(tab => (
