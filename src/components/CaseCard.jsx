@@ -5,17 +5,28 @@ function CaseCard({ caseItem }) {
   const navigate = useNavigate()
 
   function openCase() {
+
     navigate(`/case/${caseItem.id}`, {
       state: caseItem
     })
+
   }
 
   return (
-    <div className="case-card" onClick={openCase}>
+
+    <div
+      className="case-card"
+      onClick={openCase}
+    >
+
+      {/* CASE NAME */}
 
       <div className="case-title">
         {caseItem.name}
       </div>
+
+
+      {/* CASE IMAGE */}
 
       <img
         src={caseItem.image}
@@ -23,12 +34,17 @@ function CaseCard({ caseItem }) {
         alt={caseItem.name}
       />
 
+
+      {/* PRICE */}
+
       <div className="case-price-badge">
-        {caseItem.price}
+        ⭐ {caseItem.price}
       </div>
 
     </div>
+
   )
+
 }
 
 export default CaseCard
