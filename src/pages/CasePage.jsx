@@ -1,5 +1,4 @@
 import { useLocation, useNavigate } from "react-router-dom"
-import "../style.css"
 
 function CasePage() {
 
@@ -8,10 +7,6 @@ function CasePage() {
 
   const caseData = location.state
 
-  /* ============================= */
-  /* TEMP DROPS (потом из базы) */
-  /* ============================= */
-
   const drops = [
     { id: 1, name: "Common Star", image: "/drops/drop1.png" },
     { id: 2, name: "Blue Plasma", image: "/drops/drop2.png" },
@@ -19,40 +14,18 @@ function CasePage() {
     { id: 4, name: "Dark Energy", image: "/drops/drop4.png" }
   ]
 
-  /* ============================= */
-  /* FALLBACK */
-  /* ============================= */
-
   if (!caseData) {
-
-    return (
-      <div className="app">
-
-        <div className="empty-page">
-
-          <div className="empty-glass">
-            Case not found
-          </div>
-
-        </div>
-
-      </div>
-    )
-
+    return <div className="app">Case not found</div>
   }
-
-  /* ============================= */
-  /* UI */
-  /* ============================= */
 
   return (
 
     <div className="app">
 
       {/* HEADER */}
-
       <div className="casepage-header">
 
+        {/* BACK BUTTON */}
         <button
           className="casepage-back-btn"
           onClick={() => navigate(-1)}
@@ -60,6 +33,7 @@ function CasePage() {
           ←
         </button>
 
+        {/* CASE IMAGE */}
         <img
           src={caseData.image}
           className="casepage-case-image"
@@ -69,16 +43,22 @@ function CasePage() {
       </div>
 
 
-      {/* DROPS */}
+      {/* OPEN BUTTON UNDER CASE */}
+      <div className="casepage-open-container">
 
+        <button className="casepage-open-btn">
+          Открыть за ⭐ {caseData.price}
+        </button>
+
+      </div>
+
+
+      {/* DROPS */}
       <div className="casepage-drops">
 
         {drops.map(drop => (
 
-          <div
-            key={drop.id}
-            className="drop-card"
-          >
+          <div key={drop.id} className="drop-card">
 
             <img
               src={drop.image}
@@ -95,20 +75,6 @@ function CasePage() {
         ))}
 
       </div>
-
-
-      {/* OPEN BUTTON (на будущее) */}
-
-      <div className="casepage-open-wrapper">
-
-        <button className="casepage-open-btn">
-
-          Открыть кейс
-
-        </button>
-
-      </div>
-
 
     </div>
 
