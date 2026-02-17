@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { createUser, getBalance } from "./api"
+import { createUser } from "./api"
 import './style.css'
 
 function App() {
@@ -26,39 +26,43 @@ function App() {
   const tabs = ['Бонусы', 'Розыгрыши', 'Главная', 'Профиль']
 
 
-  /* ============================= */
   /* INIT USER + DATABASE */
-  /* ============================= */
-
   useEffect(() => {
 
     async function initUser() {
 
       try {
 
-        if (window.Telegram && window.Telegram.WebApp) {
-
-          const tg = window.Telegram.WebApp
-          tg.expand()
-
-          const tgUser = tg.initDataUnsafe?.user
-
-          if (!tgUser) return
-
-          // создаем пользователя в базе
-          await createUser()
-
-          // получаем баланс из базы
-          const balanceData = await getBalance(tgUser.id)
-
-          // обновляем frontend
-          setUser({
-            id: tgUser.id,
-            username: tgUser.username || tgUser.first_name || 'User',
-            balance: balanceData.balance || 0
-          })
-
+        if (!window.Telegram || !window.Telegram.WebApp) {
+          console.log("Telegram WebApp not found")
+          return
         }
+
+        const tg = window.Telegram.WebApp
+
+        tg.ready()
+        tg.expand()
+
+        const tgUser = tg.initDataUnsafe?.user
+
+        if (!tgUser) {
+          console.log("Telegram user not found")
+          return
+        }
+
+        console.log("Telegram user:", tgUser)
+
+        // создаем / получаем пользователя из backend
+        const dbUser = await createUser()
+
+        console.log("DB user:", dbUser)
+
+        // используем данные ИЗ БАЗЫ (это важно)
+        setUser({
+          id: dbUser.id,
+          username: dbUser.username || tgUser.first_name || 'User',
+          balance: dbUser.balance || 0
+        })
 
       } catch (error) {
 
@@ -77,7 +81,6 @@ function App() {
   return (
     <div className="app">
 
-      {/* HOME */}
       {activeTab === 'Главная' && (
         <>
           <div className="crash-panel">
@@ -100,7 +103,6 @@ function App() {
       )}
 
 
-      {/* PROFILE */}
       {activeTab === 'Профиль' && (
 
         <div className="profile-page">
@@ -144,7 +146,6 @@ function App() {
       )}
 
 
-      {/* OTHER TABS */}
       {(activeTab === 'Бонусы' || activeTab === 'Розыгрыши') && (
         <div className="empty-page">
           <div className="empty-glass">
@@ -154,7 +155,6 @@ function App() {
       )}
 
 
-      {/* NAV */}
       <div className="bottom-nav">
         {tabs.map(tab => (
           <div
