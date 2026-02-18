@@ -583,16 +583,19 @@ body {
 
 .casepage-title-row {
 
-  position: relative;
+  position: relative; /* 🔥 теперь кнопки будут привязаны сюда */
 
   width: 100%;
+  max-width: 520px; /* такая же ширина как у контента */
+  padding: 0 16px;
+
   height: 52px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  margin-bottom: 18px;
+  margin: 0 auto 18px auto;
 
 }
 
@@ -603,7 +606,6 @@ body {
   font-size: 24px;
   font-weight: 700;
   color: white;
-
   text-align: center;
 
 }
@@ -614,12 +616,13 @@ body {
 
 .casepage-header-btn {
 
-  position: fixed; /* 🔥 ВАЖНО — теперь не зависит от контейнера */
+  position: absolute; /* 🔥 больше не fixed */
 
-  top: calc(env(safe-area-inset-top) + 70px);
+  top: 50%;
+  transform: translateY(-50%);
 
-  width: 52px;
-  height: 52px;
+  width: 48px;
+  height: 48px;
 
   border-radius: 50%;
   border: none;
@@ -628,7 +631,7 @@ body {
   background: rgba(255,255,255,0.08);
 
   color: white;
-  font-size: 22px;
+  font-size: 20px;
 
   cursor: pointer;
 
@@ -638,45 +641,21 @@ body {
 
   transition: 0.2s ease;
 
-  z-index: 50;
-
 }
 
 .casepage-header-btn:hover {
-  transform: scale(1.08);
+  transform: translateY(-50%) scale(1.08);
   background: rgba(255,255,255,0.16);
 }
 
-/* ============================= */
-/* SMART CONTENT EDGES */
-/* Чтобы совпадало с сеткой дропов */
-/* ============================= */
-
-:root {
-  --content-max-width: 520px;
-  --content-padding: 16px;
-}
-
 /* ← НАЗАД */
-
 .casepage-back-btn {
-
-  left: max(
-    calc((100vw - var(--content-max-width)) / 2 + var(--content-padding)),
-    calc(env(safe-area-inset-left) + 12px)
-  );
-
+  left: 0;
 }
 
 /* ⚙ НАСТРОЙКИ */
-
 .casepage-settings-btn {
-
-  right: max(
-    calc((100vw - var(--content-max-width)) / 2 + var(--content-padding)),
-    calc(env(safe-area-inset-right) + 12px)
-  );
-
+  right: 0;
 }
 /* ============================= */
 /* CASE IMAGE */
