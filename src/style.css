@@ -361,14 +361,15 @@ body {
 
   display: flex;
   flex-direction: column;
-  align-items: center; /* центрирует карточку */
+  align-items: center;
 
   padding-top: 20px;
+
 }
 
 
 /* ============================= */
-/* PROFILE CARD 16:4 */
+/* PROFILE CARD */
 /* ============================= */
 
 .profile-card {
@@ -380,12 +381,12 @@ body {
 
   background: rgba(255,255,255,0.05);
 
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 
   border-radius: 26px;
 
-  border: 1px solid rgba(255,255,255,0.22);
+  border: 1px solid rgba(255,255,255,0.18);
 
   position: relative;
 
@@ -393,6 +394,7 @@ body {
     0 20px 60px rgba(0,0,0,0.7);
 
   overflow: hidden;
+
 }
 
 
@@ -422,55 +424,69 @@ body {
 
   border: 1px solid rgba(0,255,170,0.7);
 
-  animation: greenPulse 5s infinite;
 }
 
 
 /* ============================= */
-/* PROFILE NAME */
+/* PROFILE INFO CONTAINER */
 /* ============================= */
 
-.profile-name {
+.profile-info {
 
   position: absolute;
 
-  top: 20px;
+  top: 18px;
   left: 100px;
+
+  display: flex;
+  flex-direction: column;
+
+}
+
+
+/* USERNAME */
+
+.profile-name {
 
   font-size: 20px;
   font-weight: 600;
 
   color: white;
+
 }
 
 
-/* ============================= */
 /* TELEGRAM ID */
-/* ============================= */
 
 .profile-id {
 
-  position: absolute;
-
-  top: 48px;
-  left: 100px;
-
   font-size: 14px;
 
+  margin-top: 4px;
+
   color: rgba(255,255,255,0.65);
+
 }
+
+
 /* ============================= */
-/* BALANCE INSIDE PROFILE CARD */
+/* BALANCE (RIGHT SIDE) */
 /* ============================= */
 
-.profile-balance-block {
+.profile-balance {
+
   position: absolute;
+
+  top: 18px;
   right: 22px;
-  top: 22px;
+
   font-size: 26px;
   font-weight: 700;
+
   color: #00ffaa;
+
   text-shadow: 0 0 12px rgba(0,255,170,0.6);
+
 }
 
 /* ============================= */
