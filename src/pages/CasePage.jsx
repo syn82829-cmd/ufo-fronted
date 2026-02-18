@@ -1,21 +1,24 @@
 import { useLocation, useNavigate } from "react-router-dom"
+import Lottie from "lottie-react"
+
+import { cases } from "../data/cases"
+import { darkMatterAnimations } from "../data/animations"
 
 function CasePage() {
 
   const location = useLocation()
   const navigate = useNavigate()
 
-  const caseData = location.state
+  const caseState = location.state
 
-  const drops = [
-    { id: 1, name: "Common Star", image: "/drops/drop1.png" },
-    { id: 2, name: "Blue Plasma", image: "/drops/drop2.png" },
-    { id: 3, name: "Alien Core", image: "/drops/drop3.png" },
-    { id: 4, name: "Dark Energy", image: "/drops/drop4.png" }
-  ]
+  if (!caseState) {
+    return <div className="app">Case not found</div>
+  }
+
+  const caseData = cases[caseState.id]
 
   if (!caseData) {
-    return <div className="app">Case not found</div>
+    return <div className="app">Case config missing</div>
   }
 
   return (
@@ -24,10 +27,8 @@ function CasePage() {
       {/* HEADER */}
       <div className="casepage-header">
 
-        {/* TITLE ROW (КНОПКИ + НАЗВАНИЕ НА ОДНОЙ ЛИНИИ) */}
         <div className="casepage-title-row">
 
-          {/* BACK */}
           <button
             className="casepage-header-btn casepage-back-btn"
             onClick={() => navigate(-1)}
@@ -35,12 +36,10 @@ function CasePage() {
             ←
           </button>
 
-          {/* TITLE */}
           <div className="casepage-title">
             {caseData.name}
           </div>
 
-          {/* SETTINGS */}
           <button
             className="casepage-header-btn casepage-settings-btn"
           >
@@ -49,37 +48,37 @@ function CasePage() {
 
         </div>
 
-        {/* CASE IMAGE */}
         <img
-          src={caseData.image}
+          src={caseState.image}
           className="casepage-case-image"
           alt={caseData.name}
         />
 
-        {/* OPEN BUTTON */}
         <button className="casepage-open-btn">
-          Открыть кейс — {caseData.price} ⭐️
+          Открыть кейс — {caseState.price} ⭐️
         </button>
 
       </div>
 
       {/* DROPS */}
       <div className="casepage-drops">
-        {drops.map(drop => (
+
+        {caseData.drops.map((drop) => (
           <div key={drop.id} className="drop-card">
 
-            <img
-              src={drop.image}
-              className="drop-image"
-              alt={drop.name}
+            <Lottie
+              animationData={darkMatterAnimations[drop.id]}
+              loop
+              className="drop-lottie"
             />
 
             <div className="drop-name">
-              {drop.name}
+              {drop.id}
             </div>
 
           </div>
         ))}
+
       </div>
 
     </div>
