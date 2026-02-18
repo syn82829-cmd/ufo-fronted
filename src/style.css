@@ -616,79 +616,68 @@ body {
 
 
 /* ============================= */
-/* CASE PAGE HEADER (BACK + SETTINGS) */
+/* CASE PAGE HEADER (CASE + BACK + SETTINGS) */
 /* ============================= */
 
 .casepage-header {
+  position: relative;
   display: flex;
-  justify-content: space-between; /* кнопки по краям */
-  align-items: center;           /* выравнивание по вертикали на одном уровне с текстом */
-  margin: 30px 20px 20px 20px;  /* отступ сверху/снизу */
-}
-
-/* BACK BUTTON */
-.casepage-back-btn {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  border: none;
-  backdrop-filter: blur(25px);
-  background: rgba(255,255,255,0.12);
-  color: white;
-  font-size: 22px;
-  display: flex;
-  align-items: center;
   justify-content: center;
-  cursor: pointer;
-  transition: 0.2s ease;
-}
-
-.casepage-back-btn:hover {
-  transform: scale(1.06);
-  background: rgba(255,255,255,0.18);
-}
-
-/* SETTINGS BUTTON */
-.casepage-settings-btn {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  border: none;
-  backdrop-filter: blur(25px);
-  background: rgba(255,255,255,0.12);
-  color: white;
-  font-size: 22px;
-  display: flex;
   align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: 0.2s ease;
+  margin-top: 40px;
+  margin-bottom: 35px;
 }
 
-.casepage-settings-btn:hover {
-  transform: scale(1.06);
-  background: rgba(255,255,255,0.18);
-}
-
-/* CASE NAME + IMAGE CENTERED */
-.casepage-case-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 20px; /* чтобы не прилипало к кнопкам */
-}
-
-.casepage-case-name {
+/* CASE TITLE ABOVE IMAGE */
+.casepage-case-title {
+  position: absolute;
+  top: 14px; /* можно подрегулировать под визуально центр текста */
   font-size: 22px;
   font-weight: 600;
   color: white;
-  margin-bottom: 12px;
+  text-align: center;
 }
 
-.casepage-case-image {
-  width: 200px;
-  object-fit: contain;
-  margin-bottom: 16px;
+/* BACK BUTTON — LEFT */
+.casepage-back-btn {
+  position: absolute;
+  left: 12px;
+  top: 50%; 
+  transform: translateY(-50%); /* выравнивание по центру относительно кейса */
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  backdrop-filter: blur(25px);
+  background: rgba(255,255,255,0.12);
+  color: white;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1000;
+}
+
+/* SETTINGS BUTTON — RIGHT */
+.casepage-settings-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%; 
+  transform: translateY(-50%);
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  backdrop-filter: blur(25px);
+  background: rgba(255,255,255,0.12);
+  color: white;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1000;
 }
 
 
