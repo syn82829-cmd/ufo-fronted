@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom"
-import { useState } from "react"
+import { useState, useRef } from "react"
 import Lottie from "lottie-react"
 
 import { cases } from "../data/cases"
@@ -14,14 +14,37 @@ function CasePage() {
 
   const [activeDrop, setActiveDrop] = useState(null)
 
+  const lottieRefs = useRef({})
+
   if (!caseData) {
     return <div className="app">Case config missing</div>
+  }
+
+  const handleClick = (dropId) => {
+
+    // если нажали на уже активный — просто перезапускаем
+    if (activeDrop === dropId) {
+      lottieRefs.current[dropId]?.goToAndPlay(0, true)
+      return
+    }
+
+    // останавливаем все
+    Object.values(lottieRefs.current).forEach(anim => {
+      anim?.stop()
+    })
+
+    // активируем новый
+    setActiveDrop(dropId)
+
+    // запускаем
+    setTimeout(() => {
+      lottieRefs.current[dropId]?.goToAndPlay(0, true)
+    }, 0)
   }
 
   return (
     <div className="app">
 
-      {/* HEADER */}
       <div className="casepage-header">
 
         <div className="casepage-title-row">
@@ -55,36 +78,29 @@ function CasePage() {
 
       </div>
 
-      {/* DROPS */}
       <div className="casepage-drops">
 
-        {caseData.drops.map((drop) => {
+        {caseData.drops.map((drop) => (
+          <div
+            key={drop.id}
+            className="drop-card"
+            onClick={() => handleClick(drop.id)}
+          >
 
-          const isActive = activeDrop === drop.id
+            <Lottie
+              lottieRef={(el) => (lottieRefs.current[drop.id] = el)}
+              animationData={darkMatterAnimations[drop.id]}
+              loop={false}
+              autoplay={false}
+              className="drop-lottie"
+            />
 
-          return (
-            <div
-              key={drop.id}
-              className="drop-card"
-              onClick={() =>
-                setActiveDrop(isActive ? null : drop.id)
-              }
-            >
-
-              <Lottie
-                animationData={darkMatterAnimations[drop.id]}
-                loop
-                autoplay={isActive}
-                className="drop-lottie"
-              />
-
-              <div className="drop-name">
-                {drop.id}
-              </div>
-
+            <div className="drop-name">
+              {drop.id}
             </div>
-          )
-        })}
+
+          </div>
+        ))}
 
       </div>
 
