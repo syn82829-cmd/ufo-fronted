@@ -616,71 +616,79 @@ body {
 
 
 /* ============================= */
-/* BACK BUTTON — REAL LEFT CORNER */
+/* CASE PAGE HEADER (BACK + SETTINGS) */
 /* ============================= */
 
-.casepage-back-btn {
-
-  position: fixed;
-
-  top: 10px;
-  left: 12px;
-
-  width: 56px;
-  height: 56px;
-
-  border-radius: 50%;
-  border: none;
-
-  backdrop-filter: blur(25px);
-  background: rgba(255,255,255,0.12);
-
-  color: white;
-  font-size: 22px;
-
+.casepage-header {
   display: flex;
-  align-items: center;
-  justify-content: center;
-
-  cursor: pointer;
-
-  z-index: 1000;
-
+  justify-content: space-between; /* кнопки по краям */
+  align-items: center;           /* выравнивание по вертикали на одном уровне с текстом */
+  margin: 30px 20px 20px 20px;  /* отступ сверху/снизу */
 }
 
-
-
-/* ============================= */
-/* SETTINGS BUTTON — REAL RIGHT CORNER */
-/* ============================= */
-
-.casepage-settings-btn {
-
-  position: fixed;
-
-  top: 10px;
-  right: 12px;
-
+/* BACK BUTTON */
+.casepage-back-btn {
   width: 56px;
   height: 56px;
-
   border-radius: 50%;
   border: none;
-
   backdrop-filter: blur(25px);
   background: rgba(255,255,255,0.12);
-
   color: white;
   font-size: 22px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   cursor: pointer;
+  transition: 0.2s ease;
+}
 
-  z-index: 1000;
+.casepage-back-btn:hover {
+  transform: scale(1.06);
+  background: rgba(255,255,255,0.18);
+}
 
+/* SETTINGS BUTTON */
+.casepage-settings-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  backdrop-filter: blur(25px);
+  background: rgba(255,255,255,0.12);
+  color: white;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.casepage-settings-btn:hover {
+  transform: scale(1.06);
+  background: rgba(255,255,255,0.18);
+}
+
+/* CASE NAME + IMAGE CENTERED */
+.casepage-case-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px; /* чтобы не прилипало к кнопкам */
+}
+
+.casepage-case-name {
+  font-size: 22px;
+  font-weight: 600;
+  color: white;
+  margin-bottom: 12px;
+}
+
+.casepage-case-image {
+  width: 200px;
+  object-fit: contain;
+  margin-bottom: 16px;
 }
 
 
