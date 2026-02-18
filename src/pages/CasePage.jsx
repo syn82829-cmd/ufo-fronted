@@ -1,4 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom"
+import { useState } from "react"
 import Lottie from "lottie-react"
 
 import { cases } from "../data/cases"
@@ -11,6 +12,8 @@ function CasePage() {
 
   const caseData = cases[id]
 
+  const [activeDrop, setActiveDrop] = useState(null)
+
   if (!caseData) {
     return <div className="app">Case config missing</div>
   }
@@ -18,6 +21,7 @@ function CasePage() {
   return (
     <div className="app">
 
+      {/* HEADER */}
       <div className="casepage-header">
 
         <div className="casepage-title-row">
@@ -51,23 +55,36 @@ function CasePage() {
 
       </div>
 
+      {/* DROPS */}
       <div className="casepage-drops">
 
-        {caseData.drops.map((drop) => (
-          <div key={drop.id} className="drop-card">
+        {caseData.drops.map((drop) => {
 
-            <Lottie
-              animationData={darkMatterAnimations[drop.id]}
-              loop
-              className="drop-lottie"
-            />
+          const isActive = activeDrop === drop.id
 
-            <div className="drop-name">
-              {drop.id}
+          return (
+            <div
+              key={drop.id}
+              className="drop-card"
+              onClick={() =>
+                setActiveDrop(isActive ? null : drop.id)
+              }
+            >
+
+              <Lottie
+                animationData={darkMatterAnimations[drop.id]}
+                loop
+                autoplay={isActive}
+                className="drop-lottie"
+              />
+
+              <div className="drop-name">
+                {drop.id}
+              </div>
+
             </div>
-
-          </div>
-        ))}
+          )
+        })}
 
       </div>
 
