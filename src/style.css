@@ -585,8 +585,8 @@ body {
 
   position: relative;
 
-  width: 100%;          /* ВАЖНО — на весь экран */
-  height: 52px;         /* фикс высоты под кнопки */
+  width: 100%;
+  height: 52px;
 
   display: flex;
   align-items: center;
@@ -614,10 +614,10 @@ body {
 
 .casepage-header-btn {
 
-  position: absolute;
+  position: fixed; /* 🔥 ВАЖНО — теперь не зависит от контейнера */
 
-  top: 0;   /* ВАЖНО — не 50% */
-  
+  top: calc(env(safe-area-inset-top) + 70px);
+
   width: 52px;
   height: 52px;
 
@@ -638,6 +638,8 @@ body {
 
   transition: 0.2s ease;
 
+  z-index: 50;
+
 }
 
 .casepage-header-btn:hover {
@@ -645,14 +647,36 @@ body {
   background: rgba(255,255,255,0.16);
 }
 
-/* ← НАЗАД — МАКСИМАЛЬНО ВЛЕВО */
-.casepage-back-btn {
-  left: 0px;
+/* ============================= */
+/* SMART CONTENT EDGES */
+/* Чтобы совпадало с сеткой дропов */
+/* ============================= */
+
+:root {
+  --content-max-width: 520px;
+  --content-padding: 16px;
 }
 
-/* ⚙ НАСТРОЙКИ — МАКСИМАЛЬНО ВПРАВО */
+/* ← НАЗАД */
+
+.casepage-back-btn {
+
+  left: max(
+    calc((100vw - var(--content-max-width)) / 2 + var(--content-padding)),
+    calc(env(safe-area-inset-left) + 12px)
+  );
+
+}
+
+/* ⚙ НАСТРОЙКИ */
+
 .casepage-settings-btn {
-  right: 0px;
+
+  right: max(
+    calc((100vw - var(--content-max-width)) / 2 + var(--content-padding)),
+    calc(env(safe-area-inset-right) + 12px)
+  );
+
 }
 /* ============================= */
 /* CASE IMAGE */
