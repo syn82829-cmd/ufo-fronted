@@ -14,6 +14,7 @@ function CasePage() {
 
   const [activeDrop, setActiveDrop] = useState(null)
 
+  // храним рефы для каждой анимации
   const lottieRefs = useRef({})
 
   if (!caseData) {
@@ -22,23 +23,14 @@ function CasePage() {
 
   const handleClick = (dropId) => {
 
-    const lottie = lottieRefs.current[dropId]
+    setActiveDrop(dropId)
 
-    if (!lottie) return
-
-    if (activeDrop === dropId) {
-      lottie.stop()
-      setActiveDrop(null)
-    } else {
-
-      // остановить предыдущую если была
-      if (activeDrop && lottieRefs.current[activeDrop]) {
-        lottieRefs.current[activeDrop].stop()
-      }
-
-      lottie.play()
-      setActiveDrop(dropId)
+    // если есть реф — запускаем вручную
+    if (lottieRefs.current[dropId]) {
+      lottieRefs.current[dropId].stop()
+      lottieRefs.current[dropId].play()
     }
+
   }
 
   return (
