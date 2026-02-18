@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from "react-router-dom"
+import { useParams, useNavigate } from "react-router-dom"
 import Lottie from "lottie-react"
 
 import { cases } from "../data/cases"
@@ -6,16 +6,10 @@ import { darkMatterAnimations } from "../data/animations"
 
 function CasePage() {
 
-  const location = useLocation()
+  const { id } = useParams()
   const navigate = useNavigate()
 
-  const caseState = location.state
-
-  if (!caseState) {
-    return <div className="app">Case not found</div>
-  }
-
-  const caseData = cases[caseState.id]
+  const caseData = cases[id]
 
   if (!caseData) {
     return <div className="app">Case config missing</div>
@@ -49,13 +43,13 @@ function CasePage() {
         </div>
 
         <img
-          src={caseState.image}
+          src={`/cases/${id}.png`}
           className="casepage-case-image"
           alt={caseData.name}
         />
 
         <button className="casepage-open-btn">
-          Открыть кейс — {caseState.price} ⭐️
+          Открыть кейс
         </button>
 
       </div>
