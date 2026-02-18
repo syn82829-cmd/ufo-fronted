@@ -616,57 +616,70 @@ body {
 
 
 /* ============================= */
-/* BACK BUTTON (LEFT) */
+/* BACK BUTTON — REAL LEFT CORNER */
 /* ============================= */
 
 .casepage-back-btn {
 
-  position: absolute;
+  position: fixed;
 
-  left: 6px;
-  top: 6px;
+  top: 14px;
+  left: 12px;
 
-  width: 54px;
-  height: 54px;
+  width: 56px;
+  height: 56px;
 
   border-radius: 50%;
   border: none;
 
   backdrop-filter: blur(25px);
-  background: rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.12);
 
   color: white;
   font-size: 22px;
 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   cursor: pointer;
+
+  z-index: 1000;
 
 }
 
 
+
 /* ============================= */
-/* SETTINGS BUTTON (RIGHT) */
+/* SETTINGS BUTTON — REAL RIGHT CORNER */
 /* ============================= */
 
 .casepage-settings-btn {
 
-  position: absolute;
+  position: fixed;
 
-  right: 6px;
-  top: 6px;
+  top: 14px;
+  right: 12px;
 
-  width: 54px;
-  height: 54px;
+  width: 56px;
+  height: 56px;
 
   border-radius: 50%;
   border: none;
 
   backdrop-filter: blur(25px);
-  background: rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.12);
 
   color: white;
   font-size: 22px;
 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   cursor: pointer;
+
+  z-index: 1000;
 
 }
 
