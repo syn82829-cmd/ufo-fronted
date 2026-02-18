@@ -570,163 +570,172 @@ body {
 
   display: flex;
   justify-content: center;
-  align-items: flex-start;
 
-  margin-top: 40px;
-  margin-bottom: 10px;
+  padding-top: 30px;
+  margin-bottom: 20px;
 
 }
 
 
+/* CENTER BLOCK */
+
+.casepage-center {
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+}
+
+
+/* TITLE */
+
+.casepage-title {
+
+  color: white;
+
+  font-size: 26px;
+  font-weight: 700;
+
+  margin-bottom: 14px;
+
+}
+
+
+/* CASE IMAGE */
+
+.casepage-case-image {
+
+  width: 240px;
+  object-fit: contain;
+
+  margin-bottom: 16px;
+
+}
+
+
+
 /* ============================= */
-/* BACK BUTTON */
+/* BACK BUTTON (LEFT) */
 /* ============================= */
 
 .casepage-back-btn {
 
   position: absolute;
 
-  left: 20px;
-  top: 0;
+  left: 6px;
+  top: 6px;
 
-  width: 52px;
-  height: 52px;
+  width: 54px;
+  height: 54px;
 
   border-radius: 50%;
   border: none;
 
-  backdrop-filter: blur(20px);
-  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(25px);
+  background: rgba(255,255,255,0.10);
 
   color: white;
-  font-size: 24px;
+  font-size: 22px;
 
   cursor: pointer;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  transition: 0.2s ease;
-
-}
-
-.casepage-back-btn:hover {
-
-  transform: scale(1.06);
-  background: rgba(255,255,255,0.14);
-
 }
 
 
 /* ============================= */
-/* CASE IMAGE */
+/* SETTINGS BUTTON (RIGHT) */
 /* ============================= */
 
-.casepage-case-image {
+.casepage-settings-btn {
 
-  width: 200px;
-  object-fit: contain;
+  position: absolute;
 
-}
+  right: 6px;
+  top: 6px;
 
+  width: 54px;
+  height: 54px;
 
-/* ============================= */
-/* OPEN BUTTON UNDER CASE */
-/* ============================= */
-
-.casepage-open-container {
-
-  display: flex;
-  justify-content: center;
-
-  margin-top: 12px;
-  margin-bottom: 28px;
-
-}
-
-.casepage-open-btn {
+  border-radius: 50%;
+  border: none;
 
   backdrop-filter: blur(25px);
   background: rgba(255,255,255,0.10);
 
+  color: white;
+  font-size: 22px;
+
+  cursor: pointer;
+
+}
+
+
+
+/* ============================= */
+/* OPEN BUTTON */
+/* ============================= */
+
+.casepage-open-btn {
+
+  backdrop-filter: blur(25px);
+  background: rgba(255,255,255,0.12);
+
   border: none;
   border-radius: 16px;
 
-  padding: 16px 42px;
+  padding: 14px 40px;
 
   color: white;
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 600;
 
   cursor: pointer;
 
-  transition: 0.2s ease;
-
 }
 
-.casepage-open-btn:hover {
-
-  transform: scale(1.05);
-  background: rgba(255,255,255,0.16);
-
-}
 
 
 /* ============================= */
-/* DROPS GRID */
+/* DROPS */
 /* ============================= */
 
 .casepage-drops {
 
   display: grid;
+
   grid-template-columns: repeat(2, 1fr);
 
-  gap: 18px;
+  gap: 22px;
 
-  padding-left: 20px;
-  padding-right: 20px;
-
-  padding-bottom: 140px;
+  padding: 0 20px 140px;
 
 }
 
 
-/* ============================= */
-/* DROP CARD */
-/* ============================= */
+
+/* BIGGER DROP CARD */
 
 .drop-card {
 
-  backdrop-filter: blur(25px);
-  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(30px);
+  background: rgba(255,255,255,0.08);
 
-  border-radius: 18px;
+  border-radius: 20px;
 
-  padding: 20px;
+  padding: 22px;
 
   text-align: center;
 
-  transition: 0.2s ease;
-
-}
-
-.drop-card:hover {
-
-  transform: translateY(-3px);
-  background: rgba(255,255,255,0.09);
-
 }
 
 
-/* ============================= */
-/* DROP IMAGE */
-/* ============================= */
+/* BIGGER IMAGE */
 
 .drop-image {
 
-  width: 110px;
-  height: 110px;
+  width: 130px;
+  height: 130px;
 
   object-fit: contain;
 
@@ -735,14 +744,12 @@ body {
 }
 
 
-/* ============================= */
-/* DROP NAME */
-/* ============================= */
+/* NAME */
 
 .drop-name {
 
   color: white;
-  font-size: 15px;
-  font-weight: 500;
+  font-size: 17px;
+  font-weight: 600;
 
 }
