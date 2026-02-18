@@ -615,6 +615,9 @@ body {
 
   position: absolute;
 
+  top: 50%;
+  transform: translateY(-50%);
+
   width: 52px;
   height: 52px;
 
@@ -638,7 +641,7 @@ body {
 }
 
 .casepage-header-btn:hover {
-  transform: scale(1.08);
+  transform: translateY(-50%) scale(1.08);
   background: rgba(255,255,255,0.16);
 }
 
@@ -653,7 +656,6 @@ body {
 .casepage-settings-btn {
   right: 18px;
 }
-
 /* ============================= */
 /* CASE IMAGE */
 /* ============================= */
