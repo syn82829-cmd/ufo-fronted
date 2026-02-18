@@ -18,7 +18,6 @@ function CasePage() {
   return (
     <div className="app">
 
-      {/* HEADER */}
       <div className="casepage-header">
 
         <div className="casepage-title-row">
@@ -34,9 +33,7 @@ function CasePage() {
             {caseData.name}
           </div>
 
-          <button
-            className="casepage-header-btn casepage-settings-btn"
-          >
+          <button className="casepage-header-btn casepage-settings-btn">
             ⚙
           </button>
 
@@ -54,7 +51,6 @@ function CasePage() {
 
       </div>
 
-      {/* DROPS */}
       <div className="casepage-drops">
 
         {caseData.drops.map((drop) => (
