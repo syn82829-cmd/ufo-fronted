@@ -569,112 +569,103 @@ body {
   position: relative;
 
   display: flex;
-  justify-content: center;
-
-  padding-top: 30px;
-  margin-bottom: 20px;
-
-}
-
-
-/* CENTER BLOCK */
-
-.casepage-center {
-
-  display: flex;
   flex-direction: column;
   align-items: center;
 
+  margin-top: 30px;
+  margin-bottom: 25px;
+
 }
 
+/* ============================= */
+/* TITLE ROW (кнопки + название на одной линии) */
+/* ============================= */
+
+.casepage-title-row {
+
+  position: relative;
+
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 18px;
+
+}
 
 /* TITLE */
 
 .casepage-title {
 
+  font-size: 24px;
+  font-weight: 700;
   color: white;
 
-  font-size: 26px;
-  font-weight: 700;
-
-  margin-bottom: 14px;
+  text-align: center;
 
 }
 
+/* ============================= */
+/* HEADER ICON BUTTONS */
+/* ============================= */
 
+.casepage-header-btn {
+
+  position: absolute;
+
+  width: 52px;
+  height: 52px;
+
+  border-radius: 50%;
+  border: none;
+
+  backdrop-filter: blur(20px);
+  background: rgba(255,255,255,0.08);
+
+  color: white;
+  font-size: 22px;
+
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition: 0.2s ease;
+
+}
+
+.casepage-header-btn:hover {
+  transform: scale(1.08);
+  background: rgba(255,255,255,0.16);
+}
+
+/* LEFT BACK */
+
+.casepage-back-btn {
+  left: 18px;
+}
+
+/* RIGHT SETTINGS */
+
+.casepage-settings-btn {
+  right: 18px;
+}
+
+/* ============================= */
 /* CASE IMAGE */
+/* ============================= */
 
 .casepage-case-image {
 
-  width: 240px;
+  width: 220px;
   object-fit: contain;
 
-  margin-bottom: 16px;
+  margin-top: 6px;
 
 }
-
-
-
-/* ============================= */
-/* BACK BUTTON — REAL LEFT CORNER */
-/* ============================= */
-
-.casepage-back-btn {
-
-  position: absolute;
-
-  top: 10px;
-  left: 12px;
-
-  width: 56px;
-  height: 56px;
-
-  border-radius: 50%;
-  border: none;
-
-  backdrop-filter: blur(25px);
-  background: rgba(255,255,255,0.12);
-
-  color: white;
-  font-size: 22px;
-
-
-  cursor: pointer;
-
-
-}
-
-
-
-/* ============================= */
-/* SETTINGS BUTTON — REAL RIGHT CORNER */
-/* ============================= */
-
-.casepage-settings-btn {
-
-  position: absolute;
-
-  top: 10px;
-  right: 12px;
-
-  width: 56px;
-  height: 56px;
-
-  border-radius: 50%;
-  border: none;
-
-  backdrop-filter: blur(25px);
-  background: rgba(255,255,255,0.12);
-
-  color: white;
-  font-size: 22px;
-
-
-  cursor: pointer;
-
-
-}
-
 
 
 /* ============================= */
