@@ -13,6 +13,7 @@ function Profile() {
     balance: 0
   })
 
+
   /* ============================= */
   /* INIT USER */
   /* ============================= */
@@ -34,6 +35,7 @@ function Profile() {
 
       }
 
+      // fallback for dev
       if (!tgUser) {
 
         tgUser = {
@@ -68,6 +70,7 @@ function Profile() {
 
   }, [])
 
+
   /* ============================= */
   /* UI */
   /* ============================= */
@@ -77,14 +80,16 @@ function Profile() {
 
       <div className="profile-page">
 
-        {/* Profile card */}
+        {/* PROFILE CARD */}
         <div className="profile-card">
 
           <div className="profile-avatar">
             👽
           </div>
 
-          <div className="profile-text">
+
+          {/* FIXED CONTAINER */}
+          <div className="profile-info">
 
             <div className="profile-name">
               {user.username}
@@ -96,13 +101,16 @@ function Profile() {
 
           </div>
 
+
+          {/* BALANCE RIGHT SIDE */}
           <div className="profile-balance">
             {user.balance} ⭐️
           </div>
 
         </div>
 
-        {/* Actions */}
+
+        {/* ACTION BUTTONS */}
         <div className="profile-actions">
 
           <button className="deposit-btn large">
@@ -115,7 +123,8 @@ function Profile() {
 
         </div>
 
-        {/* Inventory */}
+
+        {/* INVENTORY */}
         <div className="inventory-wrapper">
 
           <div className="inventory-block">
@@ -130,7 +139,8 @@ function Profile() {
 
       </div>
 
-      {/* Bottom nav */}
+
+      {/* BOTTOM NAV */}
       <div className="bottom-nav">
 
         <div
@@ -154,9 +164,7 @@ function Profile() {
           Главная
         </div>
 
-        <div
-          className="nav-item active"
-        >
+        <div className="nav-item active">
           Профиль
         </div>
 
@@ -164,6 +172,7 @@ function Profile() {
 
     </div>
   )
+
 }
 
 export default Profile
