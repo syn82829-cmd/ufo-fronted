@@ -616,68 +616,71 @@ body {
 
 
 /* ============================= */
-/* CASE PAGE HEADER (CASE + BACK + SETTINGS) */
+/* BACK BUTTON — REAL LEFT CORNER */
 /* ============================= */
 
-.casepage-header {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 40px;
-  margin-bottom: 35px;
-}
-
-/* CASE TITLE ABOVE IMAGE */
-.casepage-case-title {
-  position: absolute;
-  top: 14px; /* можно подрегулировать под визуально центр текста */
-  font-size: 22px;
-  font-weight: 600;
-  color: white;
-  text-align: center;
-}
-
-/* BACK BUTTON — LEFT */
 .casepage-back-btn {
+
   position: absolute;
+
+  top: 10px;
   left: 12px;
-  top: 50%; 
-  transform: translateY(-50%); /* выравнивание по центру относительно кейса */
+
   width: 56px;
   height: 56px;
+
   border-radius: 50%;
   border: none;
+
   backdrop-filter: blur(25px);
   background: rgba(255,255,255,0.12);
+
   color: white;
   font-size: 22px;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   cursor: pointer;
+
   z-index: 1000;
+
 }
 
-/* SETTINGS BUTTON — RIGHT */
+
+
+/* ============================= */
+/* SETTINGS BUTTON — REAL RIGHT CORNER */
+/* ============================= */
+
 .casepage-settings-btn {
+
   position: absolute;
+
+  top: 10px;
   right: 12px;
-  top: 50%; 
-  transform: translateY(-50%);
+
   width: 56px;
   height: 56px;
+
   border-radius: 50%;
   border: none;
+
   backdrop-filter: blur(25px);
   background: rgba(255,255,255,0.12);
+
   color: white;
   font-size: 22px;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   cursor: pointer;
+
   z-index: 1000;
+
 }
 
 
