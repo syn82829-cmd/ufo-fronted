@@ -19,8 +19,8 @@ function CasePage() {
   }
 
   return (
-
     <div className="app">
+
 
       {/* HEADER */}
       <div className="casepage-header">
@@ -33,31 +33,42 @@ function CasePage() {
           ←
         </button>
 
-        {/* CASE IMAGE */}
-        <img
-          src={caseData.image}
-          className="casepage-case-image"
-          alt={caseData.name}
-        />
 
-      </div>
-
-
-      {/* OPEN BUTTON UNDER CASE */}
-      <div className="casepage-open-container">
-
-        <button className="casepage-open-btn">
-          Открыть за ⭐ {caseData.price}
+        {/* SETTINGS BUTTON */}
+        <button
+          className="casepage-settings-btn"
+        >
+          ⚙️
         </button>
 
+
+        {/* CENTER CONTENT */}
+        <div className="casepage-center">
+
+          <div className="casepage-title">
+            {caseData.name}
+          </div>
+
+          <img
+            src={caseData.image}
+            className="casepage-case-image"
+            alt={caseData.name}
+          />
+
+          <button className="casepage-open-btn">
+            Открыть кейс — {caseData.price} ⭐️
+          </button>
+
+        </div>
+
       </div>
+
 
 
       {/* DROPS */}
       <div className="casepage-drops">
 
         {drops.map(drop => (
-
           <div key={drop.id} className="drop-card">
 
             <img
@@ -71,15 +82,13 @@ function CasePage() {
             </div>
 
           </div>
-
         ))}
 
       </div>
 
+
     </div>
-
   )
-
 }
 
 export default CasePage
