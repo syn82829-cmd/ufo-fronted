@@ -15,15 +15,15 @@ function Home() {
   })
 
   const cases = [
-    { id: 1, image: "/cases/case1.png.PNG", name: "First Pepe", price: 9999 },
-    { id: 2, image: "/cases/case2.png.PNG", name: "Crash", price: 7999 },
-    { id: 3, image: "/cases/case3.png.PNG", name: "Dark Matter", price: 4999 },
-    { id: 4, image: "/cases/case4.png.PNG", name: "God Particle", price: 3599 },
-    { id: 5, image: "/cases/case5.png.PNG", name: "Purple Hole", price: 1599 },
-    { id: 6, image: "/cases/case6.png.PNG", name: "Space Trash", price: 599 },
-    { id: 7, image: "/cases/case7.png.PNG", name: "Starfall", price: 499 },
-    { id: 8, image: "/cases/case8.png.PNG", name: "Random Case", price: 999 }
-  ]
+  { id: "firstpepe", image: "/cases/case1.png.PNG", name: "First Pepe", price: 9999 },
+  { id: "crash", image: "/cases/case2.png.PNG", name: "Crash", price: 7999 },
+  { id: "darkmatter", image: "/cases/case3.png.PNG", name: "Dark Matter", price: 4999 },
+  { id: "godparticle", image: "/cases/case4.png.PNG", name: "God Particle", price: 3599 },
+  { id: "purplehole", image: "/cases/case5.png.PNG", name: "Purple Hole", price: 1599 },
+  { id: "spacetrash", image: "/cases/case6.png.PNG", name: "Space Trash", price: 599 },
+  { id: "starfall", image: "/cases/case7.png.PNG", name: "Starfall", price: 499 },
+  { id: "random", image: "/cases/case8.png.PNG", name: "Random Case", price: 999 }
+]
 
   /* ============================= */
   /* INIT USER */
