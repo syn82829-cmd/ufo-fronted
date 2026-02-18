@@ -647,12 +647,12 @@ body {
 
 /* ← НАЗАД — МАКСИМАЛЬНО ВЛЕВО */
 .casepage-back-btn {
-  left: 2px;
+  left: 0px;
 }
 
 /* ⚙ НАСТРОЙКИ — МАКСИМАЛЬНО ВПРАВО */
 .casepage-settings-btn {
-  right: 2px;
+  right: 0px;
 }
 /* ============================= */
 /* CASE IMAGE */
