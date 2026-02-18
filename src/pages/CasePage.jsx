@@ -22,24 +22,23 @@ function CasePage() {
 
   const handleClick = (dropId) => {
 
-    // если нажали на уже активный — просто перезапускаем
+    const lottie = lottieRefs.current[dropId]
+
+    if (!lottie) return
+
     if (activeDrop === dropId) {
-      lottieRefs.current[dropId]?.goToAndPlay(0, true)
-      return
+      lottie.stop()
+      setActiveDrop(null)
+    } else {
+
+      // остановить предыдущую если была
+      if (activeDrop && lottieRefs.current[activeDrop]) {
+        lottieRefs.current[activeDrop].stop()
+      }
+
+      lottie.play()
+      setActiveDrop(dropId)
     }
-
-    // останавливаем все
-    Object.values(lottieRefs.current).forEach(anim => {
-      anim?.stop()
-    })
-
-    // активируем новый
-    setActiveDrop(dropId)
-
-    // запускаем
-    setTimeout(() => {
-      lottieRefs.current[dropId]?.goToAndPlay(0, true)
-    }, 0)
   }
 
   return (
@@ -90,8 +89,8 @@ function CasePage() {
             <Lottie
               lottieRef={(el) => (lottieRefs.current[drop.id] = el)}
               animationData={darkMatterAnimations[drop.id]}
-              loop={false}
               autoplay={false}
+              loop={false}
               className="drop-lottie"
             />
 
