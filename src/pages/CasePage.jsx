@@ -21,53 +21,50 @@ function CasePage() {
   return (
     <div className="app">
 
-
       {/* HEADER */}
       <div className="casepage-header">
 
-        {/* BACK BUTTON */}
-        <button
-          className="casepage-back-btn"
-          onClick={() => navigate(-1)}
-        >
-          ←
-        </button>
+        {/* TITLE ROW (КНОПКИ + НАЗВАНИЕ НА ОДНОЙ ЛИНИИ) */}
+        <div className="casepage-title-row">
 
+          {/* BACK */}
+          <button
+            className="casepage-header-btn casepage-back-btn"
+            onClick={() => navigate(-1)}
+          >
+            ←
+          </button>
 
-        {/* SETTINGS BUTTON */}
-        <button
-          className="casepage-settings-btn"
-        >
-          ⚙️
-        </button>
-
-
-        {/* CENTER CONTENT */}
-        <div className="casepage-center">
-
+          {/* TITLE */}
           <div className="casepage-title">
             {caseData.name}
           </div>
 
-          <img
-            src={caseData.image}
-            className="casepage-case-image"
-            alt={caseData.name}
-          />
-
-          <button className="casepage-open-btn">
-            Открыть кейс — {caseData.price} ⭐️
+          {/* SETTINGS */}
+          <button
+            className="casepage-header-btn casepage-settings-btn"
+          >
+            ⚙
           </button>
 
         </div>
 
+        {/* CASE IMAGE */}
+        <img
+          src={caseData.image}
+          className="casepage-case-image"
+          alt={caseData.name}
+        />
+
+        {/* OPEN BUTTON */}
+        <button className="casepage-open-btn">
+          Открыть кейс — {caseData.price} ⭐️
+        </button>
+
       </div>
-
-
 
       {/* DROPS */}
       <div className="casepage-drops">
-
         {drops.map(drop => (
           <div key={drop.id} className="drop-card">
 
@@ -83,9 +80,7 @@ function CasePage() {
 
           </div>
         ))}
-
       </div>
-
 
     </div>
   )
