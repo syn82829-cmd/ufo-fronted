@@ -22,10 +22,6 @@ function CasePage() {
     return <div className="app">Case config missing</div>
   }
 
-  /* =============================
-     PLAY DROP ANIMATION
-  ============================= */
-
   const handleClick = (dropId) => {
     if (activeDrop === dropId) {
       setActiveDrop(null)
@@ -36,80 +32,90 @@ function CasePage() {
   }
 
   /* =============================
-     OPEN CASE
+     OPEN CASE (СТАБИЛЬНАЯ ВЕРСИЯ)
   ============================= */
 
   const openCase = () => {
-  if (isSpinning) return
+    if (isSpinning) return
 
-  setResult(null)
-  setIsSpinning(true)
+    setResult(null)
+    setIsSpinning(true)
 
-  // weighted random
-  const pool = []
-  caseData.drops.forEach(drop => {
-    const weight = drop.chance || 10
-    for (let i = 0; i < weight; i++) {
-      pool.push(drop.id)
+    // weighted random
+    const pool = []
+    caseData.drops.forEach(drop => {
+      const weight = drop.chance || 10
+      for (let i = 0; i < weight; i++) {
+        pool.push(drop.id)
+      }
+    })
+
+    const winId = pool[Math.floor(Math.random() * pool.length)]
+
+    const baseLength = 50
+    const winIndex = 30
+
+    const base = []
+    for (let i = 0; i < baseLength; i++) {
+      base.push(
+        caseData.drops[
+          Math.floor(Math.random() * caseData.drops.length)
+        ].id
+      )
     }
-  })
 
-  const winId = pool[Math.floor(Math.random() * pool.length)]
+    base[winIndex] = winId
 
-  const baseLength = 30
-  const winIndex = 15
+    const items = [...base, ...base, ...base]
+    setReelItems(items)
 
-  const base = []
-  for (let i = 0; i < baseLength; i++) {
-    base.push(
-      caseData.drops[
-        Math.floor(Math.random() * caseData.drops.length)
-      ].id
-    )
+    // Ждём реальный рендер DOM
+    setTimeout(() => {
+
+      const reel = reelRef.current
+      if (!reel || !reel.children.length) return
+
+      const firstItem = reel.children[0]
+      const itemWidth = firstItem.offsetWidth +
+        parseInt(getComputedStyle(reel).gap || 20)
+
+      const containerWidth =
+        reel.parentElement.offsetWidth
+
+      // старт из середины второй копии
+      const startOffset = baseLength * itemWidth
+
+      // финальная позиция (центрирование победы)
+      const finalOffset =
+        (baseLength + winIndex) * itemWidth -
+        containerWidth / 2 +
+        itemWidth / 2
+
+      reel.style.transition = "none"
+      reel.style.transform =
+        `translateX(-${startOffset}px)`
+
+      // форсируем reflow
+      reel.offsetHeight
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+
+          reel.style.transition =
+            "transform 4.8s cubic-bezier(0.12,0.8,0.18,1)"
+
+          reel.style.transform =
+            `translateX(-${finalOffset}px)`
+        })
+      })
+
+    }, 0)
+
+    setTimeout(() => {
+      setIsSpinning(false)
+      setResult(winId)
+    }, 5000)
   }
-
-  // гарантируем победу в центре
-  base[winIndex] = winId
-
-  // 🔥 ДЕЛАЕМ "БЕСКОНЕЧНУЮ" ЛЕНТУ
-  const items = [...base, ...base, ...base]
-
-  setReelItems(items)
-
-  requestAnimationFrame(() => {
-    const reel = reelRef.current
-    if (!reel) return
-
-    const itemWidth = 160
-    const containerWidth = reel.parentElement.offsetWidth
-
-    const centerOffset =
-      (baseLength + winIndex) * itemWidth -
-      containerWidth / 2 +
-      itemWidth / 2
-
-    reel.style.transition = "none"
-    reel.style.transform =
-      `translateX(-${baseLength * itemWidth}px)`
-
-    // force reflow
-    reel.offsetHeight
-
-    reel.style.transition =
-      "transform 3.8s cubic-bezier(0.12, 0.75, 0.15, 1)"
-    reel.style.transform =
-      `translateX(-${centerOffset}px)`
-  })
-
-  setTimeout(() => {
-    setIsSpinning(false)
-    setResult(winId)
-  }, 4000)
-}
-
-  /* =============================
-     RESET
-  ============================= */
 
   const sellItem = () => {
     setResult(null)
@@ -133,8 +139,9 @@ function CasePage() {
           <div className="casepage-title-row">
 
             <button
+              type="button"
               className="casepage-header-btn casepage-back-btn"
-              onClick={() => navigate(-1)}
+              onClick={() => navigate("/")}
             >
               ←
             </button>
@@ -143,13 +150,14 @@ function CasePage() {
               {caseData.name}
             </div>
 
-            <button className="casepage-header-btn casepage-settings-btn">
+            <button
+              type="button"
+              className="casepage-header-btn casepage-settings-btn"
+            >
               ⚙
             </button>
 
           </div>
-
-          {/* === IMAGE WRAPPER (НЕ ЛОМАЕТ LAYOUT) === */}
 
           <div className="case-image-wrapper">
 
@@ -194,6 +202,7 @@ function CasePage() {
 
           {!isSpinning && !result && (
             <button
+              type="button"
               className="casepage-open-btn"
               onClick={openCase}
             >
@@ -203,10 +212,7 @@ function CasePage() {
 
         </div>
 
-        {/* DROPS GRID */}
-
         <div className="casepage-drops">
-
           {caseData.drops.map(drop => {
 
             const isActive = activeDrop === drop.id
@@ -234,14 +240,10 @@ function CasePage() {
 
               </div>
             )
-
           })}
-
         </div>
 
       </div>
-
-      {/* RESULT */}
 
       {result && (
         <div className="result-overlay">
@@ -253,7 +255,6 @@ function CasePage() {
             </div>
 
             <div className="drop-card result-size">
-
               <Lottie
                 animationData={
                   darkMatterAnimations[result]
@@ -261,16 +262,15 @@ function CasePage() {
                 autoplay
                 loop={false}
               />
-
               <div className="drop-name">
                 {result}
               </div>
-
             </div>
 
             <div className="result-buttons">
 
               <button
+                type="button"
                 className="glass-btn sell"
                 onClick={sellItem}
               >
@@ -278,6 +278,7 @@ function CasePage() {
               </button>
 
               <button
+                type="button"
                 className="glass-btn open"
                 onClick={openAgain}
               >
