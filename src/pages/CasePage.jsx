@@ -40,73 +40,72 @@ function CasePage() {
   ============================= */
 
   const openCase = () => {
+  if (isSpinning) return
 
-    if (isSpinning) return
+  setResult(null)
+  setIsSpinning(true)
 
-    setResult(null)
-    setIsSpinning(true)
-
-    // weighted random
-    const pool = []
-    caseData.drops.forEach(drop => {
-      const weight = drop.chance || 10
-      for (let i = 0; i < weight; i++) {
-        pool.push(drop.id)
-      }
-    })
-
-    const winId =
-      pool[Math.floor(Math.random() * pool.length)]
-
-    const totalItems = 60
-    const winIndex = 45
-
-    const items = []
-
-    for (let i = 0; i < totalItems; i++) {
-      if (i === winIndex) {
-        items.push(winId)
-      } else {
-        const random =
-          caseData.drops[
-            Math.floor(Math.random() * caseData.drops.length)
-          ].id
-        items.push(random)
-      }
+  // weighted random
+  const pool = []
+  caseData.drops.forEach(drop => {
+    const weight = drop.chance || 10
+    for (let i = 0; i < weight; i++) {
+      pool.push(drop.id)
     }
+  })
 
-    setReelItems(items)
+  const winId = pool[Math.floor(Math.random() * pool.length)]
 
-    setTimeout(() => {
+  const baseLength = 30
+  const winIndex = 15
 
-      const reel = reelRef.current
-      if (!reel) return
-
-      const itemWidth = 160
-      const containerWidth = reel.parentElement.offsetWidth
-
-      const offset =
-        winIndex * itemWidth -
-        containerWidth / 2 +
-        itemWidth / 2
-
-      reel.style.transition = "none"
-      reel.style.transform = "translateX(0px)"
-
-      requestAnimationFrame(() => {
-        reel.style.transition =
-          "transform 4.2s cubic-bezier(0.12, 0.75, 0.15, 1)"
-        reel.style.transform =
-          `translateX(-${offset}px)`
-      })
-
-    }, 50)
-
-    setTimeout(() => {
-      setIsSpinning(false)
-      setResult(winId)
-    }, 4300)
+  const base = []
+  for (let i = 0; i < baseLength; i++) {
+    base.push(
+      caseData.drops[
+        Math.floor(Math.random() * caseData.drops.length)
+      ].id
+    )
   }
+
+  // гарантируем победу в центре
+  base[winIndex] = winId
+
+  // 🔥 ДЕЛАЕМ "БЕСКОНЕЧНУЮ" ЛЕНТУ
+  const items = [...base, ...base, ...base]
+
+  setReelItems(items)
+
+  requestAnimationFrame(() => {
+    const reel = reelRef.current
+    if (!reel) return
+
+    const itemWidth = 160
+    const containerWidth = reel.parentElement.offsetWidth
+
+    const centerOffset =
+      (baseLength + winIndex) * itemWidth -
+      containerWidth / 2 +
+      itemWidth / 2
+
+    reel.style.transition = "none"
+    reel.style.transform =
+      `translateX(-${baseLength * itemWidth}px)`
+
+    // force reflow
+    reel.offsetHeight
+
+    reel.style.transition =
+      "transform 3.8s cubic-bezier(0.12, 0.75, 0.15, 1)"
+    reel.style.transform =
+      `translateX(-${centerOffset}px)`
+  })
+
+  setTimeout(() => {
+    setIsSpinning(false)
+    setResult(winId)
+  }, 4000)
+}
 
   /* =============================
      RESET
