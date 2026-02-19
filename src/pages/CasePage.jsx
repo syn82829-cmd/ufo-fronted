@@ -13,83 +13,16 @@ function CasePage() {
   const caseData = cases[id]
 
   const [activeDrop, setActiveDrop] = useState(null)
-
-  // рулетка состояния
-  const [isOpening, setIsOpening] = useState(false)
   const [isRolling, setIsRolling] = useState(false)
   const [winner, setWinner] = useState(null)
 
-  const trackRef = useRef(null)
+  const rouletteRef = useRef(null)
 
   if (!caseData) {
     return <div className="app">Case config missing</div>
   }
 
-  // генерация длинной рулетки
-  const generateTrack = () => {
-
-    const items = []
-
-    for (let i = 0; i < 40; i++) {
-
-      const random =
-        caseData.drops[
-          Math.floor(Math.random() * caseData.drops.length)
-        ]
-
-      items.push(random)
-
-    }
-
-    // победитель заранее
-    const win =
-      caseData.drops[
-        Math.floor(Math.random() * caseData.drops.length)
-      ]
-
-    items.push(win)
-
-    setWinner(win)
-
-    return items
-
-  }
-
-  const [trackItems, setTrackItems] = useState([])
-
-  const openCase = () => {
-
-    const track = generateTrack()
-
-    setTrackItems(track)
-
-    setIsOpening(true)
-
-    setTimeout(() => {
-
-      setIsRolling(true)
-
-      const trackEl = trackRef.current
-
-      const itemWidth = 140
-      const centerOffset = (track.length - 1) * itemWidth
-
-      trackEl.style.transition =
-        "transform 4s cubic-bezier(0.15, 0.85, 0.25, 1)"
-
-      trackEl.style.transform =
-        `translateX(-${centerOffset}px)`
-
-      setTimeout(() => {
-
-        setIsRolling(false)
-
-      }, 4000)
-
-    }, 100)
-
-  }
-
+  // запуск анимации NFT при клике
   const handleClick = (dropId) => {
 
     if (activeDrop === dropId) {
@@ -101,17 +34,87 @@ function CasePage() {
 
   }
 
-  const reset = () => {
+  // выбор победителя
+  const pickWinner = () => {
 
-    setIsOpening(false)
-    setIsRolling(false)
+    const total = caseData.drops.reduce((sum, d) => sum + d.chance, 0)
+    let rand = Math.random() * total
+
+    for (const drop of caseData.drops) {
+
+      if (rand < drop.chance)
+        return drop.id
+
+      rand -= drop.chance
+
+    }
+
+    return caseData.drops[0].id
+
+  }
+
+  // создание длинной ленты рулетки
+  const buildRoulette = () => {
+
+    const items = []
+
+    for (let i = 0; i < 60; i++) {
+
+      const random =
+        caseData.drops[
+          Math.floor(Math.random() * caseData.drops.length)
+        ]
+
+      items.push(random.id)
+
+    }
+
+    return items
+
+  }
+
+  const [rouletteItems, setRouletteItems] = useState([])
+
+  // запуск рулетки
+  const startRoll = () => {
+
+    if (isRolling) return
+
     setWinner(null)
-    setTrackItems([])
+
+    const winnerId = pickWinner()
+    const items = buildRoulette()
+
+    const winnerIndex = 45
+    items[winnerIndex] = winnerId
+
+    setRouletteItems(items)
+    setIsRolling(true)
+
+    setTimeout(() => {
+
+      const itemWidth = 160
+      const offset = winnerIndex * itemWidth
+
+      rouletteRef.current.style.transform =
+        `translateX(-${offset}px)`
+
+    }, 100)
+
+    setTimeout(() => {
+
+      setIsRolling(false)
+      setWinner(winnerId)
+
+    }, 4500)
 
   }
 
   return (
+
     <div className="app">
+
+      {/* HEADER */}
 
       <div className="casepage-header">
 
@@ -134,109 +137,120 @@ function CasePage() {
 
         </div>
 
-        {/* кейс */}
-        {!isOpening && (
-          <>
-            <img
-              src={caseData.image}
-              className="casepage-case-image"
-              alt={caseData.name}
-            />
+        {/* показываем кейс только если не крутим */}
+        {!isRolling && !winner && (
 
-            <button
-              className="casepage-open-btn"
-              onClick={openCase}
-            >
-              Открыть кейс
-            </button>
-          </>
+          <img
+            src={caseData.image}
+            className="casepage-case-image"
+            alt={caseData.name}
+          />
+
         )}
 
-        {/* рулетка */}
-        {isOpening && !winner && (
-          <div className="roulette-container">
+        {!isRolling && !winner && (
 
-            <div className="roulette-center-line" />
-
-            <div
-              className="roulette-track"
-              ref={trackRef}
-            >
-
-              {trackItems.map((drop, index) => (
-
-                <div
-                  className="roulette-item"
-                  key={index}
-                >
-
-                  <Lottie
-                    animationData={
-                      darkMatterAnimations[drop.id]
-                    }
-                    autoplay={false}
-                    loop={false}
-                    className="drop-lottie"
-                  />
-
-                </div>
-
-              ))}
-
-            </div>
-
-          </div>
-        )}
-
-        {/* экран выигрыша */}
-        {winner && !isRolling && (
-
-          <div className="win-screen">
-
-            <div className="win-title">
-              Поздравляем!
-            </div>
-
-            <div className="win-card">
-
-              <Lottie
-                animationData={
-                  darkMatterAnimations[winner.id]
-                }
-                autoplay
-                loop={false}
-                className="drop-lottie"
-              />
-
-              <div className="drop-name">
-                {winner.name || winner.id}
-              </div>
-
-            </div>
-
-            <div className="win-buttons">
-
-              <button className="sell-btn">
-                Продать
-              </button>
-
-              <button
-                className="open-again-btn"
-                onClick={reset}
-              >
-                Открыть ещё
-              </button>
-
-            </div>
-
-          </div>
+          <button
+            className="casepage-open-btn"
+            onClick={startRoll}
+          >
+            Открыть кейс
+          </button>
 
         )}
 
       </div>
 
-      {/* drops grid */}
-      {!isOpening && (
+
+      {/* РУЛЕТКА — отдельный блок */}
+
+      {isRolling && (
+
+        <div className="roulette-wrapper">
+
+          <div className="roulette-pointer" />
+
+          <div
+            className="roulette-track"
+            ref={rouletteRef}
+          >
+
+            {rouletteItems.map((dropId, index) => (
+
+              <div
+                className="roulette-item"
+                key={index}
+              >
+
+                <Lottie
+                  animationData={
+                    darkMatterAnimations[dropId]
+                  }
+                  autoplay
+                  loop
+                />
+
+              </div>
+
+            ))}
+
+          </div>
+
+        </div>
+
+      )}
+
+
+      {/* ПОБЕДИТЕЛЬ */}
+
+      {winner && (
+
+        <div className="winner-screen">
+
+          <div className="winner-title">
+            Поздравляем!
+          </div>
+
+          <div className="winner-card">
+
+            <Lottie
+              animationData={
+                darkMatterAnimations[winner]
+              }
+              autoplay
+              loop
+            />
+
+            <div className="drop-name">
+              {winner}
+            </div>
+
+          </div>
+
+          <div className="winner-buttons">
+
+            <button className="btn-sell">
+              Продать
+            </button>
+
+            <button
+              className="btn-open"
+              onClick={startRoll}
+            >
+              Открыть ещё
+            </button>
+
+          </div>
+
+        </div>
+
+      )}
+
+
+      {/* DROPS */}
+
+      {!isRolling && !winner && (
+
         <div className="casepage-drops">
 
           {caseData.drops.map((drop) => {
@@ -257,15 +271,14 @@ function CasePage() {
                 <Lottie
                   key={
                     isActive
-                      ? `${drop.id}-active`
-                      : `${drop.id}-idle`
+                      ? drop.id + "-a"
+                      : drop.id + "-i"
                   }
                   animationData={
                     darkMatterAnimations[drop.id]
                   }
                   autoplay={isActive}
                   loop={false}
-                  className="drop-lottie"
                 />
 
                 <div className="drop-name">
@@ -279,9 +292,11 @@ function CasePage() {
           })}
 
         </div>
+
       )}
 
     </div>
+
   )
 
 }
