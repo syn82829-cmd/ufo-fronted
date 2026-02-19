@@ -58,8 +58,8 @@ function CasePage() {
     const winId =
       pool[Math.floor(Math.random() * pool.length)]
 
-    const totalItems = 140
-    const winIndex = 110
+    const totalItems = 60
+    const winIndex = 45
 
     const items = []
 
@@ -82,29 +82,20 @@ function CasePage() {
       const reel = reelRef.current
       if (!reel) return
 
-      const firstItem = reel.children[0]
-      if (!firstItem) return
-
-      const itemWidth = firstItem.offsetWidth
-      const gap = 20
-      const fullItemWidth = itemWidth + gap
-
+      const itemWidth = 160
       const containerWidth = reel.parentElement.offsetWidth
 
       const offset =
-        winIndex * fullItemWidth -
+        winIndex * itemWidth -
         containerWidth / 2 +
         itemWidth / 2
 
       reel.style.transition = "none"
       reel.style.transform = "translateX(0px)"
 
-      // 🔥 принудительный reflow
-      reel.offsetHeight
-
       requestAnimationFrame(() => {
         reel.style.transition =
-          "transform 4.5s cubic-bezier(0.08, 0.85, 0.18, 1)"
+          "transform 4.2s cubic-bezier(0.12, 0.75, 0.15, 1)"
         reel.style.transform =
           `translateX(-${offset}px)`
       })
@@ -114,7 +105,7 @@ function CasePage() {
     setTimeout(() => {
       setIsSpinning(false)
       setResult(winId)
-    }, 4600)
+    }, 4300)
   }
 
   /* =============================
@@ -158,6 +149,8 @@ function CasePage() {
             </button>
 
           </div>
+
+          {/* === IMAGE WRAPPER (НЕ ЛОМАЕТ LAYOUT) === */}
 
           <div className="case-image-wrapper">
 
@@ -211,6 +204,8 @@ function CasePage() {
 
         </div>
 
+        {/* DROPS GRID */}
+
         <div className="casepage-drops">
 
           {caseData.drops.map(drop => {
@@ -246,6 +241,8 @@ function CasePage() {
         </div>
 
       </div>
+
+      {/* RESULT */}
 
       {result && (
         <div className="result-overlay">
