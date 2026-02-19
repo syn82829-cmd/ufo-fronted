@@ -1,25 +1,9 @@
 import { useParams, useNavigate } from "react-router-dom"
-import { useState, useRef } from "react"
+import { useState } from "react"
 import Lottie from "lottie-react"
 
 import { cases } from "../data/cases"
 import { darkMatterAnimations } from "../data/animations"
-
-// display names отдельно от filenames
-const dropNames = {
-  darkhelmet: "Dark Helmet",
-  gift: "Mystery Gift",
-  westside: "Westside",
-  lowrider: "Lowrider",
-  watch: "Cosmic Watch",
-  skull: "Alien Skull",
-  dyson: "Dyson Core",
-  batman: "Batman Relic",
-  poizon: "Poizon Artifact",
-  metla: "Quantum Broom",
-  ball: "Gravity Ball",
-  book: "Ancient Book"
-}
 
 function CasePage() {
 
@@ -28,10 +12,11 @@ function CasePage() {
 
   const caseData = cases[id]
 
+  // какой дроп сейчас проигрывается
   const [activeDrop, setActiveDrop] = useState(null)
 
-  // храним refs правильно
-  const lottieRefs = useRef({})
+  // ключ для принудительного пересоздания Lottie
+  const [animationKey, setAnimationKey] = useState(0)
 
   if (!caseData) {
     return <div className="app">Case config missing</div>
@@ -41,25 +26,14 @@ function CasePage() {
 
     setActiveDrop(dropId)
 
-    const instance = lottieRefs.current[dropId]
-
-    if (instance) {
-
-      instance.stop()
-
-      // forcing restart
-      setTimeout(() => {
-        instance.play()
-      }, 10)
-
-    }
+    // увеличиваем key → Lottie пересоздаётся → autoplay срабатывает
+    setAnimationKey(prev => prev + 1)
 
   }
 
   return (
     <div className="app">
 
-      {/* HEADER */}
       <div className="casepage-header">
 
         <div className="casepage-title-row">
@@ -93,38 +67,47 @@ function CasePage() {
 
       </div>
 
-      {/* DROPS */}
       <div className="casepage-drops">
 
-        {caseData.drops.map((drop) => (
+        {caseData.drops.map((drop) => {
 
-          <div
-            key={drop.id}
-            className={`drop-card ${
-              activeDrop === drop.id ? "active" : ""
-            }`}
-            onClick={() => handleClick(drop.id)}
-          >
+          const isActive = activeDrop === drop.id
 
-            <Lottie
-              animationData={darkMatterAnimations[drop.id]}
-              autoplay={false}
-              loop={false}
-              lottieRef={(instance) => {
-                if (instance) {
-                  lottieRefs.current[drop.id] = instance
-                }
-              }}
-              className="drop-lottie"
-            />
+          return (
+            <div
+              key={drop.id}
+              className="drop-card"
+              onClick={() => handleClick(drop.id)}
+            >
 
-            <div className="drop-name">
-              {dropNames[drop.id] || drop.id}
+              {isActive ? (
+
+                <Lottie
+                  key={animationKey}
+                  animationData={darkMatterAnimations[drop.id]}
+                  autoplay={true}
+                  loop={false}
+                  className="drop-lottie"
+                />
+
+              ) : (
+
+                <img
+                  src={`/drops/${drop.id}.png`}
+                  className="drop-lottie"
+                  alt={drop.id}
+                />
+
+              )}
+
+              <div className="drop-name">
+                {drop.id}
+              </div>
+
             </div>
+          )
 
-          </div>
-
-        ))}
+        })}
 
       </div>
 
