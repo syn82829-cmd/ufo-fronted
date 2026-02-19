@@ -58,8 +58,9 @@ function CasePage() {
     const winId =
       pool[Math.floor(Math.random() * pool.length)]
 
-    const totalItems = 60
-    const winIndex = 45
+    // 🔥 УВЕЛИЧИЛИ ДЛИНУ ЛЕНТЫ
+    const totalItems = 140
+    const winIndex = 110
 
     const items = []
 
@@ -95,7 +96,7 @@ function CasePage() {
 
       requestAnimationFrame(() => {
         reel.style.transition =
-          "transform 4.2s cubic-bezier(0.12, 0.75, 0.15, 1)"
+          "transform 4.5s cubic-bezier(0.08, 0.85, 0.18, 1)"
         reel.style.transform =
           `translateX(-${offset}px)`
       })
@@ -105,7 +106,7 @@ function CasePage() {
     setTimeout(() => {
       setIsSpinning(false)
       setResult(winId)
-    }, 4300)
+    }, 4600)
   }
 
   /* =============================
@@ -149,8 +150,6 @@ function CasePage() {
             </button>
 
           </div>
-
-          {/* === IMAGE WRAPPER (НЕ ЛОМАЕТ LAYOUT) === */}
 
           <div className="case-image-wrapper">
 
