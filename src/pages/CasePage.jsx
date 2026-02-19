@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom"
-import { useState, useRef, useLayoutEffect } from "react"
+import { useState, useRef } from "react"
 import Lottie from "lottie-react"
 
 import { cases } from "../data/cases"
@@ -15,7 +15,6 @@ function CasePage() {
   const [isSpinning, setIsSpinning] = useState(false)
   const [result, setResult] = useState(null)
   const [reelItems, setReelItems] = useState([])
-  const [winIndex, setWinIndex] = useState(0)
 
   const reelRef = useRef(null)
   const spinTimeout = useRef(null)
@@ -38,7 +37,7 @@ function CasePage() {
   }
 
   /* =============================
-     OPEN CASE
+     OPEN CASE (СТАБИЛЬНАЯ ВЕРСИЯ)
   ============================= */
 
   const openCase = () => {
@@ -47,6 +46,7 @@ function CasePage() {
 
     setResult(null)
 
+    // создаём пул по шансам
     const pool = []
     caseData.drops.forEach(drop => {
       const weight = drop.chance || 10
@@ -58,8 +58,8 @@ function CasePage() {
     const winId =
       pool[Math.floor(Math.random() * pool.length)]
 
-    const totalItems = 150
-    const targetIndex = 120
+    const totalItems = 160
+    const targetIndex = 130
 
     const items = []
 
@@ -75,51 +75,46 @@ function CasePage() {
       }
     }
 
-    setWinIndex(targetIndex)
     setReelItems(items)
     setIsSpinning(true)
+
+    // даём React смонтировать DOM
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+
+        const reel = reelRef.current
+        if (!reel) return
+
+        const firstItem = reel.children[0]
+        if (!firstItem) return
+
+        const itemWidth = firstItem.offsetWidth
+        const gap = 20
+        const fullItemWidth = itemWidth + gap
+        const containerWidth = reel.parentElement.offsetWidth
+
+        const offset =
+          targetIndex * fullItemWidth -
+          containerWidth / 2 +
+          itemWidth / 2
+
+        reel.style.transition = "none"
+        reel.style.transform = "translateX(0px)"
+
+        void reel.offsetHeight
+
+        reel.style.transition =
+          "transform 4.5s cubic-bezier(0.08, 0.85, 0.18, 1)"
+        reel.style.transform =
+          `translateX(-${offset}px)`
+      })
+    })
 
     spinTimeout.current = setTimeout(() => {
       setIsSpinning(false)
       setResult(winId)
     }, 4500)
   }
-
-  /* =============================
-     ANIMATION (ГАРАНТИРОВАННЫЙ СТАРТ)
-  ============================= */
-
-  useLayoutEffect(() => {
-
-    if (!isSpinning) return
-    if (!reelRef.current) return
-
-    const reel = reelRef.current
-    const firstItem = reel.children[0]
-    if (!firstItem) return
-
-    const itemWidth = firstItem.offsetWidth
-    const gap = 20
-    const fullItemWidth = itemWidth + gap
-    const containerWidth = reel.parentElement.offsetWidth
-
-    const offset =
-      winIndex * fullItemWidth -
-      containerWidth / 2 +
-      itemWidth / 2
-
-    reel.style.transition = "none"
-    reel.style.transform = "translateX(0px)"
-
-    // force reflow
-    void reel.offsetHeight
-
-    reel.style.transition =
-      "transform 4.5s cubic-bezier(0.08, 0.85, 0.18, 1)"
-    reel.style.transform =
-      `translateX(-${offset}px)`
-
-  }, [isSpinning, reelItems])
 
   /* =============================
      RESET
