@@ -2,6 +2,7 @@ export const cases = {
   darkmatter: {
     id: "darkmatter",
     name: "Dark Matter",
+    image: "/cases/case3.png.PNG", // ← ВАЖНО: добавили image сюда
     drops: [
       { id: "darkhelmet", chance: 5 },
       { id: "gift", chance: 10 },
@@ -17,4 +18,4 @@ export const cases = {
       { id: "book", chance: 40 }
     ]
   }
-};
+}
