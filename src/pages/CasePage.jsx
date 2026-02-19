@@ -9,13 +9,13 @@ function CasePage() {
 
   const { id } = useParams()
   const navigate = useNavigate()
-
   const caseData = cases[id]
 
   const [activeDrop, setActiveDrop] = useState(null)
 
   const [isSpinning, setIsSpinning] = useState(false)
   const [result, setResult] = useState(null)
+  const [reelItems, setReelItems] = useState([])
 
   const reelRef = useRef(null)
 
@@ -49,7 +49,6 @@ function CasePage() {
 
     // weighted random
     const pool = []
-
     caseData.drops.forEach(drop => {
       const weight = drop.chance || 10
       for (let i = 0; i < weight; i++) {
@@ -57,57 +56,56 @@ function CasePage() {
       }
     })
 
-    const winId = pool[Math.floor(Math.random() * pool.length)]
+    const winId =
+      pool[Math.floor(Math.random() * pool.length)]
 
-    // создаём массив рулетки
-    const reelItems = []
     const totalItems = 60
     const winIndex = 45
 
+    const items = []
+
     for (let i = 0; i < totalItems; i++) {
       if (i === winIndex) {
-        reelItems.push(winId)
+        items.push(winId)
       } else {
-        const randomDrop =
+        const random =
           caseData.drops[
             Math.floor(Math.random() * caseData.drops.length)
           ].id
-        reelItems.push(randomDrop)
+        items.push(random)
       }
     }
 
-    const reel = reelRef.current
-    reel.innerHTML = ""
+    setReelItems(items)
 
-    reelItems.forEach((dropId) => {
-      const item = document.createElement("div")
-      item.className = "roulette-item"
-
-      const img = document.createElement("img")
-      img.src = `/cases/${id}.png` // временно статичный плейсхолдер
-      img.className = "roulette-static"
-
-      item.appendChild(img)
-      reel.appendChild(item)
-    })
-
-    const itemWidth = 140
-    const offset = winIndex * itemWidth - 200
-
-    reel.style.transition = "none"
-    reel.style.transform = "translateX(0px)"
-
+    // ждём рендер
     setTimeout(() => {
-      reel.style.transition =
-        "transform 4s cubic-bezier(0.15, 0.8, 0.2, 1)"
-      reel.style.transform =
-        `translateX(-${offset}px)`
+
+      const reel = reelRef.current
+      if (!reel) return
+
+      const itemWidth = 160
+      const offset =
+        winIndex * itemWidth -
+        window.innerWidth / 2 +
+        itemWidth / 2
+
+      reel.style.transition = "none"
+      reel.style.transform = "translateX(0px)"
+
+      requestAnimationFrame(() => {
+        reel.style.transition =
+          "transform 4.2s cubic-bezier(0.12, 0.75, 0.15, 1)"
+        reel.style.transform =
+          `translateX(-${offset}px)`
+      })
+
     }, 50)
 
     setTimeout(() => {
       setIsSpinning(false)
       setResult(winId)
-    }, 4200)
+    }, 4300)
 
   }
 
@@ -130,6 +128,7 @@ function CasePage() {
   return (
     <div className="app">
 
+      {/* MAIN CONTENT */}
       <div className={blurred ? "blurred" : ""}>
 
         <div className="casepage-header">
@@ -172,6 +171,7 @@ function CasePage() {
 
         {/* DROPS GRID */}
         <div className="casepage-drops">
+
           {caseData.drops.map(drop => {
 
             const isActive = activeDrop === drop.id
@@ -197,7 +197,9 @@ function CasePage() {
 
               </div>
             )
+
           })}
+
         </div>
 
       </div>
@@ -205,6 +207,7 @@ function CasePage() {
       {/* ROULETTE */}
       {isSpinning && (
         <div className="roulette-overlay">
+
           <div className="roulette-window">
 
             <div className="roulette-line" />
@@ -212,9 +215,25 @@ function CasePage() {
             <div
               ref={reelRef}
               className="roulette-reel"
-            />
+            >
+
+              {reelItems.map((dropId, index) => (
+                <div
+                  key={index}
+                  className="roulette-item"
+                >
+                  <img
+                    src={`/drops/${dropId}.png`}
+                    className="roulette-static"
+                    alt=""
+                  />
+                </div>
+              ))}
+
+            </div>
 
           </div>
+
         </div>
       )}
 
@@ -233,7 +252,7 @@ function CasePage() {
               <Lottie
                 animationData={darkMatterAnimations[result]}
                 autoplay
-                loop
+                loop={false}
               />
 
               <div className="drop-name">
@@ -267,6 +286,7 @@ function CasePage() {
 
     </div>
   )
+
 }
 
 export default CasePage
