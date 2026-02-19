@@ -12,7 +12,6 @@ function CasePage() {
   const caseData = cases[id]
 
   const [activeDrop, setActiveDrop] = useState(null)
-
   const [isSpinning, setIsSpinning] = useState(false)
   const [result, setResult] = useState(null)
   const [reelItems, setReelItems] = useState([])
@@ -84,10 +83,12 @@ function CasePage() {
       const reel = reelRef.current
       if (!reel) return
 
-      const itemWidth = 160
+      const itemWidth = 160 // 140 + 20 gap
+      const containerWidth = reel.parentElement.offsetWidth
+
       const offset =
         winIndex * itemWidth -
-        window.innerWidth / 2 +
+        containerWidth / 2 +
         itemWidth / 2
 
       reel.style.transition = "none"
@@ -106,7 +107,6 @@ function CasePage() {
       setIsSpinning(false)
       setResult(winId)
     }, 4300)
-
   }
 
   /* =============================
@@ -128,7 +128,6 @@ function CasePage() {
   return (
     <div className="app">
 
-      {/* MAIN CONTENT */}
       <div className={blurred ? "blurred" : ""}>
 
         <div className="casepage-header">
@@ -152,11 +151,46 @@ function CasePage() {
 
           </div>
 
-          <img
-            src={caseData.image}
-            className="casepage-case-image"
-            alt={caseData.name}
-          />
+          {/* 🔥 PNG заменяется рулеткой */}
+
+          {!isSpinning && (
+            <img
+              src={caseData.image}
+              className="casepage-case-image"
+              alt={caseData.name}
+            />
+          )}
+
+          {isSpinning && (
+            <div className="roulette-window">
+
+              <div className="roulette-line" />
+
+              <div
+                ref={reelRef}
+                className="roulette-reel"
+              >
+
+                {reelItems.map((dropId, index) => (
+                  <div
+                    key={index}
+                    className="roulette-item"
+                  >
+                    <Lottie
+                      animationData={
+                        darkMatterAnimations[dropId]
+                      }
+                      autoplay={false}
+                      loop={false}
+                      style={{ width: 80, height: 80 }}
+                    />
+                  </div>
+                ))}
+
+              </div>
+
+            </div>
+          )}
 
           {!isSpinning && !result && (
             <button
@@ -170,6 +204,7 @@ function CasePage() {
         </div>
 
         {/* DROPS GRID */}
+
         <div className="casepage-drops">
 
           {caseData.drops.map(drop => {
@@ -185,7 +220,9 @@ function CasePage() {
 
                 <Lottie
                   key={isActive ? drop.id + "-active" : drop.id}
-                  animationData={darkMatterAnimations[drop.id]}
+                  animationData={
+                    darkMatterAnimations[drop.id]
+                  }
                   autoplay={isActive}
                   loop={false}
                   className="drop-lottie"
@@ -204,40 +241,8 @@ function CasePage() {
 
       </div>
 
-      {/* ROULETTE */}
-      {isSpinning && (
-        <div className="roulette-overlay">
-
-          <div className="roulette-window">
-
-            <div className="roulette-line" />
-
-            <div
-              ref={reelRef}
-              className="roulette-reel"
-            >
-
-              {reelItems.map((dropId, index) => (
-                <div
-                  key={index}
-                  className="roulette-item"
-                >
-                  <img
-                    src={`/drops/${dropId}.png`}
-                    className="roulette-static"
-                    alt=""
-                  />
-                </div>
-              ))}
-
-            </div>
-
-          </div>
-
-        </div>
-      )}
-
       {/* RESULT */}
+
       {result && (
         <div className="result-overlay">
 
@@ -250,7 +255,9 @@ function CasePage() {
             <div className="drop-card result-size">
 
               <Lottie
-                animationData={darkMatterAnimations[result]}
+                animationData={
+                  darkMatterAnimations[result]
+                }
                 autoplay
                 loop={false}
               />
@@ -286,7 +293,6 @@ function CasePage() {
 
     </div>
   )
-
 }
 
 export default CasePage
