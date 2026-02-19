@@ -772,3 +772,49 @@ body {
   font-weight: 600;
 
 }
+.roulette-wrapper {
+  position: relative;
+  overflow: hidden;
+  height: 180px;
+  margin-top: 20px;
+}
+
+.roulette-track {
+  display: flex;
+}
+
+.roulette-item {
+  width: 160px;
+  height: 160px;
+  flex-shrink: 0;
+}
+
+.roulette-center-line {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 4px;
+  height: 100%;
+  background: rgba(255,255,255,0.3);
+  backdrop-filter: blur(6px);
+  z-index: 10;
+}
+
+.result-screen {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.result-card {
+  width: 220px;
+  height: 220px;
+  margin: auto;
+}
+
+.sell-btn {
+  background: #3b82f6;
+}
+
+.open-again-btn {
+  background: #22c55e;
+}
