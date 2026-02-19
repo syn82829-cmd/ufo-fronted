@@ -19,13 +19,15 @@ function CasePage() {
   }
 
   const handleClick = (dropId) => {
-    // если кликнули тот же — сбрасываем и запускаем заново
+
+    // перезапуск той же анимации
     if (activeDrop === dropId) {
       setActiveDrop(null)
       setTimeout(() => setActiveDrop(dropId), 10)
     } else {
       setActiveDrop(dropId)
     }
+
   }
 
   return (
@@ -52,8 +54,9 @@ function CasePage() {
 
         </div>
 
+        {/* ИСПРАВЛЕНО: используем image из cases.js */}
         <img
-          src={`/cases/${id}.png`}
+          src={caseData.image}
           className="casepage-case-image"
           alt={caseData.name}
         />
@@ -86,7 +89,7 @@ function CasePage() {
               />
 
               <div className="drop-name">
-                {drop.id}
+                {drop.name || drop.id}
               </div>
 
             </div>
