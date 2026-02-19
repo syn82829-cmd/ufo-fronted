@@ -58,7 +58,6 @@ function CasePage() {
     const winId =
       pool[Math.floor(Math.random() * pool.length)]
 
-    // 🔥 УВЕЛИЧИЛИ ДЛИНУ ЛЕНТЫ
     const totalItems = 140
     const winIndex = 110
 
@@ -83,16 +82,25 @@ function CasePage() {
       const reel = reelRef.current
       if (!reel) return
 
-      const itemWidth = 160
+      const firstItem = reel.children[0]
+      if (!firstItem) return
+
+      const itemWidth = firstItem.offsetWidth
+      const gap = 20
+      const fullItemWidth = itemWidth + gap
+
       const containerWidth = reel.parentElement.offsetWidth
 
       const offset =
-        winIndex * itemWidth -
+        winIndex * fullItemWidth -
         containerWidth / 2 +
         itemWidth / 2
 
       reel.style.transition = "none"
       reel.style.transform = "translateX(0px)"
+
+      // 🔥 принудительный reflow
+      reel.offsetHeight
 
       requestAnimationFrame(() => {
         reel.style.transition =
@@ -203,8 +211,6 @@ function CasePage() {
 
         </div>
 
-        {/* DROPS GRID */}
-
         <div className="casepage-drops">
 
           {caseData.drops.map(drop => {
@@ -240,8 +246,6 @@ function CasePage() {
         </div>
 
       </div>
-
-      {/* RESULT */}
 
       {result && (
         <div className="result-overlay">
