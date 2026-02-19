@@ -791,6 +791,9 @@ body {
   width: 100%;
   display: flex;
   justify-content: center;
+  align-items: center;
+
+  min-height: 320px; /* фиксируем высоту */
 }
 
 .casepage-case-image {
@@ -801,16 +804,18 @@ body {
 }
 
 .hidden-case {
-  visibility: hidden; /* сохраняет размеры */
+  visibility: hidden;
 }
 
 /* ============================= */
-/* ROULETTE */
+/* ROULETTE WINDOW */
 /* ============================= */
 
 .roulette-absolute {
   position: absolute;
-  inset: 0;
+
+  width: 100%;
+  height: 180px; /* фиксированная высота окна */
 
   display: flex;
   justify-content: center;
@@ -818,7 +823,6 @@ body {
 
   overflow: hidden;
 
-  /* мягкое затемнение краёв (убирает эффект конца) */
   mask-image: linear-gradient(
     to right,
     transparent 0%,
@@ -834,6 +838,10 @@ body {
     transparent 100%
   );
 }
+
+/* ============================= */
+/* ROULETTE REEL */
+/* ============================= */
 
 .roulette-reel {
   display: flex;
@@ -870,10 +878,9 @@ body {
   transform: translate(-50%, -50%);
 
   width: 4px;
-  height: 180px; /* чуть больше карточки */
+  height: 150px;
 
-  background: rgba(255,255,255,0.65);
-  backdrop-filter: blur(20px);
+  background: rgba(255,255,255,0.7);
 
   border-radius: 4px;
 
