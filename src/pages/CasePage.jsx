@@ -22,6 +22,10 @@ function CasePage() {
     return <div className="app">Case config missing</div>
   }
 
+  /* =============================
+     PLAY DROP ANIMATION
+  ============================= */
+
   const handleClick = (dropId) => {
     if (activeDrop === dropId) {
       setActiveDrop(null)
@@ -31,16 +35,18 @@ function CasePage() {
     }
   }
 
-  const openCase = (e) => {
+  /* =============================
+     OPEN CASE
+  ============================= */
 
-    e?.preventDefault()
-    e?.stopPropagation()
+  const openCase = () => {
 
     if (isSpinning) return
 
     setResult(null)
     setIsSpinning(true)
 
+    // weighted random
     const pool = []
     caseData.drops.forEach(drop => {
       const weight = drop.chance || 10
@@ -52,8 +58,8 @@ function CasePage() {
     const winId =
       pool[Math.floor(Math.random() * pool.length)]
 
-    const totalItems = 200
-    const winIndex = 150
+    const totalItems = 120
+    const winIndex = 90
 
     const items = []
 
@@ -76,30 +82,23 @@ function CasePage() {
       const reel = reelRef.current
       if (!reel) return
 
-      const firstItem = reel.children[0]
-      if (!firstItem) return
-
-      const itemWidth = firstItem.offsetWidth
-      const gap = 20
-      const fullWidth = itemWidth + gap
-
+      const itemWidth = 160
       const containerWidth = reel.parentElement.offsetWidth
 
       const offset =
-        winIndex * fullWidth -
+        winIndex * itemWidth -
         containerWidth / 2 +
         itemWidth / 2
 
       reel.style.transition = "none"
       reel.style.transform = "translateX(0px)"
 
-      void reel.offsetWidth
-
-      reel.style.transition =
-        "transform 4.2s cubic-bezier(0.12, 0.75, 0.15, 1)"
-
-      reel.style.transform =
-        `translateX(-${offset}px)`
+      requestAnimationFrame(() => {
+        reel.style.transition =
+          "transform 4.2s cubic-bezier(0.12, 0.75, 0.15, 1)"
+        reel.style.transform =
+          `translateX(-${offset}px)`
+      })
 
     }, 50)
 
@@ -108,6 +107,10 @@ function CasePage() {
       setResult(winId)
     }, 4300)
   }
+
+  /* =============================
+     RESET
+  ============================= */
 
   const sellItem = () => {
     setResult(null)
@@ -131,7 +134,6 @@ function CasePage() {
           <div className="casepage-title-row">
 
             <button
-              type="button"
               className="casepage-header-btn casepage-back-btn"
               onClick={() => navigate(-1)}
             >
@@ -142,14 +144,13 @@ function CasePage() {
               {caseData.name}
             </div>
 
-            <button
-              type="button"
-              className="casepage-header-btn casepage-settings-btn"
-            >
+            <button className="casepage-header-btn casepage-settings-btn">
               ⚙
             </button>
 
           </div>
+
+          {/* === IMAGE WRAPPER (НЕ ЛОМАЕТ LAYOUT) === */}
 
           <div className="case-image-wrapper">
 
@@ -194,15 +195,16 @@ function CasePage() {
 
           {!isSpinning && !result && (
             <button
-              type="button"
               className="casepage-open-btn"
-              onClick={(e) => openCase(e)}
+              onClick={openCase}
             >
               Открыть кейс
             </button>
           )}
 
         </div>
+
+        {/* DROPS GRID */}
 
         <div className="casepage-drops">
 
@@ -216,6 +218,7 @@ function CasePage() {
                 className="drop-card"
                 onClick={() => handleClick(drop.id)}
               >
+
                 <Lottie
                   key={isActive ? drop.id + "-active" : drop.id}
                   animationData={
@@ -229,6 +232,7 @@ function CasePage() {
                 <div className="drop-name">
                   {drop.name || drop.id}
                 </div>
+
               </div>
             )
 
@@ -237,6 +241,8 @@ function CasePage() {
         </div>
 
       </div>
+
+      {/* RESULT */}
 
       {result && (
         <div className="result-overlay">
@@ -266,7 +272,6 @@ function CasePage() {
             <div className="result-buttons">
 
               <button
-                type="button"
                 className="glass-btn sell"
                 onClick={sellItem}
               >
@@ -274,7 +279,6 @@ function CasePage() {
               </button>
 
               <button
-                type="button"
                 className="glass-btn open"
                 onClick={openAgain}
               >
