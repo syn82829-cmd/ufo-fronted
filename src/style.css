@@ -772,154 +772,90 @@ body {
   font-weight: 600;
 
 }
-.roulette-wrapper {
+/* ============================= */
+/* BLUR BACKGROUND */
+/* ============================= */
 
-  position: relative;
-  overflow: hidden;
-  width: 100%;
-  height: 160px;
-  margin-top: 20px;
-
-}
-
-.roulette-track {
-
-  display: flex;
-  gap: 20px;
-
-  transition: transform 4.5s cubic-bezier(.1,.7,.1,1);
-
-}
-
-.roulette-item {
-
-  width: 140px;
-  height: 140px;
-
-  background: rgba(255,255,255,0.05);
-
-  border-radius: 16px;
-
-}
-
-.roulette-pointer {
-
-  position: absolute;
-  left: 50%;
-  top: 0;
-
-  transform: translateX(-50%);
-
-  width: 6px;
-  height: 100%;
-
-  background: rgba(255,255,255,0.25);
-
-  backdrop-filter: blur(6px);
-
-  z-index: 10;
-
-}
-
-.winner-screen {
-
-  text-align: center;
-  margin-top: 20px;
-
-}
-
-.winner-title {
-
-  font-size: 26px;
-  margin-bottom: 20px;
-
-}
-
-.winner-card {
-
-  width: 200px;
-  margin: auto;
-
-}
-
-.winner-buttons {
-
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-top: 20px;
-
-}
-
-.btn-sell {
-
-  background: #2f80ed;
-  color: white;
-  padding: 12px 18px;
-  border-radius: 10px;
-
-}
-
-.btn-open {
-
-  background: #27ae60;
-  color: white;
-  padding: 12px 18px;
-  border-radius: 10px;
-
-}
 .blurred {
-  filter: blur(12px);
-  opacity: 0.4;
+  filter: blur(14px);
+  opacity: 0.35;
+  transition: 0.3s ease;
 }
 
-/* ROULETTE */
+/* ============================= */
+/* ROULETTE OVERLAY */
+/* ============================= */
 
 .roulette-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   pointer-events: none;
 }
 
 .roulette-window {
-  position: absolute;
-  top: 45%;
+  position: relative;
   width: 100%;
-  height: 160px;
+  max-width: 100%;
+  height: 180px;
   overflow: hidden;
 }
 
 .roulette-reel {
   display: flex;
+  gap: 20px;
+  align-items: center;
 }
 
 .roulette-item {
   width: 140px;
   height: 140px;
+  flex-shrink: 0;
+
+  background: rgba(255,255,255,0.06);
+  border-radius: 18px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  backdrop-filter: blur(12px);
 }
+
+.roulette-static {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+}
+
+/* вертикальная стеклянная линия */
 
 .roulette-line {
   position: absolute;
   left: 50%;
-  width: 4px;
-  height: 160px;
-  background: rgba(255,255,255,0.4);
-  backdrop-filter: blur(10px);
+  top: 0;
   transform: translateX(-50%);
+  width: 6px;
+  height: 100%;
+
+  background: rgba(255,255,255,0.25);
+  backdrop-filter: blur(15px);
+
+  border-radius: 4px;
   z-index: 5;
 }
 
-/* RESULT */
+/* ============================= */
+/* RESULT OVERLAY */
+/* ============================= */
 
 .result-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
+  z-index: 200;
 
   display: flex;
   justify-content: center;
@@ -927,32 +863,74 @@ body {
 }
 
 .result-card {
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(20px);
+  border-radius: 24px;
+
+  padding: 40px 50px;
   text-align: center;
 }
 
 .result-title {
   font-size: 28px;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
+  letter-spacing: 1px;
 }
+
+/* выигрыш чуть больше обычной карточки */
+
+.result-size {
+  width: 170px;
+  height: 170px;
+  margin: 0 auto;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.result-size .drop-lottie {
+  width: 110px;
+  height: 110px;
+}
+
+/* ============================= */
+/* BUTTONS */
+/* ============================= */
 
 .result-buttons {
   display: flex;
-  gap: 12px;
-  margin-top: 20px;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 30px;
 }
 
 .glass-btn {
-  padding: 14px 26px;
-  border-radius: 12px;
-  backdrop-filter: blur(10px);
-  border: none;
+  padding: 14px 28px;
+  border-radius: 14px;
+
+  border: 1px solid rgba(255,255,255,0.15);
+  backdrop-filter: blur(12px);
+
+  font-size: 15px;
+  letter-spacing: 0.5px;
+
   color: white;
+  cursor: pointer;
+
+  transition: 0.25s ease;
+}
+
+.glass-btn:hover {
+  transform: translateY(-2px);
+  background: rgba(255,255,255,0.15);
 }
 
 .sell {
-  background: rgba(0,120,255,0.3);
+  background: rgba(0,120,255,0.25);
 }
 
 .open {
-  background: rgba(0,255,140,0.3);
+  background: rgba(0,255,140,0.25);
 }
