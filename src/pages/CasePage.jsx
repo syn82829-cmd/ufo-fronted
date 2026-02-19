@@ -58,8 +58,8 @@ function CasePage() {
     const winId =
       pool[Math.floor(Math.random() * pool.length)]
 
-    const totalItems = 120
-    const winIndex = 90
+    const totalItems = 60
+    const winIndex = 45
 
     const items = []
 
@@ -77,12 +77,13 @@ function CasePage() {
 
     setReelItems(items)
 
+    // ждём рендер
     setTimeout(() => {
 
       const reel = reelRef.current
       if (!reel) return
 
-      const itemWidth = 160
+      const itemWidth = 160 // 140 + 20 gap
       const containerWidth = reel.parentElement.offsetWidth
 
       const offset =
@@ -150,48 +151,46 @@ function CasePage() {
 
           </div>
 
-          {/* === IMAGE WRAPPER (НЕ ЛОМАЕТ LAYOUT) === */}
+          {/* 🔥 PNG заменяется рулеткой */}
 
-          <div className="case-image-wrapper">
-
+          {!isSpinning && (
             <img
               src={caseData.image}
-              className={`casepage-case-image ${
-                isSpinning ? "hidden-case" : ""
-              }`}
+              className="casepage-case-image"
               alt={caseData.name}
             />
+          )}
 
-            {isSpinning && (
-              <div className="roulette-absolute">
+          {isSpinning && (
+            <div className="roulette-window">
 
-                <div className="roulette-line" />
+              <div className="roulette-line" />
 
-                <div
-                  ref={reelRef}
-                  className="roulette-reel"
-                >
-                  {reelItems.map((dropId, index) => (
-                    <div
-                      key={index}
-                      className="roulette-item"
-                    >
-                      <Lottie
-                        animationData={
-                          darkMatterAnimations[dropId]
-                        }
-                        autoplay={false}
-                        loop={false}
-                        style={{ width: 80, height: 80 }}
-                      />
-                    </div>
-                  ))}
-                </div>
+              <div
+                ref={reelRef}
+                className="roulette-reel"
+              >
+
+                {reelItems.map((dropId, index) => (
+                  <div
+                    key={index}
+                    className="roulette-item"
+                  >
+                    <Lottie
+                      animationData={
+                        darkMatterAnimations[dropId]
+                      }
+                      autoplay={false}
+                      loop={false}
+                      style={{ width: 80, height: 80 }}
+                    />
+                  </div>
+                ))}
 
               </div>
-            )}
 
-          </div>
+            </div>
+          )}
 
           {!isSpinning && !result && (
             <button
