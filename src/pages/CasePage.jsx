@@ -12,23 +12,20 @@ function CasePage() {
 
   const caseData = cases[id]
 
-  // какой дроп сейчас проигрывается
   const [activeDrop, setActiveDrop] = useState(null)
-
-  // ключ для принудительного пересоздания Lottie
-  const [animationKey, setAnimationKey] = useState(0)
 
   if (!caseData) {
     return <div className="app">Case config missing</div>
   }
 
   const handleClick = (dropId) => {
-
-    setActiveDrop(dropId)
-
-    // увеличиваем key → Lottie пересоздаётся → autoplay срабатывает
-    setAnimationKey(prev => prev + 1)
-
+    // если кликнули тот же — сбрасываем и запускаем заново
+    if (activeDrop === dropId) {
+      setActiveDrop(null)
+      setTimeout(() => setActiveDrop(dropId), 10)
+    } else {
+      setActiveDrop(dropId)
+    }
   }
 
   return (
@@ -80,25 +77,13 @@ function CasePage() {
               onClick={() => handleClick(drop.id)}
             >
 
-              {isActive ? (
-
-                <Lottie
-                  key={animationKey}
-                  animationData={darkMatterAnimations[drop.id]}
-                  autoplay={true}
-                  loop={false}
-                  className="drop-lottie"
-                />
-
-              ) : (
-
-                <img
-                  src={`/drops/${drop.id}.png`}
-                  className="drop-lottie"
-                  alt={drop.id}
-                />
-
-              )}
+              <Lottie
+                key={isActive ? `${drop.id}-active` : `${drop.id}-idle`}
+                animationData={darkMatterAnimations[drop.id]}
+                autoplay={isActive}
+                loop={false}
+                className="drop-lottie"
+              />
 
               <div className="drop-name">
                 {drop.id}
