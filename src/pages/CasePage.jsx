@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom"
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef } from "react"
 import Lottie from "lottie-react"
 
 import { cases } from "../data/cases"
@@ -15,17 +15,15 @@ function CasePage() {
   const [isSpinning, setIsSpinning] = useState(false)
   const [result, setResult] = useState(null)
   const [reelItems, setReelItems] = useState([])
-  const [winIndex, setWinIndex] = useState(0)
 
   const reelRef = useRef(null)
-  const spinTimeout = useRef(null)
 
   if (!caseData) {
     return <div className="app">Case config missing</div>
   }
 
   /* =============================
-     DROP CLICK
+     PLAY DROP ANIMATION
   ============================= */
 
   const handleClick = (dropId) => {
@@ -41,15 +39,14 @@ function CasePage() {
      OPEN CASE
   ============================= */
 
-  const openCase = (e) => {
-
-    e?.preventDefault()
-    e?.stopPropagation()
+  const openCase = () => {
 
     if (isSpinning) return
 
     setResult(null)
+    setIsSpinning(true)
 
+    // weighted random
     const pool = []
     caseData.drops.forEach(drop => {
       const weight = drop.chance || 10
@@ -61,13 +58,13 @@ function CasePage() {
     const winId =
       pool[Math.floor(Math.random() * pool.length)]
 
-    const totalItems = 200
-    const targetIndex = 160
+    const totalItems = 140
+    const winIndex = 110
 
     const items = []
 
     for (let i = 0; i < totalItems; i++) {
-      if (i === targetIndex) {
+      if (i === winIndex) {
         items.push(winId)
       } else {
         const random =
@@ -78,68 +75,58 @@ function CasePage() {
       }
     }
 
-    setWinIndex(targetIndex)
     setReelItems(items)
-    setIsSpinning(true)
 
-    spinTimeout.current = setTimeout(() => {
+    setTimeout(() => {
+
+      const reel = reelRef.current
+      if (!reel) return
+
+      const firstItem = reel.children[0]
+      if (!firstItem) return
+
+      const itemWidth = firstItem.offsetWidth
+      const gap = 20
+      const fullItemWidth = itemWidth + gap
+
+      const containerWidth = reel.parentElement.offsetWidth
+
+      const offset =
+        winIndex * fullItemWidth -
+        containerWidth / 2 +
+        itemWidth / 2
+
+      reel.style.transition = "none"
+      reel.style.transform = "translateX(0px)"
+
+      // 🔥 принудительный reflow
+      reel.offsetHeight
+
+      requestAnimationFrame(() => {
+        reel.style.transition =
+          "transform 4.5s cubic-bezier(0.08, 0.85, 0.18, 1)"
+        reel.style.transform =
+          `translateX(-${offset}px)`
+      })
+
+    }, 50)
+
+    setTimeout(() => {
       setIsSpinning(false)
       setResult(winId)
-    }, 4500)
+    }, 4600)
   }
 
   /* =============================
-     SPIN ANIMATION
+     RESET
   ============================= */
-
-  useEffect(() => {
-
-    if (!isSpinning) return
-    if (!reelRef.current) return
-
-    const reel = reelRef.current
-    const firstItem = reel.children[0]
-    if (!firstItem) return
-
-    const itemWidth = firstItem.offsetWidth
-    const gap = 20
-    const fullWidth = itemWidth + gap
-    const containerWidth = reel.parentElement.offsetWidth
-
-    const offset =
-      winIndex * fullWidth -
-      containerWidth / 2 +
-      itemWidth / 2
-
-    reel.style.transition = "none"
-    reel.style.transform = "translateX(0px)"
-
-    // форсируем ререндер
-    void reel.offsetWidth
-
-    reel.style.transition =
-      "transform 4.5s cubic-bezier(0.08, 0.85, 0.18, 1)"
-
-    reel.style.transform =
-      `translateX(-${offset}px)`
-
-  }, [isSpinning])
-
-  /* =============================
-     CLEANUP
-  ============================= */
-
-  useEffect(() => {
-    return () => clearTimeout(spinTimeout.current)
-  }, [])
 
   const sellItem = () => {
-    clearTimeout(spinTimeout.current)
     setResult(null)
+    setIsSpinning(false)
   }
 
   const openAgain = () => {
-    clearTimeout(spinTimeout.current)
     setResult(null)
     openCase()
   }
@@ -156,7 +143,6 @@ function CasePage() {
           <div className="casepage-title-row">
 
             <button
-              type="button"
               className="casepage-header-btn casepage-back-btn"
               onClick={() => navigate(-1)}
             >
@@ -167,10 +153,7 @@ function CasePage() {
               {caseData.name}
             </div>
 
-            <button
-              type="button"
-              className="casepage-header-btn casepage-settings-btn"
-            >
+            <button className="casepage-header-btn casepage-settings-btn">
               ⚙
             </button>
 
@@ -178,13 +161,13 @@ function CasePage() {
 
           <div className="case-image-wrapper">
 
-            {!isSpinning && (
-              <img
-                src={caseData.image}
-                className="casepage-case-image"
-                alt={caseData.name}
-              />
-            )}
+            <img
+              src={caseData.image}
+              className={`casepage-case-image ${
+                isSpinning ? "hidden-case" : ""
+              }`}
+              alt={caseData.name}
+            />
 
             {isSpinning && (
               <div className="roulette-absolute">
@@ -219,7 +202,6 @@ function CasePage() {
 
           {!isSpinning && !result && (
             <button
-              type="button"
               className="casepage-open-btn"
               onClick={openCase}
             >
@@ -241,6 +223,7 @@ function CasePage() {
                 className="drop-card"
                 onClick={() => handleClick(drop.id)}
               >
+
                 <Lottie
                   key={isActive ? drop.id + "-active" : drop.id}
                   animationData={
@@ -250,11 +233,14 @@ function CasePage() {
                   loop={false}
                   className="drop-lottie"
                 />
+
                 <div className="drop-name">
                   {drop.name || drop.id}
                 </div>
+
               </div>
             )
+
           })}
 
         </div>
@@ -271,6 +257,7 @@ function CasePage() {
             </div>
 
             <div className="drop-card result-size">
+
               <Lottie
                 animationData={
                   darkMatterAnimations[result]
@@ -278,15 +265,16 @@ function CasePage() {
                 autoplay
                 loop={false}
               />
+
               <div className="drop-name">
                 {result}
               </div>
+
             </div>
 
             <div className="result-buttons">
 
               <button
-                type="button"
                 className="glass-btn sell"
                 onClick={sellItem}
               >
@@ -294,7 +282,6 @@ function CasePage() {
               </button>
 
               <button
-                type="button"
                 className="glass-btn open"
                 onClick={openAgain}
               >
