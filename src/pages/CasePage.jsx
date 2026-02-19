@@ -58,8 +58,8 @@ function CasePage() {
     const winId =
       pool[Math.floor(Math.random() * pool.length)]
 
-    const totalItems = 60
-    const winIndex = 45
+    const totalItems = 200
+    const winIndex = 150
 
     const items = []
 
