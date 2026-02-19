@@ -783,32 +783,52 @@ body {
 }
 
 /* ============================= */
-/* ROULETTE OVERLAY */
+/* BLUR BACKGROUND */
 /* ============================= */
 
-.roulette-overlay {
-  position: fixed;
+.blurred {
+  filter: blur(14px);
+  opacity: 0.35;
+  transition: 0.3s ease;
+}
+
+/* ============================= */
+/* CASE IMAGE WRAPPER (КЛЮЧЕВОЕ) */
+/* ============================= */
+
+.case-image-wrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.casepage-case-image {
+  max-width: 320px;
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.hidden-case {
+  visibility: hidden; /* сохраняет размеры */
+}
+
+/* ============================= */
+/* ROULETTE (встроенная поверх кейса) */
+/* ============================= */
+
+.roulette-absolute {
+  position: absolute;
   inset: 0;
-  z-index: 100;
 
   display: flex;
   justify-content: center;
   align-items: center;
 
-  background: rgba(0,0,0,0.25);
-}
-
-.roulette-window {
-  position: relative;
-  width: 100%;
-  height: 180px;
   overflow: hidden;
-
-  display: flex;
-  align-items: center;
 }
 
-/* 🔥 ВАЖНО */
 .roulette-reel {
   display: flex;
   gap: 20px;
@@ -832,14 +852,6 @@ body {
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255,255,255,0.08);
 }
-
-.roulette-static {
-  width: 80px;
-  height: 80px;
-  object-fit: contain;
-}
-
-/* вертикальная стеклянная линия */
 
 .roulette-line {
   position: absolute;
@@ -890,7 +902,9 @@ body {
   letter-spacing: 1px;
 }
 
-/* выигрыш чуть больше обычной карточки */
+/* ============================= */
+/* RESULT DROP CARD */
+/* ============================= */
 
 .result-size {
   width: 170px;
