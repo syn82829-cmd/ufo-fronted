@@ -5,6 +5,22 @@ import Lottie from "lottie-react"
 import { cases } from "../data/cases"
 import { darkMatterAnimations } from "../data/animations"
 
+// display names отдельно от filenames
+const dropNames = {
+  darkhelmet: "Dark Helmet",
+  gift: "Mystery Gift",
+  westside: "Westside",
+  lowrider: "Lowrider",
+  watch: "Cosmic Watch",
+  skull: "Alien Skull",
+  dyson: "Dyson Core",
+  batman: "Batman Relic",
+  poizon: "Poizon Artifact",
+  metla: "Quantum Broom",
+  ball: "Gravity Ball",
+  book: "Ancient Book"
+}
+
 function CasePage() {
 
   const { id } = useParams()
@@ -14,7 +30,7 @@ function CasePage() {
 
   const [activeDrop, setActiveDrop] = useState(null)
 
-  // храним рефы для каждой анимации
+  // храним refs правильно
   const lottieRefs = useRef({})
 
   if (!caseData) {
@@ -25,10 +41,17 @@ function CasePage() {
 
     setActiveDrop(dropId)
 
-    // если есть реф — запускаем вручную
-    if (lottieRefs.current[dropId]) {
-      lottieRefs.current[dropId].stop()
-      lottieRefs.current[dropId].play()
+    const instance = lottieRefs.current[dropId]
+
+    if (instance) {
+
+      instance.stop()
+
+      // forcing restart
+      setTimeout(() => {
+        instance.play()
+      }, 10)
+
     }
 
   }
@@ -36,6 +59,7 @@ function CasePage() {
   return (
     <div className="app">
 
+      {/* HEADER */}
       <div className="casepage-header">
 
         <div className="casepage-title-row">
@@ -69,28 +93,37 @@ function CasePage() {
 
       </div>
 
+      {/* DROPS */}
       <div className="casepage-drops">
 
         {caseData.drops.map((drop) => (
+
           <div
             key={drop.id}
-            className="drop-card"
+            className={`drop-card ${
+              activeDrop === drop.id ? "active" : ""
+            }`}
             onClick={() => handleClick(drop.id)}
           >
 
             <Lottie
-              lottieRef={(el) => (lottieRefs.current[drop.id] = el)}
               animationData={darkMatterAnimations[drop.id]}
               autoplay={false}
               loop={false}
+              lottieRef={(instance) => {
+                if (instance) {
+                  lottieRefs.current[drop.id] = instance
+                }
+              }}
               className="drop-lottie"
             />
 
             <div className="drop-name">
-              {drop.id}
+              {dropNames[drop.id] || drop.id}
             </div>
 
           </div>
+
         ))}
 
       </div>
