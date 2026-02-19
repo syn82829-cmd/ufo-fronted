@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom"
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import Lottie from "lottie-react"
 
 import { cases } from "../data/cases"
@@ -15,6 +15,7 @@ function CasePage() {
   const [isSpinning, setIsSpinning] = useState(false)
   const [result, setResult] = useState(null)
   const [reelItems, setReelItems] = useState([])
+  const [winIndex, setWinIndex] = useState(0)
 
   const reelRef = useRef(null)
   const spinTimeout = useRef(null)
@@ -37,16 +38,18 @@ function CasePage() {
   }
 
   /* =============================
-     OPEN CASE (СТАБИЛЬНАЯ ВЕРСИЯ)
+     OPEN CASE
   ============================= */
 
-  const openCase = () => {
+  const openCase = (e) => {
+
+    e?.preventDefault()
+    e?.stopPropagation()
 
     if (isSpinning) return
 
     setResult(null)
 
-    // создаём пул по шансам
     const pool = []
     caseData.drops.forEach(drop => {
       const weight = drop.chance || 10
@@ -58,8 +61,8 @@ function CasePage() {
     const winId =
       pool[Math.floor(Math.random() * pool.length)]
 
-    const totalItems = 160
-    const targetIndex = 130
+    const totalItems = 200
+    const targetIndex = 160
 
     const items = []
 
@@ -75,40 +78,9 @@ function CasePage() {
       }
     }
 
+    setWinIndex(targetIndex)
     setReelItems(items)
     setIsSpinning(true)
-
-    // даём React смонтировать DOM
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-
-        const reel = reelRef.current
-        if (!reel) return
-
-        const firstItem = reel.children[0]
-        if (!firstItem) return
-
-        const itemWidth = firstItem.offsetWidth
-        const gap = 20
-        const fullItemWidth = itemWidth + gap
-        const containerWidth = reel.parentElement.offsetWidth
-
-        const offset =
-          targetIndex * fullItemWidth -
-          containerWidth / 2 +
-          itemWidth / 2
-
-        reel.style.transition = "none"
-        reel.style.transform = "translateX(0px)"
-
-        void reel.offsetHeight
-
-        reel.style.transition =
-          "transform 4.5s cubic-bezier(0.08, 0.85, 0.18, 1)"
-        reel.style.transform =
-          `translateX(-${offset}px)`
-      })
-    })
 
     spinTimeout.current = setTimeout(() => {
       setIsSpinning(false)
@@ -117,8 +89,49 @@ function CasePage() {
   }
 
   /* =============================
-     RESET
+     SPIN ANIMATION
   ============================= */
+
+  useEffect(() => {
+
+    if (!isSpinning) return
+    if (!reelRef.current) return
+
+    const reel = reelRef.current
+    const firstItem = reel.children[0]
+    if (!firstItem) return
+
+    const itemWidth = firstItem.offsetWidth
+    const gap = 20
+    const fullWidth = itemWidth + gap
+    const containerWidth = reel.parentElement.offsetWidth
+
+    const offset =
+      winIndex * fullWidth -
+      containerWidth / 2 +
+      itemWidth / 2
+
+    reel.style.transition = "none"
+    reel.style.transform = "translateX(0px)"
+
+    // форсируем ререндер
+    void reel.offsetWidth
+
+    reel.style.transition =
+      "transform 4.5s cubic-bezier(0.08, 0.85, 0.18, 1)"
+
+    reel.style.transform =
+      `translateX(-${offset}px)`
+
+  }, [isSpinning])
+
+  /* =============================
+     CLEANUP
+  ============================= */
+
+  useEffect(() => {
+    return () => clearTimeout(spinTimeout.current)
+  }, [])
 
   const sellItem = () => {
     clearTimeout(spinTimeout.current)
@@ -165,13 +178,13 @@ function CasePage() {
 
           <div className="case-image-wrapper">
 
-            <img
-              src={caseData.image}
-              className={`casepage-case-image ${
-                isSpinning ? "hidden-case" : ""
-              }`}
-              alt={caseData.name}
-            />
+            {!isSpinning && (
+              <img
+                src={caseData.image}
+                className="casepage-case-image"
+                alt={caseData.name}
+              />
+            )}
 
             {isSpinning && (
               <div className="roulette-absolute">
