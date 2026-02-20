@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom"
-import { useState, useRef, useLayoutEffect } from "react"
+import { useState, useRef, useLayoutEffect, useEffect } from "react"
 import Lottie from "lottie-react"
 
 import { cases } from "../data/cases"
@@ -11,24 +11,23 @@ function CasePage() {
   const caseData = cases[id]
 
   const [activeDrop, setActiveDrop] = useState(null)
-
   const [isSpinning, setIsSpinning] = useState(false)
   const [result, setResult] = useState(null)
-
   const [reelItems, setReelItems] = useState([])
-  const [winIndex, setWinIndex] = useState(0)
 
   const reelRef = useRef(null)
-  const spinTimeout = useRef(null)
+  const rouletteWrapRef = useRef(null)
 
-  if (!caseData) {
-    return <div className="app">Case config missing</div>
-  }
+  const spinTimeout = useRef(null)
+  const winIdRef = useRef(null)
+  const winIndexRef = useRef(0)
+  const startedRef = useRef(false)
+
+  if (!caseData) return <div className="app">Case config missing</div>
 
   /* =============================
-     PLAY DROP ANIMATION
+     DROP CLICK (анимация в сетке)
   ============================= */
-
   const handleClick = (dropId) => {
     if (activeDrop === dropId) {
       setActiveDrop(null)
@@ -39,110 +38,143 @@ function CasePage() {
   }
 
   /* =============================
-     HELPERS
+     WEIGHTED RANDOM
   ============================= */
-
-  const pickWeightedWin = () => {
+  const pickWeighted = () => {
     const pool = []
     caseData.drops.forEach((drop) => {
-      const weight = drop.chance || 10
-      for (let i = 0; i < weight; i++) pool.push(drop.id)
+      const w = drop.chance || 10
+      for (let i = 0; i < w; i++) pool.push(drop.id)
     })
     return pool[Math.floor(Math.random() * pool.length)]
   }
 
-  const randomDropId = () =>
-    caseData.drops[Math.floor(Math.random() * caseData.drops.length)].id
-
   /* =============================
      OPEN CASE
   ============================= */
-
   const openCase = (e) => {
-    e?.preventDefault()
-    e?.stopPropagation()
-
+    if (e) e.preventDefault()
     if (isSpinning) return
 
+    // сброс
     clearTimeout(spinTimeout.current)
-
     setResult(null)
+    startedRef.current = false
+
+    const winId = pickWeighted()
+    winIdRef.current = winId
+
     setIsSpinning(true)
-
-    const winId = pickWeightedWin()
-
-    // Делаем длинную ленту: много до выигрыша, выигрыш, немного после
-    // ВАЖНО: winIndex НЕ последний, чтобы визуально “не кончалось”
-    const before = 110
-    const after = 25
-    const targetIndex = before
-
-    const items = []
-    for (let i = 0; i < before; i++) items.push(randomDropId())
-    items.push(winId)
-    for (let i = 0; i < after; i++) items.push(randomDropId())
-
-    setWinIndex(targetIndex)
-    setReelItems(items)
-
-    spinTimeout.current = setTimeout(() => {
-      setIsSpinning(false)
-      setResult(winId)
-    }, 4600)
+    setReelItems([]) // сначала пусто, потом соберём по реальным размерам
   }
 
   /* =============================
-     SPIN ANIMATION (stable start)
+     BUILD REEL + START ANIMATION (СТАБИЛЬНО)
   ============================= */
-
   useLayoutEffect(() => {
     if (!isSpinning) return
+    if (!rouletteWrapRef.current) return
+
+    // если уже стартовали — не трогаем
+    if (startedRef.current) return
+
+    const wrap = rouletteWrapRef.current
+    const containerWidth = wrap.offsetWidth || 320
+
+    // наши размеры по CSS: 140px item + gap 20px
+    // но на всякий случай считаем динамически
+    const itemW = 140
+    const gap = 20
+    const full = itemW + gap
+
+    const visibleCount = Math.ceil(containerWidth / full) + 2
+    const prefix = visibleCount + 12          // чтобы слева всегда было что крутить
+    const winIndex = prefix + 60              // победа “глубоко” в середине
+    const tailBuffer = visibleCount + 40      // буфер справа чтобы не пустело
+    const total = winIndex + tailBuffer
+
+    winIndexRef.current = winIndex
+
+    // собираем ленту
+    const items = new Array(total).fill(null).map(() => {
+      const r = caseData.drops[Math.floor(Math.random() * caseData.drops.length)].id
+      return r
+    })
+
+    // фиксируем победу в точке winIndex
+    items[winIndex] = winIdRef.current
+
+    setReelItems(items)
+    startedRef.current = true
+  }, [isSpinning, caseData.drops])
+
+  /* =============================
+     RUN TRANSFORM AFTER REEL RENDERED
+  ============================= */
+  useLayoutEffect(() => {
+    if (!isSpinning) return
+    if (!reelRef.current) return
+    if (!reelItems.length) return
+
     const reel = reelRef.current
-    if (!reel) return
-    if (!reel.children.length) return
+    const wrap = rouletteWrapRef.current
+    if (!wrap) return
 
-    const firstItem = reel.children[0]
-    const itemWidth = firstItem.offsetWidth // 140
-    const gap = 20 // как в CSS
-    const full = itemWidth + gap
-
-    const containerWidth = reel.parentElement.offsetWidth
-    const offset =
-      winIndex * full - containerWidth / 2 + itemWidth / 2
-
-    // reset
+    // принудительно стартуем из “нулевой” позиции
     reel.style.transition = "none"
     reel.style.transform = "translateX(0px)"
-
-    // force reflow
     void reel.offsetHeight
 
-    // animate
-    reel.style.transition =
-      "transform 4.6s cubic-bezier(0.08, 0.85, 0.18, 1)"
-    reel.style.transform = `translateX(-${offset}px)`
-  }, [isSpinning, reelItems, winIndex])
+    // считаем смещение до winIndex по центру линии
+    const containerWidth = wrap.offsetWidth || 320
+    const itemW = 140
+    const gap = 20
+    const full = itemW + gap
+
+    const winIndex = winIndexRef.current
+
+    const offset =
+      winIndex * full -
+      containerWidth / 2 +
+      itemW / 2
+
+    // запускаем анимацию
+    requestAnimationFrame(() => {
+      reel.style.transition = "transform 3.6s cubic-bezier(0.12, 0.75, 0.15, 1)"
+      reel.style.transform = `translateX(-${offset}px)`
+    })
+
+    // показываем результат
+    clearTimeout(spinTimeout.current)
+    spinTimeout.current = setTimeout(() => {
+      setIsSpinning(false)
+      setResult(winIdRef.current)
+    }, 3700)
+  }, [isSpinning, reelItems])
+
+  /* =============================
+     CLEANUP (важно)
+  ============================= */
+  useEffect(() => {
+    return () => clearTimeout(spinTimeout.current)
+  }, [])
 
   /* =============================
      RESET
   ============================= */
-
   const sellItem = (e) => {
-    e?.preventDefault()
-    e?.stopPropagation()
+    if (e) e.preventDefault()
     clearTimeout(spinTimeout.current)
     setResult(null)
+    // возвращаем интерфейс кейса
     setIsSpinning(false)
+    setReelItems([])
   }
 
   const openAgain = (e) => {
-    e?.preventDefault()
-    e?.stopPropagation()
-    clearTimeout(spinTimeout.current)
-    setResult(null)
-    setIsSpinning(false)
-    // чуть позже, чтобы не конфликтовать со стейтом
-    setTimeout(() => openCase(), 0)
+    if (e) e.preventDefault()
+    sellItem()
+    openCase()
   }
 
   const blurred = result != null
@@ -178,7 +210,7 @@ function CasePage() {
             />
 
             {isSpinning && (
-              <div className="roulette-absolute">
+              <div className="roulette-absolute" ref={rouletteWrapRef}>
                 <div className="roulette-line" />
 
                 <div ref={reelRef} className="roulette-reel">
@@ -208,7 +240,6 @@ function CasePage() {
           )}
         </div>
 
-        {/* DROPS GRID */}
         <div className="casepage-drops">
           {caseData.drops.map((drop) => {
             const isActive = activeDrop === drop.id
@@ -232,7 +263,6 @@ function CasePage() {
         </div>
       </div>
 
-      {/* RESULT */}
       {result && (
         <div className="result-overlay">
           <div className="result-card">
