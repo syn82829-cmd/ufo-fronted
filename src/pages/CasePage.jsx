@@ -6,17 +6,17 @@ import { cases } from "../data/cases"
 import { darkMatterAnimations } from "../data/animations"
 
 function CasePage() {
-
   const { id } = useParams()
   const navigate = useNavigate()
   const caseData = cases[id]
 
   const [activeDrop, setActiveDrop] = useState(null)
+
   const [isSpinning, setIsSpinning] = useState(false)
   const [result, setResult] = useState(null)
 
   const [reelItems, setReelItems] = useState([])
-  const [targetIndex, setTargetIndex] = useState(0)
+  const [winIndex, setWinIndex] = useState(0)
 
   const reelRef = useRef(null)
   const spinTimeout = useRef(null)
@@ -39,135 +39,119 @@ function CasePage() {
   }
 
   /* =============================
-     PICK WINNER (weighted)
+     HELPERS
   ============================= */
 
-  const pickWinner = () => {
+  const pickWeightedWin = () => {
     const pool = []
-    caseData.drops.forEach(drop => {
-      const w = drop.chance || 10
-      for (let i = 0; i < w; i++) pool.push(drop.id)
+    caseData.drops.forEach((drop) => {
+      const weight = drop.chance || 10
+      for (let i = 0; i < weight; i++) pool.push(drop.id)
     })
     return pool[Math.floor(Math.random() * pool.length)]
   }
 
-  /* =============================
-     BUILD LONG REEL (so it never ends)
-  ============================= */
-
-  const buildReel = (winId) => {
-    const baseLength = 40              // базовый блок
-    const repeats = 9                  // сколько раз повторяем
-    const middleRepeat = Math.floor(repeats / 2) // победа будет в середине
-
-    const base = Array.from({ length: baseLength }, () => {
-      const r = caseData.drops[Math.floor(Math.random() * caseData.drops.length)].id
-      return r
-    })
-
-    const winIndexInBase = Math.floor(baseLength / 2) // выигрыш внутри base
-    base[winIndexInBase] = winId
-
-    const items = []
-    for (let k = 0; k < repeats; k++) items.push(...base)
-
-    const globalTargetIndex = middleRepeat * baseLength + winIndexInBase
-
-    return { items, globalTargetIndex }
-  }
+  const randomDropId = () =>
+    caseData.drops[Math.floor(Math.random() * caseData.drops.length)].id
 
   /* =============================
      OPEN CASE
   ============================= */
 
-  const openCase = () => {
+  const openCase = (e) => {
+    e?.preventDefault()
+    e?.stopPropagation()
+
     if (isSpinning) return
 
-    // на всякий случай чистим таймер
-    if (spinTimeout.current) clearTimeout(spinTimeout.current)
+    clearTimeout(spinTimeout.current)
 
     setResult(null)
-
-    const winId = pickWinner()
-    const { items, globalTargetIndex } = buildReel(winId)
-
-    setReelItems(items)
-    setTargetIndex(globalTargetIndex)
     setIsSpinning(true)
+
+    const winId = pickWeightedWin()
+
+    // Делаем длинную ленту: много до выигрыша, выигрыш, немного после
+    // ВАЖНО: winIndex НЕ последний, чтобы визуально “не кончалось”
+    const before = 110
+    const after = 25
+    const targetIndex = before
+
+    const items = []
+    for (let i = 0; i < before; i++) items.push(randomDropId())
+    items.push(winId)
+    for (let i = 0; i < after; i++) items.push(randomDropId())
+
+    setWinIndex(targetIndex)
+    setReelItems(items)
 
     spinTimeout.current = setTimeout(() => {
       setIsSpinning(false)
       setResult(winId)
-    }, 4300)
+    }, 4600)
   }
 
   /* =============================
-     START ANIMATION WHEN REEL READY
+     SPIN ANIMATION (stable start)
   ============================= */
 
   useLayoutEffect(() => {
     if (!isSpinning) return
     const reel = reelRef.current
     if (!reel) return
+    if (!reel.children.length) return
 
-    const first = reel.children[0]
-    if (!first) return
+    const firstItem = reel.children[0]
+    const itemWidth = firstItem.offsetWidth // 140
+    const gap = 20 // как в CSS
+    const full = itemWidth + gap
 
-    const itemW = first.getBoundingClientRect().width
-    const gap = 20
-    const step = itemW + gap
+    const containerWidth = reel.parentElement.offsetWidth
+    const offset =
+      winIndex * full - containerWidth / 2 + itemWidth / 2
 
-    const containerW = reel.parentElement.getBoundingClientRect().width
-
-    // ставим ленту в "середину", чтобы слева тоже были элементы
-    const startIndex = Math.max(0, targetIndex - 60)
-    const startX = startIndex * step
-
-    // куда едем: победа по центру
-    const targetX =
-      targetIndex * step -
-      containerW / 2 +
-      itemW / 2
-
+    // reset
     reel.style.transition = "none"
-    reel.style.transform = `translateX(-${startX}px)`
+    reel.style.transform = "translateX(0px)"
 
     // force reflow
     void reel.offsetHeight
 
-    requestAnimationFrame(() => {
-      reel.style.transition = "transform 4.2s cubic-bezier(0.12, 0.75, 0.15, 1)"
-      reel.style.transform = `translateX(-${targetX}px)`
-    })
-  }, [isSpinning, reelItems, targetIndex])
+    // animate
+    reel.style.transition =
+      "transform 4.6s cubic-bezier(0.08, 0.85, 0.18, 1)"
+    reel.style.transform = `translateX(-${offset}px)`
+  }, [isSpinning, reelItems, winIndex])
 
   /* =============================
      RESET
   ============================= */
 
-  const sellItem = () => {
-    if (spinTimeout.current) clearTimeout(spinTimeout.current)
+  const sellItem = (e) => {
+    e?.preventDefault()
+    e?.stopPropagation()
+    clearTimeout(spinTimeout.current)
     setResult(null)
     setIsSpinning(false)
   }
 
-  const openAgain = () => {
-    if (spinTimeout.current) clearTimeout(spinTimeout.current)
+  const openAgain = (e) => {
+    e?.preventDefault()
+    e?.stopPropagation()
+    clearTimeout(spinTimeout.current)
     setResult(null)
-    openCase()
+    setIsSpinning(false)
+    // чуть позже, чтобы не конфликтовать со стейтом
+    setTimeout(() => openCase(), 0)
   }
 
   const blurred = result != null
 
   return (
     <div className="app">
-
       <div className={blurred ? "blurred" : ""}>
-
         <div className="casepage-header">
-
           <div className="casepage-title-row">
-
             <button
               type="button"
               className="casepage-header-btn casepage-back-btn"
@@ -176,9 +160,7 @@ function CasePage() {
               ←
             </button>
 
-            <div className="casepage-title">
-              {caseData.name}
-            </div>
+            <div className="casepage-title">{caseData.name}</div>
 
             <button
               type="button"
@@ -186,11 +168,9 @@ function CasePage() {
             >
               ⚙
             </button>
-
           </div>
 
           <div className="case-image-wrapper">
-
             <img
               src={caseData.image}
               className={`casepage-case-image ${isSpinning ? "hidden-case" : ""}`}
@@ -199,13 +179,9 @@ function CasePage() {
 
             {isSpinning && (
               <div className="roulette-absolute">
-
                 <div className="roulette-line" />
 
-                <div
-                  ref={reelRef}
-                  className="roulette-reel"
-                >
+                <div ref={reelRef} className="roulette-reel">
                   {reelItems.map((dropId, index) => (
                     <div key={index} className="roulette-item">
                       <Lottie
@@ -217,10 +193,8 @@ function CasePage() {
                     </div>
                   ))}
                 </div>
-
               </div>
             )}
-
           </div>
 
           {!isSpinning && !result && (
@@ -232,11 +206,11 @@ function CasePage() {
               Открыть кейс
             </button>
           )}
-
         </div>
 
+        {/* DROPS GRID */}
         <div className="casepage-drops">
-          {caseData.drops.map(drop => {
+          {caseData.drops.map((drop) => {
             const isActive = activeDrop === drop.id
             return (
               <div
@@ -251,24 +225,18 @@ function CasePage() {
                   loop={false}
                   className="drop-lottie"
                 />
-                <div className="drop-name">
-                  {drop.name || drop.id}
-                </div>
+                <div className="drop-name">{drop.name || drop.id}</div>
               </div>
             )
           })}
         </div>
-
       </div>
 
+      {/* RESULT */}
       {result && (
         <div className="result-overlay">
-
           <div className="result-card">
-
-            <div className="result-title">
-              Поздравляем!
-            </div>
+            <div className="result-title">Поздравляем!</div>
 
             <div className="drop-card result-size">
               <Lottie
@@ -276,13 +244,10 @@ function CasePage() {
                 autoplay
                 loop={false}
               />
-              <div className="drop-name">
-                {result}
-              </div>
+              <div className="drop-name">{result}</div>
             </div>
 
             <div className="result-buttons">
-
               <button
                 type="button"
                 className="glass-btn sell"
@@ -298,14 +263,10 @@ function CasePage() {
               >
                 Открыть еще
               </button>
-
             </div>
-
           </div>
-
         </div>
       )}
-
     </div>
   )
 }
