@@ -791,9 +791,6 @@ body {
   width: 100%;
   display: flex;
   justify-content: center;
-  align-items: center;
-
-  min-height: 320px; /* фиксируем высоту */
 }
 
 .casepage-case-image {
@@ -808,46 +805,25 @@ body {
 }
 
 /* ============================= */
-/* ROULETTE WINDOW */
+/* ROULETTE */
 /* ============================= */
 
 .roulette-absolute {
   position: absolute;
-
-  width: 100%;
-  height: 180px; /* фиксированная высота окна */
-
+  inset: 0;
   display: flex;
   justify-content: center;
   align-items: center;
-
   overflow: hidden;
 
-  mask-image: linear-gradient(
-    to right,
-    transparent 0%,
-    black 12%,
-    black 88%,
-    transparent 100%
-  );
-  -webkit-mask-image: linear-gradient(
-    to right,
-    transparent 0%,
-    black 12%,
-    black 88%,
-    transparent 100%
-  );
+  mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
 }
-
-/* ============================= */
-/* ROULETTE REEL */
-/* ============================= */
 
 .roulette-reel {
   display: flex;
   gap: 20px;
   align-items: center;
-
   will-change: transform;
 }
 
@@ -878,9 +854,10 @@ body {
   transform: translate(-50%, -50%);
 
   width: 4px;
-  height: 150px;
+  height: 160px; /* ровно под высоту карточки */
 
-  background: rgba(255,255,255,0.7);
+  background: rgba(255,255,255,0.65);
+  backdrop-filter: blur(20px);
 
   border-radius: 4px;
 
@@ -926,10 +903,6 @@ body {
   letter-spacing: 1px;
 }
 
-/* ============================= */
-/* RESULT DROP CARD */
-/* ============================= */
-
 .result-size {
   width: 170px;
   height: 170px;
@@ -950,10 +923,6 @@ body {
   width: 110px;
   height: 110px;
 }
-
-/* ============================= */
-/* BUTTONS */
-/* ============================= */
 
 .result-buttons {
   display: flex;
@@ -983,10 +952,5 @@ body {
   background: rgba(255,255,255,0.15);
 }
 
-.sell {
-  background: rgba(0,120,255,0.25);
-}
-
-.open {
-  background: rgba(0,255,140,0.25);
-}
+.sell { background: rgba(0,120,255,0.25); }
+.open { background: rgba(0,255,140,0.25); }
