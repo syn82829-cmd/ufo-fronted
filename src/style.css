@@ -825,6 +825,7 @@ body {
   gap: 20px;
   align-items: center;
   will-change: transform;
+  padding-left: 40vw; /* запас слева, чтобы не было ощущения конца */
 }
 
 .roulette-item {
