@@ -817,23 +817,9 @@ body {
 
   overflow: hidden;
 
-  /* затемнение краёв */
-  mask-image: linear-gradient(
-    to right,
-    transparent 0%,
-    black 12%,
-    black 88%,
-    transparent 100%
-  );
-  -webkit-mask-image: linear-gradient(
-    to right,
-    transparent 0%,
-    black 12%,
-    black 88%,
-    transparent 100%
-  );
+  mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
 
-  /* чтобы клики не ловило поверх */
   pointer-events: none;
 }
 
@@ -842,27 +828,7 @@ body {
   gap: 20px;
   align-items: center;
   will-change: transform;
-
-  /* ВАЖНО: никаких padding-left / margin-left — иначе ломаем offset */
 }
-
-/* хвост справа, чтобы не было ощущения "конца" */
-.roulette-reel::after {
-  content: "";
-  flex: 0 0 60vw;
-  height: 1px;
-}
-
-/* (опционально) можно дать небольшой хвост слева, но он НЕ нужен,
-   и может мешать если ты стартуешь не с 0px.
-   Если вдруг захотешь — делай через ::before и учитывай в JS. */
-/*
-.roulette-reel::before {
-  content: "";
-  flex: 0 0 20vw;
-  height: 1px;
-}
-*/
 
 .roulette-item {
   width: 140px;
@@ -960,10 +926,6 @@ body {
   width: 110px;
   height: 110px;
 }
-
-/* ============================= */
-/* BUTTONS */
-/* ============================= */
 
 .result-buttons {
   display: flex;
