@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom"
-import { useState, useRef, useLayoutEffect, useEffect, useMemo } from "react"
+import { useState, useRef, useLayoutEffect, useEffect } from "react"
 import Lottie from "lottie-react"
 
 import { cases } from "../data/cases"
@@ -25,15 +25,8 @@ function CasePage() {
 
   if (!caseData) return <div className="app">Case config missing</div>
 
-  // ✅ БЕРЕМ ТОЛЬКО ТЕ ДРОПЫ, У КОТОРЫХ ЕСТЬ АНИМАЦИЯ
-  const validDrops = useMemo(() => {
-    const filtered = (caseData.drops || []).filter(d => !!darkMatterAnimations[d.id])
-    // если вдруг у кейса вообще нет валидных анимаций — не крашимся
-    return filtered.length ? filtered : (caseData.drops || [])
-  }, [caseData.drops])
-
   /* =============================
-     DROP CLICK
+     DROP CLICK (анимация в сетке)
   ============================= */
   const handleClick = (dropId) => {
     if (activeDrop === dropId) {
@@ -45,31 +38,25 @@ function CasePage() {
   }
 
   /* =============================
-     WEIGHTED RANDOM (ТОЛЬКО validDrops)
+     WEIGHTED RANDOM
   ============================= */
   const pickWeighted = () => {
     const pool = []
-    validDrops.forEach((drop) => {
+    caseData.drops.forEach((drop) => {
       const w = drop.chance || 10
       for (let i = 0; i < w; i++) pool.push(drop.id)
     })
-    if (!pool.length) return validDrops[0]?.id
     return pool[Math.floor(Math.random() * pool.length)]
-  }
-
-  const randomDropId = () => {
-    if (!validDrops.length) return null
-    return validDrops[Math.floor(Math.random() * validDrops.length)].id
   }
 
   /* =============================
      OPEN CASE
   ============================= */
   const openCase = (e) => {
-    e?.preventDefault()
-    e?.stopPropagation()
+    if (e) e.preventDefault()
     if (isSpinning) return
 
+    // сброс
     clearTimeout(spinTimeout.current)
     setResult(null)
     startedRef.current = false
@@ -78,88 +65,86 @@ function CasePage() {
     winIdRef.current = winId
 
     setIsSpinning(true)
-    setReelItems([])
+    setReelItems([]) // сначала пусто, потом соберём по реальным размерам
   }
 
   /* =============================
-     BUILD REEL
-     (делаем очень длинный хвост справа)
+     BUILD REEL + START ANIMATION (СТАБИЛЬНО)
   ============================= */
   useLayoutEffect(() => {
     if (!isSpinning) return
     if (!rouletteWrapRef.current) return
+
+    // если уже стартовали — не трогаем
     if (startedRef.current) return
 
     const wrap = rouletteWrapRef.current
     const containerWidth = wrap.offsetWidth || 320
 
-    // базово (точно уточним на этапе transform)
+    // наши размеры по CSS: 140px item + gap 20px
+    // но на всякий случай считаем динамически
     const itemW = 140
     const gap = 20
     const full = itemW + gap
 
     const visibleCount = Math.ceil(containerWidth / full) + 2
+    const prefix = visibleCount + 12          // чтобы слева всегда было что крутить
+    const winIndex = prefix + 60              // победа “глубоко” в середине
+    const tailBuffer = visibleCount + 40      // буфер справа чтобы не пустело
+    const total = winIndex + tailBuffer
 
-    const prefix = visibleCount + 20
-    const winIndex = prefix + 80
-
-    // 🔥 БОЛЬШЕ РЕАЛЬНЫХ ПРЕДМЕТОВ СПРАВА — НЕ БУДЕТ ПУСТОТЫ
-    const tailBuffer = visibleCount + 320
-
-    const total = winIndex + tailBuffer + 1
     winIndexRef.current = winIndex
 
-    const items = new Array(total).fill(null).map(() => randomDropId())
+    // собираем ленту
+    const items = new Array(total).fill(null).map(() => {
+      const r = caseData.drops[Math.floor(Math.random() * caseData.drops.length)].id
+      return r
+    })
+
+    // фиксируем победу в точке winIndex
     items[winIndex] = winIdRef.current
 
     setReelItems(items)
     startedRef.current = true
-  }, [isSpinning, validDrops])
+  }, [isSpinning, caseData.drops])
 
   /* =============================
-     RUN TRANSFORM
-     (стартуем НЕ с 0)
+     RUN TRANSFORM AFTER REEL RENDERED
   ============================= */
   useLayoutEffect(() => {
     if (!isSpinning) return
     if (!reelRef.current) return
-    if (!rouletteWrapRef.current) return
     if (!reelItems.length) return
 
     const reel = reelRef.current
     const wrap = rouletteWrapRef.current
+    if (!wrap) return
 
-    const firstItem = reel.children[0]
-    if (!firstItem) return
-
-    // ✅ реальные размеры DOM
-    const itemWidth = firstItem.getBoundingClientRect().width
-    const reelStyles = getComputedStyle(reel)
-    const gapStr = reelStyles.gap || reelStyles.columnGap || "20px"
-    const gap = parseFloat(gapStr) || 20
-    const full = itemWidth + gap
-
-    const containerWidth = wrap.getBoundingClientRect().width
-    const winIndex = winIndexRef.current
-
-    const targetX =
-      winIndex * full -
-      containerWidth / 2 +
-      itemWidth / 2
-
-    // 🔥 стартуем ближе к выигрышу — справа всегда есть элементы
-    const startIndex = Math.max(0, winIndex - 90)
-    const startX = startIndex * full
-
+    // принудительно стартуем из “нулевой” позиции
     reel.style.transition = "none"
-    reel.style.transform = `translateX(-${startX}px)`
+    reel.style.transform = "translateX(0px)"
     void reel.offsetHeight
 
+    // считаем смещение до winIndex по центру линии
+    const containerWidth = wrap.offsetWidth || 320
+    const itemW = 140
+    const gap = 20
+    const full = itemW + gap
+
+    const winIndex = winIndexRef.current
+
+    const offset =
+      winIndex * full -
+      containerWidth / 2 +
+      itemW / 2
+
+    // запускаем анимацию
     requestAnimationFrame(() => {
       reel.style.transition = "transform 3.6s cubic-bezier(0.12, 0.75, 0.15, 1)"
-      reel.style.transform = `translateX(-${targetX}px)`
+      reel.style.transform = `translateX(-${offset}px)`
     })
 
+    // показываем результат
     clearTimeout(spinTimeout.current)
     spinTimeout.current = setTimeout(() => {
       setIsSpinning(false)
@@ -168,7 +153,7 @@ function CasePage() {
   }, [isSpinning, reelItems])
 
   /* =============================
-     CLEANUP
+     CLEANUP (важно)
   ============================= */
   useEffect(() => {
     return () => clearTimeout(spinTimeout.current)
@@ -178,43 +163,21 @@ function CasePage() {
      RESET
   ============================= */
   const sellItem = (e) => {
-    e?.preventDefault()
-    e?.stopPropagation()
+    if (e) e.preventDefault()
     clearTimeout(spinTimeout.current)
     setResult(null)
+    // возвращаем интерфейс кейса
     setIsSpinning(false)
     setReelItems([])
   }
 
   const openAgain = (e) => {
-    e?.preventDefault()
-    e?.stopPropagation()
+    if (e) e.preventDefault()
     sellItem()
     openCase()
   }
 
   const blurred = result != null
-
-  // безопасный рендер Lottie
-  const RenderLottie = ({ id, className, autoplay }) => {
-    const anim = darkMatterAnimations[id]
-    if (!anim) {
-      return (
-        <div className={className} style={{ width: 80, height: 80, opacity: 0.6, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          ?
-        </div>
-      )
-    }
-    return (
-      <Lottie
-        animationData={anim}
-        autoplay={!!autoplay}
-        loop={false}
-        className={className}
-        style={{ width: 80, height: 80 }}
-      />
-    )
-  }
 
   return (
     <div className="app">
@@ -253,7 +216,12 @@ function CasePage() {
                 <div ref={reelRef} className="roulette-reel">
                   {reelItems.map((dropId, index) => (
                     <div key={index} className="roulette-item">
-                      <RenderLottie id={dropId} autoplay={false} />
+                      <Lottie
+                        animationData={darkMatterAnimations[dropId]}
+                        autoplay={false}
+                        loop={false}
+                        style={{ width: 80, height: 80 }}
+                      />
                     </div>
                   ))}
                 </div>
@@ -273,7 +241,7 @@ function CasePage() {
         </div>
 
         <div className="casepage-drops">
-          {(caseData.drops || []).map((drop) => {
+          {caseData.drops.map((drop) => {
             const isActive = activeDrop === drop.id
             return (
               <div
@@ -281,7 +249,13 @@ function CasePage() {
                 className="drop-card"
                 onClick={() => handleClick(drop.id)}
               >
-                <RenderLottie id={drop.id} autoplay={isActive} className="drop-lottie" />
+                <Lottie
+                  key={isActive ? drop.id + "-active" : drop.id}
+                  animationData={darkMatterAnimations[drop.id]}
+                  autoplay={isActive}
+                  loop={false}
+                  className="drop-lottie"
+                />
                 <div className="drop-name">{drop.name || drop.id}</div>
               </div>
             )
@@ -295,7 +269,11 @@ function CasePage() {
             <div className="result-title">Поздравляем!</div>
 
             <div className="drop-card result-size">
-              <RenderLottie id={result} autoplay={true} />
+              <Lottie
+                animationData={darkMatterAnimations[result]}
+                autoplay
+                loop={false}
+              />
               <div className="drop-name">{result}</div>
             </div>
 
