@@ -26,7 +26,7 @@ function CasePage() {
   if (!caseData) return <div className="app">Case config missing</div>
 
   /* =============================
-     DROP CLICK (анимация в сетке)
+     DROP CLICK
   ============================= */
   const handleClick = (dropId) => {
     if (activeDrop === dropId) {
@@ -53,10 +53,12 @@ function CasePage() {
      OPEN CASE
   ============================= */
   const openCase = (e) => {
-    if (e) e.preventDefault()
+    if (e) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
     if (isSpinning) return
 
-    // сброс
     clearTimeout(spinTimeout.current)
     setResult(null)
     startedRef.current = false
@@ -65,43 +67,42 @@ function CasePage() {
     winIdRef.current = winId
 
     setIsSpinning(true)
-    setReelItems([]) // сначала пусто, потом соберём по реальным размерам
+    setReelItems([])
   }
 
   /* =============================
-     BUILD REEL + START ANIMATION (СТАБИЛЬНО)
+     BUILD REEL
+     (делаем ОЧЕНЬ много справа)
   ============================= */
   useLayoutEffect(() => {
     if (!isSpinning) return
     if (!rouletteWrapRef.current) return
-
-    // если уже стартовали — не трогаем
     if (startedRef.current) return
 
     const wrap = rouletteWrapRef.current
     const containerWidth = wrap.offsetWidth || 320
 
-    // наши размеры по CSS: 140px item + gap 20px
-    // но на всякий случай считаем динамически
+    // базовые значения (точные возьмём на этапе старта анимации)
     const itemW = 140
     const gap = 20
     const full = itemW + gap
 
     const visibleCount = Math.ceil(containerWidth / full) + 2
-    const prefix = visibleCount + 12          // чтобы слева всегда было что крутить
-    const winIndex = prefix + 60              // победа “глубоко” в середине
-    const tailBuffer = visibleCount + 40      // буфер справа чтобы не пустело
-    const total = winIndex + tailBuffer
 
+    const prefix = visibleCount + 20
+    const winIndex = prefix + 80
+
+    // 🔥 ГЛАВНЫЙ ФИКС: реальный огромный буфер справа
+    const tailBuffer = visibleCount + 260
+
+    // +1 чтобы точно влез winIndex
+    const total = winIndex + tailBuffer + 1
     winIndexRef.current = winIndex
 
-    // собираем ленту
     const items = new Array(total).fill(null).map(() => {
-      const r = caseData.drops[Math.floor(Math.random() * caseData.drops.length)].id
-      return r
+      return caseData.drops[Math.floor(Math.random() * caseData.drops.length)].id
     })
 
-    // фиксируем победу в точке winIndex
     items[winIndex] = winIdRef.current
 
     setReelItems(items)
@@ -109,7 +110,8 @@ function CasePage() {
   }, [isSpinning, caseData.drops])
 
   /* =============================
-     RUN TRANSFORM AFTER REEL RENDERED
+     RUN TRANSFORM
+     (стартуем НЕ с 0, чтобы справа не кончалось)
   ============================= */
   useLayoutEffect(() => {
     if (!isSpinning) return
@@ -120,31 +122,39 @@ function CasePage() {
     const wrap = rouletteWrapRef.current
     if (!wrap) return
 
-    // принудительно стартуем из “нулевой” позиции
-    reel.style.transition = "none"
-    reel.style.transform = "translateX(0px)"
-    void reel.offsetHeight
+    const firstItem = reel.children[0]
+    if (!firstItem) return
 
-    // считаем смещение до winIndex по центру линии
-    const containerWidth = wrap.offsetWidth || 320
-    const itemW = 140
-    const gap = 20
-    const full = itemW + gap
+    // ✅ реальные размеры DOM (важно)
+    const itemWidth = firstItem.getBoundingClientRect().width
 
+    const reelStyles = getComputedStyle(reel)
+    const gapStr = reelStyles.gap || reelStyles.columnGap || "20px"
+    const gap = parseFloat(gapStr) || 20
+    const full = itemWidth + gap
+
+    const containerWidth = wrap.getBoundingClientRect().width
     const winIndex = winIndexRef.current
 
-    const offset =
+    const targetX =
       winIndex * full -
       containerWidth / 2 +
-      itemW / 2
+      itemWidth / 2
 
-    // запускаем анимацию
+    // 🔥 ФИКС: стартуем ближе к выигрышу (но не слишком близко)
+    // Так на всём протяжении анимации справа остаются элементы.
+    const startIndex = Math.max(0, winIndex - 90)
+    const startX = startIndex * full
+
+    reel.style.transition = "none"
+    reel.style.transform = `translateX(-${startX}px)`
+    void reel.offsetHeight
+
     requestAnimationFrame(() => {
       reel.style.transition = "transform 3.6s cubic-bezier(0.12, 0.75, 0.15, 1)"
-      reel.style.transform = `translateX(-${offset}px)`
+      reel.style.transform = `translateX(-${targetX}px)`
     })
 
-    // показываем результат
     clearTimeout(spinTimeout.current)
     spinTimeout.current = setTimeout(() => {
       setIsSpinning(false)
@@ -153,7 +163,7 @@ function CasePage() {
   }, [isSpinning, reelItems])
 
   /* =============================
-     CLEANUP (важно)
+     CLEANUP
   ============================= */
   useEffect(() => {
     return () => clearTimeout(spinTimeout.current)
@@ -163,16 +173,21 @@ function CasePage() {
      RESET
   ============================= */
   const sellItem = (e) => {
-    if (e) e.preventDefault()
+    if (e) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
     clearTimeout(spinTimeout.current)
     setResult(null)
-    // возвращаем интерфейс кейса
     setIsSpinning(false)
     setReelItems([])
   }
 
   const openAgain = (e) => {
-    if (e) e.preventDefault()
+    if (e) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
     sellItem()
     openCase()
   }
