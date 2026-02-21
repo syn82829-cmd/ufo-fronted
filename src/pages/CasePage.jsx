@@ -56,52 +56,60 @@ function CasePage() {
     if (e) e.preventDefault()
     if (isSpinning) return
 
-    // сброс
     clearTimeout(spinTimeout.current)
     setResult(null)
     startedRef.current = false
 
-    const winId = pickWeighted()
-    winIdRef.current = winId
+    winIdRef.current = pickWeighted()
 
     setIsSpinning(true)
-    setReelItems([]) // сначала пусто, потом соберём по реальным размерам
+    setReelItems([])
   }
 
   /* =============================
-     BUILD REEL + START ANIMATION (СТАБИЛЬНО)
+     BUILD REEL (гарантируем что лента длиннее offset)
   ============================= */
   useLayoutEffect(() => {
     if (!isSpinning) return
     if (!rouletteWrapRef.current) return
-
-    // если уже стартовали — не трогаем
     if (startedRef.current) return
 
     const wrap = rouletteWrapRef.current
     const containerWidth = wrap.offsetWidth || 320
 
-    // наши размеры по CSS: 140px item + gap 20px
-    // но на всякий случай считаем динамически
+    // размеры должны совпадать с CSS
     const itemW = 140
     const gap = 20
     const full = itemW + gap
 
-    const visibleCount = Math.ceil(containerWidth / full) + 2
-    const prefix = visibleCount + 12          // чтобы слева всегда было что крутить
-    const winIndex = prefix + 60              // победа “глубоко” в середине
-    const tailBuffer = visibleCount + 40      // буфер справа чтобы не пустело
-    const total = winIndex + tailBuffer
+    // сколько карточек помещается в окне + запас
+    const visibleCount = Math.ceil(containerWidth / full) + 4
 
+    // делаем победу "глубоко", чтобы прокрутка была длиннее
+    const prefixItems = visibleCount + 40
+    const winIndex = prefixItems + 90
     winIndexRef.current = winIndex
 
-    // собираем ленту
+    // сколько пикселей мы в итоге проедем
+    const offset =
+      winIndex * full -
+      containerWidth / 2 +
+      itemW / 2
+
+    // 🔥 ВОТ ГЛАВНЫЙ ФИКС:
+    // гарантируем, что общая ширина ленты > offset + containerWidth + большой запас справа
+    const extraRightPx = Math.max(2000, containerWidth * 6) // жирный буфер (чтобы НИКОГДА не пустело)
+    const needPx = offset + containerWidth + extraRightPx
+    const minTotal = Math.ceil(needPx / full) + 1
+
+    const total = Math.max(minTotal, winIndex + visibleCount + 120)
+
     const items = new Array(total).fill(null).map(() => {
-      const r = caseData.drops[Math.floor(Math.random() * caseData.drops.length)].id
-      return r
+      return caseData.drops[
+        Math.floor(Math.random() * caseData.drops.length)
+      ].id
     })
 
-    // фиксируем победу в точке winIndex
     items[winIndex] = winIdRef.current
 
     setReelItems(items)
@@ -114,18 +122,12 @@ function CasePage() {
   useLayoutEffect(() => {
     if (!isSpinning) return
     if (!reelRef.current) return
+    if (!rouletteWrapRef.current) return
     if (!reelItems.length) return
 
     const reel = reelRef.current
     const wrap = rouletteWrapRef.current
-    if (!wrap) return
 
-    // принудительно стартуем из “нулевой” позиции
-    reel.style.transition = "none"
-    reel.style.transform = "translateX(0px)"
-    void reel.offsetHeight
-
-    // считаем смещение до winIndex по центру линии
     const containerWidth = wrap.offsetWidth || 320
     const itemW = 140
     const gap = 20
@@ -138,22 +140,25 @@ function CasePage() {
       containerWidth / 2 +
       itemW / 2
 
-    // запускаем анимацию
+    reel.style.transition = "none"
+    reel.style.transform = "translateX(0px)"
+    void reel.offsetHeight
+
     requestAnimationFrame(() => {
-      reel.style.transition = "transform 3.6s cubic-bezier(0.12, 0.75, 0.15, 1)"
+      reel.style.transition =
+        "transform 4.2s cubic-bezier(0.12, 0.75, 0.15, 1)"
       reel.style.transform = `translateX(-${offset}px)`
     })
 
-    // показываем результат
     clearTimeout(spinTimeout.current)
     spinTimeout.current = setTimeout(() => {
       setIsSpinning(false)
       setResult(winIdRef.current)
-    }, 3700)
+    }, 4300)
   }, [isSpinning, reelItems])
 
   /* =============================
-     CLEANUP (важно)
+     CLEANUP
   ============================= */
   useEffect(() => {
     return () => clearTimeout(spinTimeout.current)
@@ -166,7 +171,6 @@ function CasePage() {
     if (e) e.preventDefault()
     clearTimeout(spinTimeout.current)
     setResult(null)
-    // возвращаем интерфейс кейса
     setIsSpinning(false)
     setReelItems([])
   }
