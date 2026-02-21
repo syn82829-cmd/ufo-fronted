@@ -14,13 +14,17 @@ function CasePage() {
   const [isSpinning, setIsSpinning] = useState(false)
   const [result, setResult] = useState(null)
   const [reelItems, setReelItems] = useState([])
+  const [isPreparing, setIsPreparing] = useState(false)
 
   const reelRef = useRef(null)
-  const rouletteWrapRef = useRef(null)
+  const wrapRef = useRef(null)
 
   const spinTimeout = useRef(null)
+  const prepTimeout = useRef(null)
+
   const winIdRef = useRef(null)
   const winIndexRef = useRef(0)
+  const startOffsetRef = useRef(0)
   const startedRef = useRef(false)
 
   if (!caseData) return <div className="app">Case config missing</div>
@@ -54,60 +58,61 @@ function CasePage() {
   ============================= */
   const openCase = (e) => {
     if (e) e.preventDefault()
-    if (isSpinning) return
+    if (isSpinning || isPreparing) return
 
     clearTimeout(spinTimeout.current)
+    clearTimeout(prepTimeout.current)
+
     setResult(null)
+    setReelItems([])
     startedRef.current = false
 
     winIdRef.current = pickWeighted()
 
-    setIsSpinning(true)
-    setReelItems([])
+    // небольшая “загрузка”, чтобы lottie/layout успели прогрузиться
+    setIsPreparing(true)
+    const SPIN_PRELOAD_MS = 200
+
+    prepTimeout.current = setTimeout(() => {
+      setIsPreparing(false)
+      setIsSpinning(true)
+    }, SPIN_PRELOAD_MS)
   }
 
   /* =============================
-     BUILD REEL (гарантируем что лента длиннее offset)
+     BUILD REEL (лента с запасами слева/справа)
   ============================= */
   useLayoutEffect(() => {
     if (!isSpinning) return
-    if (!rouletteWrapRef.current) return
+    if (!wrapRef.current) return
     if (startedRef.current) return
 
-    const wrap = rouletteWrapRef.current
-    const containerWidth = wrap.offsetWidth || 320
+    const wrap = wrapRef.current
+    const containerWidth = wrap.clientWidth || 320
 
-    // размеры должны совпадать с CSS
+    // пока нет DOM-элементов, берём значения из CSS
+    // потом в следующем эффекте уточним по фактической ширине
     const itemW = 140
     const gap = 20
     const full = itemW + gap
 
-    // сколько карточек помещается в окне + запас
-    const visibleCount = Math.ceil(containerWidth / full) + 4
+    const visible = Math.ceil(containerWidth / full) + 2
 
-    // делаем победу "глубоко", чтобы прокрутка была длиннее
-    const prefixItems = visibleCount + 40
-    const winIndex = prefixItems + 90
+    // большой запас слева, чтобы стартовать "внутри" ленты
+    const prefix = visible + 60
+    const travel = 90 // сколько "проедем" до победы
+    const winIndex = prefix + travel
+
+    // большой хвост справа, чтобы не было "пустоты"
+    const tail = visible + 80
+    const total = winIndex + tail
+
     winIndexRef.current = winIndex
-
-    // сколько пикселей мы в итоге проедем
-    const offset =
-      winIndex * full -
-      containerWidth / 2 +
-      itemW / 2
-
-    // 🔥 ВОТ ГЛАВНЫЙ ФИКС:
-    // гарантируем, что общая ширина ленты > offset + containerWidth + большой запас справа
-    const extraRightPx = Math.max(2000, containerWidth * 6) // жирный буфер (чтобы НИКОГДА не пустело)
-    const needPx = offset + containerWidth + extraRightPx
-    const minTotal = Math.ceil(needPx / full) + 1
-
-    const total = Math.max(minTotal, winIndex + visibleCount + 120)
+    startOffsetRef.current = prefix
 
     const items = new Array(total).fill(null).map(() => {
-      return caseData.drops[
-        Math.floor(Math.random() * caseData.drops.length)
-      ].id
+      const r = caseData.drops[Math.floor(Math.random() * caseData.drops.length)].id
+      return r
     })
 
     items[winIndex] = winIdRef.current
@@ -117,39 +122,52 @@ function CasePage() {
   }, [isSpinning, caseData.drops])
 
   /* =============================
-     RUN TRANSFORM AFTER REEL RENDERED
+     RUN ANIMATION (старт из prefix, едем до winIndex)
   ============================= */
   useLayoutEffect(() => {
     if (!isSpinning) return
     if (!reelRef.current) return
-    if (!rouletteWrapRef.current) return
+    if (!wrapRef.current) return
     if (!reelItems.length) return
 
     const reel = reelRef.current
-    const wrap = rouletteWrapRef.current
+    const wrap = wrapRef.current
 
-    const containerWidth = wrap.offsetWidth || 320
-    const itemW = 140
+    // реальная ширина айтема (важно для мобилок)
+    const first = reel.children[0]
+    const itemW = first ? Math.round(first.getBoundingClientRect().width) : 140
     const gap = 20
     const full = itemW + gap
 
+    const containerWidth = wrap.clientWidth || 320
     const winIndex = winIndexRef.current
+    const startIndex = startOffsetRef.current
 
-    const offset =
+    // стартовая позиция: смещаем влево, чтобы "центр" оказался примерно на startIndex
+    const startX =
+      startIndex * full -
+      containerWidth / 2 +
+      itemW / 2
+
+    // финишная позиция: победный индекс по центру линии
+    const endX =
       winIndex * full -
       containerWidth / 2 +
       itemW / 2
 
+    // 1) мгновенно ставим старт
     reel.style.transition = "none"
-    reel.style.transform = "translateX(0px)"
+    reel.style.transform = `translateX(-${startX}px)`
+    // reflow
     void reel.offsetHeight
 
+    // 2) запускаем плавный проезд
     requestAnimationFrame(() => {
-      reel.style.transition =
-        "transform 4.2s cubic-bezier(0.12, 0.75, 0.15, 1)"
-      reel.style.transform = `translateX(-${offset}px)`
+      reel.style.transition = "transform 4.2s cubic-bezier(0.12, 0.75, 0.15, 1)"
+      reel.style.transform = `translateX(-${endX}px)`
     })
 
+    // 3) показываем результат
     clearTimeout(spinTimeout.current)
     spinTimeout.current = setTimeout(() => {
       setIsSpinning(false)
@@ -157,11 +175,11 @@ function CasePage() {
     }, 4300)
   }, [isSpinning, reelItems])
 
-  /* =============================
-     CLEANUP
-  ============================= */
   useEffect(() => {
-    return () => clearTimeout(spinTimeout.current)
+    return () => {
+      clearTimeout(spinTimeout.current)
+      clearTimeout(prepTimeout.current)
+    }
   }, [])
 
   /* =============================
@@ -170,7 +188,9 @@ function CasePage() {
   const sellItem = (e) => {
     if (e) e.preventDefault()
     clearTimeout(spinTimeout.current)
+    clearTimeout(prepTimeout.current)
     setResult(null)
+    setIsPreparing(false)
     setIsSpinning(false)
     setReelItems([])
   }
@@ -178,7 +198,8 @@ function CasePage() {
   const openAgain = (e) => {
     if (e) e.preventDefault()
     sellItem()
-    openCase()
+    // маленькая пауза, чтобы state успел сброситься
+    requestAnimationFrame(() => openCase())
   }
 
   const blurred = result != null
@@ -213,8 +234,8 @@ function CasePage() {
               alt={caseData.name}
             />
 
-            {isSpinning && (
-              <div className="roulette-absolute" ref={rouletteWrapRef}>
+            {(isSpinning || isPreparing) && (
+              <div className="roulette-absolute" ref={wrapRef}>
                 <div className="roulette-line" />
 
                 <div ref={reelRef} className="roulette-reel">
@@ -233,7 +254,7 @@ function CasePage() {
             )}
           </div>
 
-          {!isSpinning && !result && (
+          {!isSpinning && !isPreparing && !result && (
             <button
               type="button"
               className="casepage-open-btn"
