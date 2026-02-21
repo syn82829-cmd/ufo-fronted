@@ -771,8 +771,7 @@ body {
   font-size: 17px;
   font-weight: 600;
 
-}
-/* ============================= */
+}/* ============================= */
 /* BLUR BACKGROUND */
 /* ============================= */
 
@@ -813,7 +812,7 @@ body {
   inset: 0;
 
   display: flex;
-  justify-content: center;
+  justify-content: flex-start; /* ✅ важно: не центрируем ленту */
   align-items: center;
 
   overflow: hidden;
@@ -829,19 +828,20 @@ body {
 .roulette-reel {
   display: flex;
   flex-direction: row;
-  flex-wrap: nowrap;          /* не переносить */
+  flex-wrap: nowrap;
   gap: 20px;
   align-items: center;
 
   will-change: transform;
-  transform: translateZ(0);   /* стабильнее на мобиле */
+  transform: translateZ(0);
+  white-space: nowrap; /* ✅ */
 }
 
 /* фикс размера карточки (и запрет shrink) */
 .roulette-item {
   width: 140px;
   height: 140px;
-  flex: 0 0 140px;            /* не сжимать, не растягивать */
+  flex: 0 0 140px;
 
   background: rgba(255,255,255,0.06);
   border-radius: 18px;
@@ -853,7 +853,7 @@ body {
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255,255,255,0.08);
 
-  transform: translateZ(0);   /* убрать “дрожь” */
+  transform: translateZ(0);
 }
 
 /* ============================= */
