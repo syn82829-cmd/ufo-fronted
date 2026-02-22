@@ -1004,8 +1004,6 @@ body {
 .sell { background: rgba(0,120,255,0.25); }
 .open { background: rgba(0,255,140,0.25); }
 
-}
-
 /* Lottie in roulette should be visually static and not “eat” layout */
 .roulette-lottie {
   width: 80px;
