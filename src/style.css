@@ -816,46 +816,40 @@ body {
 
   overflow: hidden;
 
+  /* плавные края */
   mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
   -webkit-mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
 
   pointer-events: none;
 }
 
-/* Окно рулетки — фиксируем ширину, чтобы расчёты были стабильны */
-.roulette-viewport {
-  width: 100%;
-  max-width: 520px; /* можно 480/560 — как тебе визуально */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-}
-
-/* Лента (мы двигаем transform на ней) */
+/*
+  КЛЮЧЕВОЕ:
+  - делаем трек шириной по контенту
+  - добавляем padding по бокам, чтобы когда трек смещается,
+    не было ощущения “обрубилось справа”
+*/
 .roulette-reel {
-  display: flex;
-  flex-direction: row;
+  display: inline-flex;
   flex-wrap: nowrap;
-  gap: 20px;
   align-items: center;
+  gap: 20px;
+
+  width: max-content;
+
+  /* запас по краям (чтобы не выглядело что “конец ленты”) */
+  padding-left: 45vw;
+  padding-right: 45vw;
 
   will-change: transform;
   transform: translate3d(0,0,0);
-
-  /* важное для мобильной стабильности */
   backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-
-  /* чтобы браузер меньше пересчитывал вне блока */
-  contain: layout paint;
 }
 
-/* Карточки */
 .roulette-item {
   width: 140px;
   height: 140px;
-  flex: 0 0 140px;
+  flex: 0 0 auto;
 
   background: rgba(255,255,255,0.06);
   border-radius: 18px;
@@ -867,13 +861,16 @@ body {
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255,255,255,0.08);
 
+  /* стабилизация на мобиле */
   transform: translate3d(0,0,0);
+  backface-visibility: hidden;
+  contain: layout paint;
+  overflow: hidden;
 }
 
-/* Чтобы Lottie не “прыгало” по размеру */
-.roulette-item svg,
-.roulette-item canvas {
-  display: block;
+/* Если Lottie рисует SVG/Canvas — пусть не влияет на layout */
+.roulette-item > * {
+  transform: translate3d(0,0,0);
 }
 
 /* ============================= */
