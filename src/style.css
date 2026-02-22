@@ -811,8 +811,7 @@ body {
   inset: 0;
 
   display: flex;
-  /* ✅ ВАЖНО: не центрируем по X, иначе при translate будет "пустота" */
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
 
   overflow: hidden;
@@ -823,24 +822,36 @@ body {
   pointer-events: none;
 }
 
-/* ✅ Лента: ширина по контенту + запас слева/справа, чтобы не было конца */
+/* Окно рулетки — фиксируем ширину, чтобы расчёты были стабильны */
+.roulette-viewport {
+  width: 100%;
+  max-width: 520px; /* можно 480/560 — как тебе визуально */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+/* Лента (мы двигаем transform на ней) */
 .roulette-reel {
-  display: inline-flex;
+  display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
-  align-items: center;
   gap: 20px;
+  align-items: center;
 
-  width: max-content;
   will-change: transform;
   transform: translate3d(0,0,0);
 
-  /* ✅ запас, чтобы ты никогда не увидел "край" */
-  padding-left: 50vw;
-  padding-right: 50vw;
+  /* важное для мобильной стабильности */
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+
+  /* чтобы браузер меньше пересчитывал вне блока */
+  contain: layout paint;
 }
 
-/* ✅ карточки не сжимаются + стабильный размер */
+/* Карточки */
 .roulette-item {
   width: 140px;
   height: 140px;
@@ -859,7 +870,7 @@ body {
   transform: translate3d(0,0,0);
 }
 
-/* (не обязательно, но помогает чтобы Lottie не растягивался) */
+/* Чтобы Lottie не “прыгало” по размеру */
 .roulette-item svg,
 .roulette-item canvas {
   display: block;
