@@ -1003,3 +1003,28 @@ body {
 
 .sell { background: rgba(0,120,255,0.25); }
 .open { background: rgba(0,255,140,0.25); }
+
+}
+
+/* Lottie in roulette should be visually static and not “eat” layout */
+.roulette-lottie {
+  width: 80px;
+  height: 80px;
+  pointer-events: none;
+}
+
+/* fallback placeholder */
+.roulette-lottie--empty {
+  width: 80px;
+  height: 80px;
+  opacity: 0.25;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.06);
+}
+
+/* IMPORTANT: prevent lottie svg from shrinking weirdly */
+.roulette-item svg,
+.roulette-item canvas {
+  width: 80px !important;
+  height: 80px !important;
+}
