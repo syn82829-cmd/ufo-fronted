@@ -773,7 +773,7 @@ body {
 
 }
 
-/* ============================= */
+//* ============================= */
 /* BLUR BACKGROUND */
 /* ============================= */
 .blurred {
@@ -790,13 +790,8 @@ body {
   width: 100%;
   display: flex;
   justify-content: center;
-
-  /* ✅ важно: фиксируем высоту, чтобы при hidden-case не было пересчёта layout
-     и “чёрного мигания”/прыжков */
-  min-height: 320px;
 }
 
-/* если хочешь точнее под твой PNG — можешь поставить 300-340 */
 .casepage-case-image {
   max-width: 320px;
   width: 100%;
@@ -821,53 +816,29 @@ body {
 
   overflow: hidden;
 
-  mask-image: linear-gradient(
-    to right,
-    transparent 0%,
-    black 12%,
-    black 88%,
-    transparent 100%
-  );
-  -webkit-mask-image: linear-gradient(
-    to right,
-    transparent 0%,
-    black 12%,
-    black 88%,
-    transparent 100%
-  );
+  mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
 
   pointer-events: none;
-
-  /* ✅ чтобы линия/лента всегда были поверх картинки корректно */
-  z-index: 5;
 }
 
+/* ✅ КЛЮЧЕВОЕ: лента должна быть шириной по контенту и не сжиматься */
 .roulette-reel {
-  display: flex;
-  flex-direction: row;
+  display: inline-flex;     /* вместо flex */
   flex-wrap: nowrap;
-  gap: 20px;
   align-items: center;
+  gap: 20px;
 
-  /* ✅ критично для твоего “окна”:
-     НИКАКИХ padding-right/left, иначе появится визуальная пустота */
-  padding: 0;
-  margin: 0;
-
-  /* ✅ ускорение/стабильность на мобиле */
+  width: max-content;       /* ✅ чтобы лента реально была длинной */
   will-change: transform;
   transform: translate3d(0,0,0);
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-
-  /* ✅ изоляция рендера, меньше дерготни */
-  contain: layout paint style;
 }
 
+/* ✅ карточки не сжимаются */
 .roulette-item {
   width: 140px;
   height: 140px;
-  flex: 0 0 140px;
+  flex: 0 0 auto;           /* ✅ не shrink */
 
   background: rgba(255,255,255,0.06);
   border-radius: 18px;
@@ -880,18 +851,6 @@ body {
   border: 1px solid rgba(255,255,255,0.08);
 
   transform: translate3d(0,0,0);
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-
-  /* ✅ если Lottie внутри всё равно дергается — фиксируем */
-  overflow: hidden;
-}
-
-/* если lottie рендерит svg/canvas — пусть не ломает размеры */
-.roulette-item svg,
-.roulette-item canvas {
-  width: 80px !important;
-  height: 80px !important;
 }
 
 /* ============================= */
@@ -916,7 +875,7 @@ body {
     0 0 18px rgba(255,255,255,0.5),
     0 0 35px rgba(255,255,255,0.4);
 
-  z-index: 10;
+  z-index: 5;
 }
 
 /* ============================= */
@@ -1003,26 +962,3 @@ body {
 
 .sell { background: rgba(0,120,255,0.25); }
 .open { background: rgba(0,255,140,0.25); }
-
-/* Lottie in roulette should be visually static and not “eat” layout */
-.roulette-lottie {
-  width: 80px;
-  height: 80px;
-  pointer-events: none;
-}
-
-/* fallback placeholder */
-.roulette-lottie--empty {
-  width: 80px;
-  height: 80px;
-  opacity: 0.25;
-  border-radius: 12px;
-  background: rgba(255,255,255,0.06);
-}
-
-/* IMPORTANT: prevent lottie svg from shrinking weirdly */
-.roulette-item svg,
-.roulette-item canvas {
-  width: 80px !important;
-  height: 80px !important;
-}
