@@ -14,12 +14,13 @@ function CasePage() {
   const [isSpinning, setIsSpinning] = useState(false)
   const [result, setResult] = useState(null)
   const [reelItems, setReelItems] = useState([])
+  const [isPreparing, setIsPreparing] = useState(false) // <- “пауза/загрузка”
 
   const reelRef = useRef(null)
   const rouletteWrapRef = useRef(null)
 
   const spinTimeout = useRef(null)
-  const buildTimeout = useRef(null)
+  const prepTimeout = useRef(null)
 
   const winIdRef = useRef(null)
   const winIndexRef = useRef(0)
@@ -52,33 +53,54 @@ function CasePage() {
   }
 
   /* =============================
+     RESET INTERNAL (без дерганий)
+  ============================= */
+  const hardResetSpinState = () => {
+    clearTimeout(spinTimeout.current)
+    clearTimeout(prepTimeout.current)
+    startedRef.current = false
+    setIsPreparing(false)
+    setIsSpinning(false)
+    setReelItems([])
+    winIdRef.current = null
+    winIndexRef.current = 0
+
+    const reel = reelRef.current
+    if (reel) {
+      reel.style.transition = "none"
+      reel.style.transform = "translateX(0px)"
+    }
+  }
+
+  /* =============================
      OPEN CASE
   ============================= */
   const openCase = (e) => {
     if (e) e.preventDefault()
-    if (isSpinning) return
+    if (isSpinning || isPreparing) return
 
-    clearTimeout(spinTimeout.current)
-    clearTimeout(buildTimeout.current)
-
+    // сброс результата
     setResult(null)
-    setReelItems([])
-    startedRef.current = false
 
-    winIdRef.current = pickWeighted()
-    setIsSpinning(true)
+    // сброс старой прокрутки
+    hardResetSpinState()
 
-    // “реальная пауза”, как у рефов: даём DOM смонтироваться
-    buildTimeout.current = setTimeout(() => {
-      // после небольшой паузы Build произойдёт в useLayoutEffect ниже
-      // (мы просто гарантируем что wrap/ref уже существуют)
-      startedRef.current = false
-      setReelItems([]) // триггер для эффекта
-    }, 120)
+    // выбираем победу
+    const winId = pickWeighted()
+    winIdRef.current = winId
+
+    // имитируем “предзагрузку” как у нормальных миниаппов
+    setIsPreparing(true)
+
+    prepTimeout.current = setTimeout(() => {
+      setIsPreparing(false)
+      setIsSpinning(true)
+      setReelItems([]) // сначала пусто, потом соберем
+    }, 220) // <- пауза 220мс (можешь сделать 300-400, если хочешь)
   }
 
   /* =============================
-     BUILD REEL (3 сегмента, чтобы не кончалось)
+     BUILD REEL (делаем реально длинной)
   ============================= */
   useLayoutEffect(() => {
     if (!isSpinning) return
@@ -88,75 +110,75 @@ function CasePage() {
     const wrap = rouletteWrapRef.current
     const containerWidth = wrap.offsetWidth || 320
 
-    // ВАЖНО: размеры совпадают с CSS: 140 + gap 20
+    // размеры как в CSS: 140 + gap 20
     const itemW = 140
     const gap = 20
     const full = itemW + gap
 
-    // сколько видно одновременно
-    const visibleCount = Math.ceil(containerWidth / full) + 4
+    const visible = Math.ceil(containerWidth / full) + 4
 
-    // сегмент — это “кусок” ленты, который мы потом троим
-    const segmentLen = Math.max(visibleCount + 40, 80) // минимум 80 чтобы точно не пустело
+    // вот тут “секрет”: мы делаем длинный префикс и очень жирный хвост
+    // чтобы никогда не увидеть конец на разгонах/ослаблениях
+    const prefix = visible + 30
+    const winIndex = prefix + 90
+    const tail = visible + 120
+    const total = winIndex + tail
 
-    // победу ставим в СЕРЕДНЕМ сегменте
-    const middleStart = segmentLen
-    const winIndex = middleStart + Math.floor(segmentLen * 0.6) // победа “глубоко”
     winIndexRef.current = winIndex
 
-    const segment = new Array(segmentLen).fill(null).map(() => {
-      const r = caseData.drops[Math.floor(Math.random() * caseData.drops.length)].id
-      return r
+    const items = new Array(total).fill(null).map(() => {
+      return caseData.drops[Math.floor(Math.random() * caseData.drops.length)].id
     })
 
-    // делаем 3 сегмента
-    const items = [...segment, ...segment, ...segment]
-
-    // фиксируем победу в нужной точке
     items[winIndex] = winIdRef.current
 
-    startedRef.current = true
     setReelItems(items)
+    startedRef.current = true
   }, [isSpinning, caseData.drops])
 
   /* =============================
-     RUN TRANSFORM AFTER REEL RENDERED
+     START ANIMATION (после реального рендера)
   ============================= */
   useLayoutEffect(() => {
     if (!isSpinning) return
-    if (!reelRef.current) return
-    if (!rouletteWrapRef.current) return
     if (!reelItems.length) return
+    if (!reelRef.current || !rouletteWrapRef.current) return
 
     const reel = reelRef.current
     const wrap = rouletteWrapRef.current
 
-    const containerWidth = wrap.offsetWidth || 320
     const itemW = 140
     const gap = 20
     const full = itemW + gap
 
-    // стартуем не с 0, а со “второго сегмента”
-    const segmentLen = Math.floor(reelItems.length / 3)
-    const startShift = segmentLen * full
+    // СТАРТ НЕ С НУЛЯ:
+    // Мы стартуем “чуть правее”, чтобы сразу были элементы слева/справа.
+    // Иначе визуально кажется, что они “заканчиваются”.
+    const startIndex = Math.max(0, winIndexRef.current - 70)
 
-    // выставляем начальную позицию (чтобы слева/справа был запас)
-    reel.style.transition = "none"
-    reel.style.transform = `translateX(-${startShift}px)`
-    // force reflow
-    void reel.offsetHeight
-
-    const winIndex = winIndexRef.current
-
-    // смещение к победе (учитываем стартовый сдвиг)
-    const offset =
-      winIndex * full -
+    const containerWidth = wrap.offsetWidth || 320
+    const startOffset =
+      startIndex * full -
       containerWidth / 2 +
       itemW / 2
 
+    const winOffset =
+      winIndexRef.current * full -
+      containerWidth / 2 +
+      itemW / 2
+
+    // ставим стартовую позицию без анимации
+    reel.style.transition = "none"
+    reel.style.transform = `translateX(-${startOffset}px)`
+    void reel.offsetHeight
+
+    // маленькая задержка, чтобы браузер/мобила точно “поймали” старт
     requestAnimationFrame(() => {
-      reel.style.transition = "transform 4.2s cubic-bezier(0.12, 0.75, 0.15, 1)"
-      reel.style.transform = `translateX(-${offset}px)`
+      requestAnimationFrame(() => {
+        reel.style.transition =
+          "transform 4.2s cubic-bezier(0.12, 0.75, 0.15, 1)"
+        reel.style.transform = `translateX(-${winOffset}px)`
+      })
     })
 
     clearTimeout(spinTimeout.current)
@@ -172,7 +194,7 @@ function CasePage() {
   useEffect(() => {
     return () => {
       clearTimeout(spinTimeout.current)
-      clearTimeout(buildTimeout.current)
+      clearTimeout(prepTimeout.current)
     }
   }, [])
 
@@ -181,11 +203,8 @@ function CasePage() {
   ============================= */
   const sellItem = (e) => {
     if (e) e.preventDefault()
-    clearTimeout(spinTimeout.current)
-    clearTimeout(buildTimeout.current)
+    hardResetSpinState()
     setResult(null)
-    setIsSpinning(false)
-    setReelItems([])
   }
 
   const openAgain = (e) => {
@@ -222,31 +241,37 @@ function CasePage() {
           <div className="case-image-wrapper">
             <img
               src={caseData.image}
-              className={`casepage-case-image ${isSpinning ? "hidden-case" : ""}`}
+              className={`casepage-case-image ${
+                isSpinning || isPreparing ? "hidden-case" : ""
+              }`}
               alt={caseData.name}
             />
 
-            {isSpinning && (
+            {(isSpinning || isPreparing) && (
               <div className="roulette-absolute" ref={rouletteWrapRef}>
                 <div className="roulette-line" />
 
-                <div ref={reelRef} className="roulette-reel">
-                  {reelItems.map((dropId, index) => (
-                    <div key={index} className="roulette-item">
-                      <Lottie
-                        animationData={darkMatterAnimations[dropId]}
-                        autoplay={false}
-                        loop={false}
-                        style={{ width: 80, height: 80 }}
-                      />
-                    </div>
-                  ))}
-                </div>
+                {isPreparing ? (
+                  <div className="roulette-loading">Загрузка…</div>
+                ) : (
+                  <div ref={reelRef} className="roulette-reel">
+                    {reelItems.map((dropId, index) => (
+                      <div key={index} className="roulette-item">
+                        <Lottie
+                          animationData={darkMatterAnimations[dropId]}
+                          autoplay={false}
+                          loop={false}
+                          style={{ width: 80, height: 80 }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </div>
 
-          {!isSpinning && !result && (
+          {!isSpinning && !isPreparing && !result && (
             <button
               type="button"
               className="casepage-open-btn"
