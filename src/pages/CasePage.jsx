@@ -31,22 +31,28 @@ function CasePage() {
   const stepsRef = useRef(0)
   const windowCountRef = useRef(16)
 
-  // fixed sizes (match your CSS)
+  const selectIndexRef = useRef(7)     // какой индекс окна должен быть под линией
+  const centerShiftRef = useRef(0)     // постоянный сдвиг чтобы selectIndex был в центре
+
+  // fixed sizes (match CSS)
   const ITEM_W = 140
   const GAP = 20
   const FULL = ITEM_W + GAP
 
   if (!caseData) return <div className="app">Case config missing</div>
 
-  // ✅ SAFE drops: only those that exist in mapping
+  // ✅ SAFE drops: only those that exist in mapping (для грид-анимации)
   const safeDrops = useMemo(() => {
-    return (caseData.drops || []).filter(d => !!darkMatterAnimations[d.id])
+    return (caseData.drops || []).filter((d) => !!darkMatterAnimations[d.id])
   }, [caseData.drops])
 
   if (!safeDrops.length) {
     return <div className="app">No drops with animations found for this case.</div>
   }
 
+  /* =============================
+     GRID click animation
+  ============================= */
   const handleClick = (dropId) => {
     if (activeDrop === dropId) {
       setActiveDrop(null)
@@ -56,6 +62,9 @@ function CasePage() {
     }
   }
 
+  /* =============================
+     weighted random
+  ============================= */
   const pickWeighted = () => {
     const pool = []
     safeDrops.forEach((drop) => {
@@ -70,16 +79,20 @@ function CasePage() {
     if (safeDrops.length === 1) return safeDrops[0].id
     let x = prev
     let tries = 0
-    while (x === prev && tries < 6) {
+    while (x === prev && tries < 8) {
       x = safeDrops[Math.floor(Math.random() * safeDrops.length)].id
       tries++
     }
     return x
   }
 
-  // Build seq so that slice(base, base+windowCount) is ALWAYS full
-  const buildSequence = (winId, steps, windowCount) => {
-    const total = steps + windowCount + 30 // запас чтобы не было “хвоста”
+  // IMPORTANT:
+  // Мы хотим, чтобы в конце (base = steps, inner = 0) под линией стоял winId.
+  // Под линией стоит элемент windowItems[selectIndex], а windowItems = seq.slice(base, base+windowCount)
+  // => под линией будет seq[base + selectIndex]
+  // => значит winId должен лежать в seq[steps + selectIndex]
+  const buildSequence = (winId, steps, windowCount, selectIndex) => {
+    const total = steps + windowCount + 80 // большой запас, чтобы хвост не ощущался
     const seq = new Array(total)
 
     let prev = null
@@ -89,12 +102,12 @@ function CasePage() {
       prev = r
     }
 
-    // win приезжает в последний “шаг”
-    seq[steps] = winId
+    const winPos = steps + selectIndex
+    seq[winPos] = winId
 
-    // и чтобы прямо рядом не было одинаковых
-    if (steps - 1 >= 0 && seq[steps - 1] === winId) seq[steps - 1] = randIdNoRepeat(winId)
-    if (steps + 1 < total && seq[steps + 1] === winId) seq[steps + 1] = randIdNoRepeat(winId)
+    // уберём одинаковые рядом с win
+    if (winPos - 1 >= 0 && seq[winPos - 1] === winId) seq[winPos - 1] = randIdNoRepeat(winId)
+    if (winPos + 1 < total && seq[winPos + 1] === winId) seq[winPos + 1] = randIdNoRepeat(winId)
 
     return seq
   }
@@ -108,6 +121,9 @@ function CasePage() {
     return () => stopAll()
   }, [])
 
+  /* =============================
+     OPEN CASE
+  ============================= */
   const openCase = (e) => {
     if (e) e.preventDefault()
     if (phase === "prep" || phase === "spinning") return
@@ -121,7 +137,9 @@ function CasePage() {
     setPhase("prep")
   }
 
-  // PREP: вычисляем windowCount, steps, seq, выставляем стартовое окно
+  /* =============================
+     PREP
+  ============================= */
   useLayoutEffect(() => {
     if (phase !== "prep") return
     if (!wrapRef.current) return
@@ -129,34 +147,46 @@ function CasePage() {
     const containerWidth = wrapRef.current.offsetWidth || 320
     const visible = Math.ceil(containerWidth / FULL)
 
-    const windowCount = Math.min(Math.max(visible + 8, 14), 22)
+    // окно — столько иконок рендерим
+    const windowCount = Math.min(Math.max(visible + 10, 16), 26)
     windowCountRef.current = windowCount
 
-    const steps = 120 // можно 100–160, это именно “сколько слотов пролетит”
+    // индекс, который должен быть под линией (примерно центр окна)
+    const selectIndex = Math.floor(windowCount / 2)
+    selectIndexRef.current = selectIndex
+
+    // постоянный сдвиг, чтобы selectIndex оказался по центру контейнера при inner=0
+    // trackX = centerShift - inner
+    // centerShift = centerX - selectIndex*FULL
+    const centerX = containerWidth / 2 - ITEM_W / 2
+    centerShiftRef.current = centerX - selectIndex * FULL
+
+    // сколько слотов “пролетит”
+    const steps = 140 // 120–180 норм; больше = “длиннее рулетка”
     stepsRef.current = steps
 
-    const seq = buildSequence(winIdRef.current, steps, windowCount)
+    const seq = buildSequence(winIdRef.current, steps, windowCount, selectIndex)
     seqRef.current = seq
 
-    // стартовое окно
     setWindowItems(seq.slice(0, windowCount))
 
-    // сброс transform до 0
     requestAnimationFrame(() => {
       if (trackRef.current) {
         trackRef.current.style.transition = "none"
-        trackRef.current.style.transform = `translateX(0px)`
+        trackRef.current.style.transform = `translateX(${centerShiftRef.current}px)`
       }
       setPhase("spinning")
     })
   }, [phase])
 
-  // SPIN: rAF — НЕ setState каждый кадр, только DOM transform
+  /* =============================
+     SPIN (rAF) — DOM transform each frame, React only when base changes
+  ============================= */
   useEffect(() => {
     if (phase !== "spinning") return
     if (!trackRef.current) return
 
-    const duration = 3800 // ms (приближенно к “норм рулетке”)
+    const duration = 4200 // ms
     const steps = stepsRef.current
     const totalPx = FULL * steps
 
@@ -165,24 +195,25 @@ function CasePage() {
 
     const tick = (now) => {
       const t = Math.min((now - startRef.current) / duration, 1)
-      const eased = 1 - Math.pow(1 - t, 3)
+
+      // easing: быстрый старт, мягкий финиш
+      const eased = 1 - Math.pow(1 - t, 3.2)
 
       const px = eased * totalPx
       const base = Math.floor(px / FULL)
       const inner = px - base * FULL
 
-      // move track without react rerender
+      // transform: держим selectIndex под линией + двигаем внутри слота
       if (trackRef.current) {
-        trackRef.current.style.transform = `translateX(-${inner}px)`
+        trackRef.current.style.transform = `translateX(${centerShiftRef.current - inner}px)`
       }
 
-      // update window ONLY when base changes
+      // обновляем окно только при смене base
       if (base !== lastBaseRef.current) {
         lastBaseRef.current = base
         const seq = seqRef.current
         const wc = windowCountRef.current
         const next = seq.slice(base, base + wc)
-        // next всегда полная, потому что seq длиннее на wc+запас
         setWindowItems(next)
       }
 
@@ -199,6 +230,9 @@ function CasePage() {
     return () => stopAll()
   }, [phase])
 
+  /* =============================
+     RESET
+  ============================= */
   const sellItem = (e) => {
     if (e) e.preventDefault()
     stopAll()
@@ -207,7 +241,6 @@ function CasePage() {
     setWindowItems([])
     lastBaseRef.current = -1
 
-    // сброс transform
     if (trackRef.current) {
       trackRef.current.style.transition = "none"
       trackRef.current.style.transform = `translateX(0px)`
@@ -221,6 +254,12 @@ function CasePage() {
   }
 
   const blurred = result != null
+
+  // статичная иконка для рулетки (НЕ lottie)
+  const getStaticIcon = (dropId) => {
+    const d = (caseData.drops || []).find((x) => x.id === dropId)
+    return d?.icon || d?.thumb || d?.image || null
+  }
 
   return (
     <div className="app">
@@ -258,20 +297,18 @@ function CasePage() {
 
                 <div ref={trackRef} className="roulette-reel">
                   {windowItems.map((dropId, index) => {
-                    const anim = darkMatterAnimations[dropId]
+                    const icon = getStaticIcon(dropId)
                     return (
                       <div key={`${dropId}-${index}`} className="roulette-item">
-                        {anim ? (
-                          <Lottie
-                            animationData={anim}
-                            autoplay={false}
-                            loop={false}
-                            // Важно: не запускаем анимацию вообще
-                            // (lottie-react покажет первый кадр)
-                            style={{ width: 80, height: 80 }}
+                        {icon ? (
+                          <img
+                            className="roulette-icon"
+                            src={icon}
+                            alt={dropId}
+                            draggable={false}
                           />
                         ) : (
-                          <div style={{ width: 80, height: 80, opacity: 0.35 }} />
+                          <div className="roulette-icon roulette-icon--empty" />
                         )}
                       </div>
                     )
