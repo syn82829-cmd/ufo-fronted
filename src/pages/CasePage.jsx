@@ -11,43 +11,33 @@ function CasePage() {
   const caseData = cases[id]
 
   const [activeDrop, setActiveDrop] = useState(null)
-
-  // phases: idle -> prep -> spinning -> result
-  const [phase, setPhase] = useState("idle")
+  const [isSpinning, setIsSpinning] = useState(false)
   const [result, setResult] = useState(null)
+  const [reelItems, setReelItems] = useState([])
+  const [spinId, setSpinId] = useState(0)
 
-  // window items (не вся лента!)
-  const [windowItems, setWindowItems] = useState([])
-  const [slotX, setSlotX] = useState(0) // текущий translate внутри одного слота
-
-  const wrapRef = useRef(null)
-  const rafRef = useRef(null)
-  const startRef = useRef(0)
-
-  const winIdRef = useRef(null)
-  const seqRef = useRef([])          // длинная последовательность id (но без рендера сотен Lottie)
-  const stepsRef = useRef(0)         // сколько слотов “пролетит”
-  const windowCountRef = useRef(16)  // сколько карточек рендерим
+  const reelRef = useRef(null)
+  const rouletteWrapRef = useRef(null)
+  const spinTimeout = useRef(null)
 
   if (!caseData) return <div className="app">Case config missing</div>
 
-  // ✅ SAFE drops: только те, у которых реально есть animationData
-  const safeDrops = useMemo(() => {
-    const arr = (caseData.drops || []).filter(d => !!darkMatterAnimations[d.id])
-    return arr
+  // ✅ берём только те дропы, у которых реально есть animationData
+  const validDrops = useMemo(() => {
+    return (caseData.drops || []).filter(d => !!darkMatterAnimations[d.id])
   }, [caseData.drops])
 
-  // если вдруг конфиг кривой
-  if (!safeDrops.length) {
+  // если в конфиге кейса есть дропы, но в animations.js нет соответствий — это и есть причина “одинаковых”
+  if (!validDrops.length) {
     return (
       <div className="app">
-        No drops with animations found for this case.
+        No valid drops for this case (animations missing).
       </div>
     )
   }
 
   /* =============================
-     DROP CLICK (анимация в сетке)
+     DROP CLICK
   ============================= */
   const handleClick = (dropId) => {
     if (activeDrop === dropId) {
@@ -59,11 +49,11 @@ function CasePage() {
   }
 
   /* =============================
-     WEIGHTED RANDOM (по safeDrops)
+     WEIGHTED RANDOM (только из validDrops)
   ============================= */
   const pickWeighted = () => {
     const pool = []
-    safeDrops.forEach((drop) => {
+    validDrops.forEach((drop) => {
       const w = drop.chance || 10
       for (let i = 0; i < w; i++) pool.push(drop.id)
     })
@@ -71,178 +61,110 @@ function CasePage() {
   }
 
   /* =============================
-     BUILD SEQUENCE
-     Делаем длинную последовательность (например 110 шагов),
-     но рендерим только окно (16 элементов).
-  ============================= */
-  const buildSequence = (winId, steps) => {
-    const seq = []
-    for (let i = 0; i < steps; i++) {
-      const r = safeDrops[Math.floor(Math.random() * safeDrops.length)].id
-      seq.push(r)
-    }
-    // фиксируем победу на последнем шаге (чтобы “приехала” под линию)
-    seq[steps - 1] = winId
-    return seq
-  }
-
-  /* =============================
-     STOP + CLEAN
-  ============================= */
-  const stopAll = () => {
-    if (rafRef.current) cancelAnimationFrame(rafRef.current)
-    rafRef.current = null
-  }
-
-  useEffect(() => {
-    return () => stopAll()
-  }, [])
-
-  /* =============================
      OPEN CASE
   ============================= */
   const openCase = (e) => {
     if (e) e.preventDefault()
-    if (phase === "prep" || phase === "spinning") return
+    if (isSpinning) return
 
-    stopAll()
+    clearTimeout(spinTimeout.current)
     setResult(null)
-    setSlotX(0)
 
-    // win
     const winId = pickWeighted()
-    winIdRef.current = winId
 
-    setPhase("prep")
+    // ✅ “бесконечность” без конца:
+    // делаем базовую ленту и повторяем её несколько раз.
+    // ВАЖНО: держим общее число элементов разумным (иначе лаги).
+    const baseLength = 34           // базовая длина (не большая)
+    const repeats = 5               // повторяем 5 раз => 170 элементов (нормально)
+    const winIndexInBase = Math.floor(baseLength / 2) // победа в центре базы
+    const middleBlock = Math.floor(repeats / 2)       // победа в центральном блоке
+
+    const base = new Array(baseLength).fill(null).map(() => {
+      const r = validDrops[Math.floor(Math.random() * validDrops.length)].id
+      return r
+    })
+    base[winIndexInBase] = winId
+
+    const items = []
+    for (let r = 0; r < repeats; r++) items.push(...base)
+
+    // целевой индекс победы в общей ленте
+    const targetIndex = middleBlock * baseLength + winIndexInBase
+
+    // сохраняем “служебные” данные прямо в state через объект
+    setSpinId((s) => s + 1)
+    setReelItems(items.map((x) => x)) // новый массив
+    setIsSpinning(true)
+
+    // запланируем завершение (чуть больше длительности анимации)
+    spinTimeout.current = setTimeout(() => {
+      setIsSpinning(false)
+      setResult(winId)
+    }, 4200)
+
+    // запускаем прокрут после того как DOM точно есть
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const reel = reelRef.current
+        const wrap = rouletteWrapRef.current
+        if (!reel || !wrap) return
+
+        const containerWidth = wrap.offsetWidth || 320
+
+        // берём реальные размеры из DOM, чтобы не было рассинхрона на мобиле
+        const firstItem = reel.querySelector(".roulette-item")
+        const itemW = firstItem ? firstItem.offsetWidth : 140
+        const gap = 20
+        const full = itemW + gap
+
+        // стартуем из начала центрального блока (чтобы слева/справа всегда были элементы)
+        const startIndex = middleBlock * baseLength
+        const startX = startIndex * full
+
+        // смещение до targetIndex по центру линии
+        const offset =
+          targetIndex * full -
+          containerWidth / 2 +
+          itemW / 2
+
+        // reset + старт
+        reel.style.transition = "none"
+        reel.style.transform = `translate3d(-${startX}px, 0, 0)`
+        void reel.offsetHeight
+
+        reel.style.transition = "transform 4.0s cubic-bezier(0.12, 0.75, 0.15, 1)"
+        reel.style.transform = `translate3d(-${offset}px, 0, 0)`
+      })
+    })
   }
 
   /* =============================
-     PREP (реальная подготовка)
-     - считаем размеры
-     - формируем seq
-     - выставляем окно
-  ============================= */
-  useLayoutEffect(() => {
-    if (phase !== "prep") return
-    if (!wrapRef.current) return
-
-    const wrap = wrapRef.current
-    const containerWidth = wrap.offsetWidth || 320
-
-    const itemW = 140
-    const gap = 20
-    const full = itemW + gap
-
-    // сколько карточек видно + запас
-    const visible = Math.ceil(containerWidth / full)
-    const windowCount = Math.min(Math.max(visible + 8, 14), 22)
-    windowCountRef.current = windowCount
-
-    // сколько “шагов” прокрутить (чем больше — тем дольше и “бесконечнее” ощущение)
-    // 90–130 — норм для мобилы
-    const steps = 110
-    stepsRef.current = steps
-
-    const seq = buildSequence(winIdRef.current, steps)
-    seqRef.current = seq
-
-    // стартовое окно: первые windowCount элементов
-    setWindowItems(seq.slice(0, windowCount))
-    setSlotX(0)
-
-    // и только теперь запускаем spin
-    setPhase("spinning")
-  }, [phase])
-
-  /* =============================
-     SPIN (rAF)
-     Имитируем “бесконечность”:
-     - двигаем slotX от 0 до full*steps
-     - каждые full пикселей сдвигаем окно на 1
+     CLEANUP
   ============================= */
   useEffect(() => {
-    if (phase !== "spinning") return
-
-    const itemW = 140
-    const gap = 20
-    const full = itemW + gap
-
-    const duration = 3600 // ms (можешь 4200 сделать)
-    const steps = stepsRef.current
-    const totalPx = full * steps
-
-    startRef.current = performance.now()
-
-    const tick = (now) => {
-      const t = Math.min((now - startRef.current) / duration, 1)
-
-      // easing (похоже на рулетку)
-      const eased = 1 - Math.pow(1 - t, 3)
-
-      const px = eased * totalPx
-
-      const baseIndex = Math.floor(px / full)
-      const inner = px - baseIndex * full
-
-      setSlotX(inner)
-
-      const seq = seqRef.current
-      const windowCount = windowCountRef.current
-
-      // обновляем окно только когда реально сменился baseIndex
-      // (иначе лишние ререндеры)
-      const start = baseIndex
-      const next = seq.slice(start, start + windowCount)
-
-      // если вышли за край (на финише) — добиваем последним состоянием
-      if (next.length === windowCount) {
-        setWindowItems(next)
-      } else {
-        // подстраховка
-        const filled = [...next]
-        while (filled.length < windowCount) filled.push(seq[seq.length - 1])
-        setWindowItems(filled)
-      }
-
-      if (t < 1) {
-        rafRef.current = requestAnimationFrame(tick)
-      } else {
-        // финал
-        setPhase("result")
-        setResult(winIdRef.current)
-      }
-    }
-
-    rafRef.current = requestAnimationFrame(tick)
-
-    return () => stopAll()
-  }, [phase])
+    return () => clearTimeout(spinTimeout.current)
+  }, [])
 
   /* =============================
      RESET
   ============================= */
   const sellItem = (e) => {
     if (e) e.preventDefault()
-    stopAll()
+    clearTimeout(spinTimeout.current)
     setResult(null)
-    setPhase("idle")
-    setWindowItems([])
-    setSlotX(0)
+    setIsSpinning(false)
+    setReelItems([])
   }
 
   const openAgain = (e) => {
     if (e) e.preventDefault()
     sellItem()
-    openCase()
+    // небольшой тик, чтобы React успел размонтировать overlay
+    setTimeout(() => openCase(), 0)
   }
 
   const blurred = result != null
-
-  // трансформ только внутри окна
-  const trackStyle = {
-    transform: `translateX(-${slotX}px)`,
-    transition: "none",
-  }
 
   return (
     <div className="app">
@@ -270,29 +192,37 @@ function CasePage() {
           <div className="case-image-wrapper">
             <img
               src={caseData.image}
-              className={`casepage-case-image ${phase === "spinning" || phase === "prep" ? "hidden-case" : ""}`}
+              className={`casepage-case-image ${isSpinning ? "hidden-case" : ""}`}
               alt={caseData.name}
             />
 
-            {(phase === "prep" || phase === "spinning") && (
-              <div className="roulette-absolute" ref={wrapRef}>
+            {isSpinning && (
+              <div className="roulette-absolute" ref={rouletteWrapRef}>
                 <div className="roulette-line" />
 
-                <div className="roulette-reel" style={trackStyle}>
-                  {windowItems.map((dropId, index) => {
+                <div ref={reelRef} className="roulette-reel">
+                  {reelItems.map((dropId, index) => {
                     const anim = darkMatterAnimations[dropId]
+                    // на всякий случай: если вдруг undefined (не должно быть), рисуем пустышку
+                    if (!anim) {
+                      return (
+                        <div
+                          key={`${spinId}-${index}-missing`}
+                          className="roulette-item"
+                        />
+                      )
+                    }
                     return (
-                      <div key={`${dropId}-${index}`} className="roulette-item">
-                        {anim ? (
-                          <Lottie
-                            animationData={anim}
-                            autoplay={false}
-                            loop={false}
-                            style={{ width: 80, height: 80 }}
-                          />
-                        ) : (
-                          <div style={{ width: 80, height: 80, opacity: 0.35 }} />
-                        )}
+                      <div
+                        key={`${spinId}-${index}-${dropId}`}
+                        className="roulette-item"
+                      >
+                        <Lottie
+                          animationData={anim}
+                          autoplay={false}
+                          loop={false}
+                          style={{ width: 80, height: 80 }}
+                        />
                       </div>
                     )
                   })}
@@ -301,7 +231,7 @@ function CasePage() {
             )}
           </div>
 
-          {phase === "idle" && !result && (
+          {!isSpinning && !result && (
             <button
               type="button"
               className="casepage-open-btn"
@@ -310,28 +240,19 @@ function CasePage() {
               Открыть кейс
             </button>
           )}
-
-          {phase === "prep" && (
-            <button
-              type="button"
-              className="casepage-open-btn"
-              disabled
-            >
-              Загрузка…
-            </button>
-          )}
         </div>
 
         <div className="casepage-drops">
           {caseData.drops.map((drop) => {
             const isActive = activeDrop === drop.id
+            const hasAnim = !!darkMatterAnimations[drop.id]
             return (
               <div
                 key={drop.id}
-                className="drop-card"
+                className={`drop-card ${hasAnim ? "" : "drop-missing"}`}
                 onClick={() => handleClick(drop.id)}
               >
-                {darkMatterAnimations[drop.id] ? (
+                {hasAnim ? (
                   <Lottie
                     key={isActive ? drop.id + "-active" : drop.id}
                     animationData={darkMatterAnimations[drop.id]}
@@ -342,7 +263,6 @@ function CasePage() {
                 ) : (
                   <div className="drop-lottie" />
                 )}
-
                 <div className="drop-name">{drop.name || drop.id}</div>
               </div>
             )
