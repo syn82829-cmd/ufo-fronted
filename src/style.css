@@ -814,7 +814,7 @@ body {
   inset: 0;
 
   display: flex;
-  justify-content: flex-start;   /* ВАЖНО: не центрируем ленту */
+  justify-content: center;
   align-items: center;
 
   overflow: hidden;
@@ -825,15 +825,6 @@ body {
   pointer-events: none;
 }
 
-.roulette-loading {
-  width: 100%;
-  text-align: center;
-  color: rgba(255,255,255,0.75);
-  font-size: 14px;
-  letter-spacing: 0.4px;
-}
-
-/* Лента — не переносится, не сжимается, имеет огромный “буфер” */
 .roulette-reel {
   display: flex;
   flex-direction: row;
@@ -844,15 +835,10 @@ body {
   will-change: transform;
   transform: translateZ(0);
 
-  /* ВАЖНО: “буферы” по краям, чтобы не было пустоты при прокрутке */
-  padding-left: 55vw;
-  padding-right: 55vw;
-
-  /* чтобы ширина была по контенту (не пыталась ужаться) */
-  width: max-content;
+  /* ✅ чтобы лента не была “короткой” при глюках измерения */
+  min-width: 200vw;
 }
 
-/* фикс размера карточки + запрет shrink */
 .roulette-item {
   width: 140px;
   height: 140px;
@@ -886,6 +872,7 @@ body {
 
   background: rgba(255,255,255,0.65);
   backdrop-filter: blur(20px);
+
   border-radius: 4px;
 
   box-shadow:
@@ -894,6 +881,19 @@ body {
     0 0 35px rgba(255,255,255,0.4);
 
   z-index: 5;
+}
+
+/* ============================= */
+/* OPEN BUTTON LOADING */
+/* ============================= */
+
+.casepage-open-btn.loading {
+  opacity: 0.75;
+  cursor: default;
+}
+
+.casepage-open-btn.loading:active {
+  transform: none;
 }
 
 /* ============================= */
@@ -950,10 +950,6 @@ body {
   width: 110px;
   height: 110px;
 }
-
-/* ============================= */
-/* BUTTONS */
-/* ============================= */
 
 .result-buttons {
   display: flex;
