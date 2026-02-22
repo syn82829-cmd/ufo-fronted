@@ -790,8 +790,13 @@ body {
   width: 100%;
   display: flex;
   justify-content: center;
+
+  /* ✅ важно: фиксируем высоту, чтобы при hidden-case не было пересчёта layout
+     и “чёрного мигания”/прыжков */
+  min-height: 320px;
 }
 
+/* если хочешь точнее под твой PNG — можешь поставить 300-340 */
 .casepage-case-image {
   max-width: 320px;
   width: 100%;
@@ -816,26 +821,47 @@ body {
 
   overflow: hidden;
 
-  mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 12%,
+    black 88%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 12%,
+    black 88%,
+    transparent 100%
+  );
 
   pointer-events: none;
+
+  /* ✅ чтобы линия/лента всегда были поверх картинки корректно */
+  z-index: 5;
 }
 
 .roulette-reel {
-  position: relative;
-  left: 0;
-
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
   gap: 20px;
   align-items: center;
 
-  will-change: transform;
-  transform: translateZ(0);
+  /* ✅ критично для твоего “окна”:
+     НИКАКИХ padding-right/left, иначе появится визуальная пустота */
+  padding: 0;
+  margin: 0;
 
-  padding-right: 40vw; /* мягкий запас справа */
+  /* ✅ ускорение/стабильность на мобиле */
+  will-change: transform;
+  transform: translate3d(0,0,0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+
+  /* ✅ изоляция рендера, меньше дерготни */
+  contain: layout paint style;
 }
 
 .roulette-item {
@@ -853,7 +879,19 @@ body {
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255,255,255,0.08);
 
-  transform: translateZ(0);
+  transform: translate3d(0,0,0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+
+  /* ✅ если Lottie внутри всё равно дергается — фиксируем */
+  overflow: hidden;
+}
+
+/* если lottie рендерит svg/canvas — пусть не ломает размеры */
+.roulette-item svg,
+.roulette-item canvas {
+  width: 80px !important;
+  height: 80px !important;
 }
 
 /* ============================= */
@@ -878,7 +916,7 @@ body {
     0 0 18px rgba(255,255,255,0.5),
     0 0 35px rgba(255,255,255,0.4);
 
-  z-index: 5;
+  z-index: 10;
 }
 
 /* ============================= */
