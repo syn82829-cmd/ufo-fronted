@@ -771,7 +771,9 @@ body {
   font-size: 17px;
   font-weight: 600;
 
-}/* ============================= */
+}
+
+/* ============================= */
 /* BLUR BACKGROUND */
 /* ============================= */
 
@@ -812,19 +814,26 @@ body {
   inset: 0;
 
   display: flex;
-  justify-content: flex-start; /* ✅ важно: не центрируем ленту */
+  justify-content: flex-start;   /* ВАЖНО: не центрируем ленту */
   align-items: center;
 
   overflow: hidden;
 
-  /* затемнение краёв */
   mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
   -webkit-mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
 
   pointer-events: none;
 }
 
-/* 🔥 важно: лента НЕ должна переноситься и НЕ должна сжиматься */
+.roulette-loading {
+  width: 100%;
+  text-align: center;
+  color: rgba(255,255,255,0.75);
+  font-size: 14px;
+  letter-spacing: 0.4px;
+}
+
+/* Лента — не переносится, не сжимается, имеет огромный “буфер” */
 .roulette-reel {
   display: flex;
   flex-direction: row;
@@ -834,10 +843,16 @@ body {
 
   will-change: transform;
   transform: translateZ(0);
-  white-space: nowrap; /* ✅ */
+
+  /* ВАЖНО: “буферы” по краям, чтобы не было пустоты при прокрутке */
+  padding-left: 55vw;
+  padding-right: 55vw;
+
+  /* чтобы ширина была по контенту (не пыталась ужаться) */
+  width: max-content;
 }
 
-/* фикс размера карточки (и запрет shrink) */
+/* фикс размера карточки + запрет shrink */
 .roulette-item {
   width: 140px;
   height: 140px;
@@ -871,7 +886,6 @@ body {
 
   background: rgba(255,255,255,0.65);
   backdrop-filter: blur(20px);
-
   border-radius: 4px;
 
   box-shadow:
@@ -936,6 +950,10 @@ body {
   width: 110px;
   height: 110px;
 }
+
+/* ============================= */
+/* BUTTONS */
+/* ============================= */
 
 .result-buttons {
   display: flex;
