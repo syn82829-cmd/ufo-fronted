@@ -825,10 +825,12 @@ body {
 
   pointer-events: none;
 
-  /* мобила: меньше лагов при анимации */
-  contain: layout paint;
+  /* небольшой внутренний отступ, чтобы край никогда не выглядел “пустым” */
+  padding: 0 24px;
+  box-sizing: border-box;
 }
 
+/* track: двигаем на slotX */
 .roulette-reel {
   display: flex;
   flex-direction: row;
@@ -840,6 +842,7 @@ body {
   transform: translateZ(0);
 }
 
+/* фикс размера карточки (и запрет shrink) */
 .roulette-item {
   width: 140px;
   height: 140px;
@@ -969,10 +972,3 @@ body {
 
 .sell { background: rgba(0,120,255,0.25); }
 .open { background: rgba(0,255,140,0.25); }
-
-/* ============================= */
-/* DEBUG: если в cases.js есть дроп без animationData */
-/* ============================= */
-.drop-missing {
-  outline: 1px solid rgba(255, 60, 60, 0.55);
-}
