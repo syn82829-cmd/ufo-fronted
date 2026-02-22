@@ -773,7 +773,7 @@ body {
 
 }
 
-//* ============================= */
+/* ============================= */
 /* BLUR BACKGROUND */
 /* ============================= */
 .blurred {
@@ -792,6 +792,7 @@ body {
   justify-content: center;
 }
 
+/* важно: чтобы высота не менялась при появлении рулетки */
 .casepage-case-image {
   max-width: 320px;
   width: 100%;
@@ -800,7 +801,7 @@ body {
 }
 
 .hidden-case {
-  visibility: hidden;
+  visibility: hidden; /* держим место */
 }
 
 /* ============================= */
@@ -816,29 +817,55 @@ body {
 
   overflow: hidden;
 
-  mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
+  /* важно: изоляция, чтобы маска/blur не ломали компоновку на iOS */
+  isolation: isolate;
+  contain: layout paint style;
+
+  /* затемнение краёв */
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 12%,
+    black 88%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 12%,
+    black 88%,
+    transparent 100%
+  );
 
   pointer-events: none;
 }
 
-/* ✅ КЛЮЧЕВОЕ: лента должна быть шириной по контенту и не сжиматься */
+/* ✅ ЛЕНТА НЕ ДОЛЖНА СЖИМАТЬСЯ / ПЕРЕНОСИТЬСЯ */
 .roulette-reel {
-  display: inline-flex;     /* вместо flex */
+  display: inline-flex;     /* важно: чтобы ширина была по контенту */
   flex-wrap: nowrap;
   align-items: center;
   gap: 20px;
 
-  width: max-content;       /* ✅ чтобы лента реально была длинной */
+  width: max-content;       /* ключ к “нет конца” */
+  white-space: nowrap;      /* подстраховка против переносов */
+
   will-change: transform;
-  transform: translate3d(0,0,0);
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+
+  /* чтобы iOS не пытался “оптимизировать” и ломать ширину */
+  contain: layout paint;
 }
 
 /* ✅ карточки не сжимаются */
 .roulette-item {
   width: 140px;
   height: 140px;
-  flex: 0 0 auto;           /* ✅ не shrink */
+
+  flex: 0 0 auto;           /* не shrink */
+  box-sizing: border-box;
 
   background: rgba(255,255,255,0.06);
   border-radius: 18px;
@@ -850,7 +877,19 @@ body {
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255,255,255,0.08);
 
-  transform: translate3d(0,0,0);
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+
+  overflow: hidden;         /* чтобы лотти не вылезал */
+}
+
+/* ✅ Lottie внутри рулетки — статично и без “плясок” */
+.roulette-item svg,
+.roulette-item canvas {
+  display: block;
+  width: 80px !important;
+  height: 80px !important;
 }
 
 /* ============================= */
@@ -876,6 +915,15 @@ body {
     0 0 35px rgba(255,255,255,0.4);
 
   z-index: 5;
+}
+
+/* ============================= */
+/* CASE OPEN BUTTON STATES */
+/* ============================= */
+.casepage-open-btn[disabled] {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none !important;
 }
 
 /* ============================= */
