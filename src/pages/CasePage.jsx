@@ -31,8 +31,8 @@ function CasePage() {
   const stepsRef = useRef(0)
   const windowCountRef = useRef(16)
 
-  const selectIndexRef = useRef(7)     // какой индекс окна должен быть под линией
-  const centerShiftRef = useRef(0)     // постоянный сдвиг чтобы selectIndex был в центре
+  const selectIndexRef = useRef(7)   // индекс окна под линией
+  const centerShiftRef = useRef(0)   // постоянный сдвиг, чтобы selectIndex был по центру
 
   // fixed sizes (match CSS)
   const ITEM_W = 140
@@ -41,7 +41,7 @@ function CasePage() {
 
   if (!caseData) return <div className="app">Case config missing</div>
 
-  // ✅ SAFE drops: only those that exist in mapping (для грид-анимации)
+  // ✅ SAFE drops: only those that exist in mapping
   const safeDrops = useMemo(() => {
     return (caseData.drops || []).filter((d) => !!darkMatterAnimations[d.id])
   }, [caseData.drops])
@@ -79,7 +79,7 @@ function CasePage() {
     if (safeDrops.length === 1) return safeDrops[0].id
     let x = prev
     let tries = 0
-    while (x === prev && tries < 8) {
+    while (x === prev && tries < 10) {
       x = safeDrops[Math.floor(Math.random() * safeDrops.length)].id
       tries++
     }
@@ -87,12 +87,11 @@ function CasePage() {
   }
 
   // IMPORTANT:
-  // Мы хотим, чтобы в конце (base = steps, inner = 0) под линией стоял winId.
-  // Под линией стоит элемент windowItems[selectIndex], а windowItems = seq.slice(base, base+windowCount)
+  // Под линией стоит windowItems[selectIndex], а windowItems = seq.slice(base, base+windowCount)
   // => под линией будет seq[base + selectIndex]
-  // => значит winId должен лежать в seq[steps + selectIndex]
+  // Хотим, чтобы на финише base=steps и inner≈0 => winId должен быть в seq[steps + selectIndex]
   const buildSequence = (winId, steps, windowCount, selectIndex) => {
-    const total = steps + windowCount + 80 // большой запас, чтобы хвост не ощущался
+    const total = steps + windowCount + 120 // жирный запас, чтобы хвост никогда не ощущался
     const seq = new Array(total)
 
     let prev = null
@@ -105,7 +104,7 @@ function CasePage() {
     const winPos = steps + selectIndex
     seq[winPos] = winId
 
-    // уберём одинаковые рядом с win
+    // убираем одинаковые рядом с win
     if (winPos - 1 >= 0 && seq[winPos - 1] === winId) seq[winPos - 1] = randIdNoRepeat(winId)
     if (winPos + 1 < total && seq[winPos + 1] === winId) seq[winPos + 1] = randIdNoRepeat(winId)
 
@@ -147,22 +146,20 @@ function CasePage() {
     const containerWidth = wrapRef.current.offsetWidth || 320
     const visible = Math.ceil(containerWidth / FULL)
 
-    // окно — столько иконок рендерим
+    // сколько карточек рендерим
     const windowCount = Math.min(Math.max(visible + 10, 16), 26)
     windowCountRef.current = windowCount
 
-    // индекс, который должен быть под линией (примерно центр окна)
+    // индекс под линией (центр окна)
     const selectIndex = Math.floor(windowCount / 2)
     selectIndexRef.current = selectIndex
 
-    // постоянный сдвиг, чтобы selectIndex оказался по центру контейнера при inner=0
-    // trackX = centerShift - inner
-    // centerShift = centerX - selectIndex*FULL
+    // смещение, чтобы selectIndex оказался по центру при inner=0
     const centerX = containerWidth / 2 - ITEM_W / 2
     centerShiftRef.current = centerX - selectIndex * FULL
 
-    // сколько слотов “пролетит”
-    const steps = 140 // 120–180 норм; больше = “длиннее рулетка”
+    // сколько слотов пролетит
+    const steps = 120
     stepsRef.current = steps
 
     const seq = buildSequence(winIdRef.current, steps, windowCount, selectIndex)
@@ -180,13 +177,15 @@ function CasePage() {
   }, [phase])
 
   /* =============================
-     SPIN (rAF) — DOM transform each frame, React only when base changes
+     SPIN (rAF)
+     - DOM transform каждый кадр
+     - React windowItems только при смене base (чтобы не лагало)
   ============================= */
   useEffect(() => {
     if (phase !== "spinning") return
     if (!trackRef.current) return
 
-    const duration = 4200 // ms
+    const duration = 3800 // ms (нормальная “длина”, не слишком долг)
     const steps = stepsRef.current
     const totalPx = FULL * steps
 
@@ -196,8 +195,8 @@ function CasePage() {
     const tick = (now) => {
       const t = Math.min((now - startRef.current) / duration, 1)
 
-      // easing: быстрый старт, мягкий финиш
-      const eased = 1 - Math.pow(1 - t, 3.2)
+      // быстро стартует, мягко останавливается
+      const eased = 1 - Math.pow(1 - t, 3.0)
 
       const px = eased * totalPx
       const base = Math.floor(px / FULL)
@@ -255,12 +254,6 @@ function CasePage() {
 
   const blurred = result != null
 
-  // статичная иконка для рулетки (НЕ lottie)
-  const getStaticIcon = (dropId) => {
-    const d = (caseData.drops || []).find((x) => x.id === dropId)
-    return d?.icon || d?.thumb || d?.image || null
-  }
-
   return (
     <div className="app">
       <div className={blurred ? "blurred" : ""}>
@@ -297,18 +290,21 @@ function CasePage() {
 
                 <div ref={trackRef} className="roulette-reel">
                   {windowItems.map((dropId, index) => {
-                    const icon = getStaticIcon(dropId)
+                    const anim = darkMatterAnimations[dropId]
                     return (
                       <div key={`${dropId}-${index}`} className="roulette-item">
-                        {icon ? (
-                          <img
-                            className="roulette-icon"
-                            src={icon}
-                            alt={dropId}
-                            draggable={false}
+                        {/* ✅ Lottie статично: autoplay={false}, loop={false} */}
+                        {/* важное: НЕ меняем key на каждом кадре, только на смене windowItems */}
+                        {anim ? (
+                          <Lottie
+                            animationData={anim}
+                            autoplay={false}
+                            loop={false}
+                            className="roulette-lottie"
+                            style={{ width: 80, height: 80 }}
                           />
                         ) : (
-                          <div className="roulette-icon roulette-icon--empty" />
+                          <div className="roulette-lottie roulette-lottie--empty" />
                         )}
                       </div>
                     )
@@ -368,6 +364,7 @@ function CasePage() {
           <div className="result-card">
             <div className="result-title">Поздравляем!</div>
 
+            {/* ✅ приз анимированный */}
             <div className="drop-card result-size">
               <Lottie
                 animationData={darkMatterAnimations[result]}
