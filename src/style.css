@@ -819,12 +819,18 @@ body {
 
   overflow: hidden;
 
+  /* затемнение краёв */
   mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
   -webkit-mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
 
   pointer-events: none;
+
+  /* небольшой внутренний отступ, чтобы край никогда не выглядел “пустым” */
+  padding: 0 24px;
+  box-sizing: border-box;
 }
 
+/* track: двигаем на slotX */
 .roulette-reel {
   display: flex;
   flex-direction: row;
@@ -834,11 +840,9 @@ body {
 
   will-change: transform;
   transform: translateZ(0);
-
-  /* ✅ чтобы лента не была “короткой” при глюках измерения */
-  min-width: 200vw;
 }
 
+/* фикс размера карточки (и запрет shrink) */
 .roulette-item {
   width: 140px;
   height: 140px;
@@ -881,19 +885,6 @@ body {
     0 0 35px rgba(255,255,255,0.4);
 
   z-index: 5;
-}
-
-/* ============================= */
-/* OPEN BUTTON LOADING */
-/* ============================= */
-
-.casepage-open-btn.loading {
-  opacity: 0.75;
-  cursor: default;
-}
-
-.casepage-open-btn.loading:active {
-  transform: none;
 }
 
 /* ============================= */
