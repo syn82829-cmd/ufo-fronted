@@ -1,9 +1,67 @@
 import { useParams, useNavigate } from "react-router-dom"
 import { useState, useRef, useLayoutEffect, useEffect, useMemo, memo } from "react"
-import Lottie from "lottie-react"
 
 import { cases } from "../data/cases"
-import { darkMatterAnimations } from "../data/animations"
+
+/* =============================
+   PNG NAME NORMALIZER
+   - fixes id/file mismatch + case sensitivity
+   Files you have in /public/drops:
+   HeroicHelmet, IonicDryer, LootBag, Lowrider, SwissWatch, WestsideSign,
+   ball, batman, book, key, metla, poison, skull
+============================= */
+const DROP_PNG_MAP = {
+  // canonical (exact filenames)
+  HeroicHelmet: "HeroicHelmet",
+  IonicDryer: "IonicDryer",
+  LootBag: "LootBag",
+  Lowrider: "Lowrider",
+  SwissWatch: "SwissWatch",
+  WestsideSign: "WestsideSign",
+  ball: "ball",
+  batman: "batman",
+  book: "book",
+  key: "key",
+  metla: "metla",
+  poison: "poison",
+  skull: "skull",
+
+  // common variants (just in case cases.js uses other ids)
+  heroichelmet: "HeroicHelmet",
+  heroicHelmet: "HeroicHelmet",
+  HEROICHELMET: "HeroicHelmet",
+
+  ionicdryer: "IonicDryer",
+  ionicDryer: "IonicDryer",
+  IONICDRYER: "IonicDryer",
+
+  lootbag: "LootBag",
+  lootBag: "LootBag",
+  LOOTBAG: "LootBag",
+
+  lowrider: "Lowrider",
+  LowRider: "Lowrider",
+  LOWRIDER: "Lowrider",
+
+  swisswatch: "SwissWatch",
+  swissWatch: "SwissWatch",
+  SWISSWATCH: "SwissWatch",
+
+  westsidesign: "WestsideSign",
+  westsideSign: "WestsideSign",
+  WestSideSign: "WestsideSign",
+  WESTSIDESIGN: "WestsideSign",
+}
+
+function pngNameForDropId(dropId) {
+  if (!dropId) return null
+  return DROP_PNG_MAP[dropId] || DROP_PNG_MAP[String(dropId).toLowerCase()] || dropId
+}
+
+function pngSrcForDropId(dropId) {
+  const name = pngNameForDropId(dropId)
+  return name ? `/drops/${name}.png` : ""
+}
 
 /* =============================
    ROULETTE SLOT (PNG ONLY)
@@ -11,16 +69,17 @@ import { darkMatterAnimations } from "../data/animations"
 const RouletteSlot = memo(function RouletteSlot({ dropId }) {
   return (
     <img
-      src={`/drops/${dropId}.png`}
+      src={pngSrcForDropId(dropId)}
       alt={dropId}
       style={{
         width: 80,
         height: 80,
         objectFit: "contain",
         pointerEvents: "none",
-        userSelect: "none"
+        userSelect: "none",
       }}
       draggable={false}
+      loading="eager"
     />
   )
 })
@@ -30,8 +89,7 @@ function CasePage() {
   const navigate = useNavigate()
   const caseData = cases[id]
 
-  const [activeDrop, setActiveDrop] = useState(null)
-  const [phase, setPhase] = useState("idle")
+  const [phase, setPhase] = useState("idle") // idle -> preparing -> spinning -> result
   const [result, setResult] = useState(null)
   const [windowItems, setWindowItems] = useState([])
 
@@ -49,28 +107,21 @@ function CasePage() {
   const selectIndexRef = useRef(0)
   const centerShiftRef = useRef(0)
 
+  // sizes must match CSS
   const ITEM_W = 140
   const GAP = 20
   const FULL = ITEM_W + GAP
 
   if (!caseData) return <div className="app">Case config missing</div>
 
-  // теперь фильтруем по наличию PNG
+  // ✅ now "safeDrops" means: we only keep drops that have known png name
+  // (prevents '?' in roulette/grid if your cases.js contains extra ids)
   const safeDrops = useMemo(() => {
-    return caseData.drops || []
+    return (caseData.drops || []).filter((d) => !!pngNameForDropId(d.id))
   }, [caseData.drops])
 
   if (!safeDrops.length) {
-    return <div className="app">No drops found for this case.</div>
-  }
-
-  const handleClick = (dropId) => {
-    if (activeDrop === dropId) {
-      setActiveDrop(null)
-      setTimeout(() => setActiveDrop(dropId), 10)
-    } else {
-      setActiveDrop(dropId)
-    }
+    return <div className="app">No drops with matching PNG found for this case.</div>
   }
 
   const pickWeighted = () => {
@@ -107,6 +158,7 @@ function CasePage() {
     const winPos = steps + selectIndex
     seq[winPos] = winId
 
+    // no adjacent duplicates for win
     if (winPos - 1 >= 0 && seq[winPos - 1] === winId) seq[winPos - 1] = randIdNoRepeat(winId)
     if (winPos + 1 < total && seq[winPos + 1] === winId) seq[winPos + 1] = randIdNoRepeat(winId)
 
@@ -118,9 +170,7 @@ function CasePage() {
     rafRef.current = null
   }
 
-  useEffect(() => {
-    return () => stopAll()
-  }, [])
+  useEffect(() => stopAll, [])
 
   const openCase = () => {
     if (phase === "preparing" || phase === "spinning") return
@@ -193,9 +243,7 @@ function CasePage() {
       const base = Math.floor(px / FULL)
       const inner = px - base * FULL
 
-      if (trackRef.current) {
-        trackRef.current.style.transform = `translate3d(${centerShiftRef.current - inner}px,0,0)`
-      }
+      trackRef.current.style.transform = `translate3d(${centerShiftRef.current - inner}px,0,0)`
 
       if (base !== lastBaseRef.current) {
         const prevBase = lastBaseRef.current
@@ -298,39 +346,35 @@ function CasePage() {
           )}
         </div>
 
+        {/* GRID: PNG ONLY */}
         <div className="casepage-drops">
-          {caseData.drops.map((drop) => {
-            const isActive = activeDrop === drop.id
-            return (
-              <div
-                key={drop.id}
-                className="drop-card"
-                onClick={() => handleClick(drop.id)}
-              >
-                <Lottie
-                  key={isActive ? drop.id + "-active" : drop.id}
-                  animationData={darkMatterAnimations[drop.id]}
-                  autoplay={isActive}
-                  loop={false}
-                  className="drop-lottie"
-                />
-                <div className="drop-name">{drop.name || drop.id}</div>
-              </div>
-            )
-          })}
+          {safeDrops.map((drop) => (
+            <div key={drop.id} className="drop-card">
+              <img
+                src={pngSrcForDropId(drop.id)}
+                alt={drop.name || drop.id}
+                className="drop-image"
+                draggable={false}
+                loading="lazy"
+              />
+              <div className="drop-name">{drop.name || drop.id}</div>
+            </div>
+          ))}
         </div>
       </div>
 
+      {/* RESULT: PNG ONLY */}
       {result && (
         <div className="result-overlay">
           <div className="result-card">
             <div className="result-title">Поздравляем!</div>
 
             <div className="drop-card result-size">
-              <Lottie
-                animationData={darkMatterAnimations[result]}
-                autoplay
-                loop={false}
+              <img
+                src={pngSrcForDropId(result)}
+                alt={result}
+                className="drop-image"
+                draggable={false}
               />
               <div className="drop-name">{result}</div>
             </div>
