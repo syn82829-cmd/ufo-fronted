@@ -6,35 +6,21 @@ import { cases } from "../data/cases"
 import { darkMatterAnimations } from "../data/animations"
 
 /* =============================
-   ROULETTE SLOT (stable)
-   - key only by index (outside)
-   - always stop at frame 0
+   ROULETTE SLOT (PNG ONLY)
 ============================= */
 const RouletteSlot = memo(function RouletteSlot({ dropId }) {
-  const lottieRef = useRef(null)
-  const anim = darkMatterAnimations[dropId]
-
-  useEffect(() => {
-    // гарантируем "статик"
-    if (lottieRef.current) {
-      try {
-        lottieRef.current.goToAndStop(0, true)
-      } catch {}
-    }
-  }, [dropId])
-
-  if (!anim) {
-    return <div style={{ width: 80, height: 80, opacity: 0.25 }} />
-  }
-
   return (
-    <Lottie
-      lottieRef={lottieRef}
-      animationData={anim}
-      autoplay={false}
-      loop={false}
-      rendererSettings={{ preserveAspectRatio: "xMidYMid meet" }}
-      style={{ width: 80, height: 80 }}
+    <img
+      src={`/drops/${dropId}.png`}
+      alt={dropId}
+      style={{
+        width: 80,
+        height: 80,
+        objectFit: "contain",
+        pointerEvents: "none",
+        userSelect: "none"
+      }}
+      draggable={false}
     />
   )
 })
@@ -45,12 +31,8 @@ function CasePage() {
   const caseData = cases[id]
 
   const [activeDrop, setActiveDrop] = useState(null)
-
-  // idle -> preparing -> spinning -> result
   const [phase, setPhase] = useState("idle")
   const [result, setResult] = useState(null)
-
-  // окно (рендерим N слотов)
   const [windowItems, setWindowItems] = useState([])
 
   const wrapRef = useRef(null)
@@ -67,20 +49,19 @@ function CasePage() {
   const selectIndexRef = useRef(0)
   const centerShiftRef = useRef(0)
 
-  // размеры должны совпадать с CSS
   const ITEM_W = 140
   const GAP = 20
   const FULL = ITEM_W + GAP
 
   if (!caseData) return <div className="app">Case config missing</div>
 
-  // только те дропы, у которых реально есть lottie
+  // теперь фильтруем по наличию PNG
   const safeDrops = useMemo(() => {
-    return (caseData.drops || []).filter((d) => !!darkMatterAnimations[d.id])
+    return caseData.drops || []
   }, [caseData.drops])
 
   if (!safeDrops.length) {
-    return <div className="app">No drops with animations found for this case.</div>
+    return <div className="app">No drops found for this case.</div>
   }
 
   const handleClick = (dropId) => {
@@ -112,7 +93,6 @@ function CasePage() {
     return x
   }
 
-  // seq такой длины, чтобы base+windowCount всегда существовал
   const buildSequence = (winId, steps, windowCount, selectIndex) => {
     const total = steps + selectIndex + windowCount + 120
     const seq = new Array(total)
@@ -127,7 +107,6 @@ function CasePage() {
     const winPos = steps + selectIndex
     seq[winPos] = winId
 
-    // чтобы рядом не было дубля winId
     if (winPos - 1 >= 0 && seq[winPos - 1] === winId) seq[winPos - 1] = randIdNoRepeat(winId)
     if (winPos + 1 < total && seq[winPos + 1] === winId) seq[winPos + 1] = randIdNoRepeat(winId)
 
@@ -171,18 +150,15 @@ function CasePage() {
     const selectIndex = Math.floor(windowCount / 2)
     selectIndexRef.current = selectIndex
 
-    // фиксируем так, чтобы selectIndex был под линией (по центру)
     const centerX = containerWidth / 2 - ITEM_W / 2
     centerShiftRef.current = centerX - selectIndex * FULL
 
-    // сколько слотов пролетит (скорость/длина)
     const steps = 110
     stepsRef.current = steps
 
     const seq = buildSequence(winIdRef.current, steps, windowCount, selectIndex)
     seqRef.current = seq
 
-    // стартовое окно
     setWindowItems(seq.slice(0, windowCount))
 
     requestAnimationFrame(() => {
@@ -197,15 +173,12 @@ function CasePage() {
 
   /* =============================
      SPIN
-     - transform каждый кадр
-     - React обновляем только когда base изменился
-     - и обновляем ОКНО СДВИГОМ (не пересоздаём 18 Lottie)
   ============================= */
   useEffect(() => {
     if (phase !== "spinning") return
     if (!trackRef.current) return
 
-    const duration = 3600 // 3.6s — ближе к “норм”
+    const duration = 3600
     const steps = stepsRef.current
     const totalPx = FULL * steps
 
@@ -214,20 +187,16 @@ function CasePage() {
 
     const tick = (now) => {
       const t = Math.min((now - startRef.current) / duration, 1)
-
-      // easing: быстрый старт, мягкий финиш
       const eased = 1 - Math.pow(1 - t, 3.15)
 
       const px = eased * totalPx
       const base = Math.floor(px / FULL)
       const inner = px - base * FULL
 
-      // двигаем DOM
       if (trackRef.current) {
         trackRef.current.style.transform = `translate3d(${centerShiftRef.current - inner}px,0,0)`
       }
 
-      // base сменился -> обновляем окно (без ремоунта всей пачки)
       if (base !== lastBaseRef.current) {
         const prevBase = lastBaseRef.current
         lastBaseRef.current = base
@@ -235,7 +204,6 @@ function CasePage() {
         const seq = seqRef.current
         const wc = windowCountRef.current
 
-        // обычный случай: base вырос на 1
         if (prevBase !== -1 && base === prevBase + 1) {
           setWindowItems((prev) => {
             if (!prev || prev.length !== wc) return seq.slice(base, base + wc)
@@ -244,7 +212,6 @@ function CasePage() {
             return next
           })
         } else {
-          // если вдруг прыжок (редко) — просто пересобираем окно
           setWindowItems(seq.slice(base, base + wc))
         }
       }
@@ -268,10 +235,6 @@ function CasePage() {
     setPhase("idle")
     setWindowItems([])
     lastBaseRef.current = -1
-    if (trackRef.current) {
-      trackRef.current.style.transition = "none"
-      trackRef.current.style.transform = `translate3d(0px,0,0)`
-    }
   }
 
   const openAgain = () => {
@@ -312,10 +275,8 @@ function CasePage() {
             {showRoulette && (
               <div className="roulette-absolute" ref={wrapRef}>
                 <div className="roulette-line" />
-
                 <div ref={trackRef} className="roulette-reel">
                   {windowItems.map((dropId, index) => (
-                    // ✅ ключи ТОЛЬКО по index — слоты стабильные, Lottie не ремоунтится пачкой
                     <div key={index} className="roulette-item">
                       <RouletteSlot dropId={dropId} />
                     </div>
