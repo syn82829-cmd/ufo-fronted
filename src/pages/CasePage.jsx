@@ -58,7 +58,7 @@ function CasePage() {
   const [phase, setPhase] = useState("idle")
   const [result, setResult] = useState(null)
 
-  // окно (рендерим N слотов)
+  // окно рулетки (тут будет windowCount + 2*buffer)
   const [windowItems, setWindowItems] = useState([])
 
   const wrapRef = useRef(null)
@@ -75,6 +75,11 @@ function CasePage() {
   const selectIndexRef = useRef(0)
   const centerShiftRef = useRef(0)
 
+  // буфер слева/справа чтобы никогда не было "конца ленты"
+  const bufferRef = useRef(6)
+  // стартовый оффсет, чтобы не лезть в отрицательные индексы
+  const startOffsetRef = useRef(0)
+
   // размеры должны совпадать с CSS
   const ITEM_W = 140
   const GAP = 20
@@ -82,13 +87,10 @@ function CasePage() {
 
   if (!caseData) return <div className="app">Case config missing</div>
 
-  // Для рулетки/выпадающего результата нам нужны те дропы,
-  // у которых есть PNG-маппинг (или совпадает имя 1-в-1).
+  // рулетка/результат работают по ids из cases (lottie ids),
+  // но PNG берём по маппингу
   const safeDrops = useMemo(() => {
-    return (caseData.drops || []).filter((d) => {
-      // если ты добавишь новые — просто дополни PNG_BY_ID
-      return Boolean(PNG_BY_ID[d.id] || d.id)
-    })
+    return (caseData.drops || []).filter((d) => Boolean(PNG_BY_ID[d.id] || d.id))
   }, [caseData.drops])
 
   if (!safeDrops.length) {
@@ -124,9 +126,9 @@ function CasePage() {
     return x
   }
 
-  const buildSequence = (winId, steps, windowCount, selectIndex) => {
-    // делаем запас ещё больше, чтобы никогда не было ощущения “конца ленты”
-    const total = steps + selectIndex + windowCount + 220
+  // seq такой длины, чтобы base+windowCount+buffer всегда существовал
+  const buildSequence = (winId, steps, windowCount, selectIndex, startOffset, buffer) => {
+    const total = startOffset + steps + selectIndex + windowCount + buffer + 240
     const seq = new Array(total)
 
     let prev = null
@@ -136,7 +138,7 @@ function CasePage() {
       prev = r
     }
 
-    const winPos = steps + selectIndex
+    const winPos = startOffset + steps + selectIndex
     seq[winPos] = winId
 
     // чтобы рядом не было дубля winId
@@ -181,23 +183,38 @@ function CasePage() {
     const selectIndex = Math.floor(windowCount / 2)
     selectIndexRef.current = selectIndex
 
-    // фиксируем так, чтобы selectIndex был под линией (по центру)
     const centerX = containerWidth / 2 - ITEM_W / 2
     centerShiftRef.current = centerX - selectIndex * FULL
 
-    // чуть меньше шагов + больше длительность = плавнее/не так “быстро”
+    // буфер: рендерим extra карточки по краям
+    const buffer = 6
+    bufferRef.current = buffer
+    const startOffset = buffer
+    startOffsetRef.current = startOffset
+
+    // шаги/длина
     const steps = 95
     stepsRef.current = steps
 
-    const seq = buildSequence(winIdRef.current, steps, windowCount, selectIndex)
+    const seq = buildSequence(
+      winIdRef.current,
+      steps,
+      windowCount,
+      selectIndex,
+      startOffset,
+      buffer
+    )
     seqRef.current = seq
 
-    setWindowItems(seq.slice(0, windowCount))
+    // стартовое окно: base = startOffset, значит slice(base-buffer .. base+windowCount+buffer)
+    const base0 = startOffset
+    setWindowItems(seq.slice(base0 - buffer, base0 + windowCount + buffer))
 
     requestAnimationFrame(() => {
       if (trackRef.current) {
         trackRef.current.style.transition = "none"
-        trackRef.current.style.transform = `translate3d(${centerShiftRef.current}px,0,0)`
+        // inner = 0 на старте, но мы отнимаем buffer, потому что слева есть buffer элементов
+        trackRef.current.style.transform = `translate3d(${centerShiftRef.current - buffer * FULL}px,0,0)`
         void trackRef.current.offsetHeight
       }
       setPhase("spinning")
@@ -206,56 +223,67 @@ function CasePage() {
 
   /* =============================
      SPIN
+     - transform каждый кадр
+     - React обновляем только когда base изменился
+     - буфер слева/справа чтобы не было “конца”
   ============================= */
   useEffect(() => {
     if (phase !== "spinning") return
     if (!trackRef.current) return
 
-    // стало спокойнее и “дороже”
     const duration = 5200
     const steps = stepsRef.current
     const totalPx = FULL * steps
+    const buffer = bufferRef.current
+    const startOffset = startOffsetRef.current
 
     startRef.current = performance.now()
     lastBaseRef.current = -1
 
     const tick = (now) => {
       const t = Math.min((now - startRef.current) / duration, 1)
-
-      // мягче финиш (меньше “резкости”)
       const eased = 1 - Math.pow(1 - t, 3.6)
 
       const px = eased * totalPx
-      const base = Math.floor(px / FULL)
-      const inner = px - base * FULL
+      const baseDelta = Math.floor(px / FULL)
+      const inner = px - baseDelta * FULL
 
-      trackRef.current.style.transform = `translate3d(${centerShiftRef.current - inner}px,0,0)`
+      const base = startOffset + baseDelta
 
+      // двигаем DOM (учитываем, что слева от base есть buffer элементов)
+      trackRef.current.style.transform = `translate3d(${centerShiftRef.current - inner - buffer * FULL}px,0,0)`
+
+      // base сменился -> обновляем окно
       if (base !== lastBaseRef.current) {
-        const prevBase = lastBaseRef.current
         lastBaseRef.current = base
-
         const seq = seqRef.current
         const wc = windowCountRef.current
-
-        if (prevBase !== -1 && base === prevBase + 1) {
-          setWindowItems((prev) => {
-            if (!prev || prev.length !== wc) return seq.slice(base, base + wc)
-            const next = prev.slice(1)
-            next.push(seq[base + wc - 1])
-            return next
-          })
-        } else {
-          setWindowItems(seq.slice(base, base + wc))
-        }
+        setWindowItems(seq.slice(base - buffer, base + wc + buffer))
       }
 
       if (t < 1) {
         rafRef.current = requestAnimationFrame(tick)
       } else {
+        // ===== ФИНАЛЬНЫЙ SNAP =====
+        // чтобы под линией 100% оказался winId, и только потом показываем результат
         stopAll()
-        setPhase("result")
-        setResult(winIdRef.current)
+
+        const seq = seqRef.current
+        const wc = windowCountRef.current
+        const finalBase = startOffset + steps // px = totalPx => baseDelta=steps, inner=0
+
+        // фиксируем трек и окно
+        if (trackRef.current) {
+          trackRef.current.style.transition = "none"
+          trackRef.current.style.transform = `translate3d(${centerShiftRef.current - buffer * FULL}px,0,0)`
+        }
+        setWindowItems(seq.slice(finalBase - buffer, finalBase + wc + buffer))
+
+        // дать React 1 кадр отрисовать "правильный" стоп
+        requestAnimationFrame(() => {
+          setPhase("result")
+          setResult(winIdRef.current)
+        })
       }
     }
 
@@ -313,6 +341,7 @@ function CasePage() {
             {showRoulette && (
               <div className="roulette-absolute" ref={wrapRef}>
                 <div className="roulette-line" />
+
                 <div ref={trackRef} className="roulette-reel">
                   {windowItems.map((dropId, index) => (
                     <div key={index} className="roulette-item">
@@ -336,7 +365,7 @@ function CasePage() {
           )}
         </div>
 
-        {/* ===== DROPS GRID (LOTTIE, как ты хотел) ===== */}
+        {/* ===== DROPS GRID (LOTTIE) ===== */}
         <div className="casepage-drops">
           {caseData.drops.map((drop) => {
             const isActive = activeDrop === drop.id
