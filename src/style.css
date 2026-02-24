@@ -764,13 +764,10 @@ body {
 /* ============================= */
 /* DROP NAME */
 /* ============================= */
-
 .drop-name {
-
   color: white;
   font-size: 17px;
   font-weight: 600;
-
 }
 
 /* ============================= */
@@ -830,8 +827,9 @@ body {
 
   width: max-content;
 
-  padding-left: 45vw;
-  padding-right: 45vw;
+  /* ❗ убираем “пустоту”, запас теперь делается seq в JS */
+  padding-left: 0;
+  padding-right: 0;
 
   will-change: transform;
   transform: translate3d(0,0,0);
@@ -890,6 +888,36 @@ body {
 }
 
 /* ============================= */
+/* DROPS GRID (Lottie, ниже кнопки) */
+/* ============================= */
+.casepage-drops {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  padding: 16px;
+}
+
+.drop-card {
+  background: rgba(255,255,255,0.06);
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.08);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  padding: 14px 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.drop-lottie {
+  width: 96px;
+  height: 96px;
+}
+
+/* ============================= */
 /* RESULT OVERLAY */
 /* ============================= */
 .result-overlay {
@@ -937,11 +965,16 @@ body {
   border: 1px solid rgba(255,255,255,0.1);
 }
 
-.result-size .drop-lottie {
+/* результат теперь PNG */
+.result-size img {
   width: 110px;
   height: 110px;
+  object-fit: contain;
 }
 
+/* ============================= */
+/* RESULT BUTTONS */
+/* ============================= */
 .result-buttons {
   display: flex;
   justify-content: center;
