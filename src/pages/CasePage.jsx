@@ -7,7 +7,6 @@ import { darkMatterAnimations } from "../data/animations"
 
 /* =============================
    LOTTIE ID -> PNG filename map
-   PNG лежат в: public/drops/*.png
 ============================= */
 const PNG_BY_ID = {
   darkhelmet: "HeroicHelmet",
@@ -18,30 +17,22 @@ const PNG_BY_ID = {
   skull: "skull",
   dyson: "IonicDryer",
   batman: "batman",
-  poizon: "poison", // id с опечаткой оставляем, png нормальный
+  poizon: "poison",
   metla: "metla",
   ball: "ball",
   book: "book",
 }
-
 const pngSrc = (dropId) => `/drops/${(PNG_BY_ID[dropId] || dropId)}.png`
 
 /* =============================
    ROULETTE SLOT (PNG ONLY)
-   (в рулетке НЕТ Lottie / WebP)
 ============================= */
 const RouletteSlot = memo(function RouletteSlot({ dropId }) {
   return (
     <img
       src={pngSrc(dropId)}
       alt={dropId}
-      style={{
-        width: 80,
-        height: 80,
-        objectFit: "contain",
-        pointerEvents: "none",
-        userSelect: "none",
-      }}
+      className="roulette-png"
       draggable={false}
     />
   )
@@ -58,26 +49,24 @@ function CasePage() {
   const [phase, setPhase] = useState("idle")
   const [result, setResult] = useState(null)
 
-  // окно рулетки (тут будет windowCount + 2*buffer)
   const [windowItems, setWindowItems] = useState([])
+  const [rouletteW, setRouletteW] = useState(null)
 
   const wrapRef = useRef(null)
   const trackRef = useRef(null)
+  const caseImgRef = useRef(null)
 
   const rafRef = useRef(null)
   const startRef = useRef(0)
   const lastBaseRef = useRef(-1)
 
-  const winIdRef = useRef(null)
   const seqRef = useRef([])
   const stepsRef = useRef(0)
   const windowCountRef = useRef(18)
   const selectIndexRef = useRef(0)
   const centerShiftRef = useRef(0)
 
-  // буфер слева/справа чтобы никогда не было "конца ленты"
-  const bufferRef = useRef(6)
-  // стартовый оффсет, чтобы не лезть в отрицательные индексы
+  const bufferRef = useRef(8)         // побольше, чтобы край DOM никогда не попадал в окно
   const startOffsetRef = useRef(0)
 
   // размеры должны совпадать с CSS
@@ -87,15 +76,9 @@ function CasePage() {
 
   if (!caseData) return <div className="app">Case config missing</div>
 
-  // рулетка/результат работают по ids из cases (lottie ids),
-  // но PNG берём по маппингу
   const safeDrops = useMemo(() => {
     return (caseData.drops || []).filter((d) => Boolean(PNG_BY_ID[d.id] || d.id))
   }, [caseData.drops])
-
-  if (!safeDrops.length) {
-    return <div className="app">No drops found for this case.</div>
-  }
 
   const handleClick = (dropId) => {
     if (activeDrop === dropId) {
@@ -126,9 +109,9 @@ function CasePage() {
     return x
   }
 
-  // seq такой длины, чтобы base+windowCount+buffer всегда существовал
-  const buildSequence = (winId, steps, windowCount, selectIndex, startOffset, buffer) => {
-    const total = startOffset + steps + selectIndex + windowCount + buffer + 240
+  const buildSequence = (steps, windowCount, selectIndex, startOffset, buffer, forcedWinner) => {
+    // запас делаем жирный — чтобы вообще никогда не закончилась
+    const total = startOffset + steps + selectIndex + windowCount + buffer + 400
     const seq = new Array(total)
 
     let prev = null
@@ -138,24 +121,40 @@ function CasePage() {
       prev = r
     }
 
+    // Победитель ставится в гарантированную позицию
     const winPos = startOffset + steps + selectIndex
-    seq[winPos] = winId
+    seq[winPos] = forcedWinner
 
-    // чтобы рядом не было дубля winId
-    if (winPos - 1 >= 0 && seq[winPos - 1] === winId) seq[winPos - 1] = randIdNoRepeat(winId)
-    if (winPos + 1 < total && seq[winPos + 1] === winId) seq[winPos + 1] = randIdNoRepeat(winId)
+    // убираем дубль рядом
+    if (winPos - 1 >= 0 && seq[winPos - 1] === forcedWinner) seq[winPos - 1] = randIdNoRepeat(forcedWinner)
+    if (winPos + 1 < total && seq[winPos + 1] === forcedWinner) seq[winPos + 1] = randIdNoRepeat(forcedWinner)
 
-    return seq
+    return { seq, winPos }
   }
 
   const stopAll = () => {
     if (rafRef.current) cancelAnimationFrame(rafRef.current)
     rafRef.current = null
   }
-
   useEffect(() => stopAll, [])
 
-  const openCase = () => {
+  // preload PNG чтобы не было “что-то грузится по ходу”
+  const preloadAllPng = async () => {
+    const uniq = Array.from(new Set(safeDrops.map((d) => pngSrc(d.id))))
+    await Promise.all(
+      uniq.map(
+        (src) =>
+          new Promise((resolve) => {
+            const img = new Image()
+            img.onload = resolve
+            img.onerror = resolve
+            img.src = src
+          })
+      )
+    )
+  }
+
+  const openCase = async () => {
     if (phase === "preparing" || phase === "spinning") return
 
     stopAll()
@@ -163,9 +162,25 @@ function CasePage() {
     setWindowItems([])
     lastBaseRef.current = -1
 
-    winIdRef.current = pickWeighted()
     setPhase("preparing")
+
+    // важная штука: прогреваем png
+    await preloadAllPng()
+
+    setPhase("preparing") // (на случай, если React успел)
+    // выбираем победителя
+    const winner = pickWeighted()
+
+    // рассчитываем ширину рулетки = ширина кейса (картинки)
+    const imgW = caseImgRef.current?.offsetWidth || 320
+    setRouletteW(imgW)
+
+    // дальше подготовка в useLayoutEffect, но winner пробрасываем в ref
+    // просто запишем в ref через seqRef на prep этапе
+    winIdRef.current = winner
   }
+
+  const winIdRef = useRef(null)
 
   /* =============================
      PREP
@@ -173,11 +188,12 @@ function CasePage() {
   useLayoutEffect(() => {
     if (phase !== "preparing") return
     if (!wrapRef.current) return
+    if (!winIdRef.current) return
 
-    const containerWidth = wrapRef.current.offsetWidth || 320
+    const containerWidth = rouletteW || caseImgRef.current?.offsetWidth || 320
+
     const visible = Math.ceil(containerWidth / FULL)
-
-    const windowCount = Math.min(Math.max(visible + 8, 14), 22)
+    const windowCount = Math.min(Math.max(visible + 6, 12), 18) // чуть меньше — плотнее и стабильнее
     windowCountRef.current = windowCount
 
     const selectIndex = Math.floor(windowCount / 2)
@@ -186,46 +202,33 @@ function CasePage() {
     const centerX = containerWidth / 2 - ITEM_W / 2
     centerShiftRef.current = centerX - selectIndex * FULL
 
-    // буфер: рендерим extra карточки по краям
-    const buffer = 6
+    const buffer = 8
     bufferRef.current = buffer
     const startOffset = buffer
     startOffsetRef.current = startOffset
 
-    // шаги/длина
-    const steps = 95
+    const steps = 96
     stepsRef.current = steps
 
-    const seq = buildSequence(
-      winIdRef.current,
-      steps,
-      windowCount,
-      selectIndex,
-      startOffset,
-      buffer
-    )
+    const { seq } = buildSequence(steps, windowCount, selectIndex, startOffset, buffer, winIdRef.current)
     seqRef.current = seq
 
-    // стартовое окно: base = startOffset, значит slice(base-buffer .. base+windowCount+buffer)
     const base0 = startOffset
     setWindowItems(seq.slice(base0 - buffer, base0 + windowCount + buffer))
 
     requestAnimationFrame(() => {
       if (trackRef.current) {
         trackRef.current.style.transition = "none"
-        // inner = 0 на старте, но мы отнимаем buffer, потому что слева есть buffer элементов
+        // стартуем с учётом buffer слева
         trackRef.current.style.transform = `translate3d(${centerShiftRef.current - buffer * FULL}px,0,0)`
         void trackRef.current.offsetHeight
       }
       setPhase("spinning")
     })
-  }, [phase])
+  }, [phase, rouletteW])
 
   /* =============================
      SPIN
-     - transform каждый кадр
-     - React обновляем только когда base изменился
-     - буфер слева/справа чтобы не было “конца”
   ============================= */
   useEffect(() => {
     if (phase !== "spinning") return
@@ -236,6 +239,8 @@ function CasePage() {
     const totalPx = FULL * steps
     const buffer = bufferRef.current
     const startOffset = startOffsetRef.current
+    const seq = seqRef.current
+    const wc = windowCountRef.current
 
     startRef.current = performance.now()
     lastBaseRef.current = -1
@@ -247,42 +252,35 @@ function CasePage() {
       const px = eased * totalPx
       const baseDelta = Math.floor(px / FULL)
       const inner = px - baseDelta * FULL
-
       const base = startOffset + baseDelta
 
-      // двигаем DOM (учитываем, что слева от base есть buffer элементов)
       trackRef.current.style.transform = `translate3d(${centerShiftRef.current - inner - buffer * FULL}px,0,0)`
 
-      // base сменился -> обновляем окно
       if (base !== lastBaseRef.current) {
         lastBaseRef.current = base
-        const seq = seqRef.current
-        const wc = windowCountRef.current
         setWindowItems(seq.slice(base - buffer, base + wc + buffer))
       }
 
       if (t < 1) {
         rafRef.current = requestAnimationFrame(tick)
       } else {
-        // ===== ФИНАЛЬНЫЙ SNAP =====
-        // чтобы под линией 100% оказался winId, и только потом показываем результат
         stopAll()
 
-        const seq = seqRef.current
-        const wc = windowCountRef.current
-        const finalBase = startOffset + steps // px = totalPx => baseDelta=steps, inner=0
+        // ===== ФИНАЛ: берём фактический элемент под линией =====
+        const finalBase = startOffset + steps
+        const finalIndex = finalBase + selectIndexRef.current
+        const finalWinner = seq[finalIndex] // <-- вот это 100% совпадает с тем, что под линией
 
-        // фиксируем трек и окно
+        // snap transform (inner=0)
         if (trackRef.current) {
           trackRef.current.style.transition = "none"
           trackRef.current.style.transform = `translate3d(${centerShiftRef.current - buffer * FULL}px,0,0)`
         }
         setWindowItems(seq.slice(finalBase - buffer, finalBase + wc + buffer))
 
-        // дать React 1 кадр отрисовать "правильный" стоп
         requestAnimationFrame(() => {
+          setResult(finalWinner)
           setPhase("result")
-          setResult(winIdRef.current)
         })
       }
     }
@@ -297,6 +295,8 @@ function CasePage() {
     setPhase("idle")
     setWindowItems([])
     lastBaseRef.current = -1
+    winIdRef.current = null
+    setRouletteW(null)
     if (trackRef.current) {
       trackRef.current.style.transition = "none"
       trackRef.current.style.transform = `translate3d(0px,0,0)`
@@ -316,32 +316,28 @@ function CasePage() {
       <div className={blurred ? "blurred" : ""}>
         <div className="casepage-header">
           <div className="casepage-title-row">
-            <button
-              type="button"
-              className="casepage-header-btn casepage-back-btn"
-              onClick={() => navigate(-1)}
-            >
+            <button type="button" className="casepage-header-btn casepage-back-btn" onClick={() => navigate(-1)}>
               ←
             </button>
-
             <div className="casepage-title">{caseData.name}</div>
-
-            <button type="button" className="casepage-header-btn casepage-settings-btn">
-              ⚙
-            </button>
+            <button type="button" className="casepage-header-btn casepage-settings-btn">⚙</button>
           </div>
 
           <div className="case-image-wrapper">
             <img
+              ref={caseImgRef}
               src={caseData.image}
               className={`casepage-case-image ${showRoulette ? "hidden-case" : ""}`}
               alt={caseData.name}
             />
 
             {showRoulette && (
-              <div className="roulette-absolute" ref={wrapRef}>
+              <div
+                className="roulette-absolute"
+                ref={wrapRef}
+                style={{ width: rouletteW ? `${rouletteW}px` : undefined }}
+              >
                 <div className="roulette-line" />
-
                 <div ref={trackRef} className="roulette-reel">
                   {windowItems.map((dropId, index) => (
                     <div key={index} className="roulette-item">
@@ -370,11 +366,7 @@ function CasePage() {
           {caseData.drops.map((drop) => {
             const isActive = activeDrop === drop.id
             return (
-              <div
-                key={drop.id}
-                className="drop-card"
-                onClick={() => handleClick(drop.id)}
-              >
+              <div key={drop.id} className="drop-card" onClick={() => handleClick(drop.id)}>
                 <Lottie
                   key={isActive ? drop.id + "-active" : drop.id + "-idle"}
                   animationData={darkMatterAnimations[drop.id]}
@@ -389,29 +381,20 @@ function CasePage() {
         </div>
       </div>
 
-      {/* ===== RESULT (PNG, чтобы совпадало с рулеткой) ===== */}
+      {/* ===== RESULT (PNG) ===== */}
       {result && (
         <div className="result-overlay">
           <div className="result-card">
             <div className="result-title">Поздравляем!</div>
 
             <div className="drop-card result-size">
-              <img
-                src={pngSrc(result)}
-                alt={result}
-                style={{ width: 110, height: 110, objectFit: "contain" }}
-                draggable={false}
-              />
+              <img src={pngSrc(result)} alt={result} className="result-png" draggable={false} />
               <div className="drop-name">{result}</div>
             </div>
 
             <div className="result-buttons">
-              <button type="button" className="glass-btn sell" onClick={sellItem}>
-                Продать
-              </button>
-              <button type="button" className="glass-btn open" onClick={openAgain}>
-                Открыть еще
-              </button>
+              <button type="button" className="glass-btn sell" onClick={sellItem}>Продать</button>
+              <button type="button" className="glass-btn open" onClick={openAgain}>Открыть еще</button>
             </div>
           </div>
         </div>
