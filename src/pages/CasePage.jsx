@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom"
-import { useState, useRef } from "react"
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 import Lottie from "lottie-react"
 
 import { cases } from "../data/cases"
@@ -23,44 +23,49 @@ const PNG_BY_ID = {
   book: "book",
 }
 
-const pngSrc = (dropId) =>
-  `/drops/${PNG_BY_ID[dropId] || dropId}.png`
+const pngSrc = (dropId) => `/drops/${(PNG_BY_ID[dropId] || dropId)}.png`
 
 function CasePage() {
-
   const { id } = useParams()
   const navigate = useNavigate()
   const caseData = cases[id]
 
   const [activeDrop, setActiveDrop] = useState(null)
-  const [isSpinning, setIsSpinning] = useState(false)
+
+  const [phase, setPhase] = useState("idle") // idle | preparing | spinning | result
   const [result, setResult] = useState(null)
   const [reelItems, setReelItems] = useState([])
 
-  const reelRef = useRef(null)
-  const caseImgRef = useRef(null)
+  const wrapRef = useRef(null)     // контейнер окна (ширина как у кейса)
+  const reelRef = useRef(null)     // трек, который двигаем
+  const imgRef = useRef(null)
+
+  const pendingRef = useRef(null)  // { winner, winIndex }
+  const spinStartedRef = useRef(false)
 
   if (!caseData) return <div className="app">Case config missing</div>
+
+  const safeDrops = useMemo(() => {
+    return (caseData.drops || []).filter(d => Boolean(PNG_BY_ID[d.id] || d.id))
+  }, [caseData.drops])
 
   /* =============================
      PRELOAD PNG
   ============================= */
-  const preloadAll = async () => {
-    const uniq = [...new Set(caseData.drops.map(d => pngSrc(d.id)))]
+  const preloadAllPng = async () => {
+    const uniq = Array.from(new Set(safeDrops.map(d => pngSrc(d.id))))
     await Promise.all(
-      uniq.map(src =>
-        new Promise(resolve => {
-          const img = new Image()
-          img.onload = resolve
-          img.onerror = resolve
-          img.src = src
-        })
-      )
+      uniq.map(src => new Promise((resolve) => {
+        const img = new Image()
+        img.onload = resolve
+        img.onerror = resolve
+        img.src = src
+      }))
     )
   }
 
   /* =============================
-     GRID LOTTIE CLICK
+     GRID CLICK (Lottie plays)
   ============================= */
   const handleClick = (dropId) => {
     if (activeDrop === dropId) {
@@ -72,87 +77,114 @@ function CasePage() {
   }
 
   /* =============================
-     OPEN CASE
+     WEIGHTED PICK
   ============================= */
-  const openCase = async () => {
-
-    if (isSpinning) return
-
-    setResult(null)
-    setIsSpinning(true)
-
-    await preloadAll()
-
-    // weighted random
+  const pickWeighted = () => {
     const pool = []
-    caseData.drops.forEach(drop => {
+    safeDrops.forEach(drop => {
       const w = drop.chance || 10
       for (let i = 0; i < w; i++) pool.push(drop.id)
     })
-
-    const winner =
-      pool[Math.floor(Math.random() * pool.length)]
-
-    const totalItems = 80
-    const winIndex = 60
-
-    const items = []
-
-    for (let i = 0; i < totalItems; i++) {
-      if (i === winIndex) {
-        items.push(winner)
-      } else {
-        const random =
-          caseData.drops[
-            Math.floor(Math.random() * caseData.drops.length)
-          ].id
-        items.push(random)
-      }
-    }
-
-    setReelItems(items)
-
-    requestAnimationFrame(() => {
-
-      const reel = reelRef.current
-      if (!reel) return
-
-      const item = reel.querySelector(".roulette-item")
-      const gap = parseInt(
-        getComputedStyle(reel).gap
-      ) || 20
-
-      const itemWidth = item.offsetWidth + gap
-      const containerWidth =
-        caseImgRef.current?.offsetWidth || 320
-
-      const offset =
-        winIndex * itemWidth -
-        containerWidth / 2 +
-        itemWidth / 2
-
-      reel.style.transition = "none"
-      reel.style.transform = "translateX(0px)"
-
-      requestAnimationFrame(() => {
-        reel.style.transition =
-          "transform 5.2s cubic-bezier(0.12,0.75,0.15,1)"
-        reel.style.transform =
-          `translateX(-${offset}px)`
-      })
-
-      reel.addEventListener("transitionend", () => {
-        setIsSpinning(false)
-        setResult(winner)
-      }, { once: true })
-
-    })
+    return pool[Math.floor(Math.random() * pool.length)]
   }
 
+  /* =============================
+     OPEN CASE
+  ============================= */
+  const openCase = async () => {
+    if (phase === "preparing" || phase === "spinning") return
+
+    setResult(null)
+    setReelItems([])
+    pendingRef.current = null
+    spinStartedRef.current = false
+    setPhase("preparing")
+
+    await preloadAllPng()
+
+    const winner = pickWeighted()
+
+    // длиннее лента = никогда не увидишь край
+    const totalItems = 90
+    const winIndex = 65
+
+    const items = []
+    for (let i = 0; i < totalItems; i++) {
+      if (i === winIndex) items.push(winner)
+      else items.push(safeDrops[Math.floor(Math.random() * safeDrops.length)].id)
+    }
+
+    pendingRef.current = { winner, winIndex }
+    setReelItems(items)
+
+    // важно: переключаем фазу после того, как items готовы
+    setPhase("spinning")
+  }
+
+  /* =============================
+     START SPIN (only when DOM is ready)
+  ============================= */
+  useLayoutEffect(() => {
+    if (phase !== "spinning") return
+    if (!reelRef.current) return
+    if (!wrapRef.current) return
+    if (!reelItems.length) return
+    if (!pendingRef.current) return
+    if (spinStartedRef.current) return
+
+    const reel = reelRef.current
+    const { winner, winIndex } = pendingRef.current
+
+    // двойной rAF — чтобы iOS/Telegram точно успели размонтировать/смонтировать DOM
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const item = reel.querySelector(".roulette-item")
+        if (!item) return
+
+        const gap = parseInt(getComputedStyle(reel).gap) || 20
+        const itemWidth = item.offsetWidth + gap
+
+        const containerWidth = wrapRef.current.offsetWidth || 320
+
+        const offset =
+          winIndex * itemWidth -
+          containerWidth / 2 +
+          itemWidth / 2
+
+        reel.style.transition = "none"
+        reel.style.transform = "translateX(0px)"
+        void reel.offsetHeight
+
+        spinStartedRef.current = true
+
+        reel.style.transition = "transform 5.2s cubic-bezier(0.12,0.75,0.15,1)"
+        reel.style.transform = `translateX(-${offset}px)`
+
+        const onEnd = () => {
+          reel.removeEventListener("transitionend", onEnd)
+          setResult(winner)
+          setPhase("result")
+        }
+
+        reel.addEventListener("transitionend", onEnd)
+      })
+    })
+  }, [phase, reelItems])
+
+  /* =============================
+     RESET
+  ============================= */
   const sellItem = () => {
     setResult(null)
-    setIsSpinning(false)
     setReelItems([])
+    pendingRef.current = null
+    spinStartedRef.current = false
+    setPhase("idle")
+
+    if (reelRef.current) {
+      reelRef.current.style.transition = "none"
+      reelRef.current.style.transform = "translateX(0px)"
+    }
   }
 
   const openAgain = () => {
@@ -160,148 +192,107 @@ function CasePage() {
     openCase()
   }
 
-  const blurred = result != null
+  const isSpinning = phase === "preparing" || phase === "spinning"
+  const blurred = phase === "result" && result != null
 
   return (
     <div className="app">
-
       <div className={blurred ? "blurred" : ""}>
-
         <div className="casepage-header">
-
           <div className="casepage-title-row">
             <button
+              type="button"
               className="casepage-header-btn casepage-back-btn"
               onClick={() => navigate(-1)}
             >
               ←
             </button>
-            <div className="casepage-title">
-              {caseData.name}
-            </div>
-            <button className="casepage-header-btn casepage-settings-btn">
+
+            <div className="casepage-title">{caseData.name}</div>
+
+            <button type="button" className="casepage-header-btn casepage-settings-btn">
               ⚙
             </button>
           </div>
 
-          {!isSpinning && (
+          {/* ВАЖНО: картинка всегда в DOM, просто прячем при спине */}
+          <div className="case-image-wrapper">
             <img
-              ref={caseImgRef}
+              ref={imgRef}
               src={caseData.image}
-              className="casepage-case-image"
+              className={`casepage-case-image ${isSpinning ? "hidden-case" : ""}`}
               alt={caseData.name}
             />
-          )}
 
-          {isSpinning && (
-            <div
-              className="roulette-window"
-              style={{
-                width:
-                  caseImgRef.current?.offsetWidth || 320
-              }}
-            >
-              <div className="roulette-line" />
+            {isSpinning && (
+              <div ref={wrapRef} className="roulette-window">
+                <div className="roulette-line" />
 
-              <div
-                ref={reelRef}
-                className="roulette-reel"
-              >
-                {reelItems.map((dropId, index) => (
-                  <div
-                    key={index}
-                    className="roulette-item"
-                  >
-                    <img
-                      src={pngSrc(dropId)}
-                      className="roulette-png"
-                      draggable={false}
-                      alt=""
-                    />
-                  </div>
-                ))}
+                <div ref={reelRef} className="roulette-reel">
+                  {reelItems.map((dropId, index) => (
+                    <div key={index} className="roulette-item">
+                      <img src={pngSrc(dropId)} className="roulette-png" alt="" draggable={false} />
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
-          {!isSpinning && !result && (
+          {/* КНОПКА ВСЕГДА НА МЕСТЕ */}
+          {!result && (
             <button
+              type="button"
               className="casepage-open-btn"
               onClick={openCase}
+              disabled={phase === "preparing" || phase === "spinning"}
             >
-              Открыть кейс
+              {phase === "preparing" ? "Загрузка…" : phase === "spinning" ? "Крутится…" : "Открыть кейс"}
             </button>
           )}
-
         </div>
 
-        {/* DROPS GRID (LOTTIE) */}
+        {/* GRID всегда ниже, не прыгает */}
         <div className="casepage-drops">
-          {caseData.drops.map(drop => {
+          {caseData.drops.map((drop) => {
             const isActive = activeDrop === drop.id
             return (
-              <div
-                key={drop.id}
-                className="drop-card"
-                onClick={() => handleClick(drop.id)}
-              >
+              <div key={drop.id} className="drop-card" onClick={() => handleClick(drop.id)}>
                 <Lottie
-                  key={isActive ? drop.id + "-active" : drop.id}
-                  animationData={
-                    darkMatterAnimations[drop.id]
-                  }
+                  key={isActive ? drop.id + "-active" : drop.id + "-idle"}
+                  animationData={darkMatterAnimations[drop.id]}
                   autoplay={isActive}
                   loop={false}
                   className="drop-lottie"
                 />
-                <div className="drop-name">
-                  {drop.name || drop.id}
-                </div>
+                <div className="drop-name">{drop.name || drop.id}</div>
               </div>
             )
           })}
         </div>
-
       </div>
 
       {result && (
         <div className="result-overlay">
           <div className="result-card">
-
-            <div className="result-title">
-              Поздравляем!
-            </div>
+            <div className="result-title">Поздравляем!</div>
 
             <div className="drop-card result-size">
-              <img
-                src={pngSrc(result)}
-                className="result-png"
-                alt=""
-              />
-              <div className="drop-name">
-                {result}
-              </div>
+              <img src={pngSrc(result)} className="result-png" alt="" draggable={false} />
+              <div className="drop-name">{result}</div>
             </div>
 
             <div className="result-buttons">
-              <button
-                className="glass-btn sell"
-                onClick={sellItem}
-              >
+              <button type="button" className="glass-btn sell" onClick={sellItem}>
                 Продать
               </button>
-              <button
-                className="glass-btn open"
-                onClick={openAgain}
-              >
+              <button type="button" className="glass-btn open" onClick={openAgain}>
                 Открыть еще
               </button>
             </div>
-
           </div>
         </div>
       )}
-
     </div>
   )
 }
