@@ -43,10 +43,8 @@ function CasePage() {
   const pendingRef = useRef(null) // { winner, winIndex, durationMs }
   const spinStartedRef = useRef(false)
 
-  // размеры должны соответствовать CSS
-  const ITEM_W = 140
-  const GAP = 20
-  const FULL = ITEM_W + GAP
+  // дефолты (на случай если computedStyle вернёт "normal")
+  const FALLBACK_GAP = 20
 
   if (!caseData) return <div className="app">Case config missing</div>
 
@@ -113,16 +111,20 @@ function CasePage() {
 
     const winner = pickWeighted()
 
+    // ширина окна — если wrap ещё не в DOM (первый запуск), берём img
     const containerWidth =
-      wrapRef.current?.offsetWidth ||
-      imgRef.current?.offsetWidth ||
+      wrapRef.current?.getBoundingClientRect().width ||
+      imgRef.current?.getBoundingClientRect().width ||
       320
 
-    const visible = Math.ceil(containerWidth / FULL)
+    // приблизительно сколько элементов видно
+    // (используем 160 как “140 + 20”, но это только для длины ленты; реальный шаг берём потом из DOM)
+    const approxStep = 160
+    const visible = Math.ceil(containerWidth / approxStep)
     const tail = visible + 14
 
     const winIndex = 70 + Math.floor(Math.random() * 8)
-    const totalItems = winIndex + tail + 80
+    const totalItems = winIndex + tail + 90 // побольше запас
 
     const items = new Array(totalItems)
     for (let i = 0; i < totalItems; i++) {
@@ -143,9 +145,8 @@ function CasePage() {
   /* =============================
      START SPIN
      FIX:
-     - snap offset to itemWidth (кратно слоту)
-     - finalIndex считаем по snapped offset
-     - результат = reelItems[finalIndex] (то, что реально под линией)
+     - snap ПО СЕТКЕ ЦЕНТРОВ (зависит от containerWidth!)
+     - результат берём по snapped index
   ============================= */
   useLayoutEffect(() => {
     if (phase !== "spinning") return
@@ -159,48 +160,49 @@ function CasePage() {
     const wrap = wrapRef.current
     const { winIndex, durationMs } = pendingRef.current
 
-    const start = () => {
+    const clamp = (v, a, b) => Math.min(Math.max(v, a), b)
+
+    const measure = () => {
       const firstItem = reel.querySelector(".roulette-item")
-      if (!firstItem) return
+      if (!firstItem) return null
 
-      // gap может вернуться "20px" или "20px 20px" или "normal"
-      const gapRaw = getComputedStyle(reel).gap || `${GAP}px`
-      const gapVal = parseFloat(String(gapRaw).split(" ")[0]) || GAP
+      const gapRaw = getComputedStyle(reel).gap || `${FALLBACK_GAP}px`
+      const gapVal = parseFloat(String(gapRaw).split(" ")[0]) || FALLBACK_GAP
 
-      // ширины берём через getBoundingClientRect (на iOS стабильнее)
       const itemRectW = firstItem.getBoundingClientRect().width
       const itemWidth = itemRectW + gapVal
 
       const containerWidth = wrap.getBoundingClientRect().width || 320
-
-      // идеальный offset чтобы winIndex попал под линию
-      const wantedOffset =
-        winIndex * itemWidth -
-        containerWidth / 2 +
-        itemWidth / 2
-
-      // clamp по реальной ширине
       const maxOffsetRaw = Math.max(0, reel.scrollWidth - containerWidth)
 
-      // ✅ СНАП: запрещаем останавливаться "между"
-      // Снэпим в шаги itemWidth
-      const clamp = (v, a, b) => Math.min(Math.max(v, a), b)
+      // base — это сдвиг сетки центров относительно offset=0
+      // offsets, которые идеально центруют слот i:  i*itemWidth - base
+      const base = containerWidth / 2 - itemWidth / 2
 
-      // сначала обычный clamp
+      return { itemWidth, containerWidth, maxOffsetRaw, base }
+    }
+
+    const start = () => {
+      const m = measure()
+      if (!m) return
+      const { itemWidth, containerWidth, maxOffsetRaw, base } = m
+
+      // offset, который бы идеально поставил winIndex под линию (в центр)
+      const wantedOffset = winIndex * itemWidth - base
+
+      // сначала clamp в пределах ленты
       const safeOffset = clamp(wantedOffset, 0, maxOffsetRaw)
 
-      // затем snap на ближайшую границу слота
-      let snappedOffset = Math.round(safeOffset / itemWidth) * itemWidth
+      // ✅ ВАЖНО: snap не от 0, а по "сетке центров":
+      // snappedOffset = round((offset + base)/itemWidth) * itemWidth - base
+      let snappedOffset =
+        Math.round((safeOffset + base) / itemWidth) * itemWidth - base
 
-      // и ещё раз clamp, но уже в "снэпнутых" границах
-      const maxOffsetSnapped = Math.floor(maxOffsetRaw / itemWidth) * itemWidth
-      snappedOffset = clamp(snappedOffset, 0, maxOffsetSnapped)
+      // ещё раз clamp
+      snappedOffset = clamp(snappedOffset, 0, maxOffsetRaw)
 
-      // ✅ финальный индекс под линией (строго совпадёт, т.к. snapped)
-      const finalIndex = Math.round(
-        (snappedOffset + containerWidth / 2 - itemWidth / 2) / itemWidth
-      )
-
+      // индекс элемента, который будет под линией при snappedOffset
+      const finalIndex = Math.round((snappedOffset + base) / itemWidth)
       const finalId =
         reelItems[finalIndex] ??
         reelItems[Math.min(Math.max(winIndex, 0), reelItems.length - 1)]
@@ -212,19 +214,27 @@ function CasePage() {
 
       spinStartedRef.current = true
 
-      // крутим до snappedOffset
       reel.style.transition = `transform ${durationMs}ms cubic-bezier(0.12,0.75,0.15,1)`
       reel.style.transform = `translate3d(-${snappedOffset}px,0,0)`
 
       const onEnd = () => {
         reel.removeEventListener("transitionend", onEnd)
 
-        // финальный "дожим" чтобы визуально НЕ было микро-дребезга
+        // на iOS иногда на финале есть микро-сдвиг, поэтому:
+        // 1) фиксируем transform
         reel.style.transition = "none"
         reel.style.transform = `translate3d(-${snappedOffset}px,0,0)`
 
-        // результат 100% совпадает с тем, что под линией
-        setResult(finalId)
+        // 2) пересчитываем финальный индекс ещё раз на финальных метриках (на всякий)
+        const m2 = measure()
+        if (m2) {
+          const idx2 = Math.round((snappedOffset + m2.base) / m2.itemWidth)
+          const id2 = reelItems[idx2] ?? finalId
+          setResult(id2)
+        } else {
+          setResult(finalId)
+        }
+
         setPhase("result")
       }
 
@@ -293,12 +303,7 @@ function CasePage() {
                 <div ref={reelRef} className="roulette-reel">
                   {reelItems.map((dropId, index) => (
                     <div key={index} className="roulette-item">
-                      <img
-                        src={pngSrc(dropId)}
-                        className="roulette-png"
-                        alt=""
-                        draggable={false}
-                      />
+                      <img src={pngSrc(dropId)} className="roulette-png" alt="" draggable={false} />
                     </div>
                   ))}
                 </div>
@@ -322,11 +327,7 @@ function CasePage() {
           {caseData.drops.map((drop) => {
             const isActive = activeDrop === drop.id
             return (
-              <div
-                key={drop.id}
-                className="drop-card"
-                onClick={() => handleClick(drop.id)}
-              >
+              <div key={drop.id} className="drop-card" onClick={() => handleClick(drop.id)}>
                 <Lottie
                   key={isActive ? drop.id + "-active" : drop.id + "-idle"}
                   animationData={darkMatterAnimations[drop.id]}
