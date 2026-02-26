@@ -796,36 +796,36 @@ body {
   display: block;
 }
 
-.hidden-case {
-  visibility: hidden;
-}
-
 /* ============================= */
-/* ROULETTE */
+/* ROULETTE WINDOW */
 /* ============================= */
-.roulette-absolute {
-  position: absolute;
+.roulette-window {
+  position: relative;
 
-  /* ❗ ВАЖНО: НЕ inset:0 — иначе рулетка на весь экран */
-  left: 50%;
-  top: 0;
-  bottom: 0;
-  transform: translateX(-50%);
-
-  /* ширину задаём из JS (style={{width: ...}}), но на всякий */
-  max-width: 320px;
   width: 100%;
+  max-width: 320px;
 
   display: flex;
   justify-content: center;
   align-items: center;
 
   overflow: hidden;
+  margin: 0 auto;
 
-  mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
-
-  pointer-events: none;
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 12%,
+    black 88%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 12%,
+    black 88%,
+    transparent 100%
+  );
 }
 
 .roulette-reel {
@@ -834,9 +834,6 @@ body {
   gap: 20px;
 
   width: max-content;
-
-  padding-left: 0;
-  padding-right: 0;
 
   will-change: transform;
   transform: translate3d(0,0,0);
@@ -861,7 +858,6 @@ body {
   overflow: hidden;
 }
 
-.roulette-item img,
 .roulette-png {
   width: 80px;
   height: 80px;
@@ -898,7 +894,7 @@ body {
 /* ============================= */
 .casepage-drops {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr)); /* ✅ всегда 2 на мобиле */
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 
   gap: 16px;
   padding: 18px 16px;
@@ -917,7 +913,6 @@ body {
   align-items: center;
   justify-content: center;
 
-  /* ✅ больше как раньше */
   padding: 22px 14px 18px;
 
   cursor: pointer;
@@ -943,9 +938,6 @@ body {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
-/* ❗ убираем автопереход в 3 колонки — в Telegram это ломает вид */
-/* @media (min-width: 560px) { ... } */
 
 /* ============================= */
 /* RESULT OVERLAY */
@@ -995,7 +987,6 @@ body {
   border: 1px solid rgba(255,255,255,0.1);
 }
 
-.result-size img,
 .result-png {
   width: 110px;
   height: 110px;
