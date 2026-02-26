@@ -840,21 +840,27 @@ body {
 .roulette-reel {
   display: inline-flex;
   align-items: center;
+
+  /* ✅ фиксируем gap строго (важно для расчёта itemWidth в JS) */
   gap: 20px;
 
   width: max-content;
 
   will-change: transform;
   transform: translate3d(0,0,0);
+  backface-visibility: hidden;
 }
 
 /* ============================= */
 /* SLOT */
 /* ============================= */
 .roulette-item {
+  /* ✅ фикс ширины/высоты как в JS (140) */
   width: 140px;
   height: 140px;
-  flex: 0 0 auto;
+
+  /* ✅ не даём flex'у “поджимать” */
+  flex: 0 0 140px;
 
   background: rgba(255,255,255,0.06);
   border-radius: 18px;
@@ -865,6 +871,10 @@ body {
 
   border: 1px solid rgba(255,255,255,0.08);
   overflow: hidden;
+
+  /* ✅ меньше сюрпризов от subpixel */
+  transform: translate3d(0,0,0);
+  backface-visibility: hidden;
 }
 
 .roulette-png {
@@ -873,6 +883,10 @@ body {
   object-fit: contain;
   pointer-events: none;
   user-select: none;
+
+  /* ✅ iOS/Telegram иногда даёт “мыло/дрожь” */
+  image-rendering: auto;
+  transform: translate3d(0,0,0);
 }
 
 /* ============================= */
@@ -1004,6 +1018,7 @@ body {
   width: 110px;
   height: 110px;
   object-fit: contain;
+  transform: translate3d(0,0,0);
 }
 
 /* ============================= */
