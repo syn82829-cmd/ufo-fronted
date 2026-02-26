@@ -31,7 +31,6 @@ function CasePage() {
   const caseData = cases[id]
 
   const [activeDrop, setActiveDrop] = useState(null)
-
   const [phase, setPhase] = useState("idle") // idle | preparing | spinning | result
   const [result, setResult] = useState(null)
   const [reelItems, setReelItems] = useState([])
@@ -42,9 +41,6 @@ function CasePage() {
 
   const pendingRef = useRef(null) // { winner, winIndex, durationMs }
   const spinStartedRef = useRef(false)
-
-  // дефолты (на случай если computedStyle вернёт "normal")
-  const FALLBACK_GAP = 20
 
   if (!caseData) return <div className="app">Case config missing</div>
 
@@ -111,20 +107,20 @@ function CasePage() {
 
     const winner = pickWeighted()
 
-    // ширина окна — если wrap ещё не в DOM (первый запуск), берём img
+    // ширина окна — если wrap ещё не в DOM, берём img
     const containerWidth =
       wrapRef.current?.getBoundingClientRect().width ||
       imgRef.current?.getBoundingClientRect().width ||
       320
 
-    // приблизительно сколько элементов видно
-    // (используем 160 как “140 + 20”, но это только для длины ленты; реальный шаг берём потом из DOM)
+    // длину ленты делаем жирной — чтобы край никогда не показался
+    // (это не для математики оффсета, а просто чтобы было “вечно”)
     const approxStep = 160
     const visible = Math.ceil(containerWidth / approxStep)
-    const tail = visible + 14
+    const tail = visible + 20
 
-    const winIndex = 70 + Math.floor(Math.random() * 8)
-    const totalItems = winIndex + tail + 90 // побольше запас
+    const winIndex = 75 + Math.floor(Math.random() * 10)
+    const totalItems = winIndex + tail + 120
 
     const items = new Array(totalItems)
     for (let i = 0; i < totalItems; i++) {
@@ -132,10 +128,11 @@ function CasePage() {
       else items[i] = safeDrops[Math.floor(Math.random() * safeDrops.length)].id
     }
 
+    // косметика: не ставим winner рядом с winner
     if (items[winIndex - 1] === winner) items[winIndex - 1] = safeDrops[Math.floor(Math.random() * safeDrops.length)].id
     if (items[winIndex + 1] === winner) items[winIndex + 1] = safeDrops[Math.floor(Math.random() * safeDrops.length)].id
 
-    const durationMs = 6800
+    const durationMs = 7200
 
     pendingRef.current = { winner, winIndex, durationMs }
     setReelItems(items)
@@ -144,9 +141,10 @@ function CasePage() {
 
   /* =============================
      START SPIN
-     FIX:
-     - snap ПО СЕТКЕ ЦЕНТРОВ (зависит от containerWidth!)
-     - результат берём по snapped index
+     ЖЕЛЕЗНЫЙ ФИКС:
+     - шаг считаем по DOM (left2-left1), а не через gap
+     - offset снапаем по ИНДЕКСАМ
+     - финальный результат берём через elementFromPoint под линией
   ============================= */
   useLayoutEffect(() => {
     if (phase !== "spinning") return
@@ -162,52 +160,38 @@ function CasePage() {
 
     const clamp = (v, a, b) => Math.min(Math.max(v, a), b)
 
-    const measure = () => {
-      const firstItem = reel.querySelector(".roulette-item")
-      if (!firstItem) return null
-
-      const gapRaw = getComputedStyle(reel).gap || `${FALLBACK_GAP}px`
-      const gapVal = parseFloat(String(gapRaw).split(" ")[0]) || FALLBACK_GAP
-
-      const itemRectW = firstItem.getBoundingClientRect().width
-      const itemWidth = itemRectW + gapVal
-
-      const containerWidth = wrap.getBoundingClientRect().width || 320
-      const maxOffsetRaw = Math.max(0, reel.scrollWidth - containerWidth)
-
-      // base — это сдвиг сетки центров относительно offset=0
-      // offsets, которые идеально центруют слот i:  i*itemWidth - base
-      const base = containerWidth / 2 - itemWidth / 2
-
-      return { itemWidth, containerWidth, maxOffsetRaw, base }
-    }
-
     const start = () => {
-      const m = measure()
-      if (!m) return
-      const { itemWidth, containerWidth, maxOffsetRaw, base } = m
+      const itemsEls = reel.querySelectorAll(".roulette-item")
+      if (!itemsEls || itemsEls.length < 2) return
 
-      // offset, который бы идеально поставил winIndex под линию (в центр)
-      const wantedOffset = winIndex * itemWidth - base
+      // ✅ реальный шаг ленты (включая gap) по DOM
+      const r1 = itemsEls[0].getBoundingClientRect()
+      const r2 = itemsEls[1].getBoundingClientRect()
+      const step = r2.left - r1.left
 
-      // сначала clamp в пределах ленты
+      // на всякий случай: если вдруг step странный
+      if (!step || step < 50) return
+
+      const containerRect = wrap.getBoundingClientRect()
+      const containerWidth = containerRect.width || 320
+
+      // base — смещение сетки центров
+      const itemW = r1.width
+      const base = containerWidth / 2 - itemW / 2
+
+      // идеальный offset для winIndex по сетке центров
+      const wantedOffset = winIndex * step - base
+
+      // clamp в пределах контента
+      const maxOffsetRaw = Math.max(0, reel.scrollWidth - containerWidth)
       const safeOffset = clamp(wantedOffset, 0, maxOffsetRaw)
 
-      // ✅ ВАЖНО: snap не от 0, а по "сетке центров":
-      // snappedOffset = round((offset + base)/itemWidth) * itemWidth - base
-      let snappedOffset =
-        Math.round((safeOffset + base) / itemWidth) * itemWidth - base
-
-      // ещё раз clamp
+      // ✅ SNAP ПО ИНДЕКСУ (а не по пикселям от 0)
+      const snappedIndex = clamp(Math.round((safeOffset + base) / step), 0, reelItems.length - 1)
+      let snappedOffset = snappedIndex * step - base
       snappedOffset = clamp(snappedOffset, 0, maxOffsetRaw)
 
-      // индекс элемента, который будет под линией при snappedOffset
-      const finalIndex = Math.round((snappedOffset + base) / itemWidth)
-      const finalId =
-        reelItems[finalIndex] ??
-        reelItems[Math.min(Math.max(winIndex, 0), reelItems.length - 1)]
-
-      // старт в нуле
+      // старт
       reel.style.transition = "none"
       reel.style.transform = "translate3d(0px,0,0)"
       void reel.offsetHeight
@@ -217,24 +201,34 @@ function CasePage() {
       reel.style.transition = `transform ${durationMs}ms cubic-bezier(0.12,0.75,0.15,1)`
       reel.style.transform = `translate3d(-${snappedOffset}px,0,0)`
 
+      const pickFromDOMUnderLine = () => {
+        // центр линии = центр окна
+        const rect = wrap.getBoundingClientRect()
+        const x = rect.left + rect.width / 2
+        const y = rect.top + rect.height / 2
+
+        // elementFromPoint может вернуть img внутри, поэтому поднимаемся до .roulette-item
+        let el = document.elementFromPoint(x, y)
+        if (!el) return null
+        const itemEl = el.closest ? el.closest(".roulette-item") : null
+        if (!itemEl) return null
+
+        const idxStr = itemEl.getAttribute("data-index")
+        const idx = idxStr ? parseInt(idxStr, 10) : NaN
+        if (Number.isNaN(idx)) return null
+        return reelItems[idx] ?? null
+      }
+
       const onEnd = () => {
         reel.removeEventListener("transitionend", onEnd)
 
-        // на iOS иногда на финале есть микро-сдвиг, поэтому:
-        // 1) фиксируем transform
+        // фиксируем финал без “дрожи”
         reel.style.transition = "none"
         reel.style.transform = `translate3d(-${snappedOffset}px,0,0)`
 
-        // 2) пересчитываем финальный индекс ещё раз на финальных метриках (на всякий)
-        const m2 = measure()
-        if (m2) {
-          const idx2 = Math.round((snappedOffset + m2.base) / m2.itemWidth)
-          const id2 = reelItems[idx2] ?? finalId
-          setResult(id2)
-        } else {
-          setResult(finalId)
-        }
-
+        // ✅ результат берём из DOM под линией (это убивает “не то выпало” навсегда)
+        const domId = pickFromDOMUnderLine()
+        setResult(domId || reelItems[snappedIndex] || reelItems[winIndex])
         setPhase("result")
       }
 
@@ -302,7 +296,7 @@ function CasePage() {
 
                 <div ref={reelRef} className="roulette-reel">
                   {reelItems.map((dropId, index) => (
-                    <div key={index} className="roulette-item">
+                    <div key={index} className="roulette-item" data-index={index}>
                       <img src={pngSrc(dropId)} className="roulette-png" alt="" draggable={false} />
                     </div>
                   ))}
