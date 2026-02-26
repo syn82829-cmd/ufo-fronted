@@ -40,12 +40,10 @@ function CasePage() {
   const reelRef = useRef(null)
   const imgRef = useRef(null)
 
-  // winnerRef нужен только чтобы "вставить" победителя в ленту,
-  // а фактический финальный результат мы всё равно берём по индексу под линией.
   const pendingRef = useRef(null) // { winner, winIndex, durationMs }
   const spinStartedRef = useRef(false)
 
-  // размеры должны соответствовать CSS:
+  // размеры должны соответствовать CSS
   const ITEM_W = 140
   const GAP = 20
   const FULL = ITEM_W + GAP
@@ -57,7 +55,7 @@ function CasePage() {
   }, [caseData.drops])
 
   /* =============================
-     PRELOAD PNG (чтобы не грузилось по ходу)
+     PRELOAD PNG
   ============================= */
   const preloadAllPng = async () => {
     const uniq = Array.from(new Set(safeDrops.map((d) => pngSrc(d.id))))
@@ -100,9 +98,6 @@ function CasePage() {
 
   /* =============================
      OPEN CASE
-     Главная правка:
-     - totalItems и winIndex зависят от ширины окна и FULL
-     - делаем гарантированный “хвост” справа, чтобы лента НЕ кончалась
   ============================= */
   const openCase = async () => {
     if (phase === "preparing" || phase === "spinning") return
@@ -118,41 +113,26 @@ function CasePage() {
 
     const winner = pickWeighted()
 
-    // ширина окна (как у кейса)
     const containerWidth =
       wrapRef.current?.offsetWidth ||
       imgRef.current?.offsetWidth ||
       320
 
-    // сколько элементов видно одновременно
     const visible = Math.ceil(containerWidth / FULL)
-
-    // хвост справа — чтобы никогда не увидеть край
     const tail = visible + 14
 
-    // индекс выигрыша — побольше, чтобы крутилось "дольше" и "дороже"
-    // (можно чуть рандомизировать, чтобы не одинаково каждый раз)
     const winIndex = 70 + Math.floor(Math.random() * 8)
-
-    // totalItems подбираем так, чтобы offset гарантированно влезал
-    // + ещё большой запас справа
     const totalItems = winIndex + tail + 80
 
     const items = new Array(totalItems)
-
     for (let i = 0; i < totalItems; i++) {
-      if (i === winIndex) {
-        items[i] = winner
-      } else {
-        items[i] = safeDrops[Math.floor(Math.random() * safeDrops.length)].id
-      }
+      if (i === winIndex) items[i] = winner
+      else items[i] = safeDrops[Math.floor(Math.random() * safeDrops.length)].id
     }
 
-    // убираем дубль рядом с winner (косметика)
     if (items[winIndex - 1] === winner) items[winIndex - 1] = safeDrops[Math.floor(Math.random() * safeDrops.length)].id
     if (items[winIndex + 1] === winner) items[winIndex + 1] = safeDrops[Math.floor(Math.random() * safeDrops.length)].id
 
-    // скорость/длительность — медленнее и стабильнее
     const durationMs = 6800
 
     pendingRef.current = { winner, winIndex, durationMs }
@@ -161,11 +141,12 @@ function CasePage() {
   }
 
   /* =============================
-     START SPIN (only when DOM is ready)
-     Главные правки:
-     - clamp offset по scrollWidth (убивает пустоту НАВСЕГДА)
-     - финальный результат берём по фактическому индексу под линией
-============================= */
+     START SPIN
+     FIX:
+     - snap offset to itemWidth (кратно слоту)
+     - finalIndex считаем по snapped offset
+     - результат = reelItems[finalIndex] (то, что реально под линией)
+  ============================= */
   useLayoutEffect(() => {
     if (phase !== "spinning") return
     if (!reelRef.current) return
@@ -179,42 +160,70 @@ function CasePage() {
     const { winIndex, durationMs } = pendingRef.current
 
     const start = () => {
-      const item = reel.querySelector(".roulette-item")
-      if (!item) return
+      const firstItem = reel.querySelector(".roulette-item")
+      if (!firstItem) return
 
-      const gap = parseInt(getComputedStyle(reel).gap) || GAP
-      const itemWidth = item.offsetWidth + gap
+      // gap может вернуться "20px" или "20px 20px" или "normal"
+      const gapRaw = getComputedStyle(reel).gap || `${GAP}px`
+      const gapVal = parseFloat(String(gapRaw).split(" ")[0]) || GAP
 
-      const containerWidth = wrap.offsetWidth || 320
+      // ширины берём через getBoundingClientRect (на iOS стабильнее)
+      const itemRectW = firstItem.getBoundingClientRect().width
+      const itemWidth = itemRectW + gapVal
 
-      // offset, который бы идеально поставил winIndex под линию
+      const containerWidth = wrap.getBoundingClientRect().width || 320
+
+      // идеальный offset чтобы winIndex попал под линию
       const wantedOffset =
         winIndex * itemWidth -
         containerWidth / 2 +
         itemWidth / 2
 
-      // ✅ ЖЕЛЕЗНЫЙ ФИКС: не даём уехать дальше ширины ленты
-      const maxOffset = Math.max(0, reel.scrollWidth - containerWidth)
-      const safeOffset = Math.min(Math.max(0, wantedOffset), maxOffset)
+      // clamp по реальной ширине
+      const maxOffsetRaw = Math.max(0, reel.scrollWidth - containerWidth)
 
-      // ✅ Индекс элемента, который окажется под линией при safeOffset
-      // (чтобы результат 100% совпадал с тем, что на экране)
+      // ✅ СНАП: запрещаем останавливаться "между"
+      // Снэпим в шаги itemWidth
+      const clamp = (v, a, b) => Math.min(Math.max(v, a), b)
+
+      // сначала обычный clamp
+      const safeOffset = clamp(wantedOffset, 0, maxOffsetRaw)
+
+      // затем snap на ближайшую границу слота
+      let snappedOffset = Math.round(safeOffset / itemWidth) * itemWidth
+
+      // и ещё раз clamp, но уже в "снэпнутых" границах
+      const maxOffsetSnapped = Math.floor(maxOffsetRaw / itemWidth) * itemWidth
+      snappedOffset = clamp(snappedOffset, 0, maxOffsetSnapped)
+
+      // ✅ финальный индекс под линией (строго совпадёт, т.к. snapped)
       const finalIndex = Math.round(
-        (safeOffset + containerWidth / 2 - itemWidth / 2) / itemWidth
+        (snappedOffset + containerWidth / 2 - itemWidth / 2) / itemWidth
       )
-      const finalId = reelItems[finalIndex] ?? reelItems[winIndex]
 
+      const finalId =
+        reelItems[finalIndex] ??
+        reelItems[Math.min(Math.max(winIndex, 0), reelItems.length - 1)]
+
+      // старт в нуле
       reel.style.transition = "none"
-      reel.style.transform = "translateX(0px)"
+      reel.style.transform = "translate3d(0px,0,0)"
       void reel.offsetHeight
 
       spinStartedRef.current = true
 
+      // крутим до snappedOffset
       reel.style.transition = `transform ${durationMs}ms cubic-bezier(0.12,0.75,0.15,1)`
-      reel.style.transform = `translateX(-${safeOffset}px)`
+      reel.style.transform = `translate3d(-${snappedOffset}px,0,0)`
 
       const onEnd = () => {
         reel.removeEventListener("transitionend", onEnd)
+
+        // финальный "дожим" чтобы визуально НЕ было микро-дребезга
+        reel.style.transition = "none"
+        reel.style.transform = `translate3d(-${snappedOffset}px,0,0)`
+
+        // результат 100% совпадает с тем, что под линией
         setResult(finalId)
         setPhase("result")
       }
@@ -222,7 +231,6 @@ function CasePage() {
       reel.addEventListener("transitionend", onEnd)
     }
 
-    // двойной rAF — чтобы Telegram/iOS точно успели разложить DOM
     requestAnimationFrame(() => requestAnimationFrame(start))
   }, [phase, reelItems])
 
@@ -238,7 +246,7 @@ function CasePage() {
 
     if (reelRef.current) {
       reelRef.current.style.transition = "none"
-      reelRef.current.style.transform = "translateX(0px)"
+      reelRef.current.style.transform = "translate3d(0px,0,0)"
     }
   }
 
