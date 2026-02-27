@@ -114,19 +114,17 @@ function CasePage() {
 
     const winner = pickWeighted()
 
-    // ширина окна — если wrap ещё не в DOM, берём img
     const containerWidth =
       wrapRef.current?.getBoundingClientRect().width ||
       imgRef.current?.getBoundingClientRect().width ||
       320
 
-    // просто для прикидки длины, не для точной математики
     const approxStep = 160
     const visible = Math.ceil(containerWidth / approxStep)
 
-    // делаем хвост реально большим, чтобы winIndex никогда не оказался близко к концу
-    const winIndex = 85 + Math.floor(Math.random() * 12) // чуть дальше, чтобы “дороже”
-    const totalItems = winIndex + visible + 260 // ВАЖНО: жирный хвост справа
+    // winIndex подальше + очень жирный хвост
+    const winIndex = 85 + Math.floor(Math.random() * 12)
+    const totalItems = winIndex + visible + 260
 
     const items = new Array(totalItems)
     for (let i = 0; i < totalItems; i++) {
@@ -134,7 +132,6 @@ function CasePage() {
       else items[i] = randDropId()
     }
 
-    // косметика: не ставим winner рядом с winner
     if (items[winIndex - 1] === winner) items[winIndex - 1] = randDropId()
     if (items[winIndex + 1] === winner) items[winIndex + 1] = randDropId()
 
@@ -146,12 +143,10 @@ function CasePage() {
   }
 
   /* =============================
-     START SPIN (железный фикс)
-     - шаг считаем по DOM (левый край 2-го - левый край 1-го)
-     - offset считаем так, чтобы ЦЕНТР winIndex совпал с центром окна
-     - offset подгоняем под devicePixelRatio (убирает “между” на iOS/Telegram)
-     - РЕЗУЛЬТАТ считаем ПО ФИНАЛЬНОМУ offset (математически),
-       то есть 100% совпадает с тем, что на экране под линией.
+     START SPIN
+     ФИКСЫ:
+     1) финал всегда снапится к центру БЛОКА (не "последний пиксель")
+     2) результат = именно тот блок, который после снапа по центру
   ============================= */
   useLayoutEffect(() => {
     if (phase !== "spinning") return
@@ -165,74 +160,89 @@ function CasePage() {
     const wrap = wrapRef.current
     const { winIndex, durationMs } = pendingRef.current
 
+    const clamp = (v, a, b) => Math.min(Math.max(v, a), b)
+
     const start = () => {
       const itemsEls = reel.querySelectorAll(".roulette-item")
       if (!itemsEls || itemsEls.length < 2) return
 
+      // реальный шаг по DOM (вместе с gap)
       const r1 = itemsEls[0].getBoundingClientRect()
       const r2 = itemsEls[1].getBoundingClientRect()
-
-      const step = r2.left - r1.left // включает gap
+      const step = r2.left - r1.left
       if (!step || step < 50) return
 
       const containerWidth = wrap.getBoundingClientRect().width || 320
       const itemW = r1.width
 
-      // base = сколько надо, чтобы центр 0-го итема совпал с центром окна при offset=0
+      // base: чтобы центр item(0) попал в центр окна при offset=0
       const base = containerWidth / 2 - itemW / 2
 
-      // целимся строго в winIndex
+      const maxOffset = Math.max(0, reel.scrollWidth - containerWidth)
+
+      // целимся в winIndex
       const wantedOffset = winIndex * step - base
 
-      // Проверка "хвоста" (на всякий):
-      // если вдруг maxOffset меньше wantedOffset — значит ленты не хватило
-      const maxOffset = Math.max(0, reel.scrollWidth - containerWidth)
+      // если вдруг не хватило хвоста — добавляем и повторяем
       if (wantedOffset > maxOffset - step * 3 && tailFixTriesRef.current < 2) {
         tailFixTriesRef.current += 1
-
-        // добавим хвост и попробуем ещё раз автоматически
-        setReelItems((prev) => {
-          const extra = new Array(260).fill(null).map(() => randDropId())
-          return prev.concat(extra)
-        })
+        setReelItems((prev) => prev.concat(new Array(260).fill(null).map(() => randDropId())))
         return
       }
 
-      // clamp (но почти никогда не сработает, т.к. хвост большой)
-      let finalOffset = Math.min(Math.max(wantedOffset, 0), maxOffset)
+      // clamp
+      let finalOffset = clamp(wantedOffset, 0, maxOffset)
 
-      // ✅ главный фикс “между блоками” на iOS/Telegram:
-      // подгоняем offset под пиксельную сетку девайса
-      const dpr = window.devicePixelRatio || 1
-      finalOffset = Math.round(finalOffset * dpr) / dpr
-
-      // старт в нуле
+      // важный момент: НЕ округляем к dpr так, чтобы уехать с центра блока.
+      // округляем аккуратно: сначала оставляем как есть (subpixel ok),
+      // а ИДЕАЛЬНОЕ центрирование делаем снапом после transitionend.
       reel.style.transition = "none"
       reel.style.transform = "translate3d(0px,0,0)"
       void reel.offsetHeight
 
       spinStartedRef.current = true
 
-      // крутим
       reel.style.transition = `transform ${durationMs}ms cubic-bezier(0.12,0.75,0.15,1)`
       reel.style.transform = `translate3d(-${finalOffset}px,0,0)`
 
       const onEnd = () => {
         reel.removeEventListener("transitionend", onEnd)
 
-        // фиксируем без дрожи
+        // ====== ФИНАЛЬНЫЙ SNAP (убивает “последний пиксель” и “не то выпало”) ======
+        // 1) оценим индекс около центра
+        const approxIdx = Math.round((finalOffset + base) / step)
+
+        // 2) берём ближайший по центру среди соседей (на случай субпиксельного дрейфа)
+        const centerX = containerWidth / 2
+        let bestIdx = clamp(approxIdx, 0, reelItems.length - 1)
+        let bestDist = Infinity
+
+        for (let i = bestIdx - 3; i <= bestIdx + 3; i++) {
+          const idx = clamp(i, 0, reelItems.length - 1)
+          // центр idx-го элемента в координатах окна:
+          // left = idx*step - finalOffset, center = left + itemW/2
+          const c = (idx * step - finalOffset) + itemW / 2
+          const dist = Math.abs(c - centerX)
+          if (dist < bestDist) {
+            bestDist = dist
+            bestIdx = idx
+          }
+        }
+
+        // 3) вычисляем offset, который ставит bestIdx ИДЕАЛЬНО в центр
+        let snappedOffset = bestIdx * step - base
+        snappedOffset = clamp(snappedOffset, 0, maxOffset)
+
+        // 4) подгоняем к dpr уже ПОСЛЕ того, как выбрали индекс
+        const dpr = window.devicePixelRatio || 1
+        snappedOffset = Math.round(snappedOffset * dpr) / dpr
+
+        // 5) ставим точно (без дрожи)
         reel.style.transition = "none"
-        reel.style.transform = `translate3d(-${finalOffset}px,0,0)`
+        reel.style.transform = `translate3d(-${snappedOffset}px,0,0)`
 
-        // 🔥 РЕАЛЬНЫЙ индекс под линией:
-        // центр окна соответствует координате (finalOffset + base) в “шаговой” системе
-        const idx = Math.round((finalOffset + base) / step)
-
-        // защита от выхода за границы
-        const safeIdx = Math.min(Math.max(idx, 0), reelItems.length - 1)
-
-        // ✅ результат 100% совпадает с тем, что под линией
-        setResult(reelItems[safeIdx])
+        // 6) результат = то, что реально стоит по центру
+        setResult(reelItems[bestIdx])
         setPhase("result")
       }
 
@@ -260,6 +270,8 @@ function CasePage() {
   }
 
   const openAgain = () => {
+    // важно: сначала сбросить текущий результат, чтобы снова появилась кнопка
+    // а затем запуск
     sellItem()
     openCase()
   }
@@ -301,12 +313,7 @@ function CasePage() {
                 <div ref={reelRef} className="roulette-reel">
                   {reelItems.map((dropId, index) => (
                     <div key={index} className="roulette-item" data-index={index}>
-                      <img
-                        src={pngSrc(dropId)}
-                        className="roulette-png"
-                        alt=""
-                        draggable={false}
-                      />
+                      <img src={pngSrc(dropId)} className="roulette-png" alt="" draggable={false} />
                     </div>
                   ))}
                 </div>
