@@ -79,13 +79,6 @@ function CasePage() {
     return (caseData.drops || []).filter((d) => !!darkMatterAnimations[d.id])
   }, [caseData.drops])
 
-  // быстрый доступ к данным дропа (для имени/цены — пригодится дальше)
-  const dropById = useMemo(() => {
-    const m = new Map()
-    ;(caseData.drops || []).forEach((d) => m.set(d.id, d))
-    return m
-  }, [caseData.drops])
-
   if (!safeDrops.length) {
     return <div className="app">No drops with animations found for this case.</div>
   }
@@ -194,7 +187,6 @@ function CasePage() {
 
     requestAnimationFrame(() => {
       if (trackRef.current) {
-        // ✅ важно: каждый спин начинаем строго из одинаковой "нулевой" позиции
         trackRef.current.style.transition = "none"
         trackRef.current.style.transform = `translate3d(${centerShiftRef.current}px,0,0)`
         void trackRef.current.offsetHeight
@@ -205,55 +197,28 @@ function CasePage() {
 
   /* =============================
      SPIN
-     КЛЮЧЕВОЙ ФИКС "ВЫПАДАЕТ НЕ ТО":
-     - мы НЕ берём result из winIdRef
-     - на финале принудительно ставим трансформ в ТОЧНОЕ положение (без float-ошибок)
-     - и берём победителя как seq[steps + selectIndex] (это ровно тот слот под линией)
+     - transform каждый кадр
+     - React обновляем только когда base изменился
+     - и обновляем ОКНО СДВИГОМ (не пересоздаём 18 Lottie)
   ============================= */
   useEffect(() => {
     if (phase !== "spinning") return
     if (!trackRef.current) return
 
-    const duration = 3600 // 3.6s
+    const duration = 3600 // 3.6s — ближе к “норм”
     const steps = stepsRef.current
     const totalPx = FULL * steps
 
     startRef.current = performance.now()
     lastBaseRef.current = -1
 
-    const finalize = () => {
-      // ✅ жёстко выставляем финальную позицию: inner = 0, base = steps
-      // значит под линией гарантированно slot = selectIndex окна, а в seq это steps+selectIndex
-      const base = steps
-      const wc = windowCountRef.current
-      const seq = seqRef.current
-
-      setWindowItems(seq.slice(base, base + wc))
-
-      if (trackRef.current) {
-        trackRef.current.style.transition = "none"
-        trackRef.current.style.transform = `translate3d(${centerShiftRef.current}px,0,0)` // inner=0
-        void trackRef.current.offsetHeight
-      }
-
-      const winnerIndex = steps + selectIndexRef.current
-      const winnerId = seq[winnerIndex]
-
-      stopAll()
-      setPhase("result")
-      setResult(winnerId)
-    }
-
     const tick = (now) => {
-      const tRaw = (now - startRef.current) / duration
-      const t = Math.min(Math.max(tRaw, 0), 1)
+      const t = Math.min((now - startRef.current) / duration, 1)
 
       // easing: быстрый старт, мягкий финиш
       const eased = 1 - Math.pow(1 - t, 3.15)
 
-      // ✅ IMPORTANT: на последнем кадре фиксируем px строго в totalPx (без 0.0000x)
-      const px = t >= 1 ? totalPx : eased * totalPx
-
+      const px = eased * totalPx
       const base = Math.floor(px / FULL)
       const inner = px - base * FULL
 
@@ -270,6 +235,7 @@ function CasePage() {
         const seq = seqRef.current
         const wc = windowCountRef.current
 
+        // обычный случай: base вырос на 1
         if (prevBase !== -1 && base === prevBase + 1) {
           setWindowItems((prev) => {
             if (!prev || prev.length !== wc) return seq.slice(base, base + wc)
@@ -278,6 +244,7 @@ function CasePage() {
             return next
           })
         } else {
+          // если вдруг прыжок (редко) — просто пересобираем окно
           setWindowItems(seq.slice(base, base + wc))
         }
       }
@@ -285,8 +252,9 @@ function CasePage() {
       if (t < 1) {
         rafRef.current = requestAnimationFrame(tick)
       } else {
-        // ✅ финал строго по сетке (и победитель 100% совпадает с тем, что под линией)
-        finalize()
+        stopAll()
+        setPhase("result")
+        setResult(winIdRef.current)
       }
     }
 
@@ -313,18 +281,6 @@ function CasePage() {
 
   const blurred = result != null
   const showRoulette = phase === "preparing" || phase === "spinning"
-
-  // (на будущее для цен) — пока просто не ломаем, если полей нет
-  const formatPrice = (dropId) => {
-    const d = dropById.get(dropId)
-    if (!d) return ""
-    const stars = d.stars ?? d.priceStars ?? d.starsPrice ?? d.price_stars
-    const gems = d.gems ?? d.priceGems ?? d.gemsPrice ?? d.price_gems
-    const parts = []
-    if (typeof stars === "number") parts.push(`${stars} ⭐️`)
-    if (typeof gems === "number") parts.push(`${gems} 💎`)
-    return parts.join(" ")
-  }
 
   return (
     <div className="app">
@@ -390,7 +346,6 @@ function CasePage() {
                 className="drop-card"
                 onClick={() => handleClick(drop.id)}
               >
-                {/* позже уменьшим через CSS, блок НЕ трогаем */}
                 <Lottie
                   key={isActive ? drop.id + "-active" : drop.id}
                   animationData={darkMatterAnimations[drop.id]}
@@ -398,11 +353,7 @@ function CasePage() {
                   loop={false}
                   className="drop-lottie"
                 />
-
                 <div className="drop-name">{drop.name || drop.id}</div>
-
-                {/* заготовка под стоимость (оформим CSS-ом позже) */}
-                <div className="drop-price">{formatPrice(drop.id)}</div>
               </div>
             )
           })}
@@ -415,9 +366,12 @@ function CasePage() {
             <div className="result-title">Поздравляем!</div>
 
             <div className="drop-card result-size">
-              <Lottie animationData={darkMatterAnimations[result]} autoplay loop={false} />
-              <div className="drop-name">{dropById.get(result)?.name || result}</div>
-              <div className="result-price">{formatPrice(result)}</div>
+              <Lottie
+                animationData={darkMatterAnimations[result]}
+                autoplay
+                loop={false}
+              />
+              <div className="drop-name">{result}</div>
             </div>
 
             <div className="result-buttons">
