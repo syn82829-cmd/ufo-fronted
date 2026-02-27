@@ -143,10 +143,11 @@ function CasePage() {
   }
 
   /* =============================
-     START SPIN
+     START SPIN (FIXED "NOT WHAT YOU SEE")
      ФИКСЫ:
-     1) финал всегда снапится к центру БЛОКА (не "последний пиксель")
-     2) результат = именно тот блок, который после снапа по центру
+     1) финал снапится к центру
+     2) результат = элемент, который реально в центре ПОСЛЕ снапа
+     3) после snap читаем DOM-центр, а не "математику по transform"
   ============================= */
   useLayoutEffect(() => {
     if (phase !== "spinning") return
@@ -193,9 +194,7 @@ function CasePage() {
       // clamp
       let finalOffset = clamp(wantedOffset, 0, maxOffset)
 
-      // важный момент: НЕ округляем к dpr так, чтобы уехать с центра блока.
-      // округляем аккуратно: сначала оставляем как есть (subpixel ok),
-      // а ИДЕАЛЬНОЕ центрирование делаем снапом после transitionend.
+      // старт позиции
       reel.style.transition = "none"
       reel.style.transform = "translate3d(0px,0,0)"
       void reel.offsetHeight
@@ -208,20 +207,20 @@ function CasePage() {
       const onEnd = () => {
         reel.removeEventListener("transitionend", onEnd)
 
-        // ====== ФИНАЛЬНЫЙ SNAP (убивает “последний пиксель” и “не то выпало”) ======
-        // 1) оценим индекс около центра
-        const approxIdx = Math.round((finalOffset + base) / step)
+        // ====== SNAP ПО ЦЕНТРУ (выбираем лучший индекс и ставим его строго в центр) ======
+        const centerX = wrap.getBoundingClientRect().left + containerWidth / 2
 
-        // 2) берём ближайший по центру среди соседей (на случай субпиксельного дрейфа)
-        const centerX = containerWidth / 2
+        // берем кандидатов вокруг рассчитанного индекса
+        const approxIdx = Math.round((finalOffset + base) / step)
         let bestIdx = clamp(approxIdx, 0, reelItems.length - 1)
         let bestDist = Infinity
 
-        for (let i = bestIdx - 3; i <= bestIdx + 3; i++) {
+        for (let i = bestIdx - 4; i <= bestIdx + 4; i++) {
           const idx = clamp(i, 0, reelItems.length - 1)
-          // центр idx-го элемента в координатах окна:
-          // left = idx*step - finalOffset, center = left + itemW/2
-          const c = (idx * step - finalOffset) + itemW / 2
+          const el = itemsEls[idx]
+          if (!el) continue
+          const r = el.getBoundingClientRect()
+          const c = r.left + r.width / 2
           const dist = Math.abs(c - centerX)
           if (dist < bestDist) {
             bestDist = dist
@@ -229,21 +228,41 @@ function CasePage() {
           }
         }
 
-        // 3) вычисляем offset, который ставит bestIdx ИДЕАЛЬНО в центр
+        // offset для идеального центрирования bestIdx
         let snappedOffset = bestIdx * step - base
         snappedOffset = clamp(snappedOffset, 0, maxOffset)
 
-        // 4) подгоняем к dpr уже ПОСЛЕ того, как выбрали индекс
+        // подгоняем к dpr ПОСЛЕ выбора bestIdx
         const dpr = window.devicePixelRatio || 1
         snappedOffset = Math.round(snappedOffset * dpr) / dpr
 
-        // 5) ставим точно (без дрожи)
+        // ставим точно (без дрожи)
         reel.style.transition = "none"
         reel.style.transform = `translate3d(-${snappedOffset}px,0,0)`
 
-        // 6) результат = то, что реально стоит по центру
-        setResult(reelItems[bestIdx])
-        setPhase("result")
+        // ====== ИСТИННЫЙ RESULT: ЧИТАЕМ ПОСЛЕ SNAP ЧЕРЕЗ DOM ======
+        // На следующем кадре, чтобы браузер применил transform и пересчитал rect'ы
+        requestAnimationFrame(() => {
+          const itemsNow = reel.querySelectorAll(".roulette-item")
+          const centerX2 = wrap.getBoundingClientRect().left + (wrap.getBoundingClientRect().width || containerWidth) / 2
+
+          let finalIdx = bestIdx
+          let finalDist = Infinity
+
+          for (let i = Math.max(0, bestIdx - 6); i <= Math.min(itemsNow.length - 1, bestIdx + 6); i++) {
+            const r = itemsNow[i].getBoundingClientRect()
+            const c = r.left + r.width / 2
+            const dist = Math.abs(c - centerX2)
+            if (dist < finalDist) {
+              finalDist = dist
+              finalIdx = i
+            }
+          }
+
+          const finalId = reelItems[finalIdx]
+          setResult(finalId)
+          setPhase("result")
+        })
       }
 
       reel.addEventListener("transitionend", onEnd)
@@ -270,8 +289,6 @@ function CasePage() {
   }
 
   const openAgain = () => {
-    // важно: сначала сбросить текущий результат, чтобы снова появилась кнопка
-    // а затем запуск
     sellItem()
     openCase()
   }
