@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom"
-import { useLayoutEffect, useMemo, useRef, useState } from "react"
+import { useLayoutEffect, useMemo, useRef, useState, useEffect } from "react"
 import Lottie from "lottie-react"
 
 import { cases } from "../data/cases"
@@ -38,6 +38,13 @@ function CasePage() {
   const wrapRef = useRef(null)
   const reelRef = useRef(null)
   const imgRef = useRef(null)
+  const lineRef = useRef(null)
+
+  // актуальные items всегда в ref (без stale-замыканий)
+  const reelItemsRef = useRef([])
+  useEffect(() => {
+    reelItemsRef.current = reelItems
+  }, [reelItems])
 
   // { winner, winIndex, durationMs }
   const pendingRef = useRef(null)
@@ -122,7 +129,7 @@ function CasePage() {
     const approxStep = 160
     const visible = Math.ceil(containerWidth / approxStep)
 
-    // winIndex подальше + очень жирный хвост
+    // winIndex подальше + жирный хвост
     const winIndex = 85 + Math.floor(Math.random() * 12)
     const totalItems = winIndex + visible + 260
 
@@ -143,25 +150,39 @@ function CasePage() {
   }
 
   /* =============================
-     START SPIN (FIXED "NOT WHAT YOU SEE")
-     ФИКСЫ:
-     1) финал снапится к центру
-     2) результат = элемент, который реально в центре ПОСЛЕ снапа
-     3) после snap читаем DOM-центр, а не "математику по transform"
+     START SPIN (HARD FIX)
+     Главный принцип:
+     - финал снапим по центру ЛИНИИ
+     - результат берём через elementFromPoint() по координатам ЛИНИИ
+       => то, что видишь, то и получаешь
   ============================= */
   useLayoutEffect(() => {
     if (phase !== "spinning") return
     if (!reelRef.current) return
     if (!wrapRef.current) return
+    if (!lineRef.current) return
     if (!reelItems.length) return
     if (!pendingRef.current) return
     if (spinStartedRef.current) return
 
     const reel = reelRef.current
     const wrap = wrapRef.current
+    const line = lineRef.current
     const { winIndex, durationMs } = pendingRef.current
 
     const clamp = (v, a, b) => Math.min(Math.max(v, a), b)
+
+    // Находим X линии (не центра окна!)
+    const getLineCenterX = () => {
+      const lr = line.getBoundingClientRect()
+      return lr.left + lr.width / 2
+    }
+
+    // Находим Y внутри окна рулетки (чтобы elementFromPoint попал в item/img)
+    const getPickY = () => {
+      const wr = wrap.getBoundingClientRect()
+      return wr.top + wr.height / 2
+    }
 
     const start = () => {
       const itemsEls = reel.querySelectorAll(".roulette-item")
@@ -176,7 +197,8 @@ function CasePage() {
       const containerWidth = wrap.getBoundingClientRect().width || 320
       const itemW = r1.width
 
-      // base: чтобы центр item(0) попал в центр окна при offset=0
+      // base: чтобы центр item(0) попал в центр ОКНА при offset=0
+      // (мы всё равно потом ориентируемся на линию, но base нужен для оффсета)
       const base = containerWidth / 2 - itemW / 2
 
       const maxOffset = Math.max(0, reel.scrollWidth - containerWidth)
@@ -191,7 +213,6 @@ function CasePage() {
         return
       }
 
-      // clamp
       let finalOffset = clamp(wantedOffset, 0, maxOffset)
 
       // старт позиции
@@ -207,61 +228,83 @@ function CasePage() {
       const onEnd = () => {
         reel.removeEventListener("transitionend", onEnd)
 
-        // ====== SNAP ПО ЦЕНТРУ (выбираем лучший индекс и ставим его строго в центр) ======
-        const centerX = wrap.getBoundingClientRect().left + containerWidth / 2
+        // ====== SNAP: ищем элемент, который реально ближе всего к ЛИНИИ ======
+        const lineX = getLineCenterX()
 
-        // берем кандидатов вокруг рассчитанного индекса
+        // приблизительный индекс от математики (для узкого окна поиска)
         const approxIdx = Math.round((finalOffset + base) / step)
-        let bestIdx = clamp(approxIdx, 0, reelItems.length - 1)
+        let bestIdx = clamp(approxIdx, 0, reelItemsRef.current.length - 1)
         let bestDist = Infinity
 
-        for (let i = bestIdx - 4; i <= bestIdx + 4; i++) {
-          const idx = clamp(i, 0, reelItems.length - 1)
+        for (let i = bestIdx - 10; i <= bestIdx + 10; i++) {
+          const idx = clamp(i, 0, reelItemsRef.current.length - 1)
           const el = itemsEls[idx]
           if (!el) continue
           const r = el.getBoundingClientRect()
           const c = r.left + r.width / 2
-          const dist = Math.abs(c - centerX)
+          const dist = Math.abs(c - lineX)
           if (dist < bestDist) {
             bestDist = dist
             bestIdx = idx
           }
         }
 
-        // offset для идеального центрирования bestIdx
+        // сдвиг, чтобы bestIdx оказался идеально по центру ОКНА
+        // (а совпадение с линией мы обеспечим следующим шагом через elementFromPoint)
         let snappedOffset = bestIdx * step - base
         snappedOffset = clamp(snappedOffset, 0, maxOffset)
 
-        // подгоняем к dpr ПОСЛЕ выбора bestIdx
+        // подгоняем к dpr
         const dpr = window.devicePixelRatio || 1
         snappedOffset = Math.round(snappedOffset * dpr) / dpr
 
-        // ставим точно (без дрожи)
+        // ставим snap
         reel.style.transition = "none"
         reel.style.transform = `translate3d(-${snappedOffset}px,0,0)`
 
-        // ====== ИСТИННЫЙ RESULT: ЧИТАЕМ ПОСЛЕ SNAP ЧЕРЕЗ DOM ======
-        // На следующем кадре, чтобы браузер применил transform и пересчитал rect'ы
+        // ====== ИСТИННЫЙ RESULT: элемент под линией через elementFromPoint ======
+        // (это убивает любые расхождения CSS/линия/субпиксели)
         requestAnimationFrame(() => {
-          const itemsNow = reel.querySelectorAll(".roulette-item")
-          const centerX2 = wrap.getBoundingClientRect().left + (wrap.getBoundingClientRect().width || containerWidth) / 2
+          // иногда нужно 2 кадра на пересчёт layout после transform
+          requestAnimationFrame(() => {
+            const x = getLineCenterX()
+            const y = getPickY()
 
-          let finalIdx = bestIdx
-          let finalDist = Infinity
-
-          for (let i = Math.max(0, bestIdx - 6); i <= Math.min(itemsNow.length - 1, bestIdx + 6); i++) {
-            const r = itemsNow[i].getBoundingClientRect()
-            const c = r.left + r.width / 2
-            const dist = Math.abs(c - centerX2)
-            if (dist < finalDist) {
-              finalDist = dist
-              finalIdx = i
+            let el = document.elementFromPoint(x, y)
+            if (!el) {
+              // fallback: если вдруг ничего
+              const fallbackId = reelItemsRef.current[bestIdx]
+              setResult(fallbackId)
+              setPhase("result")
+              return
             }
-          }
 
-          const finalId = reelItems[finalIdx]
-          setResult(finalId)
-          setPhase("result")
+            // если попали в img — поднимаемся к .roulette-item
+            const itemEl = el.closest ? el.closest(".roulette-item") : null
+            if (!itemEl) {
+              // fallback: если линия перекрывает и мы попали в саму линию/контейнер
+              // попробуем чуть ниже
+              el = document.elementFromPoint(x, y + 8)
+              const itemEl2 = el?.closest ? el.closest(".roulette-item") : null
+              if (!itemEl2) {
+                const fallbackId = reelItemsRef.current[bestIdx]
+                setResult(fallbackId)
+                setPhase("result")
+                return
+              }
+              const idx = Number(itemEl2.getAttribute("data-index"))
+              const finalId = reelItemsRef.current[idx]
+              setResult(finalId)
+              setPhase("result")
+              return
+            }
+
+            const idx = Number(itemEl.getAttribute("data-index"))
+            const finalId = reelItemsRef.current[idx]
+
+            setResult(finalId)
+            setPhase("result")
+          })
         })
       }
 
@@ -326,7 +369,7 @@ function CasePage() {
 
             {isSpinning && (
               <div ref={wrapRef} className="roulette-window">
-                <div className="roulette-line" />
+                <div ref={lineRef} className="roulette-line" />
                 <div ref={reelRef} className="roulette-reel">
                   {reelItems.map((dropId, index) => (
                     <div key={index} className="roulette-item" data-index={index}>
