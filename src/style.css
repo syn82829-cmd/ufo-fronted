@@ -800,10 +800,16 @@ body {
   width: 100%;
   height: auto;
   display: block;
+
+  /* ✅ фикс "полсекунды видно кейс под рулеткой" */
+  opacity: 1;
+  transition: opacity 0.15s ease;
 }
 
+/* ✅ вместо visibility: hidden (даёт “кадр наложения”) */
 .hidden-case {
-  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
 }
 
 /* ============================= */
@@ -823,6 +829,10 @@ body {
   align-items: center;
 
   overflow: hidden;
+
+  /* ✅ iOS/compositor стабильность */
+  transform: translateZ(0);
+  backface-visibility: hidden;
 
   mask-image: linear-gradient(
     to right,
@@ -918,6 +928,9 @@ body {
     0 0 50px rgba(120,180,255,0.5);
 
   z-index: 5;
+
+  /* ✅ чтобы линия не мешала попаданию/определению элемента по центру */
+  pointer-events: none;
 }
 
 /* ============================= */
