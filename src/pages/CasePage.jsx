@@ -1,29 +1,43 @@
 import { useParams, useNavigate } from "react-router-dom"
-import { useLayoutEffect, useMemo, useRef, useState } from "react"
+import { useState, useRef, useLayoutEffect, useEffect, useMemo, memo } from "react"
 import Lottie from "lottie-react"
 
 import { cases } from "../data/cases"
 import { darkMatterAnimations } from "../data/animations"
 
 /* =============================
-   LOTTIE ID -> PNG filename map
+   ROULETTE SLOT (stable)
+   - key only by index (outside)
+   - always stop at frame 0
 ============================= */
-const PNG_BY_ID = {
-  darkhelmet: "HeroicHelmet",
-  gift: "LootBag",
-  westside: "WestsideSign",
-  lowrider: "Lowrider",
-  watch: "SwissWatch",
-  skull: "skull",
-  dyson: "IonicDryer",
-  batman: "batman",
-  poizon: "poison",
-  metla: "metla",
-  ball: "ball",
-  book: "book",
-}
+const RouletteSlot = memo(function RouletteSlot({ dropId }) {
+  const lottieRef = useRef(null)
+  const anim = darkMatterAnimations[dropId]
 
-const pngSrc = (dropId) => `/drops/${(PNG_BY_ID[dropId] || dropId)}.png`
+  useEffect(() => {
+    // гарантируем "статик"
+    if (lottieRef.current) {
+      try {
+        lottieRef.current.goToAndStop(0, true)
+      } catch {}
+    }
+  }, [dropId])
+
+  if (!anim) {
+    return <div style={{ width: 80, height: 80, opacity: 0.25 }} />
+  }
+
+  return (
+    <Lottie
+      lottieRef={lottieRef}
+      animationData={anim}
+      autoplay={false}
+      loop={false}
+      rendererSettings={{ preserveAspectRatio: "xMidYMid meet" }}
+      style={{ width: 80, height: 80 }}
+    />
+  )
+})
 
 function CasePage() {
   const { id } = useParams()
@@ -31,48 +45,51 @@ function CasePage() {
   const caseData = cases[id]
 
   const [activeDrop, setActiveDrop] = useState(null)
-  const [phase, setPhase] = useState("idle") // idle | preparing | spinning | result
+
+  // idle -> preparing -> spinning -> result
+  const [phase, setPhase] = useState("idle")
   const [result, setResult] = useState(null)
-  const [reelItems, setReelItems] = useState([])
+
+  // окно (рендерим N слотов)
+  const [windowItems, setWindowItems] = useState([])
 
   const wrapRef = useRef(null)
-  const reelRef = useRef(null)
-  const imgRef = useRef(null)
+  const trackRef = useRef(null)
 
-  // { winner, winIndex, durationMs }
-  const pendingRef = useRef(null)
-  const spinStartedRef = useRef(false)
+  const rafRef = useRef(null)
+  const startRef = useRef(0)
+  const lastBaseRef = useRef(-1)
 
-  // чтобы не уйти в бесконечное "добавь хвост"
-  const tailFixTriesRef = useRef(0)
+  const winIdRef = useRef(null)
+  const seqRef = useRef([])
+  const stepsRef = useRef(0)
+  const windowCountRef = useRef(18)
+  const selectIndexRef = useRef(0)
+  const centerShiftRef = useRef(0)
+
+  // размеры должны совпадать с CSS
+  const ITEM_W = 140
+  const GAP = 20
+  const FULL = ITEM_W + GAP
 
   if (!caseData) return <div className="app">Case config missing</div>
 
+  // только те дропы, у которых реально есть lottie
   const safeDrops = useMemo(() => {
-    return (caseData.drops || []).filter((d) => Boolean(PNG_BY_ID[d.id] || d.id))
+    return (caseData.drops || []).filter((d) => !!darkMatterAnimations[d.id])
   }, [caseData.drops])
 
-  /* =============================
-     PRELOAD PNG
-  ============================= */
-  const preloadAllPng = async () => {
-    const uniq = Array.from(new Set(safeDrops.map((d) => pngSrc(d.id))))
-    await Promise.all(
-      uniq.map(
-        (src) =>
-          new Promise((resolve) => {
-            const img = new Image()
-            img.onload = resolve
-            img.onerror = resolve
-            img.src = src
-          })
-      )
-    )
+  // быстрый доступ к данным дропа (для имени/цены — пригодится дальше)
+  const dropById = useMemo(() => {
+    const m = new Map()
+    ;(caseData.drops || []).forEach((d) => m.set(d.id, d))
+    return m
+  }, [caseData.drops])
+
+  if (!safeDrops.length) {
+    return <div className="app">No drops with animations found for this case.</div>
   }
 
-  /* =============================
-     GRID CLICK (Lottie plays)
-  ============================= */
   const handleClick = (dropId) => {
     if (activeDrop === dropId) {
       setActiveDrop(null)
@@ -82,9 +99,6 @@ function CasePage() {
     }
   }
 
-  /* =============================
-     WEIGHTED PICK
-  ============================= */
   const pickWeighted = () => {
     const pool = []
     safeDrops.forEach((drop) => {
@@ -94,190 +108,223 @@ function CasePage() {
     return pool[Math.floor(Math.random() * pool.length)]
   }
 
-  const randDropId = () => safeDrops[Math.floor(Math.random() * safeDrops.length)].id
+  const randIdNoRepeat = (prev) => {
+    if (safeDrops.length === 1) return safeDrops[0].id
+    let x = prev
+    let tries = 0
+    while (x === prev && tries < 8) {
+      x = safeDrops[Math.floor(Math.random() * safeDrops.length)].id
+      tries++
+    }
+    return x
+  }
 
-  /* =============================
-     OPEN CASE
-  ============================= */
-  const openCase = async () => {
-    if (phase === "preparing" || phase === "spinning") return
-    if (!safeDrops.length) return
+  // seq такой длины, чтобы base+windowCount всегда существовал
+  const buildSequence = (winId, steps, windowCount, selectIndex) => {
+    const total = steps + selectIndex + windowCount + 120
+    const seq = new Array(total)
 
-    setResult(null)
-    setReelItems([])
-    pendingRef.current = null
-    spinStartedRef.current = false
-    tailFixTriesRef.current = 0
-    setPhase("preparing")
-
-    await preloadAllPng()
-
-    const winner = pickWeighted()
-
-    const containerWidth =
-      wrapRef.current?.getBoundingClientRect().width ||
-      imgRef.current?.getBoundingClientRect().width ||
-      320
-
-    const approxStep = 160
-    const visible = Math.ceil(containerWidth / approxStep)
-
-    // winIndex подальше + очень жирный хвост
-    const winIndex = 85 + Math.floor(Math.random() * 12)
-    const totalItems = winIndex + visible + 260
-
-    const items = new Array(totalItems)
-    for (let i = 0; i < totalItems; i++) {
-      if (i === winIndex) items[i] = winner
-      else items[i] = randDropId()
+    let prev = null
+    for (let i = 0; i < total; i++) {
+      const r = randIdNoRepeat(prev)
+      seq[i] = r
+      prev = r
     }
 
-    if (items[winIndex - 1] === winner) items[winIndex - 1] = randDropId()
-    if (items[winIndex + 1] === winner) items[winIndex + 1] = randDropId()
+    const winPos = steps + selectIndex
+    seq[winPos] = winId
 
-    const durationMs = 7200
+    // чтобы рядом не было дубля winId
+    if (winPos - 1 >= 0 && seq[winPos - 1] === winId) seq[winPos - 1] = randIdNoRepeat(winId)
+    if (winPos + 1 < total && seq[winPos + 1] === winId) seq[winPos + 1] = randIdNoRepeat(winId)
 
-    pendingRef.current = { winner, winIndex, durationMs }
-    setReelItems(items)
-    setPhase("spinning")
+    return seq
+  }
+
+  const stopAll = () => {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current)
+    rafRef.current = null
+  }
+
+  useEffect(() => {
+    return () => stopAll()
+  }, [])
+
+  const openCase = () => {
+    if (phase === "preparing" || phase === "spinning") return
+
+    stopAll()
+    setResult(null)
+    setWindowItems([])
+    lastBaseRef.current = -1
+
+    winIdRef.current = pickWeighted()
+    setPhase("preparing")
   }
 
   /* =============================
-     START SPIN
-     ФИКСЫ:
-     1) финал всегда снапится к центру БЛОКА (не "последний пиксель")
-     2) результат = именно тот блок, который после снапа по центру
+     PREP
   ============================= */
   useLayoutEffect(() => {
-    if (phase !== "spinning") return
-    if (!reelRef.current) return
+    if (phase !== "preparing") return
     if (!wrapRef.current) return
-    if (!reelItems.length) return
-    if (!pendingRef.current) return
-    if (spinStartedRef.current) return
 
-    const reel = reelRef.current
-    const wrap = wrapRef.current
-    const { winIndex, durationMs } = pendingRef.current
+    const containerWidth = wrapRef.current.offsetWidth || 320
+    const visible = Math.ceil(containerWidth / FULL)
 
-    const clamp = (v, a, b) => Math.min(Math.max(v, a), b)
+    const windowCount = Math.min(Math.max(visible + 8, 14), 22)
+    windowCountRef.current = windowCount
 
-    const start = () => {
-      const itemsEls = reel.querySelectorAll(".roulette-item")
-      if (!itemsEls || itemsEls.length < 2) return
+    const selectIndex = Math.floor(windowCount / 2)
+    selectIndexRef.current = selectIndex
 
-      // реальный шаг по DOM (вместе с gap)
-      const r1 = itemsEls[0].getBoundingClientRect()
-      const r2 = itemsEls[1].getBoundingClientRect()
-      const step = r2.left - r1.left
-      if (!step || step < 50) return
+    // фиксируем так, чтобы selectIndex был под линией (по центру)
+    const centerX = containerWidth / 2 - ITEM_W / 2
+    centerShiftRef.current = centerX - selectIndex * FULL
 
-      const containerWidth = wrap.getBoundingClientRect().width || 320
-      const itemW = r1.width
+    // сколько слотов пролетит (скорость/длина)
+    const steps = 110
+    stepsRef.current = steps
 
-      // base: чтобы центр item(0) попал в центр окна при offset=0
-      const base = containerWidth / 2 - itemW / 2
+    const seq = buildSequence(winIdRef.current, steps, windowCount, selectIndex)
+    seqRef.current = seq
 
-      const maxOffset = Math.max(0, reel.scrollWidth - containerWidth)
+    // стартовое окно
+    setWindowItems(seq.slice(0, windowCount))
 
-      // целимся в winIndex
-      const wantedOffset = winIndex * step - base
-
-      // если вдруг не хватило хвоста — добавляем и повторяем
-      if (wantedOffset > maxOffset - step * 3 && tailFixTriesRef.current < 2) {
-        tailFixTriesRef.current += 1
-        setReelItems((prev) => prev.concat(new Array(260).fill(null).map(() => randDropId())))
-        return
+    requestAnimationFrame(() => {
+      if (trackRef.current) {
+        // ✅ важно: каждый спин начинаем строго из одинаковой "нулевой" позиции
+        trackRef.current.style.transition = "none"
+        trackRef.current.style.transform = `translate3d(${centerShiftRef.current}px,0,0)`
+        void trackRef.current.offsetHeight
       }
-
-      // clamp
-      let finalOffset = clamp(wantedOffset, 0, maxOffset)
-
-      // важный момент: НЕ округляем к dpr так, чтобы уехать с центра блока.
-      // округляем аккуратно: сначала оставляем как есть (subpixel ok),
-      // а ИДЕАЛЬНОЕ центрирование делаем снапом после transitionend.
-      reel.style.transition = "none"
-      reel.style.transform = "translate3d(0px,0,0)"
-      void reel.offsetHeight
-
-      spinStartedRef.current = true
-
-      reel.style.transition = `transform ${durationMs}ms cubic-bezier(0.12,0.75,0.15,1)`
-      reel.style.transform = `translate3d(-${finalOffset}px,0,0)`
-
-      const onEnd = () => {
-        reel.removeEventListener("transitionend", onEnd)
-
-        // ====== ФИНАЛЬНЫЙ SNAP (убивает “последний пиксель” и “не то выпало”) ======
-        // 1) оценим индекс около центра
-        const approxIdx = Math.round((finalOffset + base) / step)
-
-        // 2) берём ближайший по центру среди соседей (на случай субпиксельного дрейфа)
-        const centerX = containerWidth / 2
-        let bestIdx = clamp(approxIdx, 0, reelItems.length - 1)
-        let bestDist = Infinity
-
-        for (let i = bestIdx - 3; i <= bestIdx + 3; i++) {
-          const idx = clamp(i, 0, reelItems.length - 1)
-          // центр idx-го элемента в координатах окна:
-          // left = idx*step - finalOffset, center = left + itemW/2
-          const c = (idx * step - finalOffset) + itemW / 2
-          const dist = Math.abs(c - centerX)
-          if (dist < bestDist) {
-            bestDist = dist
-            bestIdx = idx
-          }
-        }
-
-        // 3) вычисляем offset, который ставит bestIdx ИДЕАЛЬНО в центр
-        let snappedOffset = bestIdx * step - base
-        snappedOffset = clamp(snappedOffset, 0, maxOffset)
-
-        // 4) подгоняем к dpr уже ПОСЛЕ того, как выбрали индекс
-        const dpr = window.devicePixelRatio || 1
-        snappedOffset = Math.round(snappedOffset * dpr) / dpr
-
-        // 5) ставим точно (без дрожи)
-        reel.style.transition = "none"
-        reel.style.transform = `translate3d(-${snappedOffset}px,0,0)`
-
-        // 6) результат = то, что реально стоит по центру
-        setResult(reelItems[bestIdx])
-        setPhase("result")
-      }
-
-      reel.addEventListener("transitionend", onEnd)
-    }
-
-    requestAnimationFrame(() => requestAnimationFrame(start))
-  }, [phase, reelItems])
+      setPhase("spinning")
+    })
+  }, [phase])
 
   /* =============================
-     RESET
+     SPIN
+     КЛЮЧЕВОЙ ФИКС "ВЫПАДАЕТ НЕ ТО":
+     - мы НЕ берём result из winIdRef
+     - на финале принудительно ставим трансформ в ТОЧНОЕ положение (без float-ошибок)
+     - и берём победителя как seq[steps + selectIndex] (это ровно тот слот под линией)
   ============================= */
-  const sellItem = () => {
-    setResult(null)
-    setReelItems([])
-    pendingRef.current = null
-    spinStartedRef.current = false
-    tailFixTriesRef.current = 0
-    setPhase("idle")
+  useEffect(() => {
+    if (phase !== "spinning") return
+    if (!trackRef.current) return
 
-    if (reelRef.current) {
-      reelRef.current.style.transition = "none"
-      reelRef.current.style.transform = "translate3d(0px,0,0)"
+    const duration = 3600 // 3.6s
+    const steps = stepsRef.current
+    const totalPx = FULL * steps
+
+    startRef.current = performance.now()
+    lastBaseRef.current = -1
+
+    const finalize = () => {
+      // ✅ жёстко выставляем финальную позицию: inner = 0, base = steps
+      // значит под линией гарантированно slot = selectIndex окна, а в seq это steps+selectIndex
+      const base = steps
+      const wc = windowCountRef.current
+      const seq = seqRef.current
+
+      setWindowItems(seq.slice(base, base + wc))
+
+      if (trackRef.current) {
+        trackRef.current.style.transition = "none"
+        trackRef.current.style.transform = `translate3d(${centerShiftRef.current}px,0,0)` // inner=0
+        void trackRef.current.offsetHeight
+      }
+
+      const winnerIndex = steps + selectIndexRef.current
+      const winnerId = seq[winnerIndex]
+
+      stopAll()
+      setPhase("result")
+      setResult(winnerId)
+    }
+
+    const tick = (now) => {
+      const tRaw = (now - startRef.current) / duration
+      const t = Math.min(Math.max(tRaw, 0), 1)
+
+      // easing: быстрый старт, мягкий финиш
+      const eased = 1 - Math.pow(1 - t, 3.15)
+
+      // ✅ IMPORTANT: на последнем кадре фиксируем px строго в totalPx (без 0.0000x)
+      const px = t >= 1 ? totalPx : eased * totalPx
+
+      const base = Math.floor(px / FULL)
+      const inner = px - base * FULL
+
+      // двигаем DOM
+      if (trackRef.current) {
+        trackRef.current.style.transform = `translate3d(${centerShiftRef.current - inner}px,0,0)`
+      }
+
+      // base сменился -> обновляем окно (без ремоунта всей пачки)
+      if (base !== lastBaseRef.current) {
+        const prevBase = lastBaseRef.current
+        lastBaseRef.current = base
+
+        const seq = seqRef.current
+        const wc = windowCountRef.current
+
+        if (prevBase !== -1 && base === prevBase + 1) {
+          setWindowItems((prev) => {
+            if (!prev || prev.length !== wc) return seq.slice(base, base + wc)
+            const next = prev.slice(1)
+            next.push(seq[base + wc - 1])
+            return next
+          })
+        } else {
+          setWindowItems(seq.slice(base, base + wc))
+        }
+      }
+
+      if (t < 1) {
+        rafRef.current = requestAnimationFrame(tick)
+      } else {
+        // ✅ финал строго по сетке (и победитель 100% совпадает с тем, что под линией)
+        finalize()
+      }
+    }
+
+    rafRef.current = requestAnimationFrame(tick)
+    return () => stopAll()
+  }, [phase])
+
+  const sellItem = () => {
+    stopAll()
+    setResult(null)
+    setPhase("idle")
+    setWindowItems([])
+    lastBaseRef.current = -1
+    if (trackRef.current) {
+      trackRef.current.style.transition = "none"
+      trackRef.current.style.transform = `translate3d(0px,0,0)`
     }
   }
 
   const openAgain = () => {
-    // важно: сначала сбросить текущий результат, чтобы снова появилась кнопка
-    // а затем запуск
     sellItem()
     openCase()
   }
 
-  const isSpinning = phase === "preparing" || phase === "spinning"
-  const blurred = phase === "result" && result != null
+  const blurred = result != null
+  const showRoulette = phase === "preparing" || phase === "spinning"
+
+  // (на будущее для цен) — пока просто не ломаем, если полей нет
+  const formatPrice = (dropId) => {
+    const d = dropById.get(dropId)
+    if (!d) return ""
+    const stars = d.stars ?? d.priceStars ?? d.starsPrice ?? d.price_stars
+    const gems = d.gems ?? d.priceGems ?? d.gemsPrice ?? d.price_gems
+    const parts = []
+    if (typeof stars === "number") parts.push(`${stars} ⭐️`)
+    if (typeof gems === "number") parts.push(`${gems} 💎`)
+    return parts.join(" ")
+  }
 
   return (
     <div className="app">
@@ -301,19 +348,20 @@ function CasePage() {
 
           <div className="case-image-wrapper">
             <img
-              ref={imgRef}
               src={caseData.image}
-              className={`casepage-case-image ${isSpinning ? "hidden-case" : ""}`}
+              className={`casepage-case-image ${showRoulette ? "hidden-case" : ""}`}
               alt={caseData.name}
             />
 
-            {isSpinning && (
-              <div ref={wrapRef} className="roulette-window">
+            {showRoulette && (
+              <div className="roulette-absolute" ref={wrapRef}>
                 <div className="roulette-line" />
-                <div ref={reelRef} className="roulette-reel">
-                  {reelItems.map((dropId, index) => (
-                    <div key={index} className="roulette-item" data-index={index}>
-                      <img src={pngSrc(dropId)} className="roulette-png" alt="" draggable={false} />
+
+                <div ref={trackRef} className="roulette-reel">
+                  {windowItems.map((dropId, index) => (
+                    // ✅ ключи ТОЛЬКО по index — слоты стабильные, Lottie не ремоунтится пачкой
+                    <div key={index} className="roulette-item">
+                      <RouletteSlot dropId={dropId} />
                     </div>
                   ))}
                 </div>
@@ -337,15 +385,24 @@ function CasePage() {
           {caseData.drops.map((drop) => {
             const isActive = activeDrop === drop.id
             return (
-              <div key={drop.id} className="drop-card" onClick={() => handleClick(drop.id)}>
+              <div
+                key={drop.id}
+                className="drop-card"
+                onClick={() => handleClick(drop.id)}
+              >
+                {/* позже уменьшим через CSS, блок НЕ трогаем */}
                 <Lottie
-                  key={isActive ? drop.id + "-active" : drop.id + "-idle"}
+                  key={isActive ? drop.id + "-active" : drop.id}
                   animationData={darkMatterAnimations[drop.id]}
                   autoplay={isActive}
                   loop={false}
                   className="drop-lottie"
                 />
+
                 <div className="drop-name">{drop.name || drop.id}</div>
+
+                {/* заготовка под стоимость (оформим CSS-ом позже) */}
+                <div className="drop-price">{formatPrice(drop.id)}</div>
               </div>
             )
           })}
@@ -358,8 +415,9 @@ function CasePage() {
             <div className="result-title">Поздравляем!</div>
 
             <div className="drop-card result-size">
-              <img src={pngSrc(result)} className="result-png" alt="" draggable={false} />
-              <div className="drop-name">{result}</div>
+              <Lottie animationData={darkMatterAnimations[result]} autoplay loop={false} />
+              <div className="drop-name">{dropById.get(result)?.name || result}</div>
+              <div className="result-price">{formatPrice(result)}</div>
             </div>
 
             <div className="result-buttons">
