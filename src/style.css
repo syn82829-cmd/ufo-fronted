@@ -802,8 +802,13 @@ body {
   display: block;
 }
 
+/* ✅ картинку не удаляем из DOM, просто прячем во время спина */
 .hidden-case {
   visibility: hidden;
+
+  /* ✅ максимально быстрый уход (уменьшает шанс наложения) */
+  opacity: 0 !important;
+  transition: none !important;
 }
 
 /* ============================= */
@@ -843,6 +848,8 @@ body {
 .roulette-reel {
   display: inline-flex;
   align-items: center;
+
+  /* ✅ фиксируем gap строго (важно для расчёта itemWidth в JS) */
   gap: 20px;
 
   width: max-content;
@@ -856,8 +863,11 @@ body {
 /* SLOT */
 /* ============================= */
 .roulette-item {
+  /* ✅ фикс ширины/высоты как в JS (140) */
   width: 140px;
   height: 140px;
+
+  /* ✅ не даём flex'у “поджимать” */
   flex: 0 0 140px;
 
   background: linear-gradient(
@@ -936,33 +946,31 @@ body {
   backdrop-filter: blur(18px);
 }
 
+/* ✅ УБРАЛИ БОЛЬШОЕ СТЕКЛО-ФОН:
+   оставляем только текст/контент, блюр остаётся за счёт overlay */
 .result-card {
-  background: linear-gradient(
-    160deg,
-    rgba(255,255,255,0.15),
-    rgba(255,255,255,0.05)
-  );
+  background: transparent !important;
+  backdrop-filter: none !important;
+  border: none !important;
+  box-shadow: none !important;
 
-  backdrop-filter: blur(40px) saturate(160%);
-  border-radius: 32px;
-
-  padding: 60px 70px;
+  /* делаем компактнее, как “парящая” группа */
+  padding: 0 !important;
+  border-radius: 0 !important;
   text-align: center;
 
-  border: 1px solid rgba(255,255,255,0.25);
-
-  box-shadow:
-    0 30px 80px rgba(0,0,0,0.6),
-    inset 0 1px 0 rgba(255,255,255,0.35);
+  /* чтобы контент не прилипал к краям на маленьких экранах */
+  width: min(86vw, 360px);
 }
 
 .result-title {
   font-size: 30px;
-  margin-bottom: 35px;
+  margin-bottom: 22px;
   letter-spacing: 1.2px;
   text-shadow: 0 4px 20px rgba(0,0,0,0.7);
 }
 
+/* карточка приза ОСТАЁТСЯ как была (это “сам блок с westside”) */
 .result-size {
   width: 180px;
   height: 180px;
@@ -998,45 +1006,56 @@ body {
 /* ============================= */
 /* RESULT BUTTONS */
 /* ============================= */
+
+/* ✅ кнопки вертикально + одинаковый размер */
 .result-buttons {
   display: flex;
-  justify-content: center;
-  gap: 20px;
-  margin-top: 40px;
+  flex-direction: column;        /* было row */
+  align-items: center;
+  gap: 12px;                     /* было 20px */
+  margin-top: 22px;
 }
 
+/* ✅ “плоские” кнопки и одинаковая ширина */
 .glass-btn {
-  padding: 15px 34px;
+  width: 240px;                  /* одинаковый размер */
+  max-width: 86vw;
+
+  padding: 14px 18px;            /* чуть компактнее */
   border-radius: 16px;
 
-  border: 1px solid rgba(255,255,255,0.25);
+  border: 1px solid rgba(255,255,255,0.22);
 
-  backdrop-filter: blur(20px) saturate(150%);
+  backdrop-filter: blur(16px) saturate(140%);
   background: linear-gradient(
     145deg,
-    rgba(255,255,255,0.15),
-    rgba(255,255,255,0.06)
+    rgba(255,255,255,0.12),
+    rgba(255,255,255,0.05)
   );
 
-  font-size: 15px;
-  letter-spacing: 0.6px;
+  font-size: 16px;
+  letter-spacing: 0.4px;
 
   color: white;
   cursor: pointer;
 
+  /* ✅ меньше “объёма”, больше premium-flat */
   box-shadow:
-    0 10px 25px rgba(0,0,0,0.4),
-    inset 0 1px 0 rgba(255,255,255,0.3);
+    0 8px 18px rgba(0,0,0,0.28),
+    inset 0 1px 0 rgba(255,255,255,0.18);
 
-  transition: 0.25s ease;
+  transition: 0.2s ease;
+
+  /* ✅ одна строка */
+  white-space: nowrap;
 }
 
 .glass-btn:hover {
-  transform: translateY(-3px);
+  transform: translateY(-2px);
   background: linear-gradient(
     145deg,
-    rgba(255,255,255,0.22),
-    rgba(255,255,255,0.1)
+    rgba(255,255,255,0.18),
+    rgba(255,255,255,0.08)
   );
 }
 
@@ -1048,10 +1067,21 @@ body {
   );
 }
 
+/* ✅ ты просил “как sell” по структуре — готово */
 .open {
   background: linear-gradient(
     145deg,
     rgba(0,255,140,0.45),
     rgba(0,255,140,0.22)
   );
+}
+
+/* ============================= */
+/* GRID LOTTIE SIZE (сделать меньше) */
+/* ============================= */
+
+/* ✅ уменьшаем Lottie внутри grid, чтобы осталось место под верх/низ текст */
+.drop-lottie {
+  width: 110px;   /* было 140-150 */
+  height: 110px;
 }
