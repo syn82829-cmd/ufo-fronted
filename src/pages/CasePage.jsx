@@ -314,6 +314,51 @@ function CasePage() {
     requestAnimationFrame(() => requestAnimationFrame(start))
   }, [phase, reelItems])
 
+   // ... ВЕСЬ ТВОЙ КОД БЕЗ ИЗМЕНЕНИЙ ДО БЛОКА RESET ...
+
+  /* =============================
+     LIFECYCLE PROTECTION (Telegram WebView stability)
+     - если уходим в background во время spinning
+       -> мгновенно фиксируем результат
+  ============================= */
+  useEffect(() => {
+    const forceFinishSpin = () => {
+      if (phase !== "spinning") return
+      if (!pendingRef.current) return
+
+      const { winner } = pendingRef.current
+
+      // останавливаем анимацию
+      if (reelRef.current) {
+        reelRef.current.style.transition = "none"
+      }
+
+      spinStartedRef.current = false
+
+      // мгновенно показываем результат
+      setResult(winner)
+      setPhase("result")
+    }
+
+    const handleVisibility = () => {
+      if (document.visibilityState === "hidden") {
+        forceFinishSpin()
+      }
+    }
+
+    const handlePageHide = () => {
+      forceFinishSpin()
+    }
+
+    document.addEventListener("visibilitychange", handleVisibility)
+    window.addEventListener("pagehide", handlePageHide)
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibility)
+      window.removeEventListener("pagehide", handlePageHide)
+    }
+  }, [phase])
+   
   /* =============================
      RESET
   ============================= */
