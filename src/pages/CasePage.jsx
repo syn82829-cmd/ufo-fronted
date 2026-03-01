@@ -3,10 +3,11 @@ import { useLayoutEffect, useMemo, useRef, useState, useEffect } from "react"
 import Lottie from "lottie-react"
 
 import { cases } from "../data/cases"
-import { darkMatterAnimations } from "../data/animations"
+import { darkMatterAnimations, purpleHoleAnimations } from "../data/animations"
 
 /* =============================
    LOTTIE ID -> PNG filename map
+   (legacy for Dark Matter)
 ============================= */
 const PNG_BY_ID = {
   darkhelmet: "HeroicHelmet",
@@ -23,6 +24,13 @@ const PNG_BY_ID = {
   book: "book",
 }
 
+// ✅ универсальный резолвер PNG по drop (приоритет: drop.png -> PNG_BY_ID -> dropId)
+const pngSrcByDrop = (drop) => {
+  const key = drop?.png || PNG_BY_ID[drop?.id] || drop?.id
+  return `/drops/${key}.png`
+}
+
+// fallback, если где-то прокидывается только id (например result)
 const pngSrc = (dropId) => `/drops/${(PNG_BY_ID[dropId] || dropId)}.png`
 
 function CasePage() {
@@ -62,15 +70,38 @@ function CasePage() {
 
   if (!caseData) return <div className="app">Case config missing</div>
 
+  // ✅ выбираем правильный набор анимаций по кейсу
+  const animationsByCase = useMemo(() => {
+    const map = {
+      darkmatter: darkMatterAnimations,
+      purplehole: purpleHoleAnimations,
+    }
+    return map[id] || {}
+  }, [id])
+
+  // ✅ safeDrops: исключаем пустые/заглушки и гарантируем, что есть png
   const safeDrops = useMemo(() => {
-    return (caseData.drops || []).filter((d) => Boolean(PNG_BY_ID[d.id] || d.id))
+    const drops = caseData.drops || []
+
+    return drops.filter((d) => {
+      if (!d) return false
+
+      // 1) не допускаем пустые слоты в рулетке
+      if (d.chance === 0) return false
+      if (String(d.id || "").includes("placeholder")) return false
+      if (String(d.id || "").includes("_drop_")) return false // твои заглушки "скоро"
+
+      // 2) должен существовать ключ png (либо задан в cases.js, либо legacy-map, либо fallback по id)
+      const key = d.png || PNG_BY_ID[d.id] || d.id
+      return Boolean(key)
+    })
   }, [caseData.drops])
 
   /* =============================
      PRELOAD PNG (one-time per drops set)
   ============================= */
   const preloadAllPng = async () => {
-    const uniq = Array.from(new Set(safeDrops.map((d) => pngSrc(d.id))))
+    const uniq = Array.from(new Set(safeDrops.map((d) => pngSrcByDrop(d))))
     await Promise.all(
       uniq.map(
         (src) =>
@@ -88,7 +119,7 @@ function CasePage() {
   useEffect(() => {
     if (!safeDrops.length) return
 
-    const key = safeDrops.map((d) => d.id).join("|")
+    const key = safeDrops.map((d) => `${d.id}:${d.png || ""}`).join("|")
     if (preloadKeyRef.current === key && preloadPromiseRef.current) return
 
     preloadKeyRef.current = key
@@ -140,11 +171,10 @@ function CasePage() {
       tailFixTriesRef.current = 0
       setPhase("preparing")
 
-      // ✅ ждём preload (один раз), вместо прелоада каждый спин
+      // ✅ ждём preload (один раз)
       if (preloadPromiseRef.current) {
         await preloadPromiseRef.current
       } else {
-        // fallback на всякий случай
         await preloadAllPng()
       }
 
@@ -176,7 +206,6 @@ function CasePage() {
       pendingRef.current = { winner, winIndex, durationMs }
       setReelItems(items)
       setPhase("spinning")
-      // lock держим до result/idle (снимем ниже)
     } catch (e) {
       openLockRef.current = false
       setPhase("idle")
@@ -396,6 +425,13 @@ function CasePage() {
   const isSpinning = phase === "preparing" || phase === "spinning"
   const blurred = phase === "result" && result != null
 
+  // ✅ картинка результата: если у кейса есть drop.png — используем его
+  const resultPngSrc = useMemo(() => {
+    const d = (caseData.drops || []).find((x) => x.id === result)
+    if (d) return pngSrcByDrop(d)
+    return result ? pngSrc(result) : ""
+  }, [caseData.drops, result])
+
   return (
     <div className="app">
       <div className={blurred ? "blurred" : ""}>
@@ -430,6 +466,7 @@ function CasePage() {
                 <div ref={reelRef} className="roulette-reel">
                   {reelItems.map((dropId, index) => (
                     <div key={index} className="roulette-item" data-index={index}>
+                      {/* dropId тут = string, png = по id (для purplehole совпадает) */}
                       <img src={pngSrc(dropId)} className="roulette-png" alt="" draggable={false} />
                     </div>
                   ))}
@@ -453,7 +490,7 @@ function CasePage() {
         <div className="casepage-drops">
           {caseData.drops.map((drop) => {
             const isActive = activeDrop === drop.id
-            const anim = darkMatterAnimations?.[drop.id]
+            const anim = animationsByCase?.[drop.id]
             const label =
               drop.name || (drop.id.includes("_drop_") ? "Скоро" : drop.id)
 
@@ -484,7 +521,7 @@ function CasePage() {
             <div className="result-title">Поздравляем!</div>
 
             <div className="drop-card result-size">
-              <img src={pngSrc(result)} className="result-png" alt="" draggable={false} />
+              <img src={resultPngSrc} className="result-png" alt="" draggable={false} />
               <div className="drop-name">{result}</div>
             </div>
 
