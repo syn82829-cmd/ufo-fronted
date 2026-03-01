@@ -53,6 +53,13 @@ function CasePage() {
   // чтобы не уйти в бесконечное "добавь хвост"
   const tailFixTriesRef = useRef(0)
 
+  // ✅ ЖЁСТКИЙ LOCK от двойного запуска (Telegram double-tap / повторный event)
+  const openLockRef = useRef(false)
+
+  // ✅ Preload один раз на кейс / набор safeDrops
+  const preloadPromiseRef = useRef(null)
+  const preloadKeyRef = useRef("")
+
   if (!caseData) return <div className="app">Case config missing</div>
 
   const safeDrops = useMemo(() => {
@@ -60,7 +67,7 @@ function CasePage() {
   }, [caseData.drops])
 
   /* =============================
-     PRELOAD PNG
+     PRELOAD PNG (one-time per drops set)
   ============================= */
   const preloadAllPng = async () => {
     const uniq = Array.from(new Set(safeDrops.map((d) => pngSrc(d.id))))
@@ -76,6 +83,17 @@ function CasePage() {
       )
     )
   }
+
+  // ✅ Запускаем preload один раз при входе/смене кейса или набора дропов
+  useEffect(() => {
+    if (!safeDrops.length) return
+
+    const key = safeDrops.map((d) => d.id).join("|")
+    if (preloadKeyRef.current === key && preloadPromiseRef.current) return
+
+    preloadKeyRef.current = key
+    preloadPromiseRef.current = preloadAllPng()
+  }, [safeDrops])
 
   /* =============================
      GRID CLICK (Lottie plays)
@@ -107,46 +125,63 @@ function CasePage() {
      OPEN CASE
   ============================= */
   const openCase = async () => {
+    // ✅ lock: никакого двойного запуска
+    if (openLockRef.current) return
     if (phase === "preparing" || phase === "spinning") return
     if (!safeDrops.length) return
 
-    setResult(null)
-    setReelItems([])
-    pendingRef.current = null
-    spinStartedRef.current = false
-    tailFixTriesRef.current = 0
-    setPhase("preparing")
+    openLockRef.current = true
 
-    await preloadAllPng()
+    try {
+      setResult(null)
+      setReelItems([])
+      pendingRef.current = null
+      spinStartedRef.current = false
+      tailFixTriesRef.current = 0
+      setPhase("preparing")
 
-    const winner = pickWeighted()
+      // ✅ ждём preload (один раз), вместо прелоада каждый спин
+      if (preloadPromiseRef.current) {
+        await preloadPromiseRef.current
+      } else {
+        // fallback на всякий случай
+        await preloadAllPng()
+      }
 
-    const containerWidth =
-      wrapRef.current?.getBoundingClientRect().width ||
-      imgRef.current?.getBoundingClientRect().width ||
-      320
+      const winner = pickWeighted()
 
-    const approxStep = 160
-    const visible = Math.ceil(containerWidth / approxStep)
+      const containerWidth =
+        wrapRef.current?.getBoundingClientRect().width ||
+        imgRef.current?.getBoundingClientRect().width ||
+        320
 
-    // winIndex подальше + жирный хвост
-    const winIndex = 85 + Math.floor(Math.random() * 12)
-    const totalItems = winIndex + visible + 260
+      const approxStep = 160
+      const visible = Math.ceil(containerWidth / approxStep)
 
-    const items = new Array(totalItems)
-    for (let i = 0; i < totalItems; i++) {
-      if (i === winIndex) items[i] = winner
-      else items[i] = randDropId()
+      // winIndex подальше + жирный хвост
+      const winIndex = 85 + Math.floor(Math.random() * 12)
+      const totalItems = winIndex + visible + 260
+
+      const items = new Array(totalItems)
+      for (let i = 0; i < totalItems; i++) {
+        if (i === winIndex) items[i] = winner
+        else items[i] = randDropId()
+      }
+
+      if (items[winIndex - 1] === winner) items[winIndex - 1] = randDropId()
+      if (items[winIndex + 1] === winner) items[winIndex + 1] = randDropId()
+
+      const durationMs = 7200
+
+      pendingRef.current = { winner, winIndex, durationMs }
+      setReelItems(items)
+      setPhase("spinning")
+      // lock держим до result/idle (снимем ниже)
+    } catch (e) {
+      // если что-то пошло не так — не оставляем lock навсегда
+      openLockRef.current = false
+      setPhase("idle")
     }
-
-    if (items[winIndex - 1] === winner) items[winIndex - 1] = randDropId()
-    if (items[winIndex + 1] === winner) items[winIndex + 1] = randDropId()
-
-    const durationMs = 7200
-
-    pendingRef.current = { winner, winIndex, durationMs }
-    setReelItems(items)
-    setPhase("spinning")
   }
 
   /* =============================
@@ -172,13 +207,11 @@ function CasePage() {
 
     const clamp = (v, a, b) => Math.min(Math.max(v, a), b)
 
-    // Находим X линии (не центра окна!)
     const getLineCenterX = () => {
       const lr = line.getBoundingClientRect()
       return lr.left + lr.width / 2
     }
 
-    // Находим Y внутри окна рулетки (чтобы elementFromPoint попал в item/img)
     const getPickY = () => {
       const wr = wrap.getBoundingClientRect()
       return wr.top + wr.height / 2
@@ -188,7 +221,6 @@ function CasePage() {
       const itemsEls = reel.querySelectorAll(".roulette-item")
       if (!itemsEls || itemsEls.length < 2) return
 
-      // реальный шаг по DOM (вместе с gap)
       const r1 = itemsEls[0].getBoundingClientRect()
       const r2 = itemsEls[1].getBoundingClientRect()
       const step = r2.left - r1.left
@@ -197,16 +229,11 @@ function CasePage() {
       const containerWidth = wrap.getBoundingClientRect().width || 320
       const itemW = r1.width
 
-      // base: чтобы центр item(0) попал в центр ОКНА при offset=0
-      // (мы всё равно потом ориентируемся на линию, но base нужен для оффсета)
       const base = containerWidth / 2 - itemW / 2
-
       const maxOffset = Math.max(0, reel.scrollWidth - containerWidth)
 
-      // целимся в winIndex
       const wantedOffset = winIndex * step - base
 
-      // если вдруг не хватило хвоста — добавляем и повторяем
       if (wantedOffset > maxOffset - step * 3 && tailFixTriesRef.current < 2) {
         tailFixTriesRef.current += 1
         setReelItems((prev) => prev.concat(new Array(260).fill(null).map(() => randDropId())))
@@ -215,7 +242,6 @@ function CasePage() {
 
       let finalOffset = clamp(wantedOffset, 0, maxOffset)
 
-      // старт позиции
       reel.style.transition = "none"
       reel.style.transform = "translate3d(0px,0,0)"
       void reel.offsetHeight
@@ -228,10 +254,8 @@ function CasePage() {
       const onEnd = () => {
         reel.removeEventListener("transitionend", onEnd)
 
-        // ====== SNAP: ищем элемент, который реально ближе всего к ЛИНИИ ======
         const lineX = getLineCenterX()
 
-        // приблизительный индекс от математики (для узкого окна поиска)
         const approxIdx = Math.round((finalOffset + base) / step)
         let bestIdx = clamp(approxIdx, 0, reelItemsRef.current.length - 1)
         let bestDist = Infinity
@@ -249,41 +273,30 @@ function CasePage() {
           }
         }
 
-        // сдвиг, чтобы bestIdx оказался идеально по центру ОКНА
-        // (а совпадение с линией мы обеспечим следующим шагом через elementFromPoint)
         let snappedOffset = bestIdx * step - base
         snappedOffset = clamp(snappedOffset, 0, maxOffset)
 
-        // подгоняем к dpr
         const dpr = window.devicePixelRatio || 1
         snappedOffset = Math.round(snappedOffset * dpr) / dpr
 
-        // ставим snap
         reel.style.transition = "none"
         reel.style.transform = `translate3d(-${snappedOffset}px,0,0)`
 
-        // ====== ИСТИННЫЙ RESULT: элемент под линией через elementFromPoint ======
-        // (это убивает любые расхождения CSS/линия/субпиксели)
         requestAnimationFrame(() => {
-          // иногда нужно 2 кадра на пересчёт layout после transform
           requestAnimationFrame(() => {
             const x = getLineCenterX()
             const y = getPickY()
 
             let el = document.elementFromPoint(x, y)
             if (!el) {
-              // fallback: если вдруг ничего
               const fallbackId = reelItemsRef.current[bestIdx]
               setResult(fallbackId)
               setPhase("result")
               return
             }
 
-            // если попали в img — поднимаемся к .roulette-item
             const itemEl = el.closest ? el.closest(".roulette-item") : null
             if (!itemEl) {
-              // fallback: если линия перекрывает и мы попали в саму линию/контейнер
-              // попробуем чуть ниже
               el = document.elementFromPoint(x, y + 8)
               const itemEl2 = el?.closest ? el.closest(".roulette-item") : null
               if (!itemEl2) {
@@ -315,6 +328,54 @@ function CasePage() {
   }, [phase, reelItems])
 
   /* =============================
+     LIFECYCLE PROTECTION
+     если уходим в background во время spinning
+     -> мгновенно фиксируем результат
+  ============================= */
+  useEffect(() => {
+    const forceFinishSpin = () => {
+      if (phase !== "spinning") return
+      if (!pendingRef.current) return
+
+      const { winner } = pendingRef.current
+
+      if (reelRef.current) {
+        reelRef.current.style.transition = "none"
+      }
+
+      spinStartedRef.current = false
+
+      setResult(winner)
+      setPhase("result")
+    }
+
+    const handleVisibility = () => {
+      if (document.visibilityState === "hidden") {
+        forceFinishSpin()
+      }
+    }
+
+    const handlePageHide = () => {
+      forceFinishSpin()
+    }
+
+    document.addEventListener("visibilitychange", handleVisibility)
+    window.addEventListener("pagehide", handlePageHide)
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibility)
+      window.removeEventListener("pagehide", handlePageHide)
+    }
+  }, [phase])
+
+  // ✅ снимаем lock, когда спин завершён (result) или вернулись в idle
+  useEffect(() => {
+    if (phase === "idle" || phase === "result") {
+      openLockRef.current = false
+    }
+  }, [phase])
+
+  /* =============================
      RESET
   ============================= */
   const sellItem = () => {
@@ -325,6 +386,8 @@ function CasePage() {
     tailFixTriesRef.current = 0
     setPhase("idle")
 
+    openLockRef.current = false
+
     if (reelRef.current) {
       reelRef.current.style.transition = "none"
       reelRef.current.style.transform = "translate3d(0px,0,0)"
@@ -332,6 +395,8 @@ function CasePage() {
   }
 
   const openAgain = () => {
+    // ✅ openAgain тоже под lock (иначе double запускается легко)
+    if (openLockRef.current) return
     sellItem()
     openCase()
   }
