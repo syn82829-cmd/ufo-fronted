@@ -22,7 +22,7 @@ export const cases = {
   firstpepe: {
     id: "firstpepe",
     name: "First Pepe",
-    image: "/cases/firstpepe.png",
+    image: "/cases/case1.png.PNG",
     drops: Array.from({ length: 12 }, (_, i) => ({
       id: `firstpepe_drop_${i + 1}`,
       chance: 10,
@@ -33,7 +33,7 @@ export const cases = {
   crash: {
     id: "crash",
     name: "Crash",
-    image: "/cases/crash.png",
+    image: "/cases/case2.png.PNG",
     drops: Array.from({ length: 12 }, (_, i) => ({
       id: `crash_drop_${i + 1}`,
       chance: 10,
@@ -44,7 +44,7 @@ export const cases = {
   godparticle: {
     id: "godparticle",
     name: "God Particle",
-    image: "/cases/godparticle.png",
+    image: "/cases/case4.png.PNG",
     drops: Array.from({ length: 12 }, (_, i) => ({
       id: `godparticle_drop_${i + 1}`,
       chance: 10,
@@ -55,7 +55,7 @@ export const cases = {
   purplehole: {
     id: "purplehole",
     name: "Purple Hole",
-    image: "/cases/purplehole.png",
+    image: "/cases/case5.png.PNG",
     drops: Array.from({ length: 12 }, (_, i) => ({
       id: `purplehole_drop_${i + 1}`,
       chance: 10,
@@ -66,7 +66,7 @@ export const cases = {
   spacetrash: {
     id: "spacetrash",
     name: "Space Trash",
-    image: "/cases/spacetrash.png",
+    image: "/cases/case6.png.PNG",
     drops: Array.from({ length: 12 }, (_, i) => ({
       id: `spacetrash_drop_${i + 1}`,
       chance: 10,
@@ -77,7 +77,7 @@ export const cases = {
   starfall: {
     id: "starfall",
     name: "Starfall",
-    image: "/cases/starfall.png",
+    image: "/cases/case7.png.PNG",
     drops: Array.from({ length: 12 }, (_, i) => ({
       id: `starfall_drop_${i + 1}`,
       chance: 10,
@@ -88,7 +88,7 @@ export const cases = {
   randomcase: {
     id: "randomcase",
     name: "Random Case",
-    image: "/cases/randomcase.png",
+    image: "/cases/case8.png.PNG",
     drops: Array.from({ length: 12 }, (_, i) => ({
       id: `randomcase_drop_${i + 1}`,
       chance: 10,
