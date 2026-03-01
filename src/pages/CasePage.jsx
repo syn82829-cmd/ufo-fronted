@@ -178,7 +178,6 @@ function CasePage() {
       setPhase("spinning")
       // lock держим до result/idle (снимем ниже)
     } catch (e) {
-      // если что-то пошло не так — не оставляем lock навсегда
       openLockRef.current = false
       setPhase("idle")
     }
@@ -186,10 +185,6 @@ function CasePage() {
 
   /* =============================
      START SPIN (HARD FIX)
-     Главный принцип:
-     - финал снапим по центру ЛИНИИ
-     - результат берём через elementFromPoint() по координатам ЛИНИИ
-       => то, что видишь, то и получаешь
   ============================= */
   useLayoutEffect(() => {
     if (phase !== "spinning") return
@@ -329,8 +324,6 @@ function CasePage() {
 
   /* =============================
      LIFECYCLE PROTECTION
-     если уходим в background во время spinning
-     -> мгновенно фиксируем результат
   ============================= */
   useEffect(() => {
     const forceFinishSpin = () => {
@@ -395,7 +388,6 @@ function CasePage() {
   }
 
   const openAgain = () => {
-    // ✅ openAgain тоже под lock (иначе double запускается легко)
     if (openLockRef.current) return
     sellItem()
     openCase()
@@ -461,16 +453,25 @@ function CasePage() {
         <div className="casepage-drops">
           {caseData.drops.map((drop) => {
             const isActive = activeDrop === drop.id
+            const anim = darkMatterAnimations?.[drop.id]
+            const label =
+              drop.name || (drop.id.includes("_drop_") ? "Скоро" : drop.id)
+
             return (
               <div key={drop.id} className="drop-card" onClick={() => handleClick(drop.id)}>
-                <Lottie
-                  key={isActive ? drop.id + "-active" : drop.id + "-idle"}
-                  animationData={darkMatterAnimations[drop.id]}
-                  autoplay={isActive}
-                  loop={false}
-                  className="drop-lottie"
-                />
-                <div className="drop-name">{drop.name || drop.id}</div>
+                {anim ? (
+                  <Lottie
+                    key={isActive ? drop.id + "-active" : drop.id + "-idle"}
+                    animationData={anim}
+                    autoplay={isActive}
+                    loop={false}
+                    className="drop-lottie"
+                  />
+                ) : (
+                  <div className="drop-placeholder" aria-hidden="true" />
+                )}
+
+                <div className="drop-name">{label}</div>
               </div>
             )
           })}
