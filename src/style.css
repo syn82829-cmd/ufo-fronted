@@ -1099,3 +1099,37 @@ body {
     inset 0 1px 0 rgba(255,255,255,0.18),
     0 10px 30px rgba(0,0,0,0.25);
 }
+
+/* ============================= */
+/* DROP LOTTIE SIZE FIX */
+/* ============================= */
+
+/* карточка всегда одинаковая по высоте */
+.drop-card{
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 220px; /* под твой дизайн, можно 210-240 */
+}
+
+/* зона под анимацию фиксирована */
+.drop-lottie{
+  width: 100%;
+  height: 120px;     /* ключевой фикс */
+  display: block;
+  overflow: hidden;
+}
+
+/* иногда Lottie кладёт svg внутрь — прижимаем */
+.drop-lottie svg{
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* заглушка должна занимать ровно столько же, сколько и lottie */
+.drop-placeholder{
+  width: 100%;
+  height: 120px;
+  border-radius: 18px;
+  opacity: 0.0; /* чтобы держало размер, но не было видно */
+}
