@@ -20,6 +20,26 @@ body {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 
+  /* ⚠️ ВАЖНО ДЛЯ iOS/Telegram:
+     background-attachment: fixed часто ломает рендер (black screen / reload).
+     Делаем "fixed background" через псевдо-элемент ниже. */
+  background: #050a16;
+  color: white;
+
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+}
+
+/* ===== SAFE FIXED BACKGROUND (вместо background-attachment: fixed) ===== */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+
   background-image:
     linear-gradient(
       rgba(4, 8, 20, 0.55),
@@ -46,18 +66,8 @@ body {
   background-position: center;
   background-repeat: no-repeat;
 
-  /* ВАЖНО */
-  background-attachment: fixed;
-
-  color: white;
-
-  font-family:
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    sans-serif;
+  transform: translateZ(0);
 }
-
 
 /* ===== MAIN CONTAINER ===== */
 
@@ -73,8 +83,6 @@ body {
   padding-bottom: 140px;
 }
 
-
-
 /* ============================= */
 /* UFO CRASH PANEL */
 /* ============================= */
@@ -84,20 +92,43 @@ body {
   max-width: 920px;
   aspect-ratio: 16 / 9;
 
-  background: rgba(255,255,255,0.04);
+  /* стекло богаче */
+  background:
+    linear-gradient(145deg, rgba(255,255,255,0.10), rgba(255,255,255,0.03));
 
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(12px) saturate(140%);
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
 
-  border-radius: 26px;
-  border: 1px solid rgba(255,255,255,0.22);
+  border-radius: 28px;
+  border: 1px solid rgba(255,255,255,0.20);
 
   position: relative;
 
   box-shadow:
-    0 30px 80px rgba(0,0,0,0.85);
+    0 30px 80px rgba(0,0,0,0.85),
+    inset 0 1px 0 rgba(255,255,255,0.22),
+    inset 0 -1px 0 rgba(0,0,0,0.35);
+
+  overflow: hidden;
 }
 
+/* лёгкий "блик" сверху как в рефе */
+.crash-panel::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  pointer-events: none;
+
+  background:
+    radial-gradient(circle at 20% 10%,
+      rgba(255,255,255,0.22),
+      rgba(255,255,255,0.00) 45%),
+    radial-gradient(circle at 80% 0%,
+      rgba(0,255,170,0.10),
+      rgba(0,255,170,0.00) 55%);
+
+  opacity: 0.9;
+}
 
 /* TITLE */
 
@@ -107,11 +138,11 @@ body {
   left: 25px;
 
   font-size: 24px;
-  font-weight: 600;
+  font-weight: 700;
 
   background: linear-gradient(
     110deg,
-    #f5f5f5,
+    #ffffff,
     #d9d9d9,
     #ffffff,
     #bfbfbf
@@ -119,8 +150,9 @@ body {
 
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-}
 
+  text-shadow: 0 10px 35px rgba(0,0,0,0.35);
+}
 
 /* MULTIPLIER */
 
@@ -129,15 +161,15 @@ body {
   left: 25px;
   top: 60px;
 
-  font-size: 26px;
-  font-weight: 700;
+  font-size: 28px;
+  font-weight: 800;
 
   color: #00ffaa;
 
   text-shadow:
-    0 0 10px rgba(0,255,170,0.8);
+    0 0 12px rgba(0,255,170,0.75),
+    0 0 28px rgba(0,255,170,0.35);
 }
-
 
 /* ============================= */
 /* BUTTON */
@@ -157,21 +189,28 @@ body {
   padding: 14px 28px;
 
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
 
-  color: #ccfff2;
+  color: #d8fff6;
 
-  background: rgba(255,255,255,0.02);
+  background:
+    linear-gradient(145deg, rgba(0,255,170,0.10), rgba(255,255,255,0.02));
 
-  backdrop-filter: blur(6px);
+  backdrop-filter: blur(10px) saturate(150%);
+  -webkit-backdrop-filter: blur(10px) saturate(150%);
 
-  border-radius: 14px;
+  border-radius: 16px;
 
-  border: 1px solid rgba(0,255,170,0.7);
+  border: 1px solid rgba(0,255,170,0.70);
+
+  box-shadow:
+    0 12px 35px rgba(0,0,0,0.45),
+    inset 0 1px 0 rgba(255,255,255,0.22);
 
   animation: greenPulse 5s infinite;
-}
 
+  cursor: pointer;
+}
 
 /* UFO IMAGE */
 
@@ -186,7 +225,6 @@ body {
   filter:
     drop-shadow(0 60px 100px rgba(0,0,0,0.95));
 }
-
 
 /* ============================= */
 /* CASES SECTION */
@@ -203,7 +241,6 @@ body {
   gap: 22px;
 }
 
-
 /* ============================= */
 /* CASE CARD */
 /* ============================= */
@@ -211,13 +248,15 @@ body {
 .case-card {
   aspect-ratio: 1 / 1;
 
-  background: rgba(255,255,255,0.05);
+  /* стекло + глубина */
+  background:
+    linear-gradient(145deg, rgba(255,255,255,0.10), rgba(255,255,255,0.035));
 
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(14px) saturate(145%);
+  -webkit-backdrop-filter: blur(14px) saturate(145%);
 
-  border-radius: 22px;
-  border: 1px solid rgba(255,255,255,0.22);
+  border-radius: 26px;
+  border: 1px solid rgba(255,255,255,0.18);
 
   position: relative;
   overflow: hidden;
@@ -227,15 +266,56 @@ body {
   justify-content: center;
 
   box-shadow:
-    0 20px 60px rgba(0,0,0,0.7);
+    0 22px 70px rgba(0,0,0,0.72),
+    inset 0 1px 0 rgba(255,255,255,0.22),
+    inset 0 -1px 0 rgba(0,0,0,0.40);
 
-  transition: transform 0.25s ease;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
 }
 
-.case-card:hover {
-  transform: translateY(-6px);
+/* внутренний "блик" как у рефа */
+.case-card::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  pointer-events: none;
+
+  background:
+    radial-gradient(circle at 18% 12%,
+      rgba(255,255,255,0.22),
+      rgba(255,255,255,0.00) 46%),
+    radial-gradient(circle at 85% 0%,
+      rgba(0,255,200,0.10),
+      rgba(0,255,200,0.00) 52%);
+
+  opacity: 0.85;
 }
 
+/* лёгкая виньетка внутри карточки */
+.case-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 55%,
+    rgba(0,0,0,0.00),
+    rgba(0,0,0,0.32));
+  opacity: 0.9;
+}
+
+/* hover только на устройствах где есть hover */
+@media (hover: hover) {
+  .case-card:hover {
+    transform: translateY(-6px);
+    background:
+      linear-gradient(145deg, rgba(255,255,255,0.14), rgba(255,255,255,0.05));
+    box-shadow:
+      0 28px 85px rgba(0,0,0,0.78),
+      0 0 26px rgba(0,255,200,0.10),
+      inset 0 1px 0 rgba(255,255,255,0.26),
+      inset 0 -1px 0 rgba(0,0,0,0.45);
+  }
+}
 
 /* IMAGE */
 
@@ -243,8 +323,10 @@ body {
   width: 70%;
   height: 70%;
   object-fit: contain;
-}
 
+  filter: drop-shadow(0 18px 34px rgba(0,0,0,0.55));
+  transform: translateZ(0);
+}
 
 /* TITLE */
 
@@ -254,40 +336,45 @@ body {
   width: 100%;
   text-align: center;
 
-  font-size: 17px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 700;
+
+  color: rgba(255,255,255,0.95);
 
   text-shadow:
-    0 0 8px rgba(255,255,255,0.25);
+    0 2px 14px rgba(0,0,0,0.75);
 }
-
 
 /* PRICE BADGE */
 
 .case-price-badge {
   position: absolute;
-  bottom: 8px;
+  bottom: 10px;
   left: 50%;
   transform: translateX(-50%);
 
-  padding: 5px 14px;
-  font-size: 13px;
+  padding: 7px 16px;
+  font-size: 14px;
 
   border-radius: 999px;
 
   background: linear-gradient(
     120deg,
-    #ffd76a,
+    #ffe28a,
     #ffb700,
-    #ffe38a
+    #fff0b5
   );
 
   color: #2a1b00;
-  font-weight: 600;
+  font-weight: 800;
+
+  border: 1px solid rgba(255,255,255,0.45);
 
   box-shadow:
-    0 4px 14px rgba(255,190,0,0.35);
+    0 10px 26px rgba(255,190,0,0.35),
+    inset 0 1px 0 rgba(255,255,255,0.55);
 }
+
 /* ============================= */
 /* BOTTOM NAVIGATION */
 /* ============================= */
@@ -302,28 +389,35 @@ body {
   max-width: 520px;
   height: 62px;
 
-  background: rgba(255,255,255,0.08);
+  background:
+    linear-gradient(145deg, rgba(255,255,255,0.12), rgba(255,255,255,0.06));
 
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
 
-  border-radius: 26px;
-  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 28px;
+  border: 1px solid rgba(255,255,255,0.22);
 
   display: flex;
   justify-content: space-around;
   align-items: center;
 
   z-index: 100;
+
+  box-shadow:
+    0 18px 60px rgba(0,0,0,0.55),
+    inset 0 1px 0 rgba(255,255,255,0.22);
 }
 
 .nav-item {
   position: relative;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
 
-  color: rgba(255,255,255,0.8);
+  color: rgba(255,255,255,0.80);
   padding-bottom: 8px;
+
+  user-select: none;
 }
 
 .nav-item.active {
@@ -342,13 +436,22 @@ body {
 
   background: linear-gradient(
     90deg,
-    rgba(0,255,170,0.4),
+    rgba(0,255,170,0.35),
     rgba(0,255,170,1),
-    rgba(0,255,170,0.4)
+    rgba(0,255,170,0.35)
   );
 
   border-radius: 4px;
-  box-shadow: 0 0 12px rgba(0,255,170,0.9);
+  box-shadow:
+    0 0 14px rgba(0,255,170,0.85),
+    0 0 28px rgba(0,255,170,0.35);
+}
+
+/* ===== небольшая адаптация под узкие экраны (без изменения разметки) ===== */
+@media (max-width: 380px) {
+  .crash-title { font-size: 22px; }
+  .multiplier { font-size: 26px; }
+  .case-title { font-size: 17px; }
 }
 
 /* ============================= */
