@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import Lottie from "lottie-react"
+
 import { createUser } from "../api"
 import CaseCard from "../components/CaseCard"
+import ufoAnim from "../animations/ufo.json"
+
 import "../style.css"
 
 function Home() {
@@ -14,15 +18,14 @@ function Home() {
   })
 
   const cases = [
-    { id: "firstpepe",   image: "/cases/case1.png.PNG", name: "First Pepe",   price: 9999 },
-    { id: "crash",       image: "/cases/case2.png.PNG", name: "Crash",        price: 7999 },
-    { id: "darkmatter",  image: "/cases/case3.png.PNG", name: "Dark Matter",  price: 4999 },
+    { id: "firstpepe", image: "/cases/case1.png.PNG", name: "First Pepe", price: 9999 },
+    { id: "crash", image: "/cases/case2.png.PNG", name: "Crash", price: 7999 },
+    { id: "darkmatter", image: "/cases/case3.png.PNG", name: "Dark Matter", price: 4999 },
     { id: "godparticle", image: "/cases/case4.png.PNG", name: "God Particle", price: 3599 },
-    { id: "purplehole",  image: "/cases/case5.png.PNG", name: "Purple Hole",  price: 1599 },
-    { id: "spacetrash",  image: "/cases/case6.png.PNG", name: "Space Trash",  price: 599  },
-    { id: "starfall",    image: "/cases/case7.png.PNG", name: "Starfall",     price: 499  },
-    // ✅ FIX: было "random" -> должно быть "randomcase" (как в cases.js)
-    { id: "randomcase",  image: "/cases/case8.png.PNG", name: "Random Case",  price: 999  },
+    { id: "purplehole", image: "/cases/case5.png.PNG", name: "Purple Hole", price: 1599 },
+    { id: "spacetrash", image: "/cases/case6.png.PNG", name: "Space Trash", price: 599 },
+    { id: "starfall", image: "/cases/case7.png.PNG", name: "Starfall", price: 499 },
+    { id: "randomcase", image: "/cases/case8.png.PNG", name: "Random Case", price: 999 },
   ]
 
   /* ============================= */
@@ -72,9 +75,14 @@ function Home() {
         <div className="crash-title">UFO Crash</div>
         <div className="multiplier">&gt; x1.63</div>
 
-        <button className="launch-btn">Запустить НЛО</button>
+        <button className="launch-btn" type="button">
+          Запустить НЛО
+        </button>
 
-        <img src="/ufo.png.PNG" className="ufo-image" alt="" />
+        {/* UFO Lottie (infinite) */}
+        <div className="ufo-lottie" aria-hidden="true">
+          <Lottie animationData={ufoAnim} loop autoplay />
+        </div>
       </div>
 
       {/* Cases */}
