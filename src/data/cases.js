@@ -181,7 +181,7 @@ export const cases = {
       },
       {
         id: "kalendar",
-        name: "Voodoo Doll",
+        name: "Voodoo Doll Vengeance",
         chance: 10,
         priceStars: "4.093",
         priceGems: "46",
