@@ -19,8 +19,8 @@ function Home() {
   const [ufoAnim, setUfoAnim] = useState(null)
 
   const cases = [
-    { id: "firstpepe", image: "/cases/case1.png.PNG", name: "First Pepe", price: 9999 },
-    { id: "crash", image: "/cases/case2.png.PNG", name: "Crash", price: 7999 },
+    { id: "firstpepe", image: "/cases/case1.png.PNG", name: "Pepe Case", price: 9999 },
+    { id: "crash", image: "/cases/case2.png.PNG", name: "All or Nothing", price: 7999 },
     { id: "darkmatter", image: "/cases/case3.png.PNG", name: "Dark Matter", price: 4999 },
     { id: "godparticle", image: "/cases/case4.png.PNG", name: "God Particle", price: 3599 },
     { id: "purplehole", image: "/cases/case5.png.PNG", name: "Purple Hole", price: 1599 },
