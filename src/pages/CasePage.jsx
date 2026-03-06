@@ -488,8 +488,15 @@ function CasePage() {
                   <div className="drop-name">{drop.name || drop.id}</div>
 
                   <div className="drop-prices">
-                    <span>⭐ {drop.priceStars || "0"}</span>
-                    <span>💎 {drop.priceGems || "0"}</span>
+                    <span className="drop-price-item">
+                      <img src="/ui/star.jpg" className="price-icon" alt="" />
+                      <span>{drop.priceStars || "0"}</span>
+                    </span>
+
+                    <span className="drop-price-item">
+                      <img src="/ui/ton.jpg" className="price-icon" alt="" />
+                      <span>{drop.priceGems || "0"}</span>
+                    </span>
                   </div>
                 </div>
               )
@@ -511,9 +518,17 @@ function CasePage() {
                 draggable={false}
               />
               <div className="drop-name">{resultDrop.name}</div>
+
               <div className="drop-prices">
-                <span>⭐ {resultDrop.priceStars || "0"}</span>
-                <span>💎 {resultDrop.priceGems || "0"}</span>
+                <span className="drop-price-item">
+                  <img src="/ui/star.jpg" className="price-icon" alt="" />
+                  <span>{resultDrop.priceStars || "0"}</span>
+                </span>
+
+                <span className="drop-price-item">
+                  <img src="/ui/ton.jpg" className="price-icon" alt="" />
+                  <span>{resultDrop.priceGems || "0"}</span>
+                </span>
               </div>
             </div>
 
