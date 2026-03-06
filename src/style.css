@@ -448,6 +448,18 @@ body::after {
   -webkit-backdrop-filter: blur(4px) saturate(120%);
 }
 
+/* ICON IN CASE CARD PRICE */
+
+.case-price-icon {
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
+}
+
+/* ICONS IN DROP PRICES */
+
 .price-icon {
   width: 16px;
   height: 16px;
@@ -456,17 +468,19 @@ body::after {
   flex-shrink: 0;
 }
 
+/* DROP PRICE BLOCK */
+
 .drop-price-item {
   display: inline-flex;
   align-items: center;
-  gap: 2px; /* будет ⭐79.000 и 💎680 */
+  gap: 2px;
 }
 
 .drop-prices {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px; /* расстояние между двумя валютами */
+  gap: 10px;
   margin-top: 6px;
   flex-wrap: wrap;
 }
