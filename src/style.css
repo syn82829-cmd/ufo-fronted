@@ -448,6 +448,15 @@ body::after {
   -webkit-backdrop-filter: blur(4px) saturate(120%);
 }
 
+/* PRICE ICON */
+
+.case-price-icon {
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+  display: block;
+}
+
 /* ============================= */
 /* BOTTOM NAVIGATION */
 /* ============================= */
