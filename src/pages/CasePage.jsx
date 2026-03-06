@@ -2,6 +2,7 @@ import { useParams, useNavigate } from "react-router-dom"
 import { useLayoutEffect, useMemo, useRef, useState, useEffect } from "react"
 
 import { cases } from "../data/cases"
+import useCaseAnimations from "../hooks/useCaseAnimations"
 import CaseHeader from "../components/case/CaseHeader"
 import CaseRoulette from "../components/case/CaseRoulette"
 import CaseDropsGrid from "../components/case/CaseDropsGrid"
@@ -18,7 +19,6 @@ function CasePage() {
   const [phase, setPhase] = useState("idle") // idle | preparing | spinning | result
   const [resultId, setResultId] = useState(null)
   const [reelItems, setReelItems] = useState([])
-  const [animationsById, setAnimationsById] = useState({})
 
   const wrapRef = useRef(null)
   const reelRef = useRef(null)
@@ -39,6 +39,8 @@ function CasePage() {
 
   if (!caseData) return <div className="app">Case config missing</div>
 
+  const animationsById = useCaseAnimations(caseData.drops)
+
   const dropMap = useMemo(() => {
     return Object.fromEntries((caseData.drops || []).map((drop) => [drop.id, drop]))
   }, [caseData.drops])
@@ -55,42 +57,6 @@ function CasePage() {
   const resultDrop = useMemo(() => {
     return resultId ? dropMap[resultId] || null : null
   }, [dropMap, resultId])
-
-  useEffect(() => {
-    let cancelled = false
-
-    async function loadAnimations() {
-      const dropsWithLottie = (caseData.drops || []).filter((drop) => Boolean(drop.lottie))
-      if (!dropsWithLottie.length) {
-        setAnimationsById({})
-        return
-      }
-
-      const entries = await Promise.all(
-        dropsWithLottie.map(async (drop) => {
-          try {
-            const res = await fetch(drop.lottie)
-            if (!res.ok) throw new Error(`Failed to load ${drop.lottie}`)
-            const json = await res.json()
-            return [drop.id, json]
-          } catch (err) {
-            console.error(`LOTTIE LOAD ERROR [${drop.id}]`, err)
-            return [drop.id, null]
-          }
-        })
-      )
-
-      if (!cancelled) {
-        setAnimationsById(Object.fromEntries(entries))
-      }
-    }
-
-    loadAnimations()
-
-    return () => {
-      cancelled = true
-    }
-  }, [caseData.drops])
 
   const preloadAllPng = async () => {
     const uniq = Array.from(new Set(safeDrops.map((drop) => pngSrcByDrop(drop))))
@@ -413,6 +379,16 @@ function CasePage() {
         navigate={navigate}
         openCase={openCase}
         phase={phase}
+        pngSrcByDrop={pngSrcByDrop}
+      />
+
+      <CaseRoulette
+        isSpinning={isSpinning}
+        wrapRef={wrapRef}
+        lineRef={lineRef}
+        reelRef={reelRef}
+        reelItems={reelItems}
+        dropMap={dropMap}
         pngSrcByDrop={pngSrcByDrop}
       />
 
