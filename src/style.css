@@ -214,10 +214,28 @@ body::after {
 /* BUTTON */
 /* ============================= */
 
-@keyframes aquaPulse {
-  0% { box-shadow: 0 0 0 rgba(0, 220, 255, 0); }
-  50% { box-shadow: 0 0 16px rgba(0, 220, 255, 0.60); }
-  100% { box-shadow: 0 0 0 rgba(0, 220, 255, 0); }
+@keyframes buttonShine {
+  0% {
+    transform: translateX(-180%) skewX(-25deg);
+    opacity: 0;
+  }
+
+  20% {
+    opacity: 0.25;
+  }
+
+  50% {
+    opacity: 0.6;
+  }
+
+  80% {
+    opacity: 0.15;
+  }
+
+  100% {
+    transform: translateX(220%) skewX(-25deg);
+    opacity: 0;
+  }
 }
 
 .launch-btn {
@@ -230,24 +248,54 @@ body::after {
   font-size: 15px;
   font-weight: 600;
 
-  color: #d6fffb;
+  color: #eaffff;
 
-  background: rgba(255,255,255,0.012);
-
-  /* чуть больше blur для стекла */
-  backdrop-filter: blur(4px) saturate(145%);
-  -webkit-backdrop-filter: blur(4px) saturate(145%);
+  position: absolute;
+  overflow: hidden;
 
   border-radius: 14px;
 
-  /* голубой / бирюзовый акцент */
-  border: 1px solid rgba(0, 210, 235, 0.62);
+  /* холодный голубой фон */
+  background: linear-gradient(
+    135deg,
+    rgba(0,190,255,0.85),
+    rgba(0,150,230,0.92)
+  );
 
-  animation: aquaPulse 5s infinite;
+  border: 1px solid rgba(0,220,255,0.75);
+
+  backdrop-filter: blur(6px) saturate(150%);
+  -webkit-backdrop-filter: blur(6px) saturate(150%);
 
   box-shadow:
     0 10px 22px rgba(0,0,0,0.18),
-    inset 0 1px 0 rgba(255,255,255,0.16);
+    0 0 18px rgba(0,220,255,0.35),
+    inset 0 1px 0 rgba(255,255,255,0.25);
+}
+
+/* световая линия */
+.launch-btn::before {
+  content: "";
+
+  position: absolute;
+  top: -60%;
+  left: -40%;
+
+  width: 35%;
+  height: 220%;
+
+  background: linear-gradient(
+    120deg,
+    rgba(255,255,255,0) 0%,
+    rgba(255,255,255,0.15) 35%,
+    rgba(255,255,255,0.75) 50%,
+    rgba(255,255,255,0.15) 65%,
+    rgba(255,255,255,0) 100%
+  );
+
+  transform: translateX(-180%) skewX(-25deg);
+
+  animation: buttonShine 4.5s infinite;
 }
 
 /* UFO LOTTIE */
