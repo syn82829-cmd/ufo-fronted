@@ -3,7 +3,7 @@ import { useLayoutEffect, useMemo, useRef, useState, useEffect } from "react"
 import Lottie from "lottie-react"
 
 import { cases } from "../data/cases"
-import { darkMatterAnimations, purpleHoleAnimations } from "../data/animations"
+import { loadCaseAnimations } from "../data/animations"
 
 /* =============================
    LOTTIE ID -> PNG filename map
@@ -42,6 +42,8 @@ function CasePage() {
   const [phase, setPhase] = useState("idle") // idle | preparing | spinning | result
   const [result, setResult] = useState(null)
   const [reelItems, setReelItems] = useState([])
+  const [animationsByCase, setAnimationsByCase] = useState({})
+  const [animationsLoaded, setAnimationsLoaded] = useState(false)
 
   const wrapRef = useRef(null)
   const reelRef = useRef(null)
@@ -70,13 +72,33 @@ function CasePage() {
 
   if (!caseData) return <div className="app">Case config missing</div>
 
-  // ✅ выбираем правильный набор анимаций по кейсу
-  const animationsByCase = useMemo(() => {
-    const map = {
-      darkmatter: darkMatterAnimations,
-      purplehole: purpleHoleAnimations,
+  // ✅ грузим Lottie из /public по кейсу
+  useEffect(() => {
+    let cancelled = false
+
+    async function initAnimations() {
+      try {
+        setAnimationsLoaded(false)
+        const loaded = await loadCaseAnimations(id)
+
+        if (!cancelled) {
+          setAnimationsByCase(loaded || {})
+          setAnimationsLoaded(true)
+        }
+      } catch (err) {
+        console.error(`CASE ANIMATIONS LOAD ERROR [${id}]`, err)
+        if (!cancelled) {
+          setAnimationsByCase({})
+          setAnimationsLoaded(true)
+        }
+      }
     }
-    return map[id] || {}
+
+    initAnimations()
+
+    return () => {
+      cancelled = true
+    }
   }, [id])
 
   // ✅ safeDrops: исключаем пустые/заглушки и гарантируем, что есть png
@@ -207,6 +229,7 @@ function CasePage() {
       setReelItems(items)
       setPhase("spinning")
     } catch (e) {
+      console.error("OPEN CASE ERROR:", e)
       openLockRef.current = false
       setPhase("idle")
     }
@@ -466,7 +489,6 @@ function CasePage() {
                 <div ref={reelRef} className="roulette-reel">
                   {reelItems.map((dropId, index) => (
                     <div key={index} className="roulette-item" data-index={index}>
-                      {/* dropId тут = string, png = по id (для purplehole совпадает) */}
                       <img src={pngSrc(dropId)} className="roulette-png" alt="" draggable={false} />
                     </div>
                   ))}
@@ -482,7 +504,11 @@ function CasePage() {
               onClick={openCase}
               disabled={phase === "preparing" || phase === "spinning"}
             >
-              {phase === "preparing" ? "Загрузка…" : phase === "spinning" ? "Крутится…" : "Открыть кейс"}
+              {phase === "preparing"
+                ? "Загрузка…"
+                : phase === "spinning"
+                  ? "Крутится…"
+                  : "Открыть кейс"}
             </button>
           )}
         </div>
@@ -496,7 +522,7 @@ function CasePage() {
 
             return (
               <div key={drop.id} className="drop-card" onClick={() => handleClick(drop.id)}>
-                {anim ? (
+                {animationsLoaded && anim ? (
                   <Lottie
                     key={isActive ? drop.id + "-active" : drop.id + "-idle"}
                     animationData={anim}
