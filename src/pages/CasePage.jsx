@@ -3,6 +3,7 @@ import { useLayoutEffect, useMemo, useRef, useState, useEffect } from "react"
 import Lottie from "lottie-react"
 
 import { cases } from "../data/cases"
+import CaseHeader from "../components/case/CaseHeader"
 
 const pngSrcByDrop = (drop) => `/drops/${drop?.png}.png`
 
@@ -396,73 +397,31 @@ function CasePage() {
   const isSpinning = phase === "preparing" || phase === "spinning"
   const blurred = phase === "result" && resultDrop != null
 
+  const openButtonText =
+    phase === "preparing"
+      ? "Загрузка…"
+      : phase === "spinning"
+        ? "Крутится…"
+        : "Открыть кейс"
+
   return (
     <div className="app">
       <div className={blurred ? "blurred" : ""}>
-        <div className="casepage-header">
-          <div className="casepage-title-row">
-            <button
-              type="button"
-              className="casepage-header-btn casepage-back-btn"
-              onClick={() => navigate(-1)}
-            >
-              ←
-            </button>
-
-            <div className="casepage-title">{caseData.name}</div>
-
-            <button type="button" className="casepage-header-btn casepage-settings-btn">
-              ⚙
-            </button>
-          </div>
-
-          <div className="case-image-wrapper">
-            <img
-              ref={imgRef}
-              src={caseData.image}
-              className={`casepage-case-image ${isSpinning ? "hidden-case" : ""}`}
-              alt={caseData.name}
-            />
-
-            {isSpinning && (
-              <div ref={wrapRef} className="roulette-window">
-                <div ref={lineRef} className="roulette-line" />
-                <div ref={reelRef} className="roulette-reel">
-                  {reelItems.map((dropId, index) => {
-                    const drop = dropMap[dropId]
-                    if (!drop) return null
-
-                    return (
-                      <div key={index} className="roulette-item" data-index={index}>
-                        <img
-                          src={pngSrcByDrop(drop)}
-                          className="roulette-png"
-                          alt=""
-                          draggable={false}
-                        />
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {!resultDrop && (
-            <button
-              type="button"
-              className="casepage-open-btn"
-              onClick={openCase}
-              disabled={phase === "preparing" || phase === "spinning"}
-            >
-              {phase === "preparing"
-                ? "Загрузка…"
-                : phase === "spinning"
-                  ? "Крутится…"
-                  : "Открыть кейс"}
-            </button>
-          )}
-        </div>
+        <CaseHeader
+          caseName={caseData.name}
+          caseImage={caseData.image}
+          isSpinning={isSpinning}
+          imgRef={imgRef}
+          wrapRef={wrapRef}
+          lineRef={lineRef}
+          reelRef={reelRef}
+          reelItems={reelItems}
+          dropMap={dropMap}
+          onBack={() => navigate(-1)}
+          onOpenCase={openCase}
+          isOpenDisabled={phase === "preparing" || phase === "spinning"}
+          openButtonText={openButtonText}
+        />
 
         {!isSpinning && (
           <div className="casepage-drops">
