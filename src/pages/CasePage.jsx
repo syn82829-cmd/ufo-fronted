@@ -371,15 +371,9 @@ function CasePage() {
         isSpinning={isSpinning}
         resultDrop={resultDrop}
         imgRef={imgRef}
-        wrapRef={wrapRef}
-        lineRef={lineRef}
-        reelRef={reelRef}
-        reelItems={reelItems}
-        dropMap={dropMap}
         navigate={navigate}
         openCase={openCase}
         phase={phase}
-        pngSrcByDrop={pngSrcByDrop}
       />
 
       <CaseRoulette
