@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import Lottie from "lottie-react"
 
@@ -16,7 +16,11 @@ function Home() {
     balance: 0,
   })
 
+  const [activeSlide, setActiveSlide] = useState(0)
+
   const [ufoAnim, setUfoAnim] = useState(null)
+  const [dailyGiftAnim, setDailyGiftAnim] = useState(null)
+  const [tiktokAnim, setTiktokAnim] = useState(null)
 
   const cases = [
     { id: "firstpepe", image: "/cases/case1.png.PNG", name: "First Pepe", price: 9999 },
@@ -70,49 +74,126 @@ function Home() {
   }, [])
 
   /* ============================= */
-  /* LOAD UFO LOTTIE FROM /public */
+  /* LOAD LOTTIES FROM /public */
   /* ============================= */
   useEffect(() => {
     let cancelled = false
 
-    async function loadUfoAnim() {
+    async function loadJson(path, setter, label) {
       try {
-        const res = await fetch("/animations/ufo.json")
-        if (!res.ok) throw new Error(`Failed to load /animations/ufo.json: ${res.status}`)
+        const res = await fetch(path)
+        if (!res.ok) {
+          throw new Error(`Failed to load ${path}: ${res.status}`)
+        }
+
         const data = await res.json()
 
         if (!cancelled) {
-          setUfoAnim(data)
+          setter(data)
         }
       } catch (err) {
-        console.error("UFO LOTTIE LOAD ERROR:", err)
+        console.error(`${label} LOAD ERROR:`, err)
       }
     }
 
-    loadUfoAnim()
+    loadJson("/animations/ufo.json", setUfoAnim, "UFO LOTTIE")
+    loadJson("/animations/dailygift.json", setDailyGiftAnim, "DAILYGIFT LOTTIE")
+    loadJson("/animations/tiktok.json", setTiktokAnim, "TIKTOK LOTTIE")
 
     return () => {
       cancelled = true
     }
   }, [])
 
+  const slides = useMemo(
+    () => [
+      {
+        id: "crash",
+        title: "UFO Crash",
+        subtitle: "> x1.63",
+        buttonText: "Запустить НЛО",
+        animation: ufoAnim,
+        action: () => navigate("/crash"),
+        theme: "crash",
+      },
+      {
+        id: "dailygift",
+        title: "Получи ежедневный подарок!",
+        subtitle: "Подпишись на канал и забирай бонус каждый день",
+        buttonText: "Забрать",
+        animation: dailyGiftAnim,
+        action: () => navigate("/bonus"),
+        theme: "gift",
+      },
+      {
+        id: "tiktok",
+        title: "Получи любой NFT подарок за нарезки с проектом!",
+        subtitle: "Снимай контент, отмечай проект и забирай награду",
+        buttonText: "Интересно",
+        animation: tiktokAnim,
+        action: () => navigate("/giveaways"),
+        theme: "tiktok",
+      },
+    ],
+    [navigate, ufoAnim, dailyGiftAnim, tiktokAnim]
+  )
+
+  /* ============================= */
+  /* AUTO SLIDER */
+  /* ============================= */
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveSlide((prev) => (prev + 1) % slides.length)
+    }, 2000)
+
+    return () => clearInterval(interval)
+  }, [slides.length])
+
   return (
     <div className="app">
-      {/* UFO Crash */}
-      <div className="crash-panel" onClick={() => navigate("/crash")}>
-        <div className="crash-title">UFO Crash</div>
-        <div className="multiplier">&gt; x1.63</div>
+      {/* TOP CAROUSEL */}
+      <div className="crash-panel">
+        <div
+          className="crash-slider-track"
+          style={{ transform: `translateX(-${activeSlide * 100}%)` }}
+        >
+          {slides.map((slide) => (
+            <div key={slide.id} className={`crash-slide crash-slide-${slide.theme}`}>
+              <div className="crash-slide-content">
+                <div className="crash-slide-left">
+                  <div className={`slide-lottie slide-lottie-${slide.theme}`} aria-hidden="true">
+                    {slide.animation && <Lottie animationData={slide.animation} loop autoplay />}
+                  </div>
+                </div>
 
-        <button className="launch-btn" type="button">
-          Запустить НЛО
-        </button>
+                <div className="crash-slide-right">
+                  <div className="crash-title">{slide.title}</div>
+                  <div className="multiplier">{slide.subtitle}</div>
 
-        {/* UFO Lottie (infinite) */}
-        {ufoAnim && (
-          <div className="ufo-lottie" aria-hidden="true">
-            <Lottie animationData={ufoAnim} loop autoplay />
-          </div>
-        )}
+                  <button
+                    className="launch-btn"
+                    type="button"
+                    onClick={slide.action}
+                  >
+                    {slide.buttonText}
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="crash-dots">
+          {slides.map((slide, index) => (
+            <button
+              key={slide.id}
+              type="button"
+              className={`crash-dot ${activeSlide === index ? "active" : ""}`}
+              onClick={() => setActiveSlide(index)}
+              aria-label={`Перейти к слайду ${index + 1}`}
+            />
+          ))}
+        </div>
       </div>
 
       {/* Cases */}
