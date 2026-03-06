@@ -3,35 +3,8 @@ import { useLayoutEffect, useMemo, useRef, useState, useEffect } from "react"
 import Lottie from "lottie-react"
 
 import { cases } from "../data/cases"
-import { loadCaseAnimations } from "../data/animations"
 
-/* =============================
-   LOTTIE ID -> PNG filename map
-   (legacy for Dark Matter)
-============================= */
-const PNG_BY_ID = {
-  darkhelmet: "HeroicHelmet",
-  gift: "LootBag",
-  westside: "WestsideSign",
-  lowrider: "Lowrider",
-  watch: "SwissWatch",
-  skull: "skull",
-  dyson: "IonicDryer",
-  batman: "batman",
-  poizon: "poison",
-  metla: "metla",
-  ball: "ball",
-  book: "book",
-}
-
-// ✅ универсальный резолвер PNG по drop (приоритет: drop.png -> PNG_BY_ID -> dropId)
-const pngSrcByDrop = (drop) => {
-  const key = drop?.png || PNG_BY_ID[drop?.id] || drop?.id
-  return `/drops/${key}.png`
-}
-
-// fallback, если где-то прокидывается только id (например result)
-const pngSrc = (dropId) => `/drops/${(PNG_BY_ID[dropId] || dropId)}.png`
+const pngSrcByDrop = (drop) => `/drops/${drop?.png}.png`
 
 function CasePage() {
   const { id } = useParams()
@@ -40,90 +13,84 @@ function CasePage() {
 
   const [activeDrop, setActiveDrop] = useState(null)
   const [phase, setPhase] = useState("idle") // idle | preparing | spinning | result
-  const [result, setResult] = useState(null)
+  const [resultId, setResultId] = useState(null)
   const [reelItems, setReelItems] = useState([])
-  const [animationsByCase, setAnimationsByCase] = useState({})
-  const [animationsLoaded, setAnimationsLoaded] = useState(false)
+  const [animationsById, setAnimationsById] = useState({})
 
   const wrapRef = useRef(null)
   const reelRef = useRef(null)
   const imgRef = useRef(null)
   const lineRef = useRef(null)
 
-  // актуальные items всегда в ref (без stale-замыканий)
   const reelItemsRef = useRef([])
+  const pendingRef = useRef(null)
+  const spinStartedRef = useRef(false)
+  const tailFixTriesRef = useRef(0)
+  const openLockRef = useRef(false)
+  const preloadPromiseRef = useRef(null)
+  const preloadKeyRef = useRef("")
+
   useEffect(() => {
     reelItemsRef.current = reelItems
   }, [reelItems])
 
-  // { winner, winIndex, durationMs }
-  const pendingRef = useRef(null)
-  const spinStartedRef = useRef(false)
-
-  // чтобы не уйти в бесконечное "добавь хвост"
-  const tailFixTriesRef = useRef(0)
-
-  // ✅ ЖЁСТКИЙ LOCK от двойного запуска (Telegram double-tap / повторный event)
-  const openLockRef = useRef(false)
-
-  // ✅ Preload один раз на кейс / набор safeDrops
-  const preloadPromiseRef = useRef(null)
-  const preloadKeyRef = useRef("")
-
   if (!caseData) return <div className="app">Case config missing</div>
 
-  // ✅ грузим Lottie из /public по кейсу
+  const dropMap = useMemo(() => {
+    return Object.fromEntries((caseData.drops || []).map((drop) => [drop.id, drop]))
+  }, [caseData.drops])
+
+  const safeDrops = useMemo(() => {
+    return (caseData.drops || []).filter((drop) => {
+      if (!drop) return false
+      if (!drop.chance || drop.chance <= 0) return false
+      if (!drop.png || drop.png === "placeholder") return false
+      return true
+    })
+  }, [caseData.drops])
+
+  const resultDrop = useMemo(() => {
+    return resultId ? dropMap[resultId] || null : null
+  }, [dropMap, resultId])
+
   useEffect(() => {
     let cancelled = false
 
-    async function initAnimations() {
-      try {
-        setAnimationsLoaded(false)
-        const loaded = await loadCaseAnimations(id)
+    async function loadAnimations() {
+      const dropsWithLottie = (caseData.drops || []).filter((drop) => Boolean(drop.lottie))
+      if (!dropsWithLottie.length) {
+        setAnimationsById({})
+        return
+      }
 
-        if (!cancelled) {
-          setAnimationsByCase(loaded || {})
-          setAnimationsLoaded(true)
-        }
-      } catch (err) {
-        console.error(`CASE ANIMATIONS LOAD ERROR [${id}]`, err)
-        if (!cancelled) {
-          setAnimationsByCase({})
-          setAnimationsLoaded(true)
-        }
+      const entries = await Promise.all(
+        dropsWithLottie.map(async (drop) => {
+          try {
+            const res = await fetch(drop.lottie)
+            if (!res.ok) throw new Error(`Failed to load ${drop.lottie}`)
+            const json = await res.json()
+            return [drop.id, json]
+          } catch (err) {
+            console.error(`LOTTIE LOAD ERROR [${drop.id}]`, err)
+            return [drop.id, null]
+          }
+        })
+      )
+
+      if (!cancelled) {
+        setAnimationsById(Object.fromEntries(entries))
       }
     }
 
-    initAnimations()
+    loadAnimations()
 
     return () => {
       cancelled = true
     }
-  }, [id])
-
-  // ✅ safeDrops: исключаем пустые/заглушки и гарантируем, что есть png
-  const safeDrops = useMemo(() => {
-    const drops = caseData.drops || []
-
-    return drops.filter((d) => {
-      if (!d) return false
-
-      // 1) не допускаем пустые слоты в рулетке
-      if (d.chance === 0) return false
-      if (String(d.id || "").includes("placeholder")) return false
-      if (String(d.id || "").includes("_drop_")) return false // твои заглушки "скоро"
-
-      // 2) должен существовать ключ png (либо задан в cases.js, либо legacy-map, либо fallback по id)
-      const key = d.png || PNG_BY_ID[d.id] || d.id
-      return Boolean(key)
-    })
   }, [caseData.drops])
 
-  /* =============================
-     PRELOAD PNG (one-time per drops set)
-  ============================= */
   const preloadAllPng = async () => {
-    const uniq = Array.from(new Set(safeDrops.map((d) => pngSrcByDrop(d))))
+    const uniq = Array.from(new Set(safeDrops.map((drop) => pngSrcByDrop(drop))))
     await Promise.all(
       uniq.map(
         (src) =>
@@ -137,20 +104,16 @@ function CasePage() {
     )
   }
 
-  // ✅ Запускаем preload один раз при входе/смене кейса или набора дропов
   useEffect(() => {
     if (!safeDrops.length) return
 
-    const key = safeDrops.map((d) => `${d.id}:${d.png || ""}`).join("|")
+    const key = safeDrops.map((drop) => `${drop.id}:${drop.png}`).join("|")
     if (preloadKeyRef.current === key && preloadPromiseRef.current) return
 
     preloadKeyRef.current = key
     preloadPromiseRef.current = preloadAllPng()
   }, [safeDrops])
 
-  /* =============================
-     GRID CLICK (Lottie plays)
-  ============================= */
   const handleClick = (dropId) => {
     if (activeDrop === dropId) {
       setActiveDrop(null)
@@ -160,25 +123,25 @@ function CasePage() {
     }
   }
 
-  /* =============================
-     WEIGHTED PICK
-  ============================= */
   const pickWeighted = () => {
-    const pool = []
-    safeDrops.forEach((drop) => {
-      const w = drop.chance || 10
-      for (let i = 0; i < w; i++) pool.push(drop.id)
-    })
-    return pool[Math.floor(Math.random() * pool.length)]
+    const totalWeight = safeDrops.reduce((sum, drop) => sum + (drop.chance || 0), 0)
+    if (!totalWeight) return null
+
+    let roll = Math.random() * totalWeight
+
+    for (const drop of safeDrops) {
+      roll -= drop.chance || 0
+      if (roll <= 0) return drop.id
+    }
+
+    return safeDrops[safeDrops.length - 1]?.id || null
   }
 
-  const randDropId = () => safeDrops[Math.floor(Math.random() * safeDrops.length)].id
+  const randDropId = () => {
+    return safeDrops[Math.floor(Math.random() * safeDrops.length)]?.id || null
+  }
 
-  /* =============================
-     OPEN CASE
-  ============================= */
   const openCase = async () => {
-    // ✅ lock: никакого двойного запуска
     if (openLockRef.current) return
     if (phase === "preparing" || phase === "spinning") return
     if (!safeDrops.length) return
@@ -186,14 +149,13 @@ function CasePage() {
     openLockRef.current = true
 
     try {
-      setResult(null)
+      setResultId(null)
       setReelItems([])
       pendingRef.current = null
       spinStartedRef.current = false
       tailFixTriesRef.current = 0
       setPhase("preparing")
 
-      // ✅ ждём preload (один раз)
       if (preloadPromiseRef.current) {
         await preloadPromiseRef.current
       } else {
@@ -201,6 +163,11 @@ function CasePage() {
       }
 
       const winner = pickWeighted()
+      if (!winner) {
+        openLockRef.current = false
+        setPhase("idle")
+        return
+      }
 
       const containerWidth =
         wrapRef.current?.getBoundingClientRect().width ||
@@ -210,42 +177,40 @@ function CasePage() {
       const approxStep = 160
       const visible = Math.ceil(containerWidth / approxStep)
 
-      // winIndex подальше + жирный хвост
       const winIndex = 85 + Math.floor(Math.random() * 12)
       const totalItems = winIndex + visible + 260
 
       const items = new Array(totalItems)
       for (let i = 0; i < totalItems; i++) {
-        if (i === winIndex) items[i] = winner
-        else items[i] = randDropId()
+        if (i === winIndex) {
+          items[i] = winner
+        } else {
+          items[i] = randDropId()
+        }
       }
 
       if (items[winIndex - 1] === winner) items[winIndex - 1] = randDropId()
       if (items[winIndex + 1] === winner) items[winIndex + 1] = randDropId()
 
-      const durationMs = 7200
+      pendingRef.current = {
+        winner,
+        winIndex,
+        durationMs: 7200,
+      }
 
-      pendingRef.current = { winner, winIndex, durationMs }
       setReelItems(items)
       setPhase("spinning")
-    } catch (e) {
-      console.error("OPEN CASE ERROR:", e)
+    } catch (err) {
+      console.error("OPEN CASE ERROR:", err)
       openLockRef.current = false
       setPhase("idle")
     }
   }
 
-  /* =============================
-     START SPIN (HARD FIX)
-  ============================= */
   useLayoutEffect(() => {
     if (phase !== "spinning") return
-    if (!reelRef.current) return
-    if (!wrapRef.current) return
-    if (!lineRef.current) return
-    if (!reelItems.length) return
-    if (!pendingRef.current) return
-    if (spinStartedRef.current) return
+    if (!reelRef.current || !wrapRef.current || !lineRef.current) return
+    if (!reelItems.length || !pendingRef.current || spinStartedRef.current) return
 
     const reel = reelRef.current
     const wrap = wrapRef.current
@@ -275,10 +240,8 @@ function CasePage() {
 
       const containerWidth = wrap.getBoundingClientRect().width || 320
       const itemW = r1.width
-
       const base = containerWidth / 2 - itemW / 2
       const maxOffset = Math.max(0, reel.scrollWidth - containerWidth)
-
       const wantedOffset = winIndex * step - base
 
       if (wantedOffset > maxOffset - step * 3 && tailFixTriesRef.current < 2) {
@@ -302,8 +265,8 @@ function CasePage() {
         reel.removeEventListener("transitionend", onEnd)
 
         const lineX = getLineCenterX()
-
         const approxIdx = Math.round((finalOffset + base) / step)
+
         let bestIdx = clamp(approxIdx, 0, reelItemsRef.current.length - 1)
         let bestDist = Infinity
 
@@ -336,8 +299,7 @@ function CasePage() {
 
             let el = document.elementFromPoint(x, y)
             if (!el) {
-              const fallbackId = reelItemsRef.current[bestIdx]
-              setResult(fallbackId)
+              setResultId(reelItemsRef.current[bestIdx])
               setPhase("result")
               return
             }
@@ -347,22 +309,19 @@ function CasePage() {
               el = document.elementFromPoint(x, y + 8)
               const itemEl2 = el?.closest ? el.closest(".roulette-item") : null
               if (!itemEl2) {
-                const fallbackId = reelItemsRef.current[bestIdx]
-                setResult(fallbackId)
+                setResultId(reelItemsRef.current[bestIdx])
                 setPhase("result")
                 return
               }
+
               const idx = Number(itemEl2.getAttribute("data-index"))
-              const finalId = reelItemsRef.current[idx]
-              setResult(finalId)
+              setResultId(reelItemsRef.current[idx])
               setPhase("result")
               return
             }
 
             const idx = Number(itemEl.getAttribute("data-index"))
-            const finalId = reelItemsRef.current[idx]
-
-            setResult(finalId)
+            setResultId(reelItemsRef.current[idx])
             setPhase("result")
           })
         })
@@ -374,23 +333,17 @@ function CasePage() {
     requestAnimationFrame(() => requestAnimationFrame(start))
   }, [phase, reelItems])
 
-  /* =============================
-     LIFECYCLE PROTECTION
-  ============================= */
   useEffect(() => {
     const forceFinishSpin = () => {
       if (phase !== "spinning") return
       if (!pendingRef.current) return
-
-      const { winner } = pendingRef.current
 
       if (reelRef.current) {
         reelRef.current.style.transition = "none"
       }
 
       spinStartedRef.current = false
-
-      setResult(winner)
+      setResultId(pendingRef.current.winner)
       setPhase("result")
     }
 
@@ -413,24 +366,19 @@ function CasePage() {
     }
   }, [phase])
 
-  // ✅ снимаем lock, когда спин завершён (result) или вернулись в idle
   useEffect(() => {
     if (phase === "idle" || phase === "result") {
       openLockRef.current = false
     }
   }, [phase])
 
-  /* =============================
-     RESET
-  ============================= */
   const sellItem = () => {
-    setResult(null)
+    setResultId(null)
     setReelItems([])
     pendingRef.current = null
     spinStartedRef.current = false
     tailFixTriesRef.current = 0
     setPhase("idle")
-
     openLockRef.current = false
 
     if (reelRef.current) {
@@ -446,14 +394,7 @@ function CasePage() {
   }
 
   const isSpinning = phase === "preparing" || phase === "spinning"
-  const blurred = phase === "result" && result != null
-
-  // ✅ картинка результата: если у кейса есть drop.png — используем его
-  const resultPngSrc = useMemo(() => {
-    const d = (caseData.drops || []).find((x) => x.id === result)
-    if (d) return pngSrcByDrop(d)
-    return result ? pngSrc(result) : ""
-  }, [caseData.drops, result])
+  const blurred = phase === "result" && resultDrop != null
 
   return (
     <div className="app">
@@ -487,17 +428,27 @@ function CasePage() {
               <div ref={wrapRef} className="roulette-window">
                 <div ref={lineRef} className="roulette-line" />
                 <div ref={reelRef} className="roulette-reel">
-                  {reelItems.map((dropId, index) => (
-                    <div key={index} className="roulette-item" data-index={index}>
-                      <img src={pngSrc(dropId)} className="roulette-png" alt="" draggable={false} />
-                    </div>
-                  ))}
+                  {reelItems.map((dropId, index) => {
+                    const drop = dropMap[dropId]
+                    if (!drop) return null
+
+                    return (
+                      <div key={index} className="roulette-item" data-index={index}>
+                        <img
+                          src={pngSrcByDrop(drop)}
+                          className="roulette-png"
+                          alt=""
+                          draggable={false}
+                        />
+                      </div>
+                    )
+                  })}
                 </div>
               </div>
             )}
           </div>
 
-          {!result && (
+          {!resultDrop && (
             <button
               type="button"
               className="casepage-open-btn"
@@ -513,42 +464,57 @@ function CasePage() {
           )}
         </div>
 
-        <div className="casepage-drops">
-          {caseData.drops.map((drop) => {
-            const isActive = activeDrop === drop.id
-            const anim = animationsByCase?.[drop.id]
-            const label =
-              drop.name || (drop.id.includes("_drop_") ? "Скоро" : drop.id)
+        {!isSpinning && (
+          <div className="casepage-drops">
+            {caseData.drops.map((drop) => {
+              const isActive = activeDrop === drop.id
+              const anim = animationsById?.[drop.id]
+              const isPlaceholder = !drop.lottie || !anim
 
-            return (
-              <div key={drop.id} className="drop-card" onClick={() => handleClick(drop.id)}>
-                {animationsLoaded && anim ? (
-                  <Lottie
-                    key={isActive ? drop.id + "-active" : drop.id + "-idle"}
-                    animationData={anim}
-                    autoplay={isActive}
-                    loop={false}
-                    className="drop-lottie"
-                  />
-                ) : (
-                  <div className="drop-placeholder" aria-hidden="true" />
-                )}
+              return (
+                <div key={drop.id} className="drop-card" onClick={() => handleClick(drop.id)}>
+                  {isPlaceholder ? (
+                    <div className="drop-placeholder" aria-hidden="true" />
+                  ) : (
+                    <Lottie
+                      key={isActive ? `${drop.id}-active` : `${drop.id}-idle`}
+                      animationData={anim}
+                      autoplay={isActive}
+                      loop={false}
+                      className="drop-lottie"
+                    />
+                  )}
 
-                <div className="drop-name">{label}</div>
-              </div>
-            )
-          })}
-        </div>
+                  <div className="drop-name">{drop.name || drop.id}</div>
+
+                  <div className="drop-prices">
+                    <span>⭐ {drop.priceStars || "0"}</span>
+                    <span>💎 {drop.priceGems || "0"}</span>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
       </div>
 
-      {result && (
+      {resultDrop && (
         <div className="result-overlay">
           <div className="result-card">
             <div className="result-title">Поздравляем!</div>
 
             <div className="drop-card result-size">
-              <img src={resultPngSrc} className="result-png" alt="" draggable={false} />
-              <div className="drop-name">{result}</div>
+              <img
+                src={pngSrcByDrop(resultDrop)}
+                className="result-png"
+                alt={resultDrop.name}
+                draggable={false}
+              />
+              <div className="drop-name">{resultDrop.name}</div>
+              <div className="drop-prices">
+                <span>⭐ {resultDrop.priceStars || "0"}</span>
+                <span>💎 {resultDrop.priceGems || "0"}</span>
+              </div>
             </div>
 
             <div className="result-buttons">
