@@ -4,7 +4,6 @@ import Lottie from "lottie-react"
 
 import { createUser } from "../api"
 import CaseCard from "../components/CaseCard"
-import ufoAnim from "../animations/ufo.json"
 
 import "../style.css"
 
@@ -16,6 +15,8 @@ function Home() {
     username: "Гость",
     balance: 0,
   })
+
+  const [ufoAnim, setUfoAnim] = useState(null)
 
   const cases = [
     { id: "firstpepe", image: "/cases/case1.png.PNG", name: "First Pepe", price: 9999 },
@@ -68,6 +69,33 @@ function Home() {
     initUser()
   }, [])
 
+  /* ============================= */
+  /* LOAD UFO LOTTIE FROM /public */
+  /* ============================= */
+  useEffect(() => {
+    let cancelled = false
+
+    async function loadUfoAnim() {
+      try {
+        const res = await fetch("/animations/ufo.json")
+        if (!res.ok) throw new Error(`Failed to load /animations/ufo.json: ${res.status}`)
+        const data = await res.json()
+
+        if (!cancelled) {
+          setUfoAnim(data)
+        }
+      } catch (err) {
+        console.error("UFO LOTTIE LOAD ERROR:", err)
+      }
+    }
+
+    loadUfoAnim()
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
   return (
     <div className="app">
       {/* UFO Crash */}
@@ -80,9 +108,11 @@ function Home() {
         </button>
 
         {/* UFO Lottie (infinite) */}
-        <div className="ufo-lottie" aria-hidden="true">
-          <Lottie animationData={ufoAnim} loop autoplay />
-        </div>
+        {ufoAnim && (
+          <div className="ufo-lottie" aria-hidden="true">
+            <Lottie animationData={ufoAnim} loop autoplay />
+          </div>
+        )}
       </div>
 
       {/* Cases */}
