@@ -181,10 +181,10 @@ export const cases = {
       },
       {
         id: "kalendar",
-        name: "Voodoo Doll Vengeance",
+        name: "Voodoo Doll Far Galaxy",
         chance: 10,
-        priceStars: "4.093",
-        priceGems: "46",
+        priceStars: "5.393",
+        priceGems: "59",
         png: "kalendar",
         lottie: "/animations/purplehole/kalendar.json",
       },
