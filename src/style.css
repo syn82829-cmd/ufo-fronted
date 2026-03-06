@@ -1244,3 +1244,109 @@ body::after {
   border-radius: 18px;
   opacity: 0.0; /* чтобы держало размер, но не было видно */
 }
+/* ================================= */
+/* CRASH CAROUSEL */
+/* ================================= */
+
+.crash-panel {
+  overflow: hidden;
+  position: relative;
+}
+
+.crash-slider-track {
+  display: flex;
+  width: 300%;
+  height: 100%;
+  transition: transform 0.8s cubic-bezier(.22,.61,.36,1);
+}
+
+.crash-slide {
+  width: 100%;
+  flex-shrink: 0;
+  height: 100%;
+
+  display: flex;
+  align-items: center;
+}
+
+/* ================================= */
+/* SLIDE CONTENT */
+/* ================================= */
+
+.crash-slide-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  width: 100%;
+  height: 100%;
+
+  padding: 40px;
+}
+
+/* LEFT ANIMATION */
+
+.crash-slide-left {
+  width: 42%;
+  height: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* RIGHT TEXT */
+
+.crash-slide-right {
+  width: 50%;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+}
+
+/* ================================= */
+/* LOTTIE */
+/* ================================= */
+
+.slide-lottie {
+  width: 240px;
+  height: 240px;
+}
+
+.slide-lottie > * {
+  width: 100%;
+  height: 100%;
+}
+
+/* ================================= */
+/* DOTS */
+/* ================================= */
+
+.crash-dots {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  display: flex;
+  gap: 8px;
+}
+
+.crash-dot {
+  width: 8px;
+  height: 8px;
+
+  border-radius: 50%;
+  border: none;
+
+  background: rgba(255,255,255,0.35);
+
+  transition: all 0.3s ease;
+}
+
+.crash-dot.active {
+  background: rgba(0,255,210,0.9);
+  box-shadow: 0 0 8px rgba(0,255,210,0.9);
+}
