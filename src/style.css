@@ -15,50 +15,50 @@ html, body {
   min-height: 100%;
 }
 
-/* ====== BACKGROUND (ещё светлее, без “грязи”) ====== */
+/* ====== BACKGROUND (слегка откалиброван: светлее, но без пересвета) ====== */
 body {
   min-height: 100%;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 
   background-image:
-    /* базовая затемнялка — ЕЩЁ СЛАБЕЕ */
+    /* базовая затемнялка — чуть сильнее, чем в пересвеченной версии */
     linear-gradient(
-      rgba(4, 8, 20, 0.08),
-      rgba(2, 4, 12, 0.14)
+      rgba(4, 8, 20, 0.11),
+      rgba(2, 4, 12, 0.18)
     ),
 
-    /* белый “свет” слева сверху — сильнее */
+    /* белый “свет” слева сверху — яркий, но не молочный */
     radial-gradient(
       circle at 12% 10%,
-      rgba(255,255,255,0.44),
-      rgba(255,255,255,0.00) 50%
+      rgba(255,255,255,0.38),
+      rgba(255,255,255,0.00) 49%
     ),
 
-    /* фиолетовая аура — чуть ярче */
+    /* фиолетовая аура */
     radial-gradient(
       circle at 62% 18%,
-      rgba(170, 90, 255, 0.30),
-      rgba(170, 90, 255, 0.00) 54%
+      rgba(170, 90, 255, 0.28),
+      rgba(170, 90, 255, 0.00) 53%
     ),
 
-    /* тёмно-зелёная аура — чуть ярче */
+    /* тёмно-зелёная аура */
     radial-gradient(
       circle at 78% 68%,
-      rgba(0, 170, 120, 0.28),
-      rgba(0, 170, 120, 0.00) 58%
+      rgba(0, 170, 120, 0.26),
+      rgba(0, 170, 120, 0.00) 57%
     ),
 
     /* мягкие зелёные акценты */
     radial-gradient(
       circle at 30% 20%,
       rgba(0,255,170,0.055),
-      transparent 48%
+      transparent 47%
     ),
     radial-gradient(
       circle at 70% 30%,
       rgba(0,255,200,0.040),
-      transparent 62%
+      transparent 61%
     ),
 
     url('./space.jpg.jpeg');
@@ -88,7 +88,7 @@ body {
   position: relative;
 }
 
-/* шум — ещё аккуратнее */
+/* шум — аккуратный, почти незаметный */
 body::before {
   content: "";
   position: fixed;
@@ -97,15 +97,15 @@ body::before {
   z-index: 0;
 
   background-image:
-    radial-gradient(circle at 20% 30%, rgba(255,255,255,0.018), rgba(255,255,255,0.00) 40%),
-    radial-gradient(circle at 70% 60%, rgba(255,255,255,0.014), rgba(255,255,255,0.00) 46%),
-    radial-gradient(circle at 40% 80%, rgba(255,255,255,0.012), rgba(255,255,255,0.00) 44%),
+    radial-gradient(circle at 20% 30%, rgba(255,255,255,0.017), rgba(255,255,255,0.00) 40%),
+    radial-gradient(circle at 70% 60%, rgba(255,255,255,0.013), rgba(255,255,255,0.00) 46%),
+    radial-gradient(circle at 40% 80%, rgba(255,255,255,0.011), rgba(255,255,255,0.00) 44%),
     radial-gradient(circle at 90% 20%, rgba(255,255,255,0.010), rgba(255,255,255,0.00) 48%);
-  opacity: 0.22;
+  opacity: 0.20;
   mix-blend-mode: normal;
 }
 
-/* виньетка почти нулевая */
+/* виньетка очень мягкая */
 body::after {
   content: "";
   position: fixed;
@@ -116,8 +116,8 @@ body::after {
   background: radial-gradient(
     ellipse at 50% 35%,
     rgba(0,0,0,0.00) 0%,
-    rgba(0,0,0,0.035) 75%,
-    rgba(0,0,0,0.06) 100%
+    rgba(0,0,0,0.04) 75%,
+    rgba(0,0,0,0.08) 100%
   );
 }
 
@@ -151,13 +151,13 @@ body::after {
 
   background: linear-gradient(
     145deg,
-    rgba(255,255,255,0.032),
-    rgba(255,255,255,0.012)
+    rgba(255,255,255,0.030),
+    rgba(255,255,255,0.011)
   );
 
-  /* чуть больше blur (как ты просишь), но без “грязи” */
-  backdrop-filter: blur(3px) saturate(135%);
-  -webkit-backdrop-filter: blur(3px) saturate(135%);
+  /* чуть-чуть больше blur, но без грязи */
+  backdrop-filter: blur(4px) saturate(135%);
+  -webkit-backdrop-filter: blur(4px) saturate(135%);
 
   border-radius: 26px;
   border: 1px solid rgba(255,255,255,0.16);
@@ -165,7 +165,7 @@ body::after {
   position: relative;
 
   box-shadow:
-    0 26px 70px rgba(0,0,0,0.50),
+    0 26px 70px rgba(0,0,0,0.46),
     inset 0 1px 0 rgba(255,255,255,0.18);
 }
 
@@ -206,7 +206,7 @@ body::after {
   color: #00ffaa;
 
   text-shadow:
-    0 0 10px rgba(0,255,170,0.48),
+    0 0 10px rgba(0,255,170,0.46),
     0 10px 24px rgba(0,0,0,0.20);
 }
 
@@ -214,10 +214,9 @@ body::after {
 /* BUTTON */
 /* ============================= */
 
-/* меняем пульс на голубой/бирюзовый */
 @keyframes aquaPulse {
   0% { box-shadow: 0 0 0 rgba(0, 220, 255, 0); }
-  50% { box-shadow: 0 0 22px rgba(0, 220, 255, 0.85); }
+  50% { box-shadow: 0 0 16px rgba(0, 220, 255, 0.60); }
   100% { box-shadow: 0 0 0 rgba(0, 220, 255, 0); }
 }
 
@@ -235,19 +234,19 @@ body::after {
 
   background: rgba(255,255,255,0.012);
 
-  /* чуть больше blur для “стекла” */
-  backdrop-filter: blur(3px) saturate(145%);
-  -webkit-backdrop-filter: blur(3px) saturate(145%);
+  /* чуть больше blur для стекла */
+  backdrop-filter: blur(4px) saturate(145%);
+  -webkit-backdrop-filter: blur(4px) saturate(145%);
 
   border-radius: 14px;
 
-  /* обводка в бирюзу */
-  border: 1px solid rgba(0, 220, 255, 0.60);
+  /* голубой / бирюзовый акцент */
+  border: 1px solid rgba(0, 210, 235, 0.62);
 
   animation: aquaPulse 5s infinite;
 
   box-shadow:
-    0 10px 22px rgba(0,0,0,0.20),
+    0 10px 22px rgba(0,0,0,0.18),
     inset 0 1px 0 rgba(255,255,255,0.16);
 }
 
@@ -290,13 +289,13 @@ body::after {
 
   background: linear-gradient(
     145deg,
-    rgba(255,255,255,0.032),
-    rgba(255,255,255,0.012)
+    rgba(255,255,255,0.030),
+    rgba(255,255,255,0.011)
   );
 
-  /* чуть больше blur */
-  backdrop-filter: blur(4px) saturate(145%);
-  -webkit-backdrop-filter: blur(4px) saturate(145%);
+  /* чуть блюра назад */
+  backdrop-filter: blur(5px) saturate(145%);
+  -webkit-backdrop-filter: blur(5px) saturate(145%);
 
   border-radius: 22px;
   border: 1px solid rgba(255,255,255,0.16);
@@ -309,7 +308,7 @@ body::after {
   justify-content: center;
 
   box-shadow:
-    0 18px 52px rgba(0,0,0,0.40),
+    0 18px 52px rgba(0,0,0,0.38),
     inset 0 1px 0 rgba(255,255,255,0.16);
 
   transition: transform 0.25s ease;
@@ -325,7 +324,7 @@ body::after {
     rgba(255,255,255,0.10),
     rgba(255,255,255,0.00) 62%
   );
-  opacity: 0.40;
+  opacity: 0.38;
 }
 
 .case-card:hover {
@@ -339,7 +338,7 @@ body::after {
   height: 70%;
   object-fit: contain;
 
-  filter: drop-shadow(0 16px 26px rgba(0,0,0,0.30));
+  filter: drop-shadow(0 16px 26px rgba(0,0,0,0.28));
 }
 
 /* TITLE */
@@ -354,8 +353,8 @@ body::after {
   font-weight: 600;
 
   text-shadow:
-    0 0 10px rgba(255,255,255,0.18),
-    0 10px 22px rgba(0,0,0,0.20);
+    0 0 10px rgba(255,255,255,0.16),
+    0 10px 22px rgba(0,0,0,0.18);
 }
 
 /* PRICE BADGE */
@@ -404,13 +403,13 @@ body::after {
 
   background: linear-gradient(
     145deg,
-    rgba(255,255,255,0.040),
+    rgba(255,255,255,0.038),
     rgba(255,255,255,0.012)
   );
 
-  /* чуть больше blur */
-  backdrop-filter: blur(5px) saturate(155%);
-  -webkit-backdrop-filter: blur(5px) saturate(155%);
+  /* чуть блюра назад */
+  backdrop-filter: blur(6px) saturate(155%);
+  -webkit-backdrop-filter: blur(6px) saturate(155%);
 
   border-radius: 26px;
   border: 1px solid rgba(255,255,255,0.18);
@@ -422,7 +421,7 @@ body::after {
   z-index: 100;
 
   box-shadow:
-    0 16px 44px rgba(0,0,0,0.36),
+    0 16px 44px rgba(0,0,0,0.34),
     inset 0 1px 0 rgba(255,255,255,0.16);
 }
 
@@ -434,7 +433,7 @@ body::after {
   color: rgba(255,255,255,0.86);
   padding-bottom: 8px;
 
-  text-shadow: 0 8px 18px rgba(0,0,0,0.20);
+  text-shadow: 0 8px 18px rgba(0,0,0,0.18);
 }
 
 .nav-item.active {
@@ -460,10 +459,9 @@ body::after {
 
   border-radius: 4px;
   box-shadow:
-    0 0 10px rgba(0,255,170,0.55),
-    0 10px 22px rgba(0,0,0,0.20);
+    0 0 10px rgba(0,255,170,0.50),
+    0 10px 22px rgba(0,0,0,0.18);
 }
-
 
 /* ============================= */
 /* PROFILE PAGE */
