@@ -15,66 +15,61 @@ html, body {
   min-height: 100%;
 }
 
-/* ====== BACKGROUND (ярче, без лишнего затемнения/“грязи”) ====== */
+/* ====== BACKGROUND (ещё светлее, без “грязи”) ====== */
 body {
   min-height: 100%;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 
-  /* Убираем “грязь”:
-     - делаем базовую затемнялку еще слабее
-     - виньетку почти убираем
-     - оставляем цветовые ауры, но чище */
   background-image:
-    /* базовая затемнялка — МИНИМАЛЬНАЯ */
+    /* базовая затемнялка — ЕЩЁ СЛАБЕЕ */
     linear-gradient(
-      rgba(4, 8, 20, 0.14),
-      rgba(2, 4, 12, 0.22)
+      rgba(4, 8, 20, 0.08),
+      rgba(2, 4, 12, 0.14)
     ),
 
-    /* белый “свет” слева сверху */
+    /* белый “свет” слева сверху — сильнее */
     radial-gradient(
       circle at 12% 10%,
-      rgba(255,255,255,0.34),
-      rgba(255,255,255,0.00) 48%
+      rgba(255,255,255,0.44),
+      rgba(255,255,255,0.00) 50%
     ),
 
-    /* фиолетовая аура */
+    /* фиолетовая аура — чуть ярче */
     radial-gradient(
       circle at 62% 18%,
-      rgba(170, 90, 255, 0.26),
-      rgba(170, 90, 255, 0.00) 52%
+      rgba(170, 90, 255, 0.30),
+      rgba(170, 90, 255, 0.00) 54%
     ),
 
-    /* тёмно-зелёная аура */
+    /* тёмно-зелёная аура — чуть ярче */
     radial-gradient(
       circle at 78% 68%,
-      rgba(0, 170, 120, 0.24),
-      rgba(0, 170, 120, 0.00) 56%
+      rgba(0, 170, 120, 0.28),
+      rgba(0, 170, 120, 0.00) 58%
     ),
 
     /* мягкие зелёные акценты */
     radial-gradient(
       circle at 30% 20%,
-      rgba(0,255,170,0.06),
-      transparent 46%
+      rgba(0,255,170,0.055),
+      transparent 48%
     ),
     radial-gradient(
       circle at 70% 30%,
-      rgba(0,255,200,0.045),
-      transparent 60%
+      rgba(0,255,200,0.040),
+      transparent 62%
     ),
 
-    /* картинка */
     url('./space.jpg.jpeg');
 
   background-size:
     100% 100%,
-    140% 140%,
     150% 150%,
-    150% 150%,
-    120% 120%,
-    120% 120%,
+    160% 160%,
+    160% 160%,
+    130% 130%,
+    130% 130%,
     cover;
 
   background-position: center;
@@ -93,9 +88,7 @@ body {
   position: relative;
 }
 
-/* Убираем “замыленность”:
-   - делаем шум тоньше и слабее
-   - без overlay, чтобы не серил фон */
+/* шум — ещё аккуратнее */
 body::before {
   content: "";
   position: fixed;
@@ -104,15 +97,15 @@ body::before {
   z-index: 0;
 
   background-image:
-    radial-gradient(circle at 20% 30%, rgba(255,255,255,0.020), rgba(255,255,255,0.00) 38%),
-    radial-gradient(circle at 70% 60%, rgba(255,255,255,0.016), rgba(255,255,255,0.00) 44%),
-    radial-gradient(circle at 40% 80%, rgba(255,255,255,0.014), rgba(255,255,255,0.00) 42%),
-    radial-gradient(circle at 90% 20%, rgba(255,255,255,0.012), rgba(255,255,255,0.00) 46%);
-  opacity: 0.28;
+    radial-gradient(circle at 20% 30%, rgba(255,255,255,0.018), rgba(255,255,255,0.00) 40%),
+    radial-gradient(circle at 70% 60%, rgba(255,255,255,0.014), rgba(255,255,255,0.00) 46%),
+    radial-gradient(circle at 40% 80%, rgba(255,255,255,0.012), rgba(255,255,255,0.00) 44%),
+    radial-gradient(circle at 90% 20%, rgba(255,255,255,0.010), rgba(255,255,255,0.00) 48%);
+  opacity: 0.22;
   mix-blend-mode: normal;
 }
 
-/* Виньетка почти в ноль (она и давала “грязь/темноту”) */
+/* виньетка почти нулевая */
 body::after {
   content: "";
   position: fixed;
@@ -123,8 +116,8 @@ body::after {
   background: radial-gradient(
     ellipse at 50% 35%,
     rgba(0,0,0,0.00) 0%,
-    rgba(0,0,0,0.06) 70%,
-    rgba(0,0,0,0.10) 100%
+    rgba(0,0,0,0.035) 75%,
+    rgba(0,0,0,0.06) 100%
   );
 }
 
@@ -156,27 +149,23 @@ body::after {
   max-width: 920px;
   aspect-ratio: 16 / 9;
 
-  /* стекло: ЧИЩЕ (более прозрачное) */
   background: linear-gradient(
     145deg,
-    rgba(255,255,255,0.030),
-    rgba(255,255,255,0.010)
+    rgba(255,255,255,0.032),
+    rgba(255,255,255,0.012)
   );
 
-  /* меньше blur => меньше “грязи” */
-  backdrop-filter: blur(2px) saturate(130%);
-  -webkit-backdrop-filter: blur(2px) saturate(130%);
+  /* чуть больше blur (как ты просишь), но без “грязи” */
+  backdrop-filter: blur(3px) saturate(135%);
+  -webkit-backdrop-filter: blur(3px) saturate(135%);
 
   border-radius: 26px;
-
-  /* чуть тоньше и “чище” обводка */
   border: 1px solid rgba(255,255,255,0.16);
 
   position: relative;
 
-  /* меньше тёмной тени — меньше “грязи” */
   box-shadow:
-    0 26px 70px rgba(0,0,0,0.52),
+    0 26px 70px rgba(0,0,0,0.50),
     inset 0 1px 0 rgba(255,255,255,0.18);
 }
 
@@ -201,7 +190,7 @@ body::after {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 
-  text-shadow: 0 8px 20px rgba(0,0,0,0.22);
+  text-shadow: 0 8px 20px rgba(0,0,0,0.20);
 }
 
 /* MULTIPLIER */
@@ -217,18 +206,19 @@ body::after {
   color: #00ffaa;
 
   text-shadow:
-    0 0 10px rgba(0,255,170,0.50),
-    0 10px 24px rgba(0,0,0,0.22);
+    0 0 10px rgba(0,255,170,0.48),
+    0 10px 24px rgba(0,0,0,0.20);
 }
 
 /* ============================= */
 /* BUTTON */
 /* ============================= */
 
-@keyframes greenPulse {
-  0% { box-shadow: 0 0 0 rgba(0,255,120,0); }
-  50% { box-shadow: 0 0 22px rgba(0,255,120,0.75); }
-  100% { box-shadow: 0 0 0 rgba(0,255,120,0); }
+/* меняем пульс на голубой/бирюзовый */
+@keyframes aquaPulse {
+  0% { box-shadow: 0 0 0 rgba(0, 220, 255, 0); }
+  50% { box-shadow: 0 0 22px rgba(0, 220, 255, 0.85); }
+  100% { box-shadow: 0 0 0 rgba(0, 220, 255, 0); }
 }
 
 .launch-btn {
@@ -241,22 +231,23 @@ body::after {
   font-size: 15px;
   font-weight: 600;
 
-  color: #ccfff2;
+  color: #d6fffb;
 
-  /* чище */
-  background: rgba(255,255,255,0.010);
+  background: rgba(255,255,255,0.012);
 
-  backdrop-filter: blur(2px) saturate(140%);
-  -webkit-backdrop-filter: blur(2px) saturate(140%);
+  /* чуть больше blur для “стекла” */
+  backdrop-filter: blur(3px) saturate(145%);
+  -webkit-backdrop-filter: blur(3px) saturate(145%);
 
   border-radius: 14px;
 
-  border: 1px solid rgba(0,255,170,0.55);
+  /* обводка в бирюзу */
+  border: 1px solid rgba(0, 220, 255, 0.60);
 
-  animation: greenPulse 5s infinite;
+  animation: aquaPulse 5s infinite;
 
   box-shadow:
-    0 10px 22px rgba(0,0,0,0.22),
+    0 10px 22px rgba(0,0,0,0.20),
     inset 0 1px 0 rgba(255,255,255,0.16);
 }
 
@@ -268,7 +259,7 @@ body::after {
   bottom: -8%;
   width: 52%;
   max-width: 480px;
-  filter: drop-shadow(0 55px 90px rgba(0,0,0,0.75));
+  filter: drop-shadow(0 55px 90px rgba(0,0,0,0.72));
 }
 .ufo-lottie > * {
   width: 100%;
@@ -297,15 +288,15 @@ body::after {
 .case-card {
   aspect-ratio: 1 / 1;
 
-  /* стекло: заметно прозрачнее и “чище” */
   background: linear-gradient(
     145deg,
-    rgba(255,255,255,0.030),
-    rgba(255,255,255,0.010)
+    rgba(255,255,255,0.032),
+    rgba(255,255,255,0.012)
   );
 
-  backdrop-filter: blur(3px) saturate(140%);
-  -webkit-backdrop-filter: blur(3px) saturate(140%);
+  /* чуть больше blur */
+  backdrop-filter: blur(4px) saturate(145%);
+  -webkit-backdrop-filter: blur(4px) saturate(145%);
 
   border-radius: 22px;
   border: 1px solid rgba(255,255,255,0.16);
@@ -317,15 +308,13 @@ body::after {
   align-items: center;
   justify-content: center;
 
-  /* меньше “черноты” */
   box-shadow:
-    0 18px 52px rgba(0,0,0,0.42),
+    0 18px 52px rgba(0,0,0,0.40),
     inset 0 1px 0 rgba(255,255,255,0.16);
 
   transition: transform 0.25s ease;
 }
 
-/* хайлайт сверху — тоньше, чтобы не мутнил */
 .case-card::before {
   content: "";
   position: absolute;
@@ -350,7 +339,7 @@ body::after {
   height: 70%;
   object-fit: contain;
 
-  filter: drop-shadow(0 16px 26px rgba(0,0,0,0.32));
+  filter: drop-shadow(0 16px 26px rgba(0,0,0,0.30));
 }
 
 /* TITLE */
@@ -366,7 +355,7 @@ body::after {
 
   text-shadow:
     0 0 10px rgba(255,255,255,0.18),
-    0 10px 22px rgba(0,0,0,0.22);
+    0 10px 22px rgba(0,0,0,0.20);
 }
 
 /* PRICE BADGE */
@@ -393,7 +382,7 @@ body::after {
   font-weight: 700;
 
   box-shadow:
-    0 6px 16px rgba(255,190,0,0.24),
+    0 6px 16px rgba(255,190,0,0.22),
     inset 0 1px 0 rgba(255,255,255,0.48);
 
   border: 1px solid rgba(255,255,255,0.38);
@@ -413,15 +402,15 @@ body::after {
   max-width: 520px;
   height: 62px;
 
-  /* стекло: прозрачнее + меньше blur */
   background: linear-gradient(
     145deg,
     rgba(255,255,255,0.040),
     rgba(255,255,255,0.012)
   );
 
-  backdrop-filter: blur(4px) saturate(150%);
-  -webkit-backdrop-filter: blur(4px) saturate(150%);
+  /* чуть больше blur */
+  backdrop-filter: blur(5px) saturate(155%);
+  -webkit-backdrop-filter: blur(5px) saturate(155%);
 
   border-radius: 26px;
   border: 1px solid rgba(255,255,255,0.18);
@@ -433,7 +422,7 @@ body::after {
   z-index: 100;
 
   box-shadow:
-    0 16px 44px rgba(0,0,0,0.38),
+    0 16px 44px rgba(0,0,0,0.36),
     inset 0 1px 0 rgba(255,255,255,0.16);
 }
 
@@ -445,7 +434,7 @@ body::after {
   color: rgba(255,255,255,0.86);
   padding-bottom: 8px;
 
-  text-shadow: 0 8px 18px rgba(0,0,0,0.22);
+  text-shadow: 0 8px 18px rgba(0,0,0,0.20);
 }
 
 .nav-item.active {
@@ -472,7 +461,7 @@ body::after {
   border-radius: 4px;
   box-shadow:
     0 0 10px rgba(0,255,170,0.55),
-    0 10px 22px rgba(0,0,0,0.22);
+    0 10px 22px rgba(0,0,0,0.20);
 }
 
 
