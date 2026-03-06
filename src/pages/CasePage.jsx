@@ -489,12 +489,12 @@ function CasePage() {
 
                   <div className="drop-prices">
                     <span className="drop-price-item">
-                      <img src="/ui/star.jpg" className="price-icon" alt="" />
+                      <img src="/ui/star.PNG" className="price-icon" alt="" />
                       <span>{drop.priceStars || "0"}</span>
                     </span>
 
                     <span className="drop-price-item">
-                      <img src="/ui/ton.jpg" className="price-icon" alt="" />
+                      <img src="/ui/ton.PNG" className="price-icon" alt="" />
                       <span>{drop.priceGems || "0"}</span>
                     </span>
                   </div>
@@ -521,12 +521,12 @@ function CasePage() {
 
               <div className="drop-prices">
                 <span className="drop-price-item">
-                  <img src="/ui/star.jpg" className="price-icon" alt="" />
+                  <img src="/ui/star.PNG" className="price-icon" alt="" />
                   <span>{resultDrop.priceStars || "0"}</span>
                 </span>
 
                 <span className="drop-price-item">
-                  <img src="/ui/ton.jpg" className="price-icon" alt="" />
+                  <img src="/ui/ton.PNG" className="price-icon" alt="" />
                   <span>{resultDrop.priceGems || "0"}</span>
                 </span>
               </div>
