@@ -1,32 +1,30 @@
 function CaseHeader({
-  caseName,
-  caseImage,
+  caseData,
   isSpinning,
+  resultDrop,
   imgRef,
   wrapRef,
   lineRef,
   reelRef,
   reelItems,
   dropMap,
-  onBack,
-  onOpenCase,
-  isOpenDisabled,
-  openButtonText,
+  navigate,
+  openCase,
+  phase,
+  pngSrcByDrop,
 }) {
-  const pngSrcByDrop = (drop) => `/drops/${drop?.png}.png`
-
   return (
     <div className="casepage-header">
       <div className="casepage-title-row">
         <button
           type="button"
           className="casepage-header-btn casepage-back-btn"
-          onClick={onBack}
+          onClick={() => navigate(-1)}
         >
           ←
         </button>
 
-        <div className="casepage-title">{caseName}</div>
+        <div className="casepage-title">{caseData.name}</div>
 
         <button type="button" className="casepage-header-btn casepage-settings-btn">
           ⚙
@@ -36,9 +34,9 @@ function CaseHeader({
       <div className="case-image-wrapper">
         <img
           ref={imgRef}
-          src={caseImage}
+          src={caseData.image}
           className={`casepage-case-image ${isSpinning ? "hidden-case" : ""}`}
-          alt={caseName}
+          alt={caseData.name}
         />
 
         {isSpinning && (
@@ -65,14 +63,20 @@ function CaseHeader({
         )}
       </div>
 
-      <button
-        type="button"
-        className="casepage-open-btn"
-        onClick={onOpenCase}
-        disabled={isOpenDisabled}
-      >
-        {openButtonText}
-      </button>
+      {!resultDrop && (
+        <button
+          type="button"
+          className="casepage-open-btn"
+          onClick={openCase}
+          disabled={phase === "preparing" || phase === "spinning"}
+        >
+          {phase === "preparing"
+            ? "Загрузка…"
+            : phase === "spinning"
+              ? "Крутится…"
+              : "Открыть кейс"}
+        </button>
+      )}
     </div>
   )
 }
