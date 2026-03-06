@@ -448,13 +448,27 @@ body::after {
   -webkit-backdrop-filter: blur(4px) saturate(120%);
 }
 
-/* PRICE ICON */
-
-.case-price-icon {
-  width: 14px;
-  height: 14px;
+.price-icon {
+  width: 16px;
+  height: 16px;
   object-fit: contain;
   display: block;
+  flex-shrink: 0;
+}
+
+.drop-price-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px; /* будет ⭐79.000 и 💎680 */
+}
+
+.drop-prices {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px; /* расстояние между двумя валютами */
+  margin-top: 6px;
+  flex-wrap: wrap;
 }
 
 /* ============================= */
