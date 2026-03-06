@@ -1,9 +1,11 @@
 import { useParams, useNavigate } from "react-router-dom"
 import { useLayoutEffect, useMemo, useRef, useState, useEffect } from "react"
-import Lottie from "lottie-react"
 
 import { cases } from "../data/cases"
 import CaseHeader from "../components/case/CaseHeader"
+import CaseRoulette from "../components/case/CaseRoulette"
+import CaseDropsGrid from "../components/case/CaseDropsGrid"
+import CaseResultModal from "../components/case/CaseResultModal"
 
 const pngSrcByDrop = (drop) => `/drops/${drop?.png}.png`
 
@@ -395,113 +397,40 @@ function CasePage() {
   }
 
   const isSpinning = phase === "preparing" || phase === "spinning"
-  const blurred = phase === "result" && resultDrop != null
-
-  const openButtonText =
-    phase === "preparing"
-      ? "Загрузка…"
-      : phase === "spinning"
-        ? "Крутится…"
-        : "Открыть кейс"
 
   return (
     <div className="app">
-      <div className={blurred ? "blurred" : ""}>
-        <CaseHeader
-          caseName={caseData.name}
-          caseImage={caseData.image}
-          isSpinning={isSpinning}
-          imgRef={imgRef}
-          wrapRef={wrapRef}
-          lineRef={lineRef}
-          reelRef={reelRef}
-          reelItems={reelItems}
-          dropMap={dropMap}
-          onBack={() => navigate(-1)}
-          onOpenCase={openCase}
-          isOpenDisabled={phase === "preparing" || phase === "spinning"}
-          openButtonText={openButtonText}
+      <CaseHeader
+        caseData={caseData}
+        isSpinning={isSpinning}
+        resultDrop={resultDrop}
+        imgRef={imgRef}
+        wrapRef={wrapRef}
+        lineRef={lineRef}
+        reelRef={reelRef}
+        reelItems={reelItems}
+        dropMap={dropMap}
+        navigate={navigate}
+        openCase={openCase}
+        phase={phase}
+        pngSrcByDrop={pngSrcByDrop}
+      />
+
+      {!isSpinning && (
+        <CaseDropsGrid
+          drops={caseData.drops}
+          activeDrop={activeDrop}
+          animationsById={animationsById}
+          handleClick={handleClick}
         />
-
-        {!isSpinning && (
-          <div className="casepage-drops">
-            {caseData.drops.map((drop) => {
-              const isActive = activeDrop === drop.id
-              const anim = animationsById?.[drop.id]
-              const isPlaceholder = !drop.lottie || !anim
-
-              return (
-                <div key={drop.id} className="drop-card" onClick={() => handleClick(drop.id)}>
-                  {isPlaceholder ? (
-                    <div className="drop-placeholder" aria-hidden="true" />
-                  ) : (
-                    <Lottie
-                      key={isActive ? `${drop.id}-active` : `${drop.id}-idle`}
-                      animationData={anim}
-                      autoplay={isActive}
-                      loop={false}
-                      className="drop-lottie"
-                    />
-                  )}
-
-                  <div className="drop-name">{drop.name || drop.id}</div>
-
-                  <div className="drop-prices">
-                    <span className="drop-price-item">
-                      <img src="/ui/star.PNG" className="price-icon" alt="" />
-                      <span>{drop.priceStars || "0"}</span>
-                    </span>
-
-                    <span className="drop-price-item">
-                      <img src="/ui/ton.PNG" className="price-icon" alt="" />
-                      <span>{drop.priceGems || "0"}</span>
-                    </span>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        )}
-      </div>
-
-      {resultDrop && (
-        <div className="result-overlay">
-          <div className="result-card">
-            <div className="result-title">Поздравляем!</div>
-
-            <div className="drop-card result-size">
-              <img
-                src={pngSrcByDrop(resultDrop)}
-                className="result-png"
-                alt={resultDrop.name}
-                draggable={false}
-              />
-              <div className="drop-name">{resultDrop.name}</div>
-
-              <div className="drop-prices">
-                <span className="drop-price-item">
-                  <img src="/ui/star.PNG" className="price-icon" alt="" />
-                  <span>{resultDrop.priceStars || "0"}</span>
-                </span>
-
-                <span className="drop-price-item">
-                  <img src="/ui/ton.PNG" className="price-icon" alt="" />
-                  <span>{resultDrop.priceGems || "0"}</span>
-                </span>
-              </div>
-            </div>
-
-            <div className="result-buttons">
-              <button type="button" className="glass-btn sell" onClick={sellItem}>
-                Продать
-              </button>
-              <button type="button" className="glass-btn open" onClick={openAgain}>
-                Открыть еще
-              </button>
-            </div>
-          </div>
-        </div>
       )}
+
+      <CaseResultModal
+        resultDrop={resultDrop}
+        pngSrcByDrop={pngSrcByDrop}
+        sellItem={sellItem}
+        openAgain={openAgain}
+      />
     </div>
   )
 }
