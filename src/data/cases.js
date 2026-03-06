@@ -21,7 +21,7 @@ export const cases = {
 
   firstpepe: {
     id: "firstpepe",
-    name: "First Pepe",
+    name: "Pepe Case",
     image: "/cases/case1.png.PNG",
     drops: Array.from({ length: 12 }, (_, i) => ({
       id: `firstpepe_drop_${i + 1}`,
@@ -32,7 +32,7 @@ export const cases = {
 
   crash: {
     id: "crash",
-    name: "Crash",
+    name: "All or Nothing",
     image: "/cases/case2.png.PNG",
     drops: Array.from({ length: 12 }, (_, i) => ({
       id: `crash_drop_${i + 1}`,
