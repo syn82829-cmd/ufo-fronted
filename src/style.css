@@ -428,24 +428,27 @@ body::after {
 
   border-radius: 999px;
 
+  /* легкая голубая стеклянная заливка */
   background: linear-gradient(
     135deg,
-    rgba(255, 245, 205, 0.96),
-    rgba(255, 202, 77, 0.98),
-    rgba(255, 243, 185, 0.96)
+    rgba(170, 215, 255, 0.22),
+    rgba(110, 185, 255, 0.16),
+    rgba(190, 230, 255, 0.20)
   );
 
-  color: #2a1b00;
+  color: #ffffff;
 
-  border: 1px solid rgba(255,255,255,0.46);
+  /* золотая обводка */
+  border: 1px solid rgba(255, 205, 100, 0.88);
 
   box-shadow:
-    0 8px 18px rgba(255,190,0,0.24),
-    0 2px 8px rgba(0,0,0,0.10),
-    inset 0 1px 0 rgba(255,255,255,0.55);
+    0 7px 16px rgba(0,0,0,0.16),
+    0 0 0 1px rgba(255, 226, 150, 0.10),
+    inset 0 1px 0 rgba(255,255,255,0.40),
+    inset 0 -1px 0 rgba(255, 210, 120, 0.18);
 
-  backdrop-filter: blur(4px) saturate(120%);
-  -webkit-backdrop-filter: blur(4px) saturate(120%);
+  backdrop-filter: blur(6px) saturate(145%);
+  -webkit-backdrop-filter: blur(6px) saturate(145%);
 }
 
 /* ICON IN CASE CARD PRICE */
@@ -474,6 +477,11 @@ body::after {
   display: inline-flex;
   align-items: center;
   gap: 2px;
+}
+
+.drop-price-item span {
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 
 .drop-prices {
