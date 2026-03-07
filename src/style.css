@@ -567,8 +567,7 @@ body::after {
   box-shadow:
     0 0 10px rgba(0,255,170,0.50),
     0 10px 22px rgba(0,0,0,0.18);
-}
-/* ============================= */
+}/* ============================= */
 /* PROFILE PAGE */
 /* ============================= */
 
@@ -643,6 +642,22 @@ body::after {
     0 0 0 1px rgba(170, 230, 255, 0.10),
     0 6px 18px rgba(70, 170, 255, 0.16),
     inset 0 1px 0 rgba(255,255,255,0.18);
+
+  overflow: hidden;
+}
+
+.profile-avatar-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+
+.profile-avatar-fallback {
+  color: white;
+  font-size: 26px;
+  font-weight: 700;
 }
 
 
@@ -697,10 +712,23 @@ body::after {
 
   color: #ffffff;
 
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
   text-shadow:
     0 0 10px rgba(255,255,255,0.18),
     0 8px 18px rgba(0,0,0,0.18);
 }
+
+.profile-balance-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
+}
+
 
 /* ============================= */
 /* ACTION BUTTONS UNDER CARD */
@@ -801,6 +829,11 @@ body::after {
     left: 125%;
   }
 }
+
+
+/* ============================= */
+/* INVENTORY */
+/* ============================= */
 
 .inventory-block {
   width: 90%;
