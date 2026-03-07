@@ -573,7 +573,6 @@ body::after {
 /* ============================= */
 
 .profile-page {
-
   width: 100%;
 
   display: flex;
@@ -581,7 +580,6 @@ body::after {
   align-items: center;
 
   padding-top: 20px;
-
 }
 
 
@@ -590,28 +588,29 @@ body::after {
 /* ============================= */
 
 .profile-card {
-
   width: 90%;
   max-width: 920px;
 
   aspect-ratio: 16 / 4;
 
-  background: rgba(255,255,255,0.05);
+  background: linear-gradient(
+    145deg,
+    rgba(255,255,255,0.030),
+    rgba(255,255,255,0.011)
+  );
 
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(5px) saturate(145%);
+  -webkit-backdrop-filter: blur(5px) saturate(145%);
 
   border-radius: 26px;
-
-  border: 1px solid rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.16);
 
   position: relative;
-
-  box-shadow:
-    0 20px 60px rgba(0,0,0,0.7);
-
   overflow: hidden;
 
+  box-shadow:
+    0 18px 52px rgba(0,0,0,0.38),
+    inset 0 1px 0 rgba(255,255,255,0.16);
 }
 
 
@@ -620,7 +619,6 @@ body::after {
 /* ============================= */
 
 .profile-avatar {
-
   position: absolute;
 
   top: 18px;
@@ -637,10 +635,14 @@ body::after {
 
   font-size: 30px;
 
-  background: rgba(255,255,255,0.04);
+  background: rgba(255,255,255,0.05);
 
-  border: 1px solid rgba(0,255,170,0.7);
+  border: 1px solid rgba(110, 205, 255, 0.82);
 
+  box-shadow:
+    0 0 0 1px rgba(170, 230, 255, 0.10),
+    0 6px 18px rgba(70, 170, 255, 0.16),
+    inset 0 1px 0 rgba(255,255,255,0.18);
 }
 
 
@@ -649,7 +651,6 @@ body::after {
 /* ============================= */
 
 .profile-info {
-
   position: absolute;
 
   top: 18px;
@@ -657,32 +658,27 @@ body::after {
 
   display: flex;
   flex-direction: column;
-
 }
 
 
 /* USERNAME */
 
 .profile-name {
-
   font-size: 20px;
   font-weight: 600;
 
   color: white;
-
 }
 
 
 /* TELEGRAM ID */
 
 .profile-id {
-
   font-size: 14px;
 
   margin-top: 4px;
 
   color: rgba(255,255,255,0.65);
-
 }
 
 
@@ -691,7 +687,6 @@ body::after {
 /* ============================= */
 
 .profile-balance {
-
   position: absolute;
 
   top: 18px;
@@ -700,10 +695,11 @@ body::after {
   font-size: 26px;
   font-weight: 700;
 
-  color: #00ffaa;
+  color: #ffffff;
 
-  text-shadow: 0 0 12px rgba(0,255,170,0.6);
-
+  text-shadow:
+    0 0 10px rgba(255,255,255,0.18),
+    0 8px 18px rgba(0,0,0,0.18);
 }
 
 /* ============================= */
@@ -714,52 +710,122 @@ body::after {
   width: 90%;
   max-width: 920px;
   margin: 18px auto 0 auto;
+
   display: flex;
   gap: 14px;
 }
 
 .deposit-btn.large,
 .withdraw-btn.large {
+  position: relative;
+  overflow: hidden;
+
   flex: 1;
   height: 56px;
+
   border-radius: 16px;
+
   font-size: 18px;
   font-weight: 600;
-  color: #fff; /* белый текст */
-  background: rgba(255,255,255,0.04);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  transition: 0.25s;
+  color: #fff;
+
+  backdrop-filter: blur(10px) saturate(145%);
+  -webkit-backdrop-filter: blur(10px) saturate(145%);
+
+  transition: transform 0.25s ease, box-shadow 0.25s ease, opacity 0.25s ease;
+}
+
+.deposit-btn.large::after,
+.withdraw-btn.large::after {
+  content: "";
+  position: absolute;
+  top: -35%;
+  left: -55%;
+  width: 34%;
+  height: 170%;
+
+  background: linear-gradient(
+    120deg,
+    transparent 0%,
+    rgba(255,255,255,0.42) 45%,
+    rgba(255,255,255,0.16) 50%,
+    transparent 100%
+  );
+
+  transform: rotate(22deg);
+  animation: profileBtnShine 3.4s ease-in-out infinite;
+  pointer-events: none;
 }
 
 .deposit-btn.large {
-  border: 1px solid rgba(0,255,170,0.6); /* зелёная рамка */
-  box-shadow: 0 0 16px rgba(0,255,170,0.25);
+  background: linear-gradient(
+    145deg,
+    rgba(95, 185, 255, 0.88),
+    rgba(35, 145, 235, 0.92)
+  );
+
+  border: 1px solid rgba(120, 220, 255, 0.48);
+
+  box-shadow:
+    0 10px 24px rgba(45,140,255,0.28),
+    inset 0 1px 0 rgba(255,255,255,0.26);
 }
 
 .withdraw-btn.large {
-  border: 1px solid rgba(0,170,255,0.6); /* синяя рамка */
-  box-shadow: 0 0 16px rgba(0,170,255,0.25);
+  background: linear-gradient(
+    145deg,
+    rgba(95, 235, 170, 0.88),
+    rgba(28, 185, 120, 0.92)
+  );
+
+  border: 1px solid rgba(120, 255, 205, 0.42);
+
+  box-shadow:
+    0 10px 24px rgba(30,185,120,0.28),
+    inset 0 1px 0 rgba(255,255,255,0.26);
 }
 
 .deposit-btn.large:active,
 .withdraw-btn.large:active {
   transform: scale(0.97);
 }
+
+@keyframes profileBtnShine {
+  0% {
+    left: -55%;
+  }
+  58% {
+    left: 125%;
+  }
+  100% {
+    left: 125%;
+  }
+}
+
 .inventory-block {
   width: 90%;
   max-width: 920px;
   margin: 20px auto 0;
 
   padding: 20px;
-
   min-height: 360px;
 
   border-radius: 20px;
 
-  backdrop-filter: blur(20px);
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(
+    145deg,
+    rgba(255,255,255,0.030),
+    rgba(255,255,255,0.011)
+  );
+
+  backdrop-filter: blur(5px) saturate(145%);
+  -webkit-backdrop-filter: blur(5px) saturate(145%);
+
+  border: 1px solid rgba(255,255,255,0.16);
+
+  box-shadow:
+    0 18px 52px rgba(0,0,0,0.38),
+    inset 0 1px 0 rgba(255,255,255,0.16);
 
   display: flex;
   align-items: center;
@@ -777,9 +843,10 @@ body::after {
   display: flex;
   justify-content: center;
 }
+
 :root {
   --content-max-width: 520px;
-  --content-padding: 20px; /* немного больше воздуха */
+  --content-padding: 20px;
 }
 
 /* ============================= */
