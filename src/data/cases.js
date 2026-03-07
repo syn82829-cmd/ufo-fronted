@@ -141,6 +141,24 @@ export const cases = {
       lottie: "/animations/firstpepe/ninja.json",
       },
       {
+      id: "pepebr"
+      name: "Nail Bracelet Pepe Band",
+      chance: 10,
+      priceStars: "86.823",
+      priceGems: "1.000",
+      png: "pepebr",
+      lottie: "/animations/firstpepe/pepebr.json",
+      },
+      {
+      id: "cupidpepe"
+      name: "Cupid Charm Peaked Cap",
+      chance: 10,
+      priceStars: "43.358",
+      priceGems: "500",
+      png: "cupidpepe",
+      lottie: "/animations/firstpepe/cupidpepe.json",
+      },
+      {
       id: "bitsushka"
       name: "Mighty Arm Xeno Grip",
       chance: 10,
@@ -184,6 +202,15 @@ export const cases = {
       priceGems: "99,99",
       png: "bookpepe",
       lottie: "/animations/firstpepe/bookpepe.json",
+      },
+      {
+      id: "beer"
+      name: "Toy Bear",
+      chance: 10,
+      priceStars: "4.341",
+      priceGems: "50",
+      png: "beer",
+      lottie: "/animations/firstpepe/beer.json",
       },
       {
       id: "shlem"
