@@ -768,48 +768,59 @@ body::after {
   position: absolute;
   top: -35%;
   left: -55%;
-  width: 34%;
+  width: 28%;
   height: 170%;
 
   background: linear-gradient(
     120deg,
     transparent 0%,
-    rgba(255,255,255,0.42) 45%,
-    rgba(255,255,255,0.16) 50%,
+    rgba(255,255,255,0.22) 42%,
+    rgba(255,255,255,0.36) 50%,
+    rgba(255,255,255,0.14) 56%,
     transparent 100%
   );
 
   transform: rotate(22deg);
-  animation: profileBtnShine 3.4s ease-in-out infinite;
+  animation: profileBtnShine 4.2s ease-in-out infinite;
   pointer-events: none;
+}
+
+.deposit-btn.large::after {
+  animation-delay: 0s;
+}
+
+.withdraw-btn.large::after {
+  animation-delay: 2.05s;
 }
 
 .deposit-btn.large {
   background: linear-gradient(
     145deg,
-    rgba(95, 185, 255, 0.88),
-    rgba(35, 145, 235, 0.92)
+    rgba(128, 210, 255, 0.92) 0%,
+    rgba(78, 182, 255, 0.90) 45%,
+    rgba(46, 156, 238, 0.92) 100%
   );
 
-  border: 1px solid rgba(120, 220, 255, 0.48);
+  border: 1px solid rgba(165, 232, 255, 0.42);
 
   box-shadow:
-    0 10px 24px rgba(45,140,255,0.28),
-    inset 0 1px 0 rgba(255,255,255,0.26);
+    0 10px 24px rgba(60,150,255,0.20),
+    inset 0 1px 0 rgba(255,255,255,0.24);
 }
 
 .withdraw-btn.large {
   background: linear-gradient(
     145deg,
-    rgba(95, 235, 170, 0.88),
-    rgba(28, 185, 120, 0.92)
+    rgba(128, 242, 196, 0.92) 0%,
+    rgba(75, 220, 164, 0.90) 45%,
+    rgba(35, 186, 128, 0.92) 100%
   );
 
-  border: 1px solid rgba(120, 255, 205, 0.42);
+  border: 1px solid rgba(180, 255, 223, 0.38);
 
   box-shadow:
-    0 10px 24px rgba(30,185,120,0.28),
-    inset 0 1px 0 rgba(255,255,255,0.26);
+    0 10px 24px rgba(40,185,130,0.20),
+    inset 0 1px 0 rgba(255,255,255,0.24);
 }
 
 .deposit-btn.large:active,
@@ -820,12 +831,22 @@ body::after {
 @keyframes profileBtnShine {
   0% {
     left: -55%;
+    opacity: 0;
   }
-  58% {
-    left: 125%;
+  8% {
+    opacity: 1;
+  }
+  42% {
+    left: 120%;
+    opacity: 1;
+  }
+  50% {
+    left: 120%;
+    opacity: 0;
   }
   100% {
-    left: 125%;
+    left: 120%;
+    opacity: 0;
   }
 }
 
