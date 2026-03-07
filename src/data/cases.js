@@ -123,7 +123,7 @@ export const cases = {
     price: 9999,
     drops: [
       {
-      id: "pepe"
+      id: "pepe",
       name: "Plush Pepe Spectrum",
       chance: 10,
       priceStars: "2.235.953",
@@ -132,7 +132,7 @@ export const cases = {
       lottie: "/animations/firstpepe/pepe.json",
       },
       {
-      id: "ninja"
+      id: "ninja",
       name: "Heart Locket Turtles",
       chance: 10,
       priceStars: "1.445.963",
@@ -141,7 +141,7 @@ export const cases = {
       lottie: "/animations/firstpepe/ninja.json",
       },
       {
-      id: "pepebr"
+      id: "pepebr",
       name: "Nail Bracelet Pepe Band",
       chance: 10,
       priceStars: "86.823",
@@ -150,7 +150,7 @@ export const cases = {
       lottie: "/animations/firstpepe/pepebr.json",
       },
       {
-      id: "cupidpepe"
+      id: "cupidpepe",
       name: "Cupid Charm Peaked Cap",
       chance: 10,
       priceStars: "43.358",
@@ -159,7 +159,7 @@ export const cases = {
       lottie: "/animations/firstpepe/cupidpepe.json",
       },
       {
-      id: "bitsushka"
+      id: "bitsushka",
       name: "Mighty Arm Xeno Grip",
       chance: 10,
       priceStars: "38.759",
@@ -168,7 +168,7 @@ export const cases = {
       lottie: "/animations/firstpepe/bitsushka.json",
       },
       {
-      id: "pepecat"
+      id: "pepecat",
       name: "Scared Cat Pepe Paws",
       chance: 10,
       priceStars: "35.000",
@@ -177,7 +177,7 @@ export const cases = {
       lottie: "/animations/firstpepe/pepecat.json",
       },
       {
-      id: "brick"
+      id: "brick",
       name: "Artisan Brick VHS Tape",
       chance: 10,
       priceStars: "17.249",
@@ -186,7 +186,7 @@ export const cases = {
       lottie: "/animations/firstpepe/brick.json",
       },
       {
-      id: "music"
+      id: "music",
       name: "Record Player High-End",
       chance: 10,
       priceStars: "13.372",
@@ -195,7 +195,7 @@ export const cases = {
       lottie: "/animations/firstpepe/music.json",
       },
       {
-      id: "bookpepe"
+      id: "bookpepe",
       name: "Star Notepad Pepe Diary",
       chance: 10,
       priceStars: "8.746",
@@ -204,7 +204,7 @@ export const cases = {
       lottie: "/animations/firstpepe/bookpepe.json",
       },
       {
-      id: "beer"
+      id: "beer",
       name: "Toy Bear",
       chance: 10,
       priceStars: "4.341",
@@ -213,7 +213,7 @@ export const cases = {
       lottie: "/animations/firstpepe/beer.json",
       },
       {
-      id: "shlem"
+      id: "shlem",
       name: "Neko Helmet Silver Surfer",
       chance: 10,
       priceStars: "3.785",
@@ -222,7 +222,7 @@ export const cases = {
       lottie: "/animations/firstpepe/shlem.json",
       },
       {
-      id: "shlapa"
+      id: "shlapa",
       name: "Witch Hat Alchemy",
       chance: 10,
       priceStars: "2.160",
