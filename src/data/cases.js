@@ -6,15 +6,6 @@ export const cases = {
     price: 4999,
     drops: [
       {
-        id: "darkhelmet",
-        name: "Heroic Helmet Biker Warrior",
-        chance: 5,
-        priceStars: "39.300",
-        priceGems: "200",
-        png: "HeroicHelmet",
-        lottie: "/animations/darkmatter/darkhelmet.json",
-      },
-      {
         id: "gift",
         name: "Loot Bag Crypto Punk",
         chance: 10,
@@ -22,6 +13,15 @@ export const cases = {
         priceGems: "680",
         png: "LootBag",
         lottie: "/animations/darkmatter/gift.json",
+      },
+      {
+        id: "darkhelmet",
+        name: "Heroic Helmet Biker Warrior",
+        chance: 5,
+        priceStars: "39.300",
+        priceGems: "200",
+        png: "HeroicHelmet",
+        lottie: "/animations/darkmatter/darkhelmet.json",
       },
       {
         id: "westside",
