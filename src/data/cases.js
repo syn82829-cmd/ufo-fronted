@@ -121,15 +121,88 @@ export const cases = {
     name: "Pepe Case",
     image: "/cases/case1.png.PNG",
     price: 9999,
-    drops: Array.from({ length: 12 }, (_, i) => ({
-      id: `firstpepe_drop_${i + 1}`,
-      name: "Soon",
+    drops: [
+      {
+      id: "pepe"
+      name: "Plush Pepe Spectrum",
       chance: 10,
-      priceStars: "0",
-      priceGems: "0",
-      png: "placeholder",
-      lottie: null,
-    })),
+      priceStars: "2.235.953",
+      priceGems: "25.555",
+      png: "pepe",
+      lottie: "/animations/firstpepe/pepe.json",
+      },
+      {
+      id: "ninja"
+      name: "Heart Locket Turtles",
+      chance: 10,
+      priceStars: "1.445.963",
+      priceGems: "15.595",
+      png: "ninja",
+      lottie: "/animations/firstpepe/ninja.json",
+      },
+      {
+      id: "bitsushka"
+      name: "Mighty Arm Xeno Grip",
+      chance: 10,
+      priceStars: "38.759",
+      priceGems: "444",
+      png: "bitsushka",
+      lottie: "/animations/firstpepe/bitsushka.json",
+      },
+      {
+      id: "pepecat"
+      name: "Scared Cat Pepe Paws",
+      chance: 10,
+      priceStars: "35.000",
+      priceGems: "473",
+      png: "pepecat",
+      lottie: "/animations/firstpepe/pepecat.json",
+      },
+      {
+      id: "brick"
+      name: "Artisan Brick VHS Tape",
+      chance: 10,
+      priceStars: "17.249",
+      priceGems: "200",
+      png: "brick",
+      lottie: "/animations/firstpepe/brick.json",
+      },
+      {
+      id: "music"
+      name: "Record Player High-End",
+      chance: 10,
+      priceStars: "13.372",
+      priceGems: "149",
+      png: "music",
+      lottie: "/animations/firstpepe/music.json",
+      },
+      {
+      id: "bookpepe"
+      name: "Star Notepad Pepe Diary",
+      chance: 10,
+      priceStars: "8.746",
+      priceGems: "99,99",
+      png: "bookpepe",
+      lottie: "/animations/firstpepe/bookpepe.json",
+      },
+      {
+      id: "shlem"
+      name: "Neko Helmet Silver Surfer",
+      chance: 10,
+      priceStars: "3.785",
+      priceGems: "43,6",
+      png: "shlem",
+      lottie: "/animations/firstpepe/shlem.json",
+      },
+      {
+      id: "shlapa"
+      name: "Witch Hat Alchemy",
+      chance: 10,
+      priceStars: "2.160",
+      priceGems: "24,89",
+      png: "shlapa",
+      lottie: "/animations/firstpepe/shlapa.json",
+      },
   },
 
   crash: {
