@@ -203,6 +203,7 @@ export const cases = {
       png: "shlapa",
       lottie: "/animations/firstpepe/shlapa.json",
       },
+    ],
   },
 
   crash: {
