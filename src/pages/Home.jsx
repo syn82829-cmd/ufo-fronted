@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import Lottie from "lottie-react"
 
@@ -14,24 +14,23 @@ function Home() {
     id: "—",
     username: "Гость",
     balance: 0,
+    photoUrl: "",
   })
 
   const [ufoAnim, setUfoAnim] = useState(null)
+  const [casesFilter, setCasesFilter] = useState("expensive")
 
   const cases = [
-    { id: "firstpepe", image: "/cases/case1.png.PNG", name: "Pepe Case", price: 9999 },
-    { id: "crash", image: "/cases/case2.png.PNG", name: "All or Nothing", price: 7999 },
-    { id: "darkmatter", image: "/cases/case3.png.PNG", name: "Dark Matter", price: 4999 },
-    { id: "godparticle", image: "/cases/case4.png.PNG", name: "God Particle", price: 3599 },
-    { id: "purplehole", image: "/cases/case5.png.PNG", name: "Purple Hole", price: 1599 },
-    { id: "spacetrash", image: "/cases/case6.png.PNG", name: "Space Trash", price: 599 },
-    { id: "starfall", image: "/cases/case7.png.PNG", name: "Starfall", price: 499 },
-    { id: "randomcase", image: "/cases/case8.png.PNG", name: "Random Case", price: 999 },
+    { id: "firstpepe", image: "/cases/case1.png.PNG", name: "Pepe Case", price: 9999, free: false },
+    { id: "crash", image: "/cases/case2.png.PNG", name: "All or Nothing", price: 7999, free: false },
+    { id: "darkmatter", image: "/cases/case3.png.PNG", name: "Dark Matter", price: 4999, free: false },
+    { id: "godparticle", image: "/cases/case4.png.PNG", name: "God Particle", price: 3599, free: false },
+    { id: "purplehole", image: "/cases/case5.png.PNG", name: "Purple Hole", price: 1599, free: false },
+    { id: "spacetrash", image: "/cases/case6.png.PNG", name: "Space Trash", price: 599, free: false },
+    { id: "starfall", image: "/cases/case7.png.PNG", name: "Starfall", price: 499, free: false },
+    { id: "randomcase", image: "/cases/case8.png.PNG", name: "Random Case", price: 999, free: false },
   ]
 
-  /* ============================= */
-  /* INIT USER */
-  /* ============================= */
   useEffect(() => {
     async function initUser() {
       let tgUser = null
@@ -47,6 +46,7 @@ function Home() {
         tgUser = {
           id: 999999999,
           username: "test_user",
+          photo_url: "",
         }
       }
 
@@ -58,20 +58,25 @@ function Home() {
 
         setUser({
           id: dbUser.telegram_id,
-          username: dbUser.username || "Гость",
+          username: dbUser.username || tgUser.username || "Гость",
           balance: dbUser.balance ?? 0,
+          photoUrl: tgUser.photo_url || "",
         })
       } catch (err) {
         console.error("INIT USER ERROR:", err)
+
+        setUser({
+          id: tgUser.id || "—",
+          username: tgUser.username || "Гость",
+          balance: 0,
+          photoUrl: tgUser.photo_url || "",
+        })
       }
     }
 
     initUser()
   }, [])
 
-  /* ============================= */
-  /* LOAD UFO LOTTIE FROM /public */
-  /* ============================= */
   useEffect(() => {
     let cancelled = false
 
@@ -96,9 +101,70 @@ function Home() {
     }
   }, [])
 
+  const cycleFilter = () => {
+    setCasesFilter((prev) => {
+      if (prev === "expensive") return "cheap"
+      if (prev === "cheap") return "free"
+      return "expensive"
+    })
+  }
+
+  const filterLabel =
+    casesFilter === "expensive"
+      ? "По цене ↓"
+      : casesFilter === "cheap"
+        ? "По цене ↑"
+        : "Бесплатные >"
+
+  const visibleCases = useMemo(() => {
+    if (casesFilter === "free") {
+      return cases.filter((item) => item.free)
+    }
+
+    const sorted = [...cases].sort((a, b) =>
+      casesFilter === "expensive" ? b.price - a.price : a.price - b.price
+    )
+
+    return sorted
+  }, [casesFilter])
+
   return (
     <div className="app">
-      {/* UFO Crash */}
+      <div className="home-topbar">
+        <div className="home-topbar-left" onClick={() => navigate("/profile")}>
+          <div className="home-topbar-avatar">
+            {user.photoUrl ? (
+              <img
+                src={user.photoUrl}
+                alt={user.username}
+                className="home-topbar-avatar-image"
+                draggable={false}
+                referrerPolicy="no-referrer"
+              />
+            ) : (
+              <span className="home-topbar-avatar-fallback">
+                {(user.username?.[0] || "G").toUpperCase()}
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div className="home-topbar-right">
+          <div className="home-topbar-balance">
+            <img src="/ui/star.PNG" className="home-topbar-balance-icon" alt="" />
+            <span>{user.balance}</span>
+          </div>
+
+          <button
+            type="button"
+            className="home-topbar-plus"
+            onClick={() => navigate("/profile")}
+          >
+            +
+          </button>
+        </div>
+      </div>
+
       <div className="crash-panel" onClick={() => navigate("/crash")}>
         <div className="crash-title">UFO Crash</div>
         <div className="multiplier">&gt; x1.63</div>
@@ -107,7 +173,6 @@ function Home() {
           Запустить НЛО
         </button>
 
-        {/* UFO Lottie (infinite) */}
         {ufoAnim && (
           <div className="ufo-lottie" aria-hidden="true">
             <Lottie animationData={ufoAnim} loop autoplay />
@@ -115,9 +180,14 @@ function Home() {
         )}
       </div>
 
-      {/* Cases */}
+      <div className="cases-toolbar">
+        <button type="button" className="cases-filter-btn" onClick={cycleFilter}>
+          {filterLabel}
+        </button>
+      </div>
+
       <div className="cases-section">
-        {cases.map((item) => (
+        {visibleCases.map((item) => (
           <CaseCard
             key={item.id}
             caseItem={item}
@@ -126,7 +196,6 @@ function Home() {
         ))}
       </div>
 
-      {/* Bottom nav */}
       <div className="bottom-nav">
         <div className="nav-item" onClick={() => navigate("/bonus")}>
           Бонусы
