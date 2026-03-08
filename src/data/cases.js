@@ -3,7 +3,7 @@ export const cases = {
     id: "darkmatter",
     name: "Dark Matter",
     image: "/cases/case3.png.PNG",
-    price: 4999,
+    price: 6999,
     drops: [
       {
         id: "gift",
@@ -120,7 +120,7 @@ export const cases = {
     id: "firstpepe",
     name: "Pepe Case",
     image: "/cases/case1.png.PNG",
-    price: 9999,
+    price: 11999,
     drops: [
       {
       id: "pepe",
@@ -237,7 +237,7 @@ export const cases = {
     id: "crash",
     name: "All or Nothing",
     image: "/cases/case2.png.PNG",
-    price: 7999,
+    price: 9999,
     drops: [
       {
       id: "pepe2",
@@ -354,7 +354,7 @@ export const cases = {
     id: "godparticle",
     name: "God Particle",
     image: "/cases/case4.png.PNG",
-    price: 3599,
+    price: 5499,
     drops: Array.from({ length: 12 }, (_, i) => ({
       id: `godparticle_drop_${i + 1}`,
       name: "Soon",
@@ -370,7 +370,7 @@ export const cases = {
     id: "purplehole",
     name: "Purple Hole",
     image: "/cases/case5.png.PNG",
-    price: 1599,
+    price: 2899,
     drops: [
       {
         id: "cat",
@@ -487,7 +487,7 @@ export const cases = {
     id: "spacetrash",
     name: "Space Trash",
     image: "/cases/case6.png.PNG",
-    price: 599,
+    price: 799,
     drops: Array.from({ length: 12 }, (_, i) => ({
       id: `spacetrash_drop_${i + 1}`,
       name: "Soon",
@@ -503,7 +503,7 @@ export const cases = {
     id: "starfall",
     name: "Starfall",
     image: "/cases/case7.png.PNG",
-    price: 499,
+    price: 399,
     drops: Array.from({ length: 12 }, (_, i) => ({
       id: `starfall_drop_${i + 1}`,
       name: "Soon",
