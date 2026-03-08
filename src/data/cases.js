@@ -3,7 +3,7 @@ export const cases = {
     id: "darkmatter",
     name: "Dark Matter",
     image: "/cases/case3.png.PNG",
-    price: 6999,
+    price: 4999,
     drops: [
       {
         id: "gift",
@@ -120,7 +120,7 @@ export const cases = {
     id: "firstpepe",
     name: "Pepe Case",
     image: "/cases/case1.png.PNG",
-    price: 11999,
+    price: 9999,
     drops: [
       {
       id: "pepe",
@@ -237,7 +237,7 @@ export const cases = {
     id: "crash",
     name: "All or Nothing",
     image: "/cases/case2.png.PNG",
-    price: 9999,
+    price: 7999,
     drops: [
       {
       id: "pepe2",
@@ -354,7 +354,7 @@ export const cases = {
     id: "godparticle",
     name: "God Particle",
     image: "/cases/case4.png.PNG",
-    price: 5499,
+    price: 4599,
     drops: Array.from({ length: 12 }, (_, i) => ({
       id: `godparticle_drop_${i + 1}`,
       name: "Soon",
