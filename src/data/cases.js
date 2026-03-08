@@ -355,7 +355,8 @@ export const cases = {
     name: "God Particle",
     image: "/cases/case4.png.PNG",
     price: 3999,
-    drops: Array.from({ length: 12 }, (_, i) => ({
+    drops: [
+      {
       id: "astral",
       name: "Astral Shard Crystal Punk",
       chance: 10,
