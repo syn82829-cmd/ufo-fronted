@@ -450,7 +450,7 @@ export const cases = {
       id: "eye",
       name: "Evil Eye Seeing Stars",
       chance: 10,
-      priceStars: "1759",
+      priceStars: "1.759",
       priceGems: "20",
       png: "eye",
       lottie: "/animations/godparticle/eye.json",
