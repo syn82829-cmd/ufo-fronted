@@ -438,6 +438,15 @@ export const cases = {
       lottie: "/animations/godparticle/flower.json",
       },
       {
+      id: "cdskull",
+      name: "Cupid Charm Cursed Room",
+      chance: 10,
+      priceStars: "2.820",
+      priceGems: "32",
+      png: "cdskull",
+      lottie: "/animations/godparticle/cdskull.json",
+      },
+      {
       id: "eye",
       name: "Evil Eye Seeing Stars",
       chance: 10,
