@@ -491,6 +491,66 @@ body::after {
   margin-top: 6px;
   flex-wrap: wrap;
 }
+/* ===== CASE INFO BLOCK (Starfall / Random) ===== */
+
+.case-info-block {
+  width: 92%;
+  margin: 24px auto 40px;
+  padding: 18px 20px;
+
+  display: flex;
+  align-items: center;
+  gap: 18px;
+
+  border-radius: 22px;
+
+  background: linear-gradient(
+    145deg,
+    rgba(180, 210, 235, 0.22),
+    rgba(110, 170, 210, 0.18)
+  );
+
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+
+  box-shadow:
+    0 10px 30px rgba(0,0,0,0.15),
+    inset 0 1px 0 rgba(255,255,255,0.15);
+}
+
+/* картинка слева */
+
+.case-info-visual {
+  flex-shrink: 0;
+}
+
+.case-info-image {
+  width: 110px;
+  height: auto;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* текст справа */
+
+.case-info-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.case-info-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: white;
+}
+
+.case-info-text {
+  font-size: 14px;
+  line-height: 1.4;
+  color: rgba(255,255,255,0.85);
+}
 
 /* ============================= */
 /* BOTTOM NAVIGATION */
