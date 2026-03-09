@@ -706,8 +706,9 @@ export const cases = {
   name: "Starfall",
   image: "/cases/case7.png.PNG",
   price: 399,
+  specialLayout: "info",
+  infoImage: "/ui/star.PNG",
   description: "Можно выиграть Stars номиналом от 100 до 5000.",
-  preview: "/ui/star.PNG",
   drops: [
     {
       id: "stars_100",
@@ -807,8 +808,9 @@ randomcase: {
   name: "Random Case",
   image: "/cases/case8.png.PNG",
   price: 999,
+  specialLayout: "info",
+  infoImage: "/cases/random_preview.PNG",
   description: "Можно выиграть любой кейс: от Pepe Case до Space Trash.",
-  preview: "/cases/random_preview.PNG",
   drops: [
     {
       id: "case_firstpepe",
