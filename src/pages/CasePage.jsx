@@ -7,6 +7,7 @@ import CaseHeader from "../components/case/CaseHeader"
 import CaseRoulette from "../components/case/CaseRoulette"
 import CaseDropsGrid from "../components/case/CaseDropsGrid"
 import CaseResultModal from "../components/case/CaseResultModal"
+import CaseInfoBlock from "../components/case/CaseInfoBlock"
 
 const pngSrcByDrop = (drop) => `/drops/${drop?.png}.png`
 
