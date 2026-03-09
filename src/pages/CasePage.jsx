@@ -28,7 +28,6 @@ function CasePage() {
   const reelItemsRef = useRef([])
   const pendingRef = useRef(null)
   const spinStartedRef = useRef(false)
-  const tailFixTriesRef = useRef(0)
   const openLockRef = useRef(false)
   const preloadPromiseRef = useRef(null)
   const preloadKeyRef = useRef("")
@@ -122,7 +121,6 @@ function CasePage() {
       setReelItems([])
       pendingRef.current = null
       spinStartedRef.current = false
-      tailFixTriesRef.current = 0
       setPhase("preparing")
 
       if (preloadPromiseRef.current) {
@@ -213,13 +211,13 @@ function CasePage() {
       const maxOffset = Math.max(0, reel.scrollWidth - containerWidth)
       const wantedOffset = winIndex * step - base
 
-      if (wantedOffset > maxOffset - step * 3 && tailFixTriesRef.current < 2) {
-        tailFixTriesRef.current += 1
-        setReelItems((prev) => prev.concat(new Array(260).fill(null).map(() => randDropId())))
-        return
+      let finalOffset = wantedOffset
+
+      if (finalOffset > maxOffset - step * 2) {
+        finalOffset = maxOffset - step * 2
       }
 
-      let finalOffset = clamp(wantedOffset, 0, maxOffset)
+      finalOffset = clamp(finalOffset, 0, maxOffset)
 
       reel.style.transition = "none"
       reel.style.transform = "translate3d(0px,0,0)"
@@ -346,7 +344,6 @@ function CasePage() {
     setReelItems([])
     pendingRef.current = null
     spinStartedRef.current = false
-    tailFixTriesRef.current = 0
     setPhase("idle")
     openLockRef.current = false
 
