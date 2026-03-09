@@ -461,8 +461,13 @@ function CasePage() {
   disabled
 >
   <span>Недостаточно</span>
-  <img src="/ui/star.PNG" className="casepage-balance-warning-icon" alt="" />
-  <span>{formatStars(casePrice)}</span>
+  <img
+    src="/ui/star.PNG"
+    className="casepage-balance-warning-icon"
+    alt=""
+    draggable={false}
+  />
+  <span>{casePrice}</span>
 </button>
 
               <button
