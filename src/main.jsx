@@ -1,16 +1,3 @@
-window.onerror = function (msg, url, line, col, error) {
-  alert(
-    "JS ERROR:\n" +
-    msg +
-    "\n\nFILE:\n" +
-    url +
-    "\n\nLINE:\n" +
-    line +
-    ":" +
-    col
-  )
-}
-
 window.onunhandledrejection = function (event) {
   alert("PROMISE ERROR:\n" + event.reason)
 }
