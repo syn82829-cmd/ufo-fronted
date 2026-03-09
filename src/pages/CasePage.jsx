@@ -2,6 +2,7 @@ import { useParams, useNavigate } from "react-router-dom"
 import { useLayoutEffect, useMemo, useRef, useState, useEffect } from "react"
 
 import { cases } from "../data/cases"
+import { openCaseRequest } from "../api"
 import { useUser } from "../context/UserContext"
 import useCaseAnimations from "../hooks/useCaseAnimations"
 import CaseHeader from "../components/case/CaseHeader"
@@ -20,7 +21,7 @@ const formatStars = (value) => {
 function CasePage() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { user } = useUser()
+  const { user, refreshUser } = useUser()
   const caseData = cases[id]
 
   const [activeDrop, setActiveDrop] = useState(null)
@@ -82,6 +83,7 @@ function CasePage() {
   }, [dropMap, resultId])
 
   const casePrice = Number(caseData.price || 0)
+  const telegramId = user?.id
   const userBalance = Number(user?.balance || 0)
   const missingStars = Math.max(casePrice - userBalance, 0)
 
@@ -168,6 +170,39 @@ function CasePage() {
     return safeDrops[Math.floor(Math.random() * safeDrops.length)]?.id || null
   }
 
+  const buildSpinItems = (winnerId) => {
+    const containerWidth =
+      wrapRef.current?.getBoundingClientRect().width ||
+      imgRef.current?.getBoundingClientRect().width ||
+      320
+
+    const approxStep = 160
+    const visible = Math.ceil(containerWidth / approxStep)
+
+    const winIndex = 52 + Math.floor(Math.random() * 8)
+    const totalItems = winIndex + visible + 72
+
+    const items = new Array(totalItems)
+    for (let i = 0; i < totalItems; i++) {
+      if (i === winIndex) {
+        items[i] = winnerId
+      } else {
+        items[i] = randDropId()
+      }
+    }
+
+    if (items[winIndex - 1] === winnerId) items[winIndex - 1] = randDropId()
+    if (items[winIndex + 1] === winnerId) items[winIndex + 1] = randDropId()
+
+    pendingRef.current = {
+      winner: winnerId,
+      winIndex,
+      durationMs: 6400,
+    }
+
+    return items
+  }
+
   const openCase = async () => {
     if (!canOpenCase) return
     if (openLockRef.current) return
@@ -189,42 +224,31 @@ function CasePage() {
         await preloadAllPng()
       }
 
-      const winner = pickWeighted()
-      if (!winner) {
+      let winnerId = null
+
+      if (demoMode) {
+        winnerId = pickWeighted()
+      } else {
+        if (!telegramId) {
+          throw new Error("Telegram user not ready")
+        }
+
+        const data = await openCaseRequest({
+          telegram_id: telegramId,
+          caseId: caseData.id,
+        })
+
+        winnerId = data?.drop?.dropId || null
+        await refreshUser()
+      }
+
+      if (!winnerId) {
         openLockRef.current = false
         setPhase("idle")
         return
       }
 
-      const containerWidth =
-        wrapRef.current?.getBoundingClientRect().width ||
-        imgRef.current?.getBoundingClientRect().width ||
-        320
-
-      const approxStep = 160
-      const visible = Math.ceil(containerWidth / approxStep)
-
-      const winIndex = 52 + Math.floor(Math.random() * 8)
-      const totalItems = winIndex + visible + 72
-
-      const items = new Array(totalItems)
-      for (let i = 0; i < totalItems; i++) {
-        if (i === winIndex) {
-          items[i] = winner
-        } else {
-          items[i] = randDropId()
-        }
-      }
-
-      if (items[winIndex - 1] === winner) items[winIndex - 1] = randDropId()
-      if (items[winIndex + 1] === winner) items[winIndex + 1] = randDropId()
-
-      pendingRef.current = {
-        winner,
-        winIndex,
-        durationMs: 6400,
-      }
-
+      const items = buildSpinItems(winnerId)
       setReelItems(items)
 
       await nextFrame()
@@ -234,6 +258,11 @@ function CasePage() {
       setPhase("spinning")
     } catch (err) {
       console.error("OPEN CASE ERROR:", err)
+
+      if (!demoMode) {
+        await refreshUser().catch(() => {})
+      }
+
       openLockRef.current = false
       setPhase("idle")
     }
