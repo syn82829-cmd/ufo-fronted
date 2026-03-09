@@ -3,6 +3,7 @@ import React from "react"
 import ReactDOM from "react-dom/client"
 import App from "./App"
 import ErrorBoundary from "./ErrorBoundary"
+import { UserProvider } from "./context/UserContext"
 
 try {
   const tg = window.Telegram?.WebApp
@@ -20,7 +21,9 @@ try {
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <ErrorBoundary>
-      <App />
+      <UserProvider>
+        <App />
+      </UserProvider>
     </ErrorBoundary>
   </React.StrictMode>
 )
