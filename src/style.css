@@ -490,38 +490,44 @@ body::after {
   gap: 10px;
   margin-top: 6px;
   flex-wrap: wrap;
-}
-/* ===== CASE INFO BLOCK (Starfall / Random) ===== */
+}/* ===== CASE INFO BLOCK (Starfall / Random) ===== */
 
 .case-info-block {
   width: 92%;
   margin: 24px auto 40px;
-  padding: 18px 20px;
+  padding: 22px 24px;
 
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 20px;
 
-  border-radius: 22px;
+  border-radius: 24px;
 
   background: linear-gradient(
     145deg,
-    rgba(180, 210, 235, 0.22),
-    rgba(110, 170, 210, 0.18)
+    rgba(185, 220, 245, 0.24),
+    rgba(115, 185, 225, 0.22)
   );
 
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(16px) saturate(135%);
+  -webkit-backdrop-filter: blur(16px) saturate(135%);
+
+  border: 1px solid rgba(255, 255, 255, 0.16);
 
   box-shadow:
-    0 10px 30px rgba(0,0,0,0.15),
-    inset 0 1px 0 rgba(255,255,255,0.15);
+    0 14px 36px rgba(0, 0, 0, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
 }
 
 /* картинка слева */
 
 .case-info-visual {
   flex-shrink: 0;
+
+  width: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .case-info-image {
@@ -530,6 +536,18 @@ body::after {
   display: block;
   pointer-events: none;
   user-select: none;
+
+  filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.16));
+}
+
+/* Random чуть крупнее */
+
+.case-info-block.random .case-info-visual {
+  width: 150px;
+}
+
+.case-info-block.random .case-info-image {
+  width: 142px;
 }
 
 /* текст справа */
@@ -537,19 +555,28 @@ body::after {
 .case-info-content {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
+  flex: 1;
 }
 
 .case-info-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: white;
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1.1;
+  color: rgba(255, 255, 255, 0.98);
+
+  text-shadow:
+    0 2px 12px rgba(0, 0, 0, 0.18);
 }
 
 .case-info-text {
-  font-size: 14px;
-  line-height: 1.4;
-  color: rgba(255,255,255,0.85);
+  font-size: 16px;
+  line-height: 1.42;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.92);
+
+  text-shadow:
+    0 2px 10px rgba(0, 0, 0, 0.14);
 }
 
 /* ============================= */
