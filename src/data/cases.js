@@ -818,7 +818,7 @@ randomcase: {
       chance: 10,
       priceStars: "9.999",
       priceGems: null,
-      png: "case1.png",
+      png: "case1",
       lottie: null,
     },
     {
@@ -827,7 +827,7 @@ randomcase: {
       chance: 10,
       priceStars: "7.999",
       priceGems: null,
-      png: "case2.png",
+      png: "case2",
       lottie: null,
     },
     {
@@ -836,7 +836,7 @@ randomcase: {
       chance: 10,
       priceStars: "5.999",
       priceGems: null,
-      png: "case3.png",
+      png: "case3",
       lottie: null,
     },
     {
@@ -845,7 +845,7 @@ randomcase: {
       chance: 10,
       priceStars: "4.599",
       priceGems: null,
-      png: "case4.png",
+      png: "case4",
       lottie: null,
     },
     {
@@ -854,7 +854,7 @@ randomcase: {
       chance: 15,
       priceStars: "2.299",
       priceGems: null,
-      png: "case5.png",
+      png: "case5",
       lottie: null,
     },
     {
@@ -863,7 +863,7 @@ randomcase: {
       chance: 20,
       priceStars: "799",
       priceGems: null,
-      png: "case6.png",
+      png: "case6",
       lottie: null,
     },
     {
@@ -872,7 +872,7 @@ randomcase: {
       chance: 15,
       priceStars: "499",
       priceGems: null,
-      png: "case7.png",
+      png: "case7",
       lottie: null,
     },
   ],
