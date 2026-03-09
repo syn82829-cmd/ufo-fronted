@@ -1317,6 +1317,8 @@ body::after {
   background: rgba(0,0,0,0.38);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
+
+  animation: resultOverlayFade 0.28s ease;
 }
 
 .result-card {
@@ -1332,6 +1334,9 @@ body::after {
   box-shadow: none;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
+
+  animation: resultCardPop 0.42s cubic-bezier(0.18, 0.84, 0.22, 1);
+  transform-origin: center center;
 }
 
 .result-title {
@@ -1343,13 +1348,15 @@ body::after {
 
 .result-size {
   width: 180px;
-  height: 180px;
+  min-height: 220px;
+  padding: 16px 14px;
   margin: 0 auto;
 
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  gap: 8px;
 
   background: linear-gradient(
     145deg,
@@ -1366,11 +1373,19 @@ body::after {
 }
 
 .result-png {
-  width: 120px;
-  height: 120px;
+  width: 100px;
+  height: 100px;
   object-fit: contain;
 
   filter: drop-shadow(0 10px 25px rgba(0,0,0,0.6));
+}
+
+.result-size .drop-name {
+  margin-top: 4px;
+}
+
+.result-size .drop-prices {
+  margin-top: 2px;
 }
 
 /* ============================= */
@@ -1380,7 +1395,7 @@ body::after {
   display: flex;
   justify-content: center;
   gap: 20px;
-  margin-top: 40px;
+  margin-top: 32px;
 }
 
 .glass-btn {
@@ -1468,6 +1483,29 @@ body::after {
   }
 }
 
+@keyframes resultOverlayFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes resultCardPop {
+  0% {
+    opacity: 0;
+    transform: translateY(18px) scale(0.94);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-4px) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
 /* ============================= */
 /* DROP LOTTIE / PLACEHOLDER */
 /* ============================= */
