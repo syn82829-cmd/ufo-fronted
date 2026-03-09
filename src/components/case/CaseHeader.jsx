@@ -1,11 +1,9 @@
 function CaseHeader({
   caseData,
   isSpinning,
-  resultDrop,
   imgRef,
   navigate,
-  openCase,
-  phase,
+  onOpenSettings,
 }) {
   return (
     <div className="casepage-header">
@@ -20,7 +18,11 @@ function CaseHeader({
 
         <div className="casepage-title">{caseData.name}</div>
 
-        <button type="button" className="casepage-header-btn casepage-settings-btn">
+        <button
+          type="button"
+          className="casepage-header-btn casepage-settings-btn"
+          onClick={onOpenSettings}
+        >
           <img src="/ui/settings.PNG" className="casepage-header-icon" alt="" draggable={false} />
         </button>
       </div>
@@ -33,21 +35,6 @@ function CaseHeader({
           alt={caseData.name}
         />
       </div>
-
-      {!resultDrop && (
-        <button
-          type="button"
-          className="casepage-open-btn"
-          onClick={openCase}
-          disabled={phase === "preparing" || phase === "spinning"}
-        >
-          {phase === "preparing"
-            ? "Загрузка…"
-            : phase === "spinning"
-              ? "Крутится…"
-              : "Открыть кейс"}
-        </button>
-      )}
     </div>
   )
 }
