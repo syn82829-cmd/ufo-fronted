@@ -11,6 +11,11 @@ import CaseInfoBlock from "../components/case/CaseInfoBlock"
 
 const pngSrcByDrop = (drop) => `/drops/${drop?.png}.png`
 
+const formatStars = (value) => {
+  const num = Number(value || 0)
+  return new Intl.NumberFormat("ru-RU").format(num)
+}
+
 function CasePage() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -20,6 +25,23 @@ function CasePage() {
   const [phase, setPhase] = useState("idle") // idle | preparing | spinning | result
   const [resultId, setResultId] = useState(null)
   const [reelItems, setReelItems] = useState([])
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+  const [demoMode, setDemoMode] = useState(() => {
+    try {
+      return localStorage.getItem("ufo_demo_mode") === "true"
+    } catch {
+      return false
+    }
+  })
+
+  // временно: до подключения реального баланса
+  const [userBalance] = useState(() => {
+    try {
+      return Number(localStorage.getItem("ufo_balance") || 0)
+    } catch {
+      return 0
+    }
+  })
 
   const wrapRef = useRef(null)
   const reelRef = useRef(null)
@@ -36,6 +58,14 @@ function CasePage() {
   useEffect(() => {
     reelItemsRef.current = reelItems
   }, [reelItems])
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("ufo_demo_mode", String(demoMode))
+    } catch {
+      // ignore
+    }
+  }, [demoMode])
 
   if (!caseData) return <div className="app">Case config missing</div>
 
@@ -57,6 +87,13 @@ function CasePage() {
   const resultDrop = useMemo(() => {
     return resultId ? dropMap[resultId] || null : null
   }, [dropMap, resultId])
+
+  const casePrice = Number(caseData.price || 0)
+  const hasEnoughBalance = userBalance >= casePrice
+  const canOpenCase = demoMode || hasEnoughBalance
+  const isPreparingOrSpinning = phase === "preparing" || phase === "spinning"
+  const isSpinning = isPreparingOrSpinning
+  const isInfoLayout = caseData.specialLayout === "info"
 
   const preloadAllPng = async () => {
     const uniq = Array.from(new Set(safeDrops.map((drop) => pngSrcByDrop(drop))))
@@ -136,6 +173,7 @@ function CasePage() {
   }
 
   const openCase = async () => {
+    if (!canOpenCase) return
     if (openLockRef.current) return
     if (phase === "preparing" || phase === "spinning") return
     if (!safeDrops.length) return
@@ -360,25 +398,82 @@ function CasePage() {
   }
 
   const openAgain = () => {
+    if (!canOpenCase) return
     if (openLockRef.current) return
     sellItem()
     openCase()
   }
 
-  const isSpinning = phase === "preparing" || phase === "spinning"
-  const isInfoLayout = caseData.specialLayout === "info"
+  const openButtonText =
+    phase === "preparing"
+      ? "Загрузка…"
+      : phase === "spinning"
+        ? "Крутится…"
+        : "Открыть кейс"
 
   return (
     <div className="app">
       <CaseHeader
         caseData={caseData}
         isSpinning={isSpinning}
-        resultDrop={resultDrop}
         imgRef={imgRef}
         navigate={navigate}
-        openCase={openCase}
-        phase={phase}
+        onOpenSettings={() => setIsSettingsOpen((prev) => !prev)}
       />
+
+      {isSettingsOpen && !resultDrop && (
+        <div className="case-settings-panel">
+          <div className="case-settings-row">
+            <div className="case-settings-copy">
+              <div className="case-settings-title">Демо-режим</div>
+              <div className="case-settings-text">
+                Открытие кейсов без списания Stars
+              </div>
+            </div>
+
+            <button
+              type="button"
+              className={`case-settings-toggle ${demoMode ? "active" : ""}`}
+              onClick={() => setDemoMode((prev) => !prev)}
+            >
+              <span className="case-settings-toggle-thumb" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {!resultDrop && (
+        <div className="casepage-action-stack">
+          {canOpenCase ? (
+            <button
+              type="button"
+              className="casepage-open-btn"
+              onClick={openCase}
+              disabled={isPreparingOrSpinning}
+            >
+              {openButtonText}
+            </button>
+          ) : (
+            <>
+              <button
+                type="button"
+                className="casepage-balance-warning-btn"
+                disabled
+              >
+                {`Недостаточно ⭐ ${formatStars(userBalance)} / ${formatStars(casePrice)}`}
+              </button>
+
+              <button
+                type="button"
+                className="casepage-topup-btn"
+                onClick={() => navigate("/profile")}
+              >
+                Пополнить
+              </button>
+            </>
+          )}
+        </div>
+      )}
 
       <CaseRoulette
         isSpinning={isSpinning}
