@@ -15,13 +15,13 @@ function CaseHeader({
           className="casepage-header-btn casepage-back-btn"
           onClick={() => navigate(-1)}
         >
-          <img src="/ui/back.png" className="casepage-header-icon" alt="" draggable={false} />
+          <img src="/ui/back.PNG" className="casepage-header-icon" alt="" draggable={false} />
         </button>
 
         <div className="casepage-title">{caseData.name}</div>
 
         <button type="button" className="casepage-header-btn casepage-settings-btn">
-          <img src="/ui/settings.png" className="casepage-header-icon" alt="" draggable={false} />
+          <img src="/ui/settings.PNG" className="casepage-header-icon" alt="" draggable={false} />
         </button>
       </div>
 
