@@ -1604,8 +1604,8 @@ body::after {
 }
 
 .casepage-header-icon {
-  width: 28px;
-  height: 28px;
+  width: 38px;
+  height: 38px;
   object-fit: contain;
   display: block;
   pointer-events: none;
