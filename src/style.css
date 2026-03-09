@@ -1829,18 +1829,16 @@ body::after {
   gap: 10px;
 }
 
+/* открыть кейс не трогаем по размеру, только убираем лишний верхний отступ внутри нового стека */
 .casepage-action-stack .casepage-open-btn {
   margin-top: 0;
-  width: 210px;
-  min-width: 210px;
-  padding: 16px 28px;
 }
 
 .casepage-balance-warning-btn,
 .casepage-topup-btn {
-  width: 210px;
-  min-width: 210px;
-  padding: 16px 28px;
+  width: 86%;
+  max-width: 310px;
+  padding: 16px 20px;
 
   border-radius: 20px;
 
