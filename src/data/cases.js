@@ -698,7 +698,7 @@ export const cases = {
       png: "podarok",
       lottie: "/animations/spacetrash/podarok.json",
       },
-    })),
+    ],
   },
 
   starfall: {
