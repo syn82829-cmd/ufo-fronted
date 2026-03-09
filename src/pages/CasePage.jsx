@@ -475,7 +475,7 @@ function CasePage() {
                 className="casepage-topup-btn"
                 onClick={() => navigate("/profile")}
               >
-                Пополнить
+                Пополнить баланс
               </button>
             </>
           )}
