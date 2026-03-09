@@ -456,12 +456,14 @@ function CasePage() {
           ) : (
             <>
               <button
-                type="button"
-                className="casepage-balance-warning-btn"
-                disabled
-              >
-                {`Недостаточно ⭐ ${formatStars(userBalance)} / ${formatStars(casePrice)}`}
-              </button>
+  type="button"
+  className="casepage-balance-warning-btn"
+  disabled
+>
+  <span>Недостаточно</span>
+  <img src="/ui/star.PNG" className="casepage-balance-warning-icon" alt="" />
+  <span>{formatStars(casePrice)}</span>
+</button>
 
               <button
                 type="button"
