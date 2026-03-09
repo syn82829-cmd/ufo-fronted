@@ -2,6 +2,7 @@ import { useParams, useNavigate } from "react-router-dom"
 import { useLayoutEffect, useMemo, useRef, useState, useEffect } from "react"
 
 import { cases } from "../data/cases"
+import { useUser } from "../context/UserContext"
 import useCaseAnimations from "../hooks/useCaseAnimations"
 import CaseHeader from "../components/case/CaseHeader"
 import CaseRoulette from "../components/case/CaseRoulette"
@@ -19,6 +20,7 @@ const formatStars = (value) => {
 function CasePage() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { user } = useUser()
   const caseData = cases[id]
 
   const [activeDrop, setActiveDrop] = useState(null)
@@ -31,15 +33,6 @@ function CasePage() {
       return localStorage.getItem("ufo_demo_mode") === "true"
     } catch {
       return false
-    }
-  })
-
-  // временно: до подключения реального баланса
-  const [userBalance] = useState(() => {
-    try {
-      return Number(localStorage.getItem("ufo_balance") || 0)
-    } catch {
-      return 0
     }
   })
 
@@ -89,6 +82,9 @@ function CasePage() {
   }, [dropMap, resultId])
 
   const casePrice = Number(caseData.price || 0)
+  const userBalance = Number(user?.balance || 0)
+  const missingStars = Math.max(casePrice - userBalance, 0)
+
   const hasEnoughBalance = userBalance >= casePrice
   const canOpenCase = demoMode || hasEnoughBalance
   const isPreparingOrSpinning = phase === "preparing" || phase === "spinning"
@@ -456,19 +452,19 @@ function CasePage() {
           ) : (
             <>
               <button
-  type="button"
-  className="casepage-balance-warning-btn"
-  disabled
->
-  <span>Недостаточно</span>
-  <img
-    src="/ui/star.PNG"
-    className="casepage-balance-warning-icon"
-    alt=""
-    draggable={false}
-  />
-  <span>{casePrice}</span>
-</button>
+                type="button"
+                className="casepage-balance-warning-btn"
+                disabled
+              >
+                <span>Недостаточно</span>
+                <img
+                  src="/ui/star.PNG"
+                  className="casepage-balance-warning-icon"
+                  alt=""
+                  draggable={false}
+                />
+                <span>{formatStars(missingStars)}</span>
+              </button>
 
               <button
                 type="button"
