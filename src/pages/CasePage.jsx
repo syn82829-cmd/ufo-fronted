@@ -83,6 +83,31 @@ function CasePage() {
     preloadPromiseRef.current = preloadAllPng()
   }, [safeDrops])
 
+  const nextFrame = () =>
+    new Promise((resolve) => {
+      requestAnimationFrame(() => resolve())
+    })
+
+  const waitForRouletteImages = async (timeoutMs = 1800) => {
+    const startedAt = performance.now()
+
+    while (performance.now() - startedAt < timeoutMs) {
+      await nextFrame()
+      await nextFrame()
+
+      const reel = reelRef.current
+      if (!reel) continue
+
+      const imgs = Array.from(reel.querySelectorAll(".roulette-png"))
+      if (!imgs.length) continue
+
+      const allReady = imgs.every((img) => img.complete && img.naturalWidth > 0)
+      if (allReady) return true
+    }
+
+    return false
+  }
+
   const handleClick = (dropId) => {
     if (activeDrop === dropId) {
       setActiveDrop(null)
@@ -145,8 +170,8 @@ function CasePage() {
       const approxStep = 160
       const visible = Math.ceil(containerWidth / approxStep)
 
-      const winIndex = 85 + Math.floor(Math.random() * 12)
-      const totalItems = winIndex + visible + 260
+      const winIndex = 52 + Math.floor(Math.random() * 8)
+      const totalItems = winIndex + visible + 72
 
       const items = new Array(totalItems)
       for (let i = 0; i < totalItems; i++) {
@@ -163,10 +188,15 @@ function CasePage() {
       pendingRef.current = {
         winner,
         winIndex,
-        durationMs: 7200,
+        durationMs: 6400,
       }
 
       setReelItems(items)
+
+      await nextFrame()
+      await nextFrame()
+      await waitForRouletteImages()
+
       setPhase("spinning")
     } catch (err) {
       console.error("OPEN CASE ERROR:", err)
@@ -199,12 +229,20 @@ function CasePage() {
 
     const start = () => {
       const itemsEls = reel.querySelectorAll(".roulette-item")
-      if (!itemsEls || itemsEls.length < 2) return
+      if (!itemsEls || itemsEls.length < 2) {
+        setResultId(pendingRef.current?.winner || null)
+        setPhase("result")
+        return
+      }
 
       const r1 = itemsEls[0].getBoundingClientRect()
       const r2 = itemsEls[1].getBoundingClientRect()
       const step = r2.left - r1.left
-      if (!step || step < 50) return
+      if (!step || step < 50) {
+        setResultId(pendingRef.current?.winner || null)
+        setPhase("result")
+        return
+      }
 
       const containerWidth = wrap.getBoundingClientRect().width || 320
       const itemW = r1.width
@@ -267,7 +305,7 @@ function CasePage() {
 
             let el = document.elementFromPoint(x, y)
             if (!el) {
-              setResultId(reelItemsRef.current[bestIdx])
+              setResultId(reelItemsRef.current[bestIdx] || pendingRef.current?.winner || null)
               setPhase("result")
               return
             }
@@ -277,19 +315,19 @@ function CasePage() {
               el = document.elementFromPoint(x, y + 8)
               const itemEl2 = el?.closest ? el.closest(".roulette-item") : null
               if (!itemEl2) {
-                setResultId(reelItemsRef.current[bestIdx])
+                setResultId(reelItemsRef.current[bestIdx] || pendingRef.current?.winner || null)
                 setPhase("result")
                 return
               }
 
               const idx = Number(itemEl2.getAttribute("data-index"))
-              setResultId(reelItemsRef.current[idx])
+              setResultId(reelItemsRef.current[idx] || pendingRef.current?.winner || null)
               setPhase("result")
               return
             }
 
             const idx = Number(itemEl.getAttribute("data-index"))
-            setResultId(reelItemsRef.current[idx])
+            setResultId(reelItemsRef.current[idx] || pendingRef.current?.winner || null)
             setPhase("result")
           })
         })
@@ -300,39 +338,6 @@ function CasePage() {
 
     requestAnimationFrame(() => requestAnimationFrame(start))
   }, [phase, reelItems])
-
-  useEffect(() => {
-    const forceFinishSpin = () => {
-      if (phase !== "spinning") return
-      if (!pendingRef.current) return
-
-      if (reelRef.current) {
-        reelRef.current.style.transition = "none"
-      }
-
-      spinStartedRef.current = false
-      setResultId(pendingRef.current.winner)
-      setPhase("result")
-    }
-
-    const handleVisibility = () => {
-      if (document.visibilityState === "hidden") {
-        forceFinishSpin()
-      }
-    }
-
-    const handlePageHide = () => {
-      forceFinishSpin()
-    }
-
-    document.addEventListener("visibilitychange", handleVisibility)
-    window.addEventListener("pagehide", handlePageHide)
-
-    return () => {
-      document.removeEventListener("visibilitychange", handleVisibility)
-      window.removeEventListener("pagehide", handlePageHide)
-    }
-  }, [phase])
 
   useEffect(() => {
     if (phase === "idle" || phase === "result") {
