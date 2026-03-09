@@ -124,3 +124,22 @@ export async function getTransactions(telegram_id) {
 
   return data
 }
+// ПОПОЛНЕНИЕ БАЛАНСА
+export async function depositBalance(data) {
+  const res = await fetch(`${API_URL}/deposit`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      telegram_id: data.telegram_id,
+      amount: data.amount,
+    }),
+  })
+
+  if (!res.ok) {
+    throw new Error("Deposit failed")
+  }
+
+  return await res.json()
+}
