@@ -1,6 +1,3 @@
-window.onunhandledrejection = function (event) {
-  alert("PROMISE ERROR:\n" + event.reason)
-}
 import "./style.css"
 import React from "react"
 import ReactDOM from "react-dom/client"
