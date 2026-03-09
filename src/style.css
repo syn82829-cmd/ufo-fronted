@@ -1831,15 +1831,15 @@ body::after {
 /* старая кнопка внутри нового стека */
 .casepage-action-stack .casepage-open-btn {
   margin-top: 0;
-  min-width: 320px;
-  padding: 16px 44px;
+  min-width: 210px;
+  padding: 16px 28px;
 }
 
 /* новые кнопки должны быть по размеру как старая open */
 .casepage-balance-warning-btn,
 .casepage-topup-btn {
-  min-width: 320px;
-  padding: 16px 44px;
+  min-width: 210px;
+  padding: 16px 28px;
 
   border-radius: 20px;
 
