@@ -2,7 +2,7 @@ import { useParams, useNavigate } from "react-router-dom"
 import { useLayoutEffect, useMemo, useRef, useState, useEffect } from "react"
 
 import { cases } from "../data/cases"
-import { openCaseRequest } from "../api"
+import { openCaseRequest, sellInventoryItem } from "../api"
 import { useUser } from "../context/UserContext"
 import useCaseAnimations from "../hooks/useCaseAnimations"
 import CaseHeader from "../components/case/CaseHeader"
@@ -27,6 +27,7 @@ function CasePage() {
   const [activeDrop, setActiveDrop] = useState(null)
   const [phase, setPhase] = useState("idle") // idle | preparing | spinning | result
   const [resultId, setResultId] = useState(null)
+  const [resultInventoryItemId, setResultInventoryItemId] = useState(null)
   const [reelItems, setReelItems] = useState([])
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [demoMode, setDemoMode] = useState(() => {
@@ -203,6 +204,21 @@ function CasePage() {
     return items
   }
 
+  const resetResultState = () => {
+    setResultId(null)
+    setResultInventoryItemId(null)
+    setReelItems([])
+    pendingRef.current = null
+    spinStartedRef.current = false
+    setPhase("idle")
+    openLockRef.current = false
+
+    if (reelRef.current) {
+      reelRef.current.style.transition = "none"
+      reelRef.current.style.transform = "translate3d(0px,0,0)"
+    }
+  }
+
   const openCase = async () => {
     if (!canOpenCase) return
     if (openLockRef.current) return
@@ -213,6 +229,7 @@ function CasePage() {
 
     try {
       setResultId(null)
+      setResultInventoryItemId(null)
       setReelItems([])
       pendingRef.current = null
       spinStartedRef.current = false
@@ -225,6 +242,7 @@ function CasePage() {
       }
 
       let winnerId = null
+      let inventoryItemId = null
 
       if (demoMode) {
         winnerId = pickWeighted()
@@ -239,6 +257,8 @@ function CasePage() {
         })
 
         winnerId = data?.drop?.dropId || null
+        inventoryItemId = data?.drop?.id || null
+
         await refreshUser()
       }
 
@@ -247,6 +267,8 @@ function CasePage() {
         setPhase("idle")
         return
       }
+
+      setResultInventoryItemId(inventoryItemId)
 
       const items = buildSpinItems(winnerId)
       setReelItems(items)
@@ -409,24 +431,29 @@ function CasePage() {
   }, [phase])
 
   const sellItem = () => {
-    setResultId(null)
-    setReelItems([])
-    pendingRef.current = null
-    spinStartedRef.current = false
-    setPhase("idle")
-    openLockRef.current = false
-
-    if (reelRef.current) {
-      reelRef.current.style.transition = "none"
-      reelRef.current.style.transform = "translate3d(0px,0,0)"
-    }
+    resetResultState()
   }
 
-  const openAgain = () => {
-    if (!canOpenCase) return
+  const openAgain = async () => {
     if (openLockRef.current) return
-    sellItem()
-    openCase()
+
+    try {
+      openLockRef.current = true
+
+      if (!demoMode && telegramId && resultInventoryItemId) {
+        await sellInventoryItem({
+          telegram_id: telegramId,
+          inventoryItemId: resultInventoryItemId,
+        })
+
+        await refreshUser()
+      }
+    } catch (err) {
+      console.error("SELL ITEM ERROR:", err)
+      await refreshUser().catch(() => {})
+    } finally {
+      resetResultState()
+    }
   }
 
   const openButtonText =
