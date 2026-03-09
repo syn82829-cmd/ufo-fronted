@@ -2,20 +2,14 @@ import { useEffect, useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import Lottie from "lottie-react"
 
-import { createUser } from "../api"
+import { useUser } from "../context/UserContext"
 import CaseCard from "../components/CaseCard"
 
 import "../style.css"
 
 function Home() {
   const navigate = useNavigate()
-
-  const [user, setUser] = useState({
-    id: "—",
-    username: "Гость",
-    balance: 0,
-    photoUrl: "",
-  })
+  const { user } = useUser()
 
   const [ufoAnim, setUfoAnim] = useState(null)
   const [casesFilter, setCasesFilter] = useState("expensive")
@@ -30,52 +24,6 @@ function Home() {
     { id: "starfall", image: "/cases/case7.png.PNG", name: "Starfall", price: 499, free: false },
     { id: "randomcase", image: "/cases/case8.png.PNG", name: "Random Case", price: 999, free: false },
   ]
-
-  useEffect(() => {
-    async function initUser() {
-      let tgUser = null
-
-      if (window.Telegram?.WebApp) {
-        const tg = window.Telegram.WebApp
-        tg.ready()
-        tg.expand()
-        tgUser = tg.initDataUnsafe?.user
-      }
-
-      if (!tgUser) {
-        tgUser = {
-          id: 999999999,
-          username: "test_user",
-          photo_url: "",
-        }
-      }
-
-      try {
-        const dbUser = await createUser({
-          id: tgUser.id,
-          username: tgUser.username || "",
-        })
-
-        setUser({
-          id: dbUser.telegram_id,
-          username: dbUser.username || tgUser.username || "Гость",
-          balance: dbUser.balance ?? 0,
-          photoUrl: tgUser.photo_url || "",
-        })
-      } catch (err) {
-        console.error("INIT USER ERROR:", err)
-
-        setUser({
-          id: tgUser.id || "—",
-          username: tgUser.username || "Гость",
-          balance: 0,
-          photoUrl: tgUser.photo_url || "",
-        })
-      }
-    }
-
-    initUser()
-  }, [])
 
   useEffect(() => {
     let cancelled = false
