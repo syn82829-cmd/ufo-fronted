@@ -361,6 +361,7 @@ function CasePage() {
   }
 
   const isSpinning = phase === "preparing" || phase === "spinning"
+  const isInfoLayout = caseData.specialLayout === "info"
 
   return (
     <div className="app">
@@ -384,14 +385,17 @@ function CasePage() {
         pngSrcByDrop={pngSrcByDrop}
       />
 
-      {!isSpinning && (
-        <CaseDropsGrid
-          drops={caseData.drops}
-          activeDrop={activeDrop}
-          animationsById={animationsById}
-          handleClick={handleClick}
-        />
-      )}
+      {!isSpinning &&
+        (isInfoLayout ? (
+          <CaseInfoBlock caseData={caseData} />
+        ) : (
+          <CaseDropsGrid
+            drops={caseData.drops}
+            activeDrop={activeDrop}
+            animationsById={animationsById}
+            handleClick={handleClick}
+          />
+        ))}
 
       <CaseResultModal
         resultDrop={resultDrop}
