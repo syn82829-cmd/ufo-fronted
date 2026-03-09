@@ -1948,3 +1948,13 @@ body::after {
     opacity: 0;
   }
 }
+.casepage-balance-warning-btn {
+  gap: 10px;
+}
+
+.casepage-balance-warning-icon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
