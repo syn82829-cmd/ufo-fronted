@@ -41,7 +41,7 @@ function CaseResultModal({ resultDrop, pngSrcByDrop, sellItem, openAgain }) {
 
         <div className="result-buttons">
           <button type="button" className="glass-btn sell" onClick={sellItem}>
-            Продать
+            Забрать
           </button>
 
           <button type="button" className="glass-btn open" onClick={openAgain}>
