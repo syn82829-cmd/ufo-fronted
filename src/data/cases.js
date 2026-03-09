@@ -873,5 +873,5 @@ randomcase: {
       png: "case7",
       lottie: null,
     },
-  ],
-},
+  ]
+}
