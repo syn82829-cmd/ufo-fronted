@@ -766,8 +766,8 @@ body::after {
 }
 
 .profile-topbar-rank-icon {
-  width: 18px;
-  height: 18px;
+  width: 22px;
+  height: 22px;
   object-fit: contain;
   flex-shrink: 0;
 
@@ -780,11 +780,12 @@ body::after {
   line-height: 1.15;
 
   background: linear-gradient(
-    90deg,
-    #7fd3ff,
-    #a6e6ff,
-    #6bbcff
-  );
+  90deg,
+  #ffffff,
+  #ffffff,
+  #e9f7ff,
+  #d9f0ff
+);
 
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -2072,8 +2073,8 @@ body::after {
 }
 
 .home-topbar-rank-icon {
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
   object-fit: contain;
   flex-shrink: 0;
 
@@ -2086,11 +2087,12 @@ body::after {
   line-height: 1.1;
 
   background: linear-gradient(
-    90deg,
-    #7fd3ff,
-    #a6e6ff,
-    #6bbcff
-  );
+  90deg,
+  #ffffff,
+  #ffffff,
+  #e9f7ff,
+  #d9f0ff
+);
 
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
