@@ -1,78 +1,36 @@
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import Lottie from "lottie-react"
 
+import {
+  cashoutCrash,
+  getCrashLive,
+  getCrashState,
+  placeCrashBet,
+} from "../api"
 import { useUser } from "../context/UserContext"
 import { getPlayerRank } from "../utils/playerRank"
 import "../style.css"
-
-const mockPlayers = [
-  {
-    id: 1,
-    username: "astro_max",
-    avatar: "",
-    casesOpened: 7,
-    crashGamesPlayed: 3,
-    bet: 250,
-  },
-  {
-    id: 2,
-    username: "nova_queen",
-    avatar: "",
-    casesOpened: 18,
-    crashGamesPlayed: 11,
-    bet: 500,
-  },
-  {
-    id: 3,
-    username: "voidrunner",
-    avatar: "",
-    casesOpened: 42,
-    crashGamesPlayed: 6,
-    bet: 1000,
-  },
-  {
-    id: 4,
-    username: "cosmo_jett",
-    avatar: "",
-    casesOpened: 81,
-    crashGamesPlayed: 14,
-    bet: 1500,
-  },
-]
 
 const formatStars = (value) => {
   const num = Number(value || 0)
   return new Intl.NumberFormat("ru-RU").format(num)
 }
 
-function getRandomCrashPoint() {
-  const roll = Math.random()
-
-  if (roll < 0.35) return 1.1 + Math.random() * 0.8
-  if (roll < 0.7) return 1.9 + Math.random() * 1.6
-  if (roll < 0.9) return 3.5 + Math.random() * 4.5
-  return 8 + Math.random() * 12
-}
-
 function Crash() {
   const navigate = useNavigate()
-  const { user } = useUser()
+  const { user, refreshUser } = useUser()
 
   const [ufoAnim, setUfoAnim] = useState(null)
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
 
   const [betAmount, setBetAmount] = useState("100")
-  const [phase, setPhase] = useState("idle") // idle | flying | crashed | cashed | countdown | start
-  const [multiplier, setMultiplier] = useState(1.0)
+  const [crashState, setCrashState] = useState(null)
+  const [livePlayers, setLivePlayers] = useState([])
   const [profit, setProfit] = useState(0)
-  const [countdown, setCountdown] = useState(null)
 
-  const animationFrameRef = useRef(null)
-  const startedAtRef = useRef(0)
-  const crashPointRef = useRef(0)
-  const countdownIntervalRef = useRef(null)
-  const startTimeoutRef = useRef(null)
+  const [isBetLoading, setIsBetLoading] = useState(false)
+  const [isCashoutLoading, setIsCashoutLoading] = useState(false)
 
   const playerRank = useMemo(() => {
     return getPlayerRank(
@@ -106,157 +64,145 @@ function Crash() {
   }, [])
 
   useEffect(() => {
-    return () => {
-      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current)
-      if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current)
-      if (startTimeoutRef.current) clearTimeout(startTimeoutRef.current)
+    if (!user?.id || user.id === "—") return
+
+    let isMounted = true
+
+    const loadCrashData = async () => {
+      try {
+        const [stateData, liveData] = await Promise.all([
+          getCrashState(user.id),
+          getCrashLive(),
+        ])
+
+        if (!isMounted) return
+
+        setCrashState(stateData)
+        setLivePlayers(Array.isArray(liveData) ? liveData : [])
+
+        if (stateData?.status !== "crashed" && stateData?.status !== "waiting") {
+          setProfit(0)
+        }
+      } catch (err) {
+        console.error("CRASH LOAD ERROR:", err)
+      }
     }
-  }, [])
+
+    loadCrashData()
+
+    const interval = setInterval(loadCrashData, 1000)
+
+    return () => {
+      isMounted = false
+      clearInterval(interval)
+    }
+  }, [user?.id])
 
   const numericBet = Math.max(0, Number(betAmount || 0))
-  const canStart = phase === "idle" && numericBet > 0
+  const status = crashState?.status || "waiting"
+  const multiplier = Number(crashState?.multiplier || 1)
+  const countdown = crashState?.countdown ?? null
+  const myBet = crashState?.myBet || null
 
-  const stopLoop = () => {
-    if (animationFrameRef.current) {
-      cancelAnimationFrame(animationFrameRef.current)
-      animationFrameRef.current = null
-    }
-  }
+  const isWaiting = status === "waiting"
+  const isFlying = status === "flying"
+  const isCrashed = status === "crashed"
 
-  const clearRoundTimers = () => {
-    if (countdownIntervalRef.current) {
-      clearInterval(countdownIntervalRef.current)
-      countdownIntervalRef.current = null
-    }
+  const canPlaceBet =
+    isWaiting &&
+    numericBet > 0 &&
+    !myBet &&
+    !isBetLoading &&
+    !isCashoutLoading
 
-    if (startTimeoutRef.current) {
-      clearTimeout(startTimeoutRef.current)
-      startTimeoutRef.current = null
-    }
-  }
+  const canCashout =
+    isFlying &&
+    myBet?.status === "active" &&
+    !isCashoutLoading &&
+    !isBetLoading
 
-  const fullReset = () => {
-    stopLoop()
-    clearRoundTimers()
-    setPhase("idle")
-    setMultiplier(1.0)
-    setProfit(0)
-    setCountdown(null)
-  }
+  const handleMainAction = async () => {
+    if (!user?.id || user.id === "—") return
 
-  const runPostCrashCountdown = () => {
-    clearRoundTimers()
-    setPhase("countdown")
-    setCountdown(5)
-
-    let value = 5
-
-    countdownIntervalRef.current = setInterval(() => {
-      value -= 1
-
-      if (value > 0) {
-        setCountdown(value)
-        return
-      }
-
-      clearInterval(countdownIntervalRef.current)
-      countdownIntervalRef.current = null
-      setCountdown(null)
-      setPhase("start")
-
-      startTimeoutRef.current = setTimeout(() => {
-        setPhase("idle")
-        setMultiplier(1.0)
-      }, 1100)
-    }, 1000)
-  }
-
-  const startCrashLoop = () => {
-    const localCrashPoint = getRandomCrashPoint()
-    crashPointRef.current = localCrashPoint
-
-    setPhase("flying")
-    setMultiplier(1.0)
-    setProfit(0)
-    setCountdown(null)
-    startedAtRef.current = performance.now()
-
-    const tick = (now) => {
-      const elapsed = (now - startedAtRef.current) / 1000
-      const nextMultiplier = Number((1 + elapsed * 0.85 + elapsed * elapsed * 0.12).toFixed(2))
-
-      if (nextMultiplier >= crashPointRef.current) {
-        setMultiplier(Number(crashPointRef.current.toFixed(2)))
-        setPhase("crashed")
+    if (canPlaceBet) {
+      try {
+        setIsBetLoading(true)
         setProfit(0)
-        animationFrameRef.current = null
 
-        setTimeout(() => {
-          runPostCrashCountdown()
-        }, 900)
+        await placeCrashBet({
+          telegram_id: user.id,
+          amount: numericBet,
+        })
 
-        return
+        await Promise.all([
+          refreshUser(),
+          (async () => {
+            const [stateData, liveData] = await Promise.all([
+              getCrashState(user.id),
+              getCrashLive(),
+            ])
+
+            setCrashState(stateData)
+            setLivePlayers(Array.isArray(liveData) ? liveData : [])
+          })(),
+        ])
+      } catch (err) {
+        console.error("PLACE CRASH BET ERROR:", err)
+        await refreshUser().catch(() => {})
+      } finally {
+        setIsBetLoading(false)
       }
 
-      setMultiplier(nextMultiplier)
-      animationFrameRef.current = requestAnimationFrame(tick)
-    }
-
-    animationFrameRef.current = requestAnimationFrame(tick)
-  }
-
-  const handleMainAction = () => {
-    if (phase === "idle") {
-      if (!canStart) return
-      startCrashLoop()
       return
     }
 
-    if (phase === "flying") {
-      stopLoop()
+    if (canCashout) {
+      try {
+        setIsCashoutLoading(true)
 
-      const payout = Math.floor(numericBet * multiplier)
-      const pureProfit = Math.max(payout - numericBet, 0)
+        const result = await cashoutCrash({
+          telegram_id: user.id,
+        })
 
-      setProfit(pureProfit)
-      setPhase("cashed")
+        setProfit(Number(result?.profit || 0))
 
-      setTimeout(() => {
-        runPostCrashCountdown()
-      }, 900)
+        await Promise.all([
+          refreshUser(),
+          (async () => {
+            const [stateData, liveData] = await Promise.all([
+              getCrashState(user.id),
+              getCrashLive(),
+            ])
+
+            setCrashState(stateData)
+            setLivePlayers(Array.isArray(liveData) ? liveData : [])
+          })(),
+        ])
+      } catch (err) {
+        console.error("CRASH CASHOUT ERROR:", err)
+        await refreshUser().catch(() => {})
+      } finally {
+        setIsCashoutLoading(false)
+      }
     }
   }
 
-  const mainButtonText =
-    phase === "idle"
-      ? "Сделать ставку"
-      : phase === "flying"
-        ? "Забрать"
-        : phase === "countdown"
-          ? "Ожидание..."
-          : phase === "start"
-            ? "Start!"
-            : "Ожидание..."
+  const mainButtonText = (() => {
+    if (isBetLoading) return "Ставка..."
+    if (isCashoutLoading) return "Вывод..."
+    if (canCashout) return "Забрать"
+    if (myBet && myBet.status === "active" && isWaiting) return "Ставка принята"
+    if (myBet && myBet.status === "cashed_out") return "Выведено"
+    if (isWaiting) return "Сделать ставку"
+    if (isFlying && !myBet) return "Раунд идет"
+    if (isCrashed) return "Ожидание..."
+    return "Ожидание..."
+  })()
 
-  const crashPlayers = useMemo(() => {
-    if (phase !== "flying") return mockPlayers
-
-    const currentUser = {
-      id: "me",
-      username: user?.username || "you",
-      avatar: user?.photoUrl || "",
-      casesOpened: Number(user?.casesOpened || 0),
-      crashGamesPlayed: Number(user?.crashGamesPlayed || 0),
-      bet: numericBet,
-    }
-
-    return [currentUser, ...mockPlayers]
-  }, [phase, user?.username, user?.photoUrl, user?.casesOpened, user?.crashGamesPlayed, numericBet])
-
-  const showUfo = phase === "idle" || phase === "flying"
-  const showCrashText = phase === "crashed"
-  const showCountdown = phase === "countdown"
-  const showStartText = phase === "start"
+  const showUfo = isWaiting || isFlying
+  const showCrashText = isCrashed
+  const showCountdown = isWaiting && countdown !== null && countdown > 0
+  const showStartText = isWaiting && countdown === 0
 
   return (
     <div className="app">
@@ -301,7 +247,7 @@ function Crash() {
                 <span>{user.balance}</span>
               </div>
 
-              {profit > 0 && phase !== "flying" && (
+              {profit > 0 && (
                 <div className="crash-balance-profit">
                   +{formatStars(profit)} ⭐
                 </div>
@@ -340,18 +286,18 @@ function Crash() {
           <div className="crash-settings-panel">
             <div className="crash-settings-title">UFO Crash</div>
             <div className="crash-settings-text">
-              Боевой режим позже подключим к Stars и истории игр
+              Раунды идут автоматически, ставки и live теперь приходят с сервера
             </div>
           </div>
         )}
 
         <div className="crash-flight-zone">
-          <div className={`crash-multiplier ${phase === "crashed" ? "crashed" : ""}`}>
+          <div className={`crash-multiplier ${isCrashed ? "crashed" : ""}`}>
             x{multiplier.toFixed(2)}
           </div>
 
           {showUfo && ufoAnim && (
-            <div className={`crash-ufo-lottie ${phase === "flying" ? "flying" : ""}`}>
+            <div className={`crash-ufo-lottie ${isFlying ? "flying" : ""}`}>
               <Lottie animationData={ufoAnim} loop autoplay />
             </div>
           )}
@@ -386,16 +332,16 @@ function Crash() {
                 className="crash-bet-input"
                 value={betAmount}
                 onChange={(e) => setBetAmount(e.target.value)}
-                disabled={phase !== "idle"}
+                disabled={!isWaiting || !!myBet || isBetLoading}
                 placeholder="Ставка"
               />
             </div>
 
             <button
               type="button"
-              className={`crash-bet-btn ${phase === "flying" ? "cashout" : ""}`}
+              className={`crash-bet-btn ${canCashout ? "cashout" : ""}`}
               onClick={handleMainAction}
-              disabled={(phase === "idle" && !canStart) || phase === "countdown" || phase === "start" || phase === "crashed" || phase === "cashed"}
+              disabled={!canPlaceBet && !canCashout}
             >
               {mainButtonText}
             </button>
@@ -406,26 +352,20 @@ function Crash() {
           <div className="crash-live-title">Live ставки</div>
 
           <div className="crash-live-list">
-            {crashPlayers.map((player) => {
-              const rank = getPlayerRank(player.casesOpened, player.crashGamesPlayed)
+            {livePlayers.map((item) => {
+              const liveUser = item.user || {}
+              const rank = getPlayerRank(
+                Number(liveUser.casesOpened || 0),
+                Number(liveUser.crashGamesPlayed || 0)
+              )
 
               return (
-                <div key={player.id} className="crash-live-row">
+                <div key={item.id} className="crash-live-row">
                   <div className="crash-live-user">
                     <div className="crash-live-avatar">
-                      {player.avatar ? (
-                        <img
-                          src={player.avatar}
-                          alt={player.username}
-                          className="crash-live-avatar-image"
-                          draggable={false}
-                          referrerPolicy="no-referrer"
-                        />
-                      ) : (
-                        <span className="crash-live-avatar-fallback">
-                          {(player.username?.[0] || "G").toUpperCase()}
-                        </span>
-                      )}
+                      <span className="crash-live-avatar-fallback">
+                        {(liveUser.username?.[0] || "G").toUpperCase()}
+                      </span>
                     </div>
 
                     <div className="crash-live-meta">
@@ -439,13 +379,13 @@ function Crash() {
                         <span className="crash-live-rank-text">{rank.name}</span>
                       </div>
 
-                      <div className="crash-live-name">{player.username}</div>
+                      <div className="crash-live-name">{liveUser.username || "Unknown"}</div>
                     </div>
                   </div>
 
                   <div className="crash-live-bet">
                     <img src="/ui/star.PNG" className="crash-live-bet-icon" alt="" />
-                    <span>{formatStars(player.bet)}</span>
+                    <span>{formatStars(item.amount)}</span>
                   </div>
                 </div>
               )
