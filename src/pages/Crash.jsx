@@ -63,15 +63,16 @@ function Crash() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
 
   const [betAmount, setBetAmount] = useState("100")
-  const [phase, setPhase] = useState("idle") // idle | flying | crashed | cashed
+  const [phase, setPhase] = useState("idle") // idle | flying | crashed | cashed | countdown | start
   const [multiplier, setMultiplier] = useState(1.0)
-  const [crashPoint, setCrashPoint] = useState(null)
   const [profit, setProfit] = useState(0)
-  const [resultText, setResultText] = useState("")
+  const [countdown, setCountdown] = useState(null)
 
   const animationFrameRef = useRef(null)
   const startedAtRef = useRef(0)
   const crashPointRef = useRef(0)
+  const countdownIntervalRef = useRef(null)
+  const startTimeoutRef = useRef(null)
 
   const playerRank = useMemo(() => {
     return getPlayerRank(
@@ -106,9 +107,9 @@ function Crash() {
 
   useEffect(() => {
     return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current)
-      }
+      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current)
+      if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current)
+      if (startTimeoutRef.current) clearTimeout(startTimeoutRef.current)
     }
   }, [])
 
@@ -122,37 +123,78 @@ function Crash() {
     }
   }
 
-  const resetRound = () => {
+  const clearRoundTimers = () => {
+    if (countdownIntervalRef.current) {
+      clearInterval(countdownIntervalRef.current)
+      countdownIntervalRef.current = null
+    }
+
+    if (startTimeoutRef.current) {
+      clearTimeout(startTimeoutRef.current)
+      startTimeoutRef.current = null
+    }
+  }
+
+  const fullReset = () => {
     stopLoop()
+    clearRoundTimers()
     setPhase("idle")
     setMultiplier(1.0)
-    setCrashPoint(null)
     setProfit(0)
-    setResultText("")
+    setCountdown(null)
+  }
+
+  const runPostCrashCountdown = () => {
+    clearRoundTimers()
+    setPhase("countdown")
+    setCountdown(5)
+
+    let value = 5
+
+    countdownIntervalRef.current = setInterval(() => {
+      value -= 1
+
+      if (value > 0) {
+        setCountdown(value)
+        return
+      }
+
+      clearInterval(countdownIntervalRef.current)
+      countdownIntervalRef.current = null
+      setCountdown(null)
+      setPhase("start")
+
+      startTimeoutRef.current = setTimeout(() => {
+        setPhase("idle")
+        setMultiplier(1.0)
+      }, 1100)
+    }, 1000)
   }
 
   const startCrashLoop = () => {
     const localCrashPoint = getRandomCrashPoint()
     crashPointRef.current = localCrashPoint
-    setCrashPoint(localCrashPoint)
+
     setPhase("flying")
     setMultiplier(1.0)
     setProfit(0)
-    setResultText("")
+    setCountdown(null)
     startedAtRef.current = performance.now()
 
     const tick = (now) => {
       const elapsed = (now - startedAtRef.current) / 1000
-
-      // Рост от 1.00x с ускорением
       const nextMultiplier = Number((1 + elapsed * 0.85 + elapsed * elapsed * 0.12).toFixed(2))
 
       if (nextMultiplier >= crashPointRef.current) {
         setMultiplier(Number(crashPointRef.current.toFixed(2)))
         setPhase("crashed")
         setProfit(0)
-        setResultText(`Crash на x${crashPointRef.current.toFixed(2)}`)
         animationFrameRef.current = null
+
+        setTimeout(() => {
+          runPostCrashCountdown()
+        }, 900)
+
         return
       }
 
@@ -176,13 +218,13 @@ function Crash() {
       const payout = Math.floor(numericBet * multiplier)
       const pureProfit = Math.max(payout - numericBet, 0)
 
-      setPhase("cashed")
       setProfit(pureProfit)
-      setResultText(`Забрано на x${multiplier.toFixed(2)}`)
-      return
-    }
+      setPhase("cashed")
 
-    resetRound()
+      setTimeout(() => {
+        runPostCrashCountdown()
+      }, 900)
+    }
   }
 
   const mainButtonText =
@@ -190,7 +232,11 @@ function Crash() {
       ? "Сделать ставку"
       : phase === "flying"
         ? "Забрать"
-        : "Играть снова"
+        : phase === "countdown"
+          ? "Ожидание..."
+          : phase === "start"
+            ? "Start!"
+            : "Ожидание..."
 
   const crashPlayers = useMemo(() => {
     if (phase !== "flying") return mockPlayers
@@ -206,6 +252,11 @@ function Crash() {
 
     return [currentUser, ...mockPlayers]
   }, [phase, user?.username, user?.photoUrl, user?.casesOpened, user?.crashGamesPlayed, numericBet])
+
+  const showUfo = phase === "idle" || phase === "flying"
+  const showCrashText = phase === "crashed"
+  const showCountdown = phase === "countdown"
+  const showStartText = phase === "start"
 
   return (
     <div className="app">
@@ -244,9 +295,17 @@ function Crash() {
           </div>
 
           <div className="crash-topbar-right">
-            <div className="crash-topbar-balance">
-              <img src="/ui/star.PNG" className="crash-topbar-balance-icon" alt="" />
-              <span>{user.balance}</span>
+            <div className="crash-topbar-balance-wrap">
+              <div className="crash-topbar-balance">
+                <img src="/ui/star.PNG" className="crash-topbar-balance-icon" alt="" />
+                <span>{user.balance}</span>
+              </div>
+
+              {profit > 0 && phase !== "flying" && (
+                <div className="crash-balance-profit">
+                  +{formatStars(profit)} ⭐
+                </div>
+              )}
             </div>
 
             <button
@@ -291,16 +350,27 @@ function Crash() {
             x{multiplier.toFixed(2)}
           </div>
 
-          {resultText ? (
-            <div className={`crash-result-text ${phase}`}>
-              {resultText}
-              {phase === "cashed" && profit > 0 ? ` • +${formatStars(profit)} ⭐` : ""}
-            </div>
-          ) : null}
-
-          {ufoAnim && (
+          {showUfo && ufoAnim && (
             <div className={`crash-ufo-lottie ${phase === "flying" ? "flying" : ""}`}>
               <Lottie animationData={ufoAnim} loop autoplay />
+            </div>
+          )}
+
+          {showCrashText && (
+            <div className="crash-center-text crash-word">
+              Crash!
+            </div>
+          )}
+
+          {showCountdown && (
+            <div className="crash-center-text crash-countdown">
+              {countdown}
+            </div>
+          )}
+
+          {showStartText && (
+            <div className="crash-center-text crash-word crash-start-word">
+              Start!
             </div>
           )}
         </div>
@@ -316,7 +386,7 @@ function Crash() {
                 className="crash-bet-input"
                 value={betAmount}
                 onChange={(e) => setBetAmount(e.target.value)}
-                disabled={phase === "flying"}
+                disabled={phase !== "idle"}
                 placeholder="Ставка"
               />
             </div>
@@ -325,7 +395,7 @@ function Crash() {
               type="button"
               className={`crash-bet-btn ${phase === "flying" ? "cashout" : ""}`}
               onClick={handleMainAction}
-              disabled={phase === "idle" && !canStart}
+              disabled={(phase === "idle" && !canStart) || phase === "countdown" || phase === "start" || phase === "crashed" || phase === "cashed"}
             >
               {mainButtonText}
             </button>
