@@ -43,16 +43,11 @@ function CasePage() {
   const imgRef = useRef(null)
   const lineRef = useRef(null)
 
-  const reelItemsRef = useRef([])
   const pendingRef = useRef(null)
   const spinStartedRef = useRef(false)
   const openLockRef = useRef(false)
   const preloadPromiseRef = useRef(null)
   const preloadKeyRef = useRef("")
-
-  useEffect(() => {
-    reelItemsRef.current = reelItems
-  }, [reelItems])
 
   useEffect(() => {
     try {
@@ -297,20 +292,9 @@ function CasePage() {
 
     const reel = reelRef.current
     const wrap = wrapRef.current
-    const line = lineRef.current
     const { winIndex, durationMs } = pendingRef.current
 
     const clamp = (v, a, b) => Math.min(Math.max(v, a), b)
-
-    const getLineCenterX = () => {
-      const lr = line.getBoundingClientRect()
-      return lr.left + lr.width / 2
-    }
-
-    const getPickY = () => {
-      const wr = wrap.getBoundingClientRect()
-      return wr.top + wr.height / 2
-    }
 
     const start = () => {
       const itemsEls = reel.querySelectorAll(".roulette-item")
@@ -355,26 +339,7 @@ function CasePage() {
       const onEnd = () => {
         reel.removeEventListener("transitionend", onEnd)
 
-        const lineX = getLineCenterX()
-        const approxIdx = Math.round((finalOffset + base) / step)
-
-        let bestIdx = clamp(approxIdx, 0, reelItemsRef.current.length - 1)
-        let bestDist = Infinity
-
-        for (let i = bestIdx - 10; i <= bestIdx + 10; i++) {
-          const idx = clamp(i, 0, reelItemsRef.current.length - 1)
-          const el = itemsEls[idx]
-          if (!el) continue
-          const r = el.getBoundingClientRect()
-          const c = r.left + r.width / 2
-          const dist = Math.abs(c - lineX)
-          if (dist < bestDist) {
-            bestDist = dist
-            bestIdx = idx
-          }
-        }
-
-        let snappedOffset = bestIdx * step - base
+        let snappedOffset = winIndex * step - base
         snappedOffset = clamp(snappedOffset, 0, maxOffset)
 
         const dpr = window.devicePixelRatio || 1
@@ -383,39 +348,8 @@ function CasePage() {
         reel.style.transition = "none"
         reel.style.transform = `translate3d(-${snappedOffset}px,0,0)`
 
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            const x = getLineCenterX()
-            const y = getPickY()
-
-            let el = document.elementFromPoint(x, y)
-            if (!el) {
-              setResultId(reelItemsRef.current[bestIdx] || pendingRef.current?.winner || null)
-              setPhase("result")
-              return
-            }
-
-            const itemEl = el.closest ? el.closest(".roulette-item") : null
-            if (!itemEl) {
-              el = document.elementFromPoint(x, y + 8)
-              const itemEl2 = el?.closest ? el.closest(".roulette-item") : null
-              if (!itemEl2) {
-                setResultId(reelItemsRef.current[bestIdx] || pendingRef.current?.winner || null)
-                setPhase("result")
-                return
-              }
-
-              const idx = Number(itemEl2.getAttribute("data-index"))
-              setResultId(reelItemsRef.current[idx] || pendingRef.current?.winner || null)
-              setPhase("result")
-              return
-            }
-
-            const idx = Number(itemEl.getAttribute("data-index"))
-            setResultId(reelItemsRef.current[idx] || pendingRef.current?.winner || null)
-            setPhase("result")
-          })
-        })
+        setResultId(pendingRef.current?.winner || null)
+        setPhase("result")
       }
 
       reel.addEventListener("transitionend", onEnd)
@@ -495,51 +429,47 @@ function CasePage() {
       )}
 
       {!resultDrop && (
-  <div className="casepage-action-stack">
-    {isPreparingOrSpinning ? (
-      <button
-        type="button"
-        className="casepage-open-btn"
-        disabled
-      >
-        {openButtonText}
-      </button>
-    ) : canOpenCase ? (
-      <button
-        type="button"
-        className="casepage-open-btn"
-        onClick={openCase}
-      >
-        {openButtonText}
-      </button>
-    ) : (
-      <>
-        <button
-          type="button"
-          className="casepage-balance-warning-btn"
-          disabled
-        >
-          <span>Недостаточно</span>
-          <img
-            src="/ui/star.PNG"
-            className="casepage-balance-warning-icon"
-            alt=""
-            draggable={false}
-          />
-          <span>{formatStars(missingStars)}</span>
-        </button>
+        <div className="casepage-action-stack">
+          {isPreparingOrSpinning ? (
+            <button type="button" className="casepage-open-btn" disabled>
+              {openButtonText}
+            </button>
+          ) : canOpenCase ? (
+            <button
+              type="button"
+              className="casepage-open-btn"
+              onClick={openCase}
+            >
+              {openButtonText}
+            </button>
+          ) : (
+            <>
+              <button
+                type="button"
+                className="casepage-balance-warning-btn"
+                disabled
+              >
+                <span>Недостаточно</span>
+                <img
+                  src="/ui/star.PNG"
+                  className="casepage-balance-warning-icon"
+                  alt=""
+                  draggable={false}
+                />
+                <span>{formatStars(missingStars)}</span>
+              </button>
 
-        <button
-          type="button"
-          className="casepage-topup-btn"
-          onClick={() => navigate("/profile")}
-        >
-          Пополнить баланс
-        </button>
-      </>
-    )}
-  </div>
-)}
+              <button
+                type="button"
+                className="casepage-topup-btn"
+                onClick={() => navigate("/profile")}
+              >
+                Пополнить баланс
+              </button>
+            </>
+          )}
+        </div>
+      )}
 
       <CaseRoulette
         isSpinning={isSpinning}
