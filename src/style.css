@@ -653,13 +653,18 @@ body::after {
   box-shadow:
     0 0 10px rgba(0,255,170,0.50),
     0 10px 22px rgba(0,0,0,0.18);
-}/* ============================= */
+}:root {
+  --content-max-width: 520px;
+  --content-padding: 20px;
+}
+
+/* ============================= */
 /* PROFILE PAGE */
 /* ============================= */
 
 .profile-page {
   width: 100%;
-  max-width: 920px;
+  max-width: 560px;
   margin: 0 auto;
 
   display: flex;
@@ -682,7 +687,7 @@ body::after {
   justify-content: space-between;
   gap: 14px;
 
-  margin-bottom: 18px;
+  margin-bottom: 20px;
 }
 
 .profile-topbar-left {
@@ -846,51 +851,55 @@ body::after {
 
 .profile-tabs {
   width: 100%;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 
   display: flex;
   align-items: center;
-  gap: 26px;
+  justify-content: center;
+  gap: 34px;
 }
 
 .profile-tab {
   position: relative;
 
-  padding: 0 0 12px;
+  padding: 0 0 10px;
   border: none;
   background: transparent;
 
-  color: rgba(255,255,255,0.72);
-  font-size: 19px;
-  font-weight: 700;
+  color: rgba(255,255,255,0.86);
+  font-size: 16px;
+  font-weight: 600;
 
+  text-shadow: 0 8px 18px rgba(0,0,0,0.18);
   cursor: pointer;
   transition: color 0.2s ease, opacity 0.2s ease;
 }
 
 .profile-tab.active {
-  color: #ffffff;
+  color: #fff;
 }
 
 .profile-tab.active::after {
   content: "";
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
 
-  height: 4px;
-  border-radius: 999px;
+  width: 28px;
+  height: 3px;
 
   background: linear-gradient(
-    145deg,
-    rgba(84, 255, 182, 0.96),
-    rgba(20, 214, 144, 0.96)
+    90deg,
+    rgba(0,255,170,0.28),
+    rgba(0,255,170,1),
+    rgba(0,255,170,0.28)
   );
 
+  border-radius: 4px;
   box-shadow:
-    0 0 10px rgba(46, 232, 160, 0.32),
-    0 0 20px rgba(46, 232, 160, 0.16);
+    0 0 10px rgba(0,255,170,0.50),
+    0 10px 22px rgba(0,0,0,0.18);
 }
 
 /* ============================= */
@@ -1178,6 +1187,7 @@ body::after {
 
 @media (max-width: 640px) {
   .profile-page {
+    max-width: 520px;
     padding: 16px 16px 110px;
   }
 
@@ -1212,11 +1222,11 @@ body::after {
   }
 
   .profile-tabs {
-    gap: 22px;
+    gap: 26px;
   }
 
   .profile-tab {
-    font-size: 18px;
+    font-size: 15px;
     padding-bottom: 10px;
   }
 
@@ -1265,6 +1275,7 @@ body::after {
 
 @media (max-width: 420px) {
   .profile-page {
+    max-width: 100%;
     padding-left: 14px;
     padding-right: 14px;
   }
@@ -1306,6 +1317,10 @@ body::after {
     height: 46px;
     font-size: 26px;
     border-radius: 18px;
+  }
+
+  .profile-tab {
+    font-size: 14px;
   }
 
   .profile-item-name {
