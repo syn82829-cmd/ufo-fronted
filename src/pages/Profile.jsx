@@ -180,8 +180,8 @@ function Profile() {
 
           <div className="profile-topbar-right">
             <div className="profile-topbar-balance">
-              <span>{user.balance}</span>
               <img src="/ui/star.PNG" className="profile-topbar-balance-icon" alt="" />
+              <span>{user.balance}</span>
             </div>
 
             <button
