@@ -68,33 +68,42 @@ function Crash() {
 
     let isMounted = true
 
-    const loadCrashData = async () => {
+    const loadCrashStateOnly = async () => {
       try {
-        const [stateData, liveData] = await Promise.all([
-          getCrashState(user.id),
-          getCrashLive(),
-        ])
-
+        const stateData = await getCrashState(user.id)
         if (!isMounted) return
 
         setCrashState(stateData)
-        setLivePlayers(Array.isArray(liveData) ? liveData : [])
 
-        if (stateData?.status !== "crashed" && stateData?.status !== "waiting") {
+        if (stateData?.status !== "crashed" && stateData?.myBet?.status !== "cashed_out") {
           setProfit(0)
         }
       } catch (err) {
-        console.error("CRASH LOAD ERROR:", err)
+        console.error("CRASH STATE LOAD ERROR:", err)
       }
     }
 
-    loadCrashData()
+    const loadCrashLiveOnly = async () => {
+      try {
+        const liveData = await getCrashLive()
+        if (!isMounted) return
 
-    const interval = setInterval(loadCrashData, 1000)
+        setLivePlayers(Array.isArray(liveData) ? liveData : [])
+      } catch (err) {
+        console.error("CRASH LIVE LOAD ERROR:", err)
+      }
+    }
+
+    loadCrashStateOnly()
+    loadCrashLiveOnly()
+
+    const stateInterval = setInterval(loadCrashStateOnly, 200)
+    const liveInterval = setInterval(loadCrashLiveOnly, 1200)
 
     return () => {
       isMounted = false
-      clearInterval(interval)
+      clearInterval(stateInterval)
+      clearInterval(liveInterval)
     }
   }, [user?.id])
 
@@ -121,6 +130,22 @@ function Crash() {
     !isCashoutLoading &&
     !isBetLoading
 
+  const refreshCrashData = async () => {
+    if (!user?.id || user.id === "—") return
+
+    try {
+      const [stateData, liveData] = await Promise.all([
+        getCrashState(user.id),
+        getCrashLive(),
+      ])
+
+      setCrashState(stateData)
+      setLivePlayers(Array.isArray(liveData) ? liveData : [])
+    } catch (err) {
+      console.error("REFRESH CRASH DATA ERROR:", err)
+    }
+  }
+
   const handleMainAction = async () => {
     if (!user?.id || user.id === "—") return
 
@@ -136,15 +161,7 @@ function Crash() {
 
         await Promise.all([
           refreshUser(),
-          (async () => {
-            const [stateData, liveData] = await Promise.all([
-              getCrashState(user.id),
-              getCrashLive(),
-            ])
-
-            setCrashState(stateData)
-            setLivePlayers(Array.isArray(liveData) ? liveData : [])
-          })(),
+          refreshCrashData(),
         ])
       } catch (err) {
         console.error("PLACE CRASH BET ERROR:", err)
@@ -168,15 +185,7 @@ function Crash() {
 
         await Promise.all([
           refreshUser(),
-          (async () => {
-            const [stateData, liveData] = await Promise.all([
-              getCrashState(user.id),
-              getCrashLive(),
-            ])
-
-            setCrashState(stateData)
-            setLivePlayers(Array.isArray(liveData) ? liveData : [])
-          })(),
+          refreshCrashData(),
         ])
       } catch (err) {
         console.error("CRASH CASHOUT ERROR:", err)
@@ -199,7 +208,7 @@ function Crash() {
     return "Ожидание..."
   })()
 
-  const showUfo = isWaiting || isFlying
+  const showUfo = isFlying
   const showCrashText = isCrashed
   const showCountdown = isWaiting && countdown !== null && countdown > 0
   const showStartText = isWaiting && countdown === 0
@@ -297,7 +306,7 @@ function Crash() {
           </div>
 
           {showUfo && ufoAnim && (
-            <div className={`crash-ufo-lottie ${isFlying ? "flying" : ""}`}>
+            <div className="crash-ufo-lottie flying">
               <Lottie animationData={ufoAnim} loop autoplay />
             </div>
           )}
