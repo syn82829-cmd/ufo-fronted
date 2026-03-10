@@ -495,44 +495,51 @@ function CasePage() {
       )}
 
       {!resultDrop && (
-        <div className="casepage-action-stack">
-          {canOpenCase ? (
-            <button
-              type="button"
-              className="casepage-open-btn"
-              onClick={openCase}
-              disabled={isPreparingOrSpinning}
-            >
-              {openButtonText}
-            </button>
-          ) : (
-            <>
-              <button
-                type="button"
-                className="casepage-balance-warning-btn"
-                disabled
-              >
-                <span>Недостаточно</span>
-                <img
-                  src="/ui/star.PNG"
-                  className="casepage-balance-warning-icon"
-                  alt=""
-                  draggable={false}
-                />
-                <span>{formatStars(missingStars)}</span>
-              </button>
+  <div className="casepage-action-stack">
+    {isPreparingOrSpinning ? (
+      <button
+        type="button"
+        className="casepage-open-btn"
+        disabled
+      >
+        {openButtonText}
+      </button>
+    ) : canOpenCase ? (
+      <button
+        type="button"
+        className="casepage-open-btn"
+        onClick={openCase}
+      >
+        {openButtonText}
+      </button>
+    ) : (
+      <>
+        <button
+          type="button"
+          className="casepage-balance-warning-btn"
+          disabled
+        >
+          <span>Недостаточно</span>
+          <img
+            src="/ui/star.PNG"
+            className="casepage-balance-warning-icon"
+            alt=""
+            draggable={false}
+          />
+          <span>{formatStars(missingStars)}</span>
+        </button>
 
-              <button
-                type="button"
-                className="casepage-topup-btn"
-                onClick={() => navigate("/profile")}
-              >
-                Пополнить баланс
-              </button>
-            </>
-          )}
-        </div>
-      )}
+        <button
+          type="button"
+          className="casepage-topup-btn"
+          onClick={() => navigate("/profile")}
+        >
+          Пополнить баланс
+        </button>
+      </>
+    )}
+  </div>
+)}
 
       <CaseRoulette
         isSpinning={isSpinning}
