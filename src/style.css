@@ -1606,7 +1606,7 @@ body::after {
   height: 240px;
 
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
 
   overflow: hidden;
@@ -1632,11 +1632,12 @@ body::after {
 }
 
 .roulette-reel {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 20px;
 
   width: max-content;
+  min-width: max-content;
 
   will-change: transform;
   transform: translate3d(0,0,0);
