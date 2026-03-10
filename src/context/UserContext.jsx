@@ -27,6 +27,9 @@ export function UserProvider({ children }) {
     username: "Гость",
     balance: 0,
     photoUrl: "",
+    casesOpened: 0,
+    crashGamesPlayed: 0,
+    crashWins: 0,
   })
 
   const [isUserLoading, setIsUserLoading] = useState(true)
@@ -45,6 +48,9 @@ export function UserProvider({ children }) {
         username: dbUser.username || tgUser.username || "Гость",
         balance: dbUser.balance ?? 0,
         photoUrl: tgUser.photoUrl || tgUser.photo_url || "",
+        casesOpened: Number(dbUser.casesOpened || 0),
+        crashGamesPlayed: Number(dbUser.crashGamesPlayed || 0),
+        crashWins: Number(dbUser.crashWins || 0),
       })
     } catch (err) {
       console.error("USER CONTEXT ERROR:", err)
@@ -54,6 +60,9 @@ export function UserProvider({ children }) {
         username: tgUser.username || "Гость",
         balance: 0,
         photoUrl: tgUser.photoUrl || "",
+        casesOpened: 0,
+        crashGamesPlayed: 0,
+        crashWins: 0,
       })
     } finally {
       setIsUserLoading(false)
