@@ -17,11 +17,6 @@ const formatStars = (value) => {
   return new Intl.NumberFormat("ru-RU").format(num)
 }
 
-const getMultiplierByElapsedMs = (elapsedMs) => {
-  const elapsed = Math.max(0, elapsedMs) / 1000
-  return +(1 + elapsed * 0.85 + elapsed * elapsed * 0.12).toFixed(2)
-}
-
 function Crash() {
   const navigate = useNavigate()
   const { user, refreshUser } = useUser()
@@ -46,7 +41,6 @@ function Crash() {
   const stateLoadingRef = useRef(false)
   const liveLoadingRef = useRef(false)
   const animationFrameRef = useRef(null)
-  const startTimeoutRef = useRef(null)
 
   const playerRank = useMemo(() => {
     return getPlayerRank(
@@ -147,7 +141,7 @@ function Crash() {
     loadCrashStateOnly()
     loadCrashLiveOnly()
 
-    const stateInterval = setInterval(loadCrashStateOnly, 400)
+    const stateInterval = setInterval(loadCrashStateOnly, 250)
     const liveInterval = setInterval(loadCrashLiveOnly, 1500)
 
     return () => {
@@ -163,11 +157,6 @@ function Crash() {
       animationFrameRef.current = null
     }
 
-    if (startTimeoutRef.current) {
-      clearTimeout(startTimeoutRef.current)
-      startTimeoutRef.current = null
-    }
-
     if (!crashState) {
       setDisplayMultiplier(1)
       setDisplayCountdown(null)
@@ -176,12 +165,15 @@ function Crash() {
     }
 
     const status = crashState.status
-    const serverNow = crashState.serverTime ? new Date(crashState.serverTime).getTime() : Date.now()
-    const localNow = Date.now()
-    const offsetMs = localNow - serverNow
 
     if (status === "waiting") {
       setDisplayMultiplier(1)
+
+      const serverNow = crashState.serverTime
+        ? new Date(crashState.serverTime).getTime()
+        : Date.now()
+      const localNow = Date.now()
+      const offsetMs = localNow - serverNow
 
       const countdownStartedAt = crashState.countdownStartedAt
         ? new Date(crashState.countdownStartedAt).getTime()
@@ -196,15 +188,14 @@ function Crash() {
         }
 
         const correctedNow = Date.now() - offsetMs
-        const elapsedMs = correctedNow - countdownStartedAt
+        const elapsedMs = Math.max(0, correctedNow - countdownStartedAt)
         const remainingMs = Math.max(0, 5000 - elapsedMs)
-        const nextCountdown = Math.ceil(remainingMs / 1000)
 
         if (remainingMs <= 250) {
           setDisplayCountdown(0)
           setShowStartText(true)
         } else {
-          setDisplayCountdown(nextCountdown)
+          setDisplayCountdown(Math.ceil(remainingMs / 1000))
           setShowStartText(false)
         }
 
@@ -218,26 +209,7 @@ function Crash() {
     if (status === "flying") {
       setDisplayCountdown(null)
       setShowStartText(false)
-
-      const flyingStartedAt = crashState.flyingStartedAt
-        ? new Date(crashState.flyingStartedAt).getTime()
-        : null
-
-      const updateFlying = () => {
-        if (!flyingStartedAt) {
-          setDisplayMultiplier(Number(crashState.multiplier || 1))
-          animationFrameRef.current = requestAnimationFrame(updateFlying)
-          return
-        }
-
-        const correctedNow = Date.now() - offsetMs
-        const elapsedMs = Math.max(0, correctedNow - flyingStartedAt)
-        setDisplayMultiplier(getMultiplierByElapsedMs(elapsedMs))
-
-        animationFrameRef.current = requestAnimationFrame(updateFlying)
-      }
-
-      updateFlying()
+      setDisplayMultiplier(Number(crashState.multiplier || 1))
       return
     }
 
