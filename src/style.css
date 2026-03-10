@@ -3374,3 +3374,182 @@ body::after {
     font-size: 14px;
   }
 }
+/* ============================= */
+/* CRASH GAME MECHANICS */
+/* ============================= */
+
+.crash-multiplier {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  font-size: 44px;
+  font-weight: 800;
+  letter-spacing: 1px;
+
+  color: #ffffff;
+
+  text-shadow:
+    0 6px 18px rgba(0,0,0,0.45),
+    0 0 18px rgba(120,210,255,0.35);
+
+  transition: color 0.2s ease;
+}
+
+.crash-multiplier.crashed {
+  color: #ff5c5c;
+
+  text-shadow:
+    0 0 18px rgba(255,70,70,0.45),
+    0 6px 18px rgba(0,0,0,0.45);
+}
+
+.crash-result-text {
+  position: absolute;
+  top: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  font-size: 16px;
+  font-weight: 600;
+
+  color: rgba(255,255,255,0.9);
+
+  text-shadow: 0 4px 12px rgba(0,0,0,0.35);
+}
+
+.crash-result-text.cashed {
+  color: #63ffbe;
+}
+
+.crash-result-text.crashed {
+  color: #ff6a6a;
+}
+
+.crash-bet-controls {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.crash-bet-input-wrap {
+  flex: 1;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 12px 14px;
+
+  border-radius: 16px;
+
+  background: linear-gradient(
+    145deg,
+    rgba(255,255,255,0.12),
+    rgba(255,255,255,0.04)
+  );
+
+  border: 1px solid rgba(255,255,255,0.18);
+
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.crash-bet-input-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.crash-bet-input {
+  width: 100%;
+
+  border: none;
+  outline: none;
+
+  background: transparent;
+
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.crash-bet-input::placeholder {
+  color: rgba(255,255,255,0.45);
+}
+
+.crash-bet-btn {
+  min-width: 150px;
+
+  padding: 14px 18px;
+  border-radius: 18px;
+
+  border: none;
+
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+
+  background: linear-gradient(
+    145deg,
+    rgba(140,220,255,0.95),
+    rgba(55,170,240,0.95)
+  );
+
+  box-shadow:
+    0 10px 24px rgba(55,170,240,0.35),
+    inset 0 1px 0 rgba(255,255,255,0.3);
+
+  cursor: pointer;
+
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.crash-bet-btn:hover {
+  transform: translateY(-2px);
+}
+
+.crash-bet-btn:active {
+  transform: scale(0.96);
+}
+
+.crash-bet-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.crash-bet-btn.cashout {
+  background: linear-gradient(
+    145deg,
+    #62ffb4,
+    #27d38b
+  );
+
+  box-shadow:
+    0 10px 28px rgba(39,211,139,0.45),
+    inset 0 1px 0 rgba(255,255,255,0.25);
+}
+
+.crash-ufo-lottie.flying {
+  animation: ufoFly 5s linear infinite;
+}
+
+@keyframes ufoFly {
+  0% {
+    transform: translate(-10px, 6px) scale(0.95);
+  }
+
+  50% {
+    transform: translate(14px, -12px) scale(1.02);
+  }
+
+  100% {
+    transform: translate(-10px, 6px) scale(0.95);
+  }
+}
