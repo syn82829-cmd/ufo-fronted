@@ -296,6 +296,21 @@ function CasePage() {
 
     const clamp = (v, a, b) => Math.min(Math.max(v, a), b)
 
+    const getCenteredOffsetForIndex = (itemsEls, index) => {
+      const winnerEl = itemsEls[index]
+      if (!winnerEl) return null
+
+      const wrapWidth = wrap.getBoundingClientRect().width || 320
+      const winnerLeft = winnerEl.offsetLeft
+      const winnerWidth = winnerEl.offsetWidth
+      const winnerCenter = winnerLeft + winnerWidth / 2
+
+      const rawOffset = winnerCenter - wrapWidth / 2
+      const maxOffset = Math.max(0, reel.scrollWidth - wrapWidth)
+
+      return clamp(rawOffset, 0, maxOffset)
+    }
+
     const start = () => {
       const itemsEls = reel.querySelectorAll(".roulette-item")
       if (!itemsEls || itemsEls.length < 2) {
@@ -304,28 +319,12 @@ function CasePage() {
         return
       }
 
-      const r1 = itemsEls[0].getBoundingClientRect()
-      const r2 = itemsEls[1].getBoundingClientRect()
-      const step = r2.left - r1.left
-      if (!step || step < 50) {
+      const finalOffset = getCenteredOffsetForIndex(itemsEls, winIndex)
+      if (finalOffset == null) {
         setResultId(pendingRef.current?.winner || null)
         setPhase("result")
         return
       }
-
-      const containerWidth = wrap.getBoundingClientRect().width || 320
-      const itemW = r1.width
-      const base = containerWidth / 2 - itemW / 2
-      const maxOffset = Math.max(0, reel.scrollWidth - containerWidth)
-      const wantedOffset = winIndex * step - base
-
-      let finalOffset = wantedOffset
-
-      if (finalOffset > maxOffset - step * 2) {
-        finalOffset = maxOffset - step * 2
-      }
-
-      finalOffset = clamp(finalOffset, 0, maxOffset)
 
       reel.style.transition = "none"
       reel.style.transform = "translate3d(0px,0,0)"
@@ -339,14 +338,14 @@ function CasePage() {
       const onEnd = () => {
         reel.removeEventListener("transitionend", onEnd)
 
-        let snappedOffset = winIndex * step - base
-        snappedOffset = clamp(snappedOffset, 0, maxOffset)
+        const snappedOffset = getCenteredOffsetForIndex(itemsEls, winIndex)
+        if (snappedOffset != null) {
+          const dpr = window.devicePixelRatio || 1
+          const roundedOffset = Math.round(snappedOffset * dpr) / dpr
 
-        const dpr = window.devicePixelRatio || 1
-        snappedOffset = Math.round(snappedOffset * dpr) / dpr
-
-        reel.style.transition = "none"
-        reel.style.transform = `translate3d(-${snappedOffset}px,0,0)`
+          reel.style.transition = "none"
+          reel.style.transform = `translate3d(-${roundedOffset}px,0,0)`
+        }
 
         setResultId(pendingRef.current?.winner || null)
         setPhase("result")
