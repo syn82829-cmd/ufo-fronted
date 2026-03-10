@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import Lottie from "lottie-react"
 
@@ -31,6 +31,11 @@ function Crash() {
 
   const [isBetLoading, setIsBetLoading] = useState(false)
   const [isCashoutLoading, setIsCashoutLoading] = useState(false)
+
+  const stateRequestIdRef = useRef(0)
+  const liveRequestIdRef = useRef(0)
+  const stateLoadingRef = useRef(false)
+  const liveLoadingRef = useRef(false)
 
   const playerRank = useMemo(() => {
     return getPlayerRank(
@@ -69,36 +74,54 @@ function Crash() {
     let isMounted = true
 
     const loadCrashStateOnly = async () => {
+      if (!isMounted || stateLoadingRef.current) return
+
+      stateLoadingRef.current = true
+      const requestId = ++stateRequestIdRef.current
+
       try {
         const stateData = await getCrashState(user.id)
+
         if (!isMounted) return
+        if (requestId !== stateRequestIdRef.current) return
 
         setCrashState(stateData)
 
-        if (stateData?.status !== "crashed" && stateData?.myBet?.status !== "cashed_out") {
+        if (stateData?.myBet?.status !== "cashed_out") {
           setProfit(0)
         }
       } catch (err) {
         console.error("CRASH STATE LOAD ERROR:", err)
+      } finally {
+        stateLoadingRef.current = false
       }
     }
 
     const loadCrashLiveOnly = async () => {
+      if (!isMounted || liveLoadingRef.current) return
+
+      liveLoadingRef.current = true
+      const requestId = ++liveRequestIdRef.current
+
       try {
         const liveData = await getCrashLive()
+
         if (!isMounted) return
+        if (requestId !== liveRequestIdRef.current) return
 
         setLivePlayers(Array.isArray(liveData) ? liveData : [])
       } catch (err) {
         console.error("CRASH LIVE LOAD ERROR:", err)
+      } finally {
+        liveLoadingRef.current = false
       }
     }
 
     loadCrashStateOnly()
     loadCrashLiveOnly()
 
-    const stateInterval = setInterval(loadCrashStateOnly, 200)
-    const liveInterval = setInterval(loadCrashLiveOnly, 1200)
+    const stateInterval = setInterval(loadCrashStateOnly, 300)
+    const liveInterval = setInterval(loadCrashLiveOnly, 1500)
 
     return () => {
       isMounted = false
