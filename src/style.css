@@ -3098,17 +3098,59 @@ body::after {
   justify-content: space-between;
   gap: 12px;
 
-  padding: 10px 12px;
+  padding: 11px 13px;
   border-radius: 16px;
 
   background: linear-gradient(
     145deg,
-    rgba(255,255,255,0.06),
-    rgba(255,255,255,0.025)
+    rgba(255,255,255,0.18),
+    rgba(255,255,255,0.10)
   );
 
-  border: 1px solid rgba(255,255,255,0.10);
+  backdrop-filter: blur(12px) saturate(160%);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+
+  border: 1px solid rgba(255,255,255,0.22);
+
+  box-shadow:
+    0 10px 24px rgba(0,0,0,0.35),
+    inset 0 1px 0 rgba(255,255,255,0.25),
+    inset 0 0 18px rgba(255,255,255,0.04);
+
+  transition:
+    transform 0.18s ease,
+    background 0.18s ease,
+    box-shadow 0.18s ease;
+
+  animation: crashLiveAppear 0.35s ease;
 }
+
+.crash-live-row:hover {
+  transform: translateY(-2px);
+
+  background: linear-gradient(
+    145deg,
+    rgba(255,255,255,0.24),
+    rgba(255,255,255,0.14)
+  );
+
+  box-shadow:
+    0 14px 32px rgba(0,0,0,0.42),
+    inset 0 1px 0 rgba(255,255,255,0.32),
+    inset 0 0 24px rgba(255,255,255,0.06);
+}
+
+@keyframes crashLiveAppear {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 
 .crash-live-user {
   min-width: 0;
