@@ -17,6 +17,11 @@ const formatStars = (value) => {
   return new Intl.NumberFormat("ru-RU").format(num)
 }
 
+const getMultiplierByElapsedMs = (elapsedMs) => {
+  const elapsed = Math.max(0, elapsedMs) / 1000
+  return +(1 + elapsed * 0.85 + elapsed * elapsed * 0.12).toFixed(2)
+}
+
 function Crash() {
   const navigate = useNavigate()
   const { user, refreshUser } = useUser()
@@ -29,6 +34,10 @@ function Crash() {
   const [livePlayers, setLivePlayers] = useState([])
   const [profit, setProfit] = useState(0)
 
+  const [displayMultiplier, setDisplayMultiplier] = useState(1)
+  const [displayCountdown, setDisplayCountdown] = useState(null)
+  const [showStartText, setShowStartText] = useState(false)
+
   const [isBetLoading, setIsBetLoading] = useState(false)
   const [isCashoutLoading, setIsCashoutLoading] = useState(false)
 
@@ -36,6 +45,8 @@ function Crash() {
   const liveRequestIdRef = useRef(0)
   const stateLoadingRef = useRef(false)
   const liveLoadingRef = useRef(false)
+  const animationFrameRef = useRef(null)
+  const startTimeoutRef = useRef(null)
 
   const playerRank = useMemo(() => {
     return getPlayerRank(
@@ -85,7 +96,23 @@ function Crash() {
         if (!isMounted) return
         if (requestId !== stateRequestIdRef.current) return
 
-        setCrashState(stateData)
+        setCrashState((prev) => {
+          if (!prev) return stateData
+
+          if ((stateData?.roundNumber || 0) < (prev?.roundNumber || 0)) {
+            return prev
+          }
+
+          if (
+            stateData?.roundNumber === prev?.roundNumber &&
+            prev?.status === "crashed" &&
+            stateData?.status === "flying"
+          ) {
+            return prev
+          }
+
+          return stateData
+        })
 
         if (stateData?.myBet?.status !== "cashed_out") {
           setProfit(0)
@@ -120,7 +147,7 @@ function Crash() {
     loadCrashStateOnly()
     loadCrashLiveOnly()
 
-    const stateInterval = setInterval(loadCrashStateOnly, 300)
+    const stateInterval = setInterval(loadCrashStateOnly, 400)
     const liveInterval = setInterval(loadCrashLiveOnly, 1500)
 
     return () => {
@@ -130,10 +157,99 @@ function Crash() {
     }
   }, [user?.id])
 
+  useEffect(() => {
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current)
+      animationFrameRef.current = null
+    }
+
+    if (startTimeoutRef.current) {
+      clearTimeout(startTimeoutRef.current)
+      startTimeoutRef.current = null
+    }
+
+    if (!crashState) {
+      setDisplayMultiplier(1)
+      setDisplayCountdown(null)
+      setShowStartText(false)
+      return
+    }
+
+    const status = crashState.status
+    const serverNow = crashState.serverTime ? new Date(crashState.serverTime).getTime() : Date.now()
+    const localNow = Date.now()
+    const offsetMs = localNow - serverNow
+
+    if (status === "waiting") {
+      setDisplayMultiplier(1)
+
+      const countdownStartedAt = crashState.countdownStartedAt
+        ? new Date(crashState.countdownStartedAt).getTime()
+        : null
+
+      const updateWaiting = () => {
+        if (!countdownStartedAt) {
+          setDisplayCountdown(crashState.countdown ?? null)
+          setShowStartText(false)
+          animationFrameRef.current = requestAnimationFrame(updateWaiting)
+          return
+        }
+
+        const correctedNow = Date.now() - offsetMs
+        const elapsedMs = correctedNow - countdownStartedAt
+        const remainingMs = Math.max(0, 5000 - elapsedMs)
+        const nextCountdown = Math.ceil(remainingMs / 1000)
+
+        if (remainingMs <= 250) {
+          setDisplayCountdown(0)
+          setShowStartText(true)
+        } else {
+          setDisplayCountdown(nextCountdown)
+          setShowStartText(false)
+        }
+
+        animationFrameRef.current = requestAnimationFrame(updateWaiting)
+      }
+
+      updateWaiting()
+      return
+    }
+
+    if (status === "flying") {
+      setDisplayCountdown(null)
+      setShowStartText(false)
+
+      const flyingStartedAt = crashState.flyingStartedAt
+        ? new Date(crashState.flyingStartedAt).getTime()
+        : null
+
+      const updateFlying = () => {
+        if (!flyingStartedAt) {
+          setDisplayMultiplier(Number(crashState.multiplier || 1))
+          animationFrameRef.current = requestAnimationFrame(updateFlying)
+          return
+        }
+
+        const correctedNow = Date.now() - offsetMs
+        const elapsedMs = Math.max(0, correctedNow - flyingStartedAt)
+        setDisplayMultiplier(getMultiplierByElapsedMs(elapsedMs))
+
+        animationFrameRef.current = requestAnimationFrame(updateFlying)
+      }
+
+      updateFlying()
+      return
+    }
+
+    if (status === "crashed") {
+      setDisplayCountdown(null)
+      setShowStartText(false)
+      setDisplayMultiplier(Number(crashState.crashPoint || crashState.multiplier || 1))
+    }
+  }, [crashState])
+
   const numericBet = Math.max(0, Number(betAmount || 0))
   const status = crashState?.status || "waiting"
-  const multiplier = Number(crashState?.multiplier || 1)
-  const countdown = crashState?.countdown ?? null
   const myBet = crashState?.myBet || null
 
   const isWaiting = status === "waiting"
@@ -233,8 +349,8 @@ function Crash() {
 
   const showUfo = isFlying
   const showCrashText = isCrashed
-  const showCountdown = isWaiting && countdown !== null && countdown > 0
-  const showStartText = isWaiting && countdown === 0
+  const showCountdown = isWaiting && displayCountdown !== null && displayCountdown > 0
+  const showStart = isWaiting && showStartText
 
   return (
     <div className="app">
@@ -325,7 +441,7 @@ function Crash() {
 
         <div className="crash-flight-zone">
           <div className={`crash-multiplier ${isCrashed ? "crashed" : ""}`}>
-            x{multiplier.toFixed(2)}
+            x{Number(displayMultiplier || 1).toFixed(2)}
           </div>
 
           {showUfo && ufoAnim && (
@@ -342,11 +458,11 @@ function Crash() {
 
           {showCountdown && (
             <div className="crash-center-text crash-countdown">
-              {countdown}
+              {displayCountdown}
             </div>
           )}
 
-          {showStartText && (
+          {showStart && (
             <div className="crash-center-text crash-word crash-start-word">
               Start!
             </div>
