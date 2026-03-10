@@ -17,6 +17,11 @@ const formatStars = (value) => {
   return new Intl.NumberFormat("ru-RU").format(num)
 }
 
+const getMultiplierByElapsedMs = (elapsedMs) => {
+  const elapsed = Math.max(0, elapsedMs) / 1000
+  return +(1 + elapsed * 0.85 + elapsed * elapsed * 0.12).toFixed(2)
+}
+
 function Crash() {
   const navigate = useNavigate()
   const { user, refreshUser } = useUser()
@@ -141,8 +146,8 @@ function Crash() {
     loadCrashStateOnly()
     loadCrashLiveOnly()
 
-    const stateInterval = setInterval(loadCrashStateOnly, 250)
-    const liveInterval = setInterval(loadCrashLiveOnly, 1500)
+    const stateInterval = setInterval(loadCrashStateOnly, 150)
+    const liveInterval = setInterval(loadCrashLiveOnly, 1200)
 
     return () => {
       isMounted = false
@@ -209,7 +214,37 @@ function Crash() {
     if (status === "flying") {
       setDisplayCountdown(null)
       setShowStartText(false)
-      setDisplayMultiplier(Number(crashState.multiplier || 1))
+
+      const flyingStartedAt = crashState.flyingStartedAt
+        ? new Date(crashState.flyingStartedAt).getTime()
+        : null
+
+      const serverSnapshotTime = crashState.serverTime
+        ? new Date(crashState.serverTime).getTime()
+        : Date.now()
+
+      const localSnapshotReceivedAt = Date.now()
+      const baseMultiplier = Number(crashState.multiplier || 1)
+
+      const updateFlying = () => {
+        if (!flyingStartedAt) {
+          setDisplayMultiplier(baseMultiplier)
+          animationFrameRef.current = requestAnimationFrame(updateFlying)
+          return
+        }
+
+        const localElapsedSinceSnapshot = Date.now() - localSnapshotReceivedAt
+        const extrapolatedServerTime =
+          serverSnapshotTime + Math.min(localElapsedSinceSnapshot, 180)
+
+        const elapsedMs = Math.max(0, extrapolatedServerTime - flyingStartedAt)
+        const animatedMultiplier = getMultiplierByElapsedMs(elapsedMs)
+
+        setDisplayMultiplier(Math.max(baseMultiplier, animatedMultiplier))
+        animationFrameRef.current = requestAnimationFrame(updateFlying)
+      }
+
+      updateFlying()
       return
     }
 
@@ -250,7 +285,12 @@ function Crash() {
         getCrashLive(),
       ])
 
-      setCrashState(stateData)
+      setCrashState((prev) => {
+        if (!prev) return stateData
+        if ((stateData?.roundNumber || 0) < (prev?.roundNumber || 0)) return prev
+        return stateData
+      })
+
       setLivePlayers(Array.isArray(liveData) ? liveData : [])
     } catch (err) {
       console.error("REFRESH CRASH DATA ERROR:", err)
@@ -270,14 +310,18 @@ function Crash() {
           amount: numericBet,
         })
 
-        await Promise.all([
-          refreshUser(),
-          refreshCrashData(),
-        ])
+        setIsBetLoading(false)
+
+        refreshUser().catch((err) => {
+          console.error("REFRESH USER AFTER BET ERROR:", err)
+        })
+
+        refreshCrashData().catch((err) => {
+          console.error("REFRESH CRASH AFTER BET ERROR:", err)
+        })
       } catch (err) {
         console.error("PLACE CRASH BET ERROR:", err)
         await refreshUser().catch(() => {})
-      } finally {
         setIsBetLoading(false)
       }
 
@@ -293,15 +337,18 @@ function Crash() {
         })
 
         setProfit(Number(result?.profit || 0))
+        setIsCashoutLoading(false)
 
-        await Promise.all([
-          refreshUser(),
-          refreshCrashData(),
-        ])
+        refreshUser().catch((err) => {
+          console.error("REFRESH USER AFTER CASHOUT ERROR:", err)
+        })
+
+        refreshCrashData().catch((err) => {
+          console.error("REFRESH CRASH AFTER CASHOUT ERROR:", err)
+        })
       } catch (err) {
         console.error("CRASH CASHOUT ERROR:", err)
         await refreshUser().catch(() => {})
-      } finally {
         setIsCashoutLoading(false)
       }
     }
