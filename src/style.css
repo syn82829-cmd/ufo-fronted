@@ -3125,32 +3125,30 @@ body::after {
   animation: crashLiveAppear 0.35s ease;
 }
 
-.crash-live-row:hover {
-  transform: translateY(-2px);
+.crash-live-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  padding: 10px 12px;
+  border-radius: 16px;
 
   background: linear-gradient(
     145deg,
-    rgba(255,255,255,0.24),
-    rgba(255,255,255,0.14)
+    rgba(255,255,255,0.14),
+    rgba(255,255,255,0.08)
   );
 
+  backdrop-filter: blur(10px) saturate(150%);
+  -webkit-backdrop-filter: blur(10px) saturate(150%);
+
+  border: 1px solid rgba(255,255,255,0.18);
+
   box-shadow:
-    0 14px 32px rgba(0,0,0,0.42),
-    inset 0 1px 0 rgba(255,255,255,0.32),
-    inset 0 0 24px rgba(255,255,255,0.06);
+    0 8px 20px rgba(0,0,0,0.25),
+    inset 0 1px 0 rgba(255,255,255,0.20);
 }
-
-@keyframes crashLiveAppear {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 
 .crash-live-user {
   min-width: 0;
