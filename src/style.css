@@ -3072,15 +3072,12 @@ body::after {
 
 .crash-live-block {
   width: 100%;
-  padding: 16px 16px 14px;
+  padding: 0;
 
-  border-radius: 22px;
-
-  background: linear-gradient(
-    145deg,
-    rgba(255,255,255,0.055),
-    rgba(255,255,255,0.022)
-  );
+  background: none;
+  border: none;
+  box-shadow: none;
+}
 
   backdrop-filter: blur(8px) saturate(145%);
   -webkit-backdrop-filter: blur(8px) saturate(145%);
@@ -3096,7 +3093,7 @@ body::after {
   font-size: 16px;
   font-weight: 700;
   color: #ffffff;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .crash-live-list {
