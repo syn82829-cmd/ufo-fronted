@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom"
 import Lottie from "lottie-react"
 
 import { useUser } from "../context/UserContext"
+import { getPlayerRank } from "../utils/playerRank"
 import CaseCard from "../components/CaseCard"
 
 import "../style.css"
@@ -24,6 +25,13 @@ function Home() {
     { id: "starfall", image: "/cases/case7.png.PNG", name: "Starfall", price: 499, free: false },
     { id: "randomcase", image: "/cases/case8.png.PNG", name: "Random Case", price: 999, free: false },
   ]
+
+  const playerRank = useMemo(() => {
+    return getPlayerRank(
+      Number(user?.casesOpened || 0),
+      Number(user?.crashGamesPlayed || 0)
+    )
+  }, [user?.casesOpened, user?.crashGamesPlayed])
 
   useEffect(() => {
     let cancelled = false
@@ -98,7 +106,16 @@ function Home() {
 
           <div className="home-topbar-user">
             <div className="home-topbar-name">{user.username}</div>
-            <div className="home-topbar-id">ID: {user.id}</div>
+
+            <div className="home-topbar-rank">
+              <img
+                src={playerRank.image}
+                alt={playerRank.name}
+                className="home-topbar-rank-icon"
+                draggable={false}
+              />
+              <span className="home-topbar-rank-text">{playerRank.name}</span>
+            </div>
           </div>
         </div>
 
