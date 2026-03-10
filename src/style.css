@@ -653,7 +653,9 @@ body::after {
   box-shadow:
     0 0 10px rgba(0,255,170,0.50),
     0 10px 22px rgba(0,0,0,0.18);
-}:root {
+}
+
+:root {
   --content-max-width: 520px;
   --content-padding: 20px;
 }
