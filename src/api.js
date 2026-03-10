@@ -147,3 +147,97 @@ export async function depositBalance(data) {
 
   return result
 }
+
+// =============================
+// CRASH STATE
+// =============================
+
+export async function getCrashState(telegram_id) {
+  if (!telegram_id) {
+    throw new Error("telegram_id is required")
+  }
+
+  const res = await fetch(
+    `${API_URL}/crash/state?telegram_id=${encodeURIComponent(telegram_id)}`
+  )
+
+  const data = await res.json()
+
+  if (!res.ok) {
+    throw new Error(data?.error || "Failed to fetch crash state")
+  }
+
+  return data
+}
+
+// =============================
+// CRASH LIVE BETS
+// =============================
+
+export async function getCrashLive() {
+  const res = await fetch(`${API_URL}/crash/live`)
+  const data = await res.json()
+
+  if (!res.ok) {
+    throw new Error(data?.error || "Failed to fetch crash live bets")
+  }
+
+  return Array.isArray(data) ? data : []
+}
+
+// =============================
+// CRASH PLACE BET
+// =============================
+
+export async function placeCrashBet({ telegram_id, amount }) {
+  if (!telegram_id || !amount || Number(amount) <= 0) {
+    throw new Error("telegram_id and valid amount are required")
+  }
+
+  const res = await fetch(`${API_URL}/crash/bet`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      telegram_id,
+      amount: Number(amount),
+    }),
+  })
+
+  const data = await res.json()
+
+  if (!res.ok) {
+    throw new Error(data?.error || "Failed to place crash bet")
+  }
+
+  return data
+}
+
+// =============================
+// CRASH CASHOUT
+// =============================
+
+export async function cashoutCrash({ telegram_id }) {
+  if (!telegram_id) {
+    throw new Error("telegram_id is required")
+  }
+
+  const res = await fetch(`${API_URL}/crash/cashout`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      telegram_id,
+    }),
+  })
+
+  const data = await res.json()
+
+  if (!res.ok) {
+    throw new Error(data?.error || "Failed to cash out crash")
+  }
+
+  return data
+}
