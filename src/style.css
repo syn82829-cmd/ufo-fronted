@@ -2621,3 +2621,729 @@ body::after {
     grid-template-columns: 1fr;
   }
 }
+/* ============================= */
+/* CRASH PAGE */
+/* ============================= */
+
+.crash-page {
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  padding: 18px 20px 110px;
+  box-sizing: border-box;
+}
+
+/* ============================= */
+/* CRASH TOPBAR */
+/* ============================= */
+
+.crash-topbar {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+
+  margin-bottom: 18px;
+}
+
+.crash-topbar-left {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+}
+
+.crash-topbar-avatar {
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(110, 205, 255, 0.82);
+
+  box-shadow:
+    0 0 0 1px rgba(170, 230, 255, 0.10),
+    0 6px 18px rgba(70, 170, 255, 0.16),
+    inset 0 1px 0 rgba(255,255,255,0.18);
+
+  overflow: hidden;
+}
+
+.crash-topbar-avatar-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.crash-topbar-avatar-fallback {
+  color: white;
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.crash-topbar-user {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.crash-topbar-name {
+  color: white;
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.1;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.crash-topbar-rank {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.crash-topbar-rank-icon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  flex-shrink: 0;
+
+  filter: drop-shadow(0 2px 6px rgba(90,180,255,0.55));
+}
+
+.crash-topbar-rank-text {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.15;
+
+  background: linear-gradient(
+    90deg,
+    #ffffff,
+    #ffffff,
+    #e9f7ff,
+    #d9f0ff
+  );
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+
+  text-shadow:
+    0 0 8px rgba(120,210,255,0.18);
+}
+
+.crash-topbar-right {
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.crash-topbar-balance {
+  min-width: 110px;
+  height: 54px;
+  padding: 0 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  color: white;
+  font-size: 18px;
+  font-weight: 700;
+
+  border-radius: 28px;
+  border: 1px solid rgba(255,255,255,0.16);
+
+  background: linear-gradient(
+    145deg,
+    rgba(255,255,255,0.10),
+    rgba(255,255,255,0.04)
+  );
+
+  backdrop-filter: blur(10px) saturate(145%);
+  -webkit-backdrop-filter: blur(10px) saturate(145%);
+
+  box-shadow:
+    0 8px 18px rgba(0,0,0,0.10),
+    inset 0 1px 0 rgba(255,255,255,0.16);
+}
+
+.crash-topbar-balance-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.crash-topbar-plus {
+  width: 54px;
+  height: 54px;
+  flex-shrink: 0;
+
+  border: 1px solid rgba(165, 232, 255, 0.40);
+  border-radius: 28px;
+
+  color: #fff;
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 1;
+
+  background: linear-gradient(
+    145deg,
+    rgba(128, 210, 255, 0.92) 0%,
+    rgba(78, 182, 255, 0.90) 45%,
+    rgba(46, 156, 238, 0.92) 100%
+  );
+
+  box-shadow:
+    0 8px 18px rgba(60,150,255,0.14),
+    inset 0 1px 0 rgba(255,255,255,0.24);
+
+  cursor: pointer;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.crash-topbar-plus:active {
+  transform: scale(0.97);
+}
+
+/* ============================= */
+/* CRASH HEADER ACTIONS */
+/* ============================= */
+
+.crash-header-actions {
+  width: 100%;
+  position: relative;
+  height: 56px;
+  margin-bottom: 10px;
+}
+
+.crash-header-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+
+  width: 48px;
+  height: 48px;
+
+  border-radius: 50%;
+  border: none;
+
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  background: rgba(255,255,255,0.08);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.crash-header-btn:hover {
+  transform: translateY(-50%) scale(1.05);
+  background: rgba(255,255,255,0.14);
+}
+
+.crash-back-btn {
+  left: 0;
+}
+
+.crash-settings-btn {
+  right: 0;
+}
+
+.crash-header-icon {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+}
+
+/* ============================= */
+/* CRASH SETTINGS PANEL */
+/* ============================= */
+
+.crash-settings-panel {
+  width: 100%;
+  margin-bottom: 18px;
+  padding: 14px 16px;
+
+  border-radius: 20px;
+
+  background: linear-gradient(
+    145deg,
+    rgba(180, 220, 245, 0.15),
+    rgba(105, 170, 215, 0.11)
+  );
+
+  backdrop-filter: blur(16px) saturate(135%);
+  -webkit-backdrop-filter: blur(16px) saturate(135%);
+
+  border: 1px solid rgba(255, 255, 255, 0.13);
+
+  box-shadow:
+    0 10px 26px rgba(0, 0, 0, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.crash-settings-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.96);
+  margin-bottom: 4px;
+}
+
+.crash-settings-text {
+  font-size: 12px;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.76);
+}
+
+/* ============================= */
+/* CRASH FLIGHT ZONE */
+/* ============================= */
+
+.crash-flight-zone {
+  width: 100%;
+  min-height: 260px;
+  margin-bottom: 22px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  position: relative;
+}
+
+.crash-ufo-lottie {
+  width: 280px;
+  max-width: 88%;
+  filter: drop-shadow(0 26px 48px rgba(0,0,0,0.48));
+}
+
+.crash-ufo-lottie > * {
+  width: 100%;
+  height: 100%;
+}
+
+/* ============================= */
+/* CRASH BET BUTTON */
+/* ============================= */
+
+.crash-bet-zone {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 22px;
+}
+
+.crash-bet-btn {
+  position: relative;
+  overflow: hidden;
+
+  min-width: 230px;
+  padding: 16px 28px;
+  border: none;
+  border-radius: 22px;
+
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 700;
+
+  background: linear-gradient(
+    145deg,
+    rgba(150, 225, 255, 0.96),
+    rgba(72, 182, 246, 0.92)
+  );
+
+  box-shadow:
+    0 12px 28px rgba(56, 156, 240, 0.20),
+    inset 0 1px 0 rgba(255,255,255,0.30);
+
+  cursor: pointer;
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+
+  animation: crashBetPulse 5s ease-in-out infinite;
+}
+
+.crash-bet-btn::after {
+  content: "";
+  position: absolute;
+  top: -30%;
+  left: -42%;
+  width: 24%;
+  height: 170%;
+  pointer-events: none;
+
+  background: linear-gradient(
+    120deg,
+    transparent 0%,
+    rgba(255,255,255,0.20) 36%,
+    rgba(255,255,255,0.46) 50%,
+    rgba(255,255,255,0.14) 62%,
+    transparent 100%
+  );
+
+  transform: rotate(20deg);
+  animation: crashBetShine 3.8s ease-in-out infinite;
+}
+
+.crash-bet-btn:active {
+  transform: scale(0.98);
+}
+
+@keyframes crashBetPulse {
+  0%,
+  70%,
+  100% {
+    transform: scale(1);
+  }
+  74% {
+    transform: scale(1.05);
+  }
+  78% {
+    transform: scale(0.98);
+  }
+  82% {
+    transform: scale(1.05);
+  }
+  86% {
+    transform: scale(0.985);
+  }
+  90% {
+    transform: scale(1.04);
+  }
+}
+
+@keyframes crashBetShine {
+  0% {
+    left: -42%;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  44% {
+    left: 118%;
+    opacity: 1;
+  }
+  55% {
+    left: 118%;
+    opacity: 0;
+  }
+  100% {
+    left: 118%;
+    opacity: 0;
+  }
+}
+
+/* ============================= */
+/* CRASH LIVE BLOCK */
+/* ============================= */
+
+.crash-live-block {
+  width: 100%;
+  padding: 16px 16px 14px;
+
+  border-radius: 22px;
+
+  background: linear-gradient(
+    145deg,
+    rgba(255,255,255,0.055),
+    rgba(255,255,255,0.022)
+  );
+
+  backdrop-filter: blur(8px) saturate(145%);
+  -webkit-backdrop-filter: blur(8px) saturate(145%);
+
+  border: 1px solid rgba(255,255,255,0.12);
+
+  box-shadow:
+    0 12px 30px rgba(0,0,0,0.16),
+    inset 0 1px 0 rgba(255,255,255,0.12);
+}
+
+.crash-live-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 12px;
+}
+
+.crash-live-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.crash-live-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  padding: 10px 12px;
+  border-radius: 16px;
+
+  background: linear-gradient(
+    145deg,
+    rgba(255,255,255,0.06),
+    rgba(255,255,255,0.025)
+  );
+
+  border: 1px solid rgba(255,255,255,0.10);
+}
+
+.crash-live-user {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.crash-live-avatar {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(110, 205, 255, 0.55);
+}
+
+.crash-live-avatar-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.crash-live-avatar-fallback {
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.crash-live-meta {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.crash-live-rank {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+}
+
+.crash-live-rank-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.crash-live-rank-text {
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.1;
+
+  background: linear-gradient(
+    90deg,
+    #ffffff,
+    #ffffff,
+    #e9f7ff,
+    #d9f0ff
+  );
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.crash-live-name {
+  color: rgba(255,255,255,0.92);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.1;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.crash-live-bet {
+  flex-shrink: 0;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.crash-live-bet-icon {
+  width: 15px;
+  height: 15px;
+  object-fit: contain;
+}
+
+/* ============================= */
+/* MOBILE */
+/* ============================= */
+
+@media (max-width: 640px) {
+  .crash-page {
+    max-width: 520px;
+    padding: 16px 16px 110px;
+  }
+
+  .crash-topbar {
+    align-items: flex-start;
+  }
+
+  .crash-topbar-avatar {
+    width: 58px;
+    height: 58px;
+  }
+
+  .crash-topbar-name {
+    font-size: 18px;
+  }
+
+  .crash-topbar-rank-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .crash-topbar-rank-text {
+    font-size: 13px;
+  }
+
+  .crash-topbar-balance {
+    min-width: 96px;
+    height: 50px;
+    padding: 0 14px;
+    font-size: 17px;
+  }
+
+  .crash-topbar-plus {
+    width: 50px;
+    height: 50px;
+    font-size: 28px;
+  }
+
+  .crash-flight-zone {
+    min-height: 220px;
+  }
+
+  .crash-ufo-lottie {
+    width: 240px;
+  }
+}
+
+@media (max-width: 420px) {
+  .crash-page {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .crash-topbar-left {
+    gap: 10px;
+  }
+
+  .crash-topbar-avatar {
+    width: 54px;
+    height: 54px;
+  }
+
+  .crash-topbar-name {
+    font-size: 17px;
+  }
+
+  .crash-topbar-rank-text {
+    font-size: 12px;
+  }
+
+  .crash-topbar-right {
+    gap: 8px;
+  }
+
+  .crash-topbar-balance {
+    min-width: 88px;
+    height: 46px;
+    padding: 0 12px;
+    font-size: 16px;
+  }
+
+  .crash-topbar-plus {
+    width: 46px;
+    height: 46px;
+    font-size: 26px;
+  }
+
+  .crash-bet-btn {
+    min-width: 210px;
+    font-size: 17px;
+  }
+
+  .crash-live-row {
+    padding: 10px;
+  }
+
+  .crash-live-avatar {
+    width: 38px;
+    height: 38px;
+  }
+
+  .crash-live-name {
+    font-size: 13px;
+  }
+
+  .crash-live-bet {
+    font-size: 14px;
+  }
+}
