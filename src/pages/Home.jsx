@@ -95,6 +95,11 @@ function Home() {
               </span>
             )}
           </div>
+
+          <div className="home-topbar-user">
+            <div className="home-topbar-name">{user.username}</div>
+            <div className="home-topbar-id">ID: {user.id}</div>
+          </div>
         </div>
 
         <div className="home-topbar-right">
