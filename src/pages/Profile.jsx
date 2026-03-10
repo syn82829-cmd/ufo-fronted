@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { getInventory, sellInventoryItem } from "../api"
+import { getInventory, sellInventoryItem, depositBalance } from "../api"
 import { useUser } from "../context/UserContext"
 import "../style.css"
 
@@ -11,6 +11,7 @@ function Profile() {
   const [inventory, setInventory] = useState([])
   const [isInventoryLoading, setIsInventoryLoading] = useState(true)
   const [sellingItemId, setSellingItemId] = useState(null)
+  const [isDepositing, setIsDepositing] = useState(false)
 
   useEffect(() => {
     async function loadInventory() {
@@ -34,6 +35,26 @@ function Profile() {
 
     loadInventory()
   }, [user?.id])
+
+  const handleDeposit = async () => {
+    if (!user?.id || isDepositing) return
+
+    try {
+      setIsDepositing(true)
+
+      await depositBalance({
+        telegram_id: user.id,
+        amount: 10000,
+      })
+
+      await refreshUser()
+    } catch (err) {
+      console.error("DEPOSIT ERROR:", err)
+      await refreshUser().catch(() => {})
+    } finally {
+      setIsDepositing(false)
+    }
+  }
 
   const handleSellItem = async (itemId) => {
     if (!user?.id || !itemId || sellingItemId) return
@@ -87,7 +108,14 @@ function Profile() {
         </div>
 
         <div className="profile-actions">
-          <button className="deposit-btn large">Пополнить</button>
+          <button
+            className="deposit-btn large"
+            onClick={handleDeposit}
+            disabled={isDepositing}
+          >
+            {isDepositing ? "Пополнение..." : "Пополнить"}
+          </button>
+
           <button className="withdraw-btn large">Вывести</button>
         </div>
 
