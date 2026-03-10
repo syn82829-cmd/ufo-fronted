@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import {
   getInventory,
@@ -7,6 +7,7 @@ import {
   getTransactions,
 } from "../api"
 import { useUser } from "../context/UserContext"
+import { getPlayerRank } from "../utils/playerRank"
 import "../style.css"
 
 function Profile() {
@@ -23,6 +24,13 @@ function Profile() {
   const [isTransactionsLoading, setIsTransactionsLoading] = useState(true)
 
   const [isDepositing, setIsDepositing] = useState(false)
+
+  const playerRank = useMemo(() => {
+    return getPlayerRank(
+      Number(user?.casesOpened || 0),
+      Number(user?.crashGamesPlayed || 0)
+    )
+  }, [user?.casesOpened, user?.crashGamesPlayed])
 
   useEffect(() => {
     async function loadInventory() {
@@ -174,7 +182,16 @@ function Profile() {
 
             <div className="profile-topbar-user">
               <div className="profile-topbar-name">{user.username}</div>
-              <div className="profile-topbar-id">ID: {user.id}</div>
+
+              <div className="profile-topbar-rank">
+                <img
+                  src={playerRank.image}
+                  alt={playerRank.name}
+                  className="profile-topbar-rank-icon"
+                  draggable={false}
+                />
+                <span className="profile-topbar-rank-text">{playerRank.name}</span>
+              </div>
             </div>
           </div>
 
