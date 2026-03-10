@@ -3553,3 +3553,304 @@ body::after {
     transform: translate(-10px, 6px) scale(0.95);
   }
 }
+/* ============================= */
+/* CRASH VISUAL SYSTEM */
+/* ============================= */
+
+.crash-page {
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+/* ============================= */
+/* MULTIPLIER */
+/* ============================= */
+
+.crash-multiplier {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  font-size: 46px;
+  font-weight: 900;
+  letter-spacing: 1px;
+
+  color: #ffffff;
+
+  text-shadow:
+    0 0 14px rgba(255,255,255,0.35),
+    0 8px 24px rgba(0,0,0,0.45);
+}
+
+.crash-multiplier.crashed {
+  color: #ff6262;
+
+  text-shadow:
+    0 0 16px rgba(255,90,90,0.45),
+    0 8px 24px rgba(0,0,0,0.45);
+}
+
+/* ============================= */
+/* CENTER TEXT */
+/* ============================= */
+
+.crash-center-text {
+  position: absolute;
+  top: 46%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+
+  font-size: 54px;
+  font-weight: 900;
+  letter-spacing: 1px;
+
+  color: white;
+
+  text-shadow:
+    0 0 14px rgba(255,255,255,0.35),
+    0 10px 30px rgba(0,0,0,0.55);
+
+  animation: crashTextAppear 0.42s cubic-bezier(.18,.84,.22,1);
+}
+
+.crash-word {
+  font-size: 56px;
+}
+
+.crash-start-word {
+  color: white;
+}
+
+/* ============================= */
+/* COUNTDOWN */
+/* ============================= */
+
+.crash-countdown {
+  font-size: 52px;
+  font-weight: 900;
+
+  animation: crashCountdownPop 0.3s ease;
+}
+
+/* ============================= */
+/* UFO */
+/* ============================= */
+
+.crash-ufo-lottie {
+  width: 280px;
+  max-width: 88%;
+
+  filter: drop-shadow(0 28px 50px rgba(0,0,0,0.55));
+}
+
+.crash-ufo-lottie.flying {
+  animation: ufoFly 5s linear infinite;
+}
+
+@keyframes ufoFly {
+
+  0% {
+    transform: translate(-12px, 6px) scale(0.95);
+  }
+
+  50% {
+    transform: translate(16px, -14px) scale(1.04);
+  }
+
+  100% {
+    transform: translate(-12px, 6px) scale(0.95);
+  }
+
+}
+
+/* ============================= */
+/* PROFIT UNDER BALANCE */
+/* ============================= */
+
+.crash-balance-profit {
+  margin-top: 2px;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  color: #63ffbe;
+
+  text-shadow:
+    0 0 10px rgba(99,255,190,0.35),
+    0 4px 10px rgba(0,0,0,0.25);
+
+  animation: crashProfitAppear 0.3s ease;
+}
+
+/* ============================= */
+/* BET AREA */
+/* ============================= */
+
+.crash-bet-zone {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+
+  margin-bottom: 22px;
+}
+
+.crash-bet-controls {
+  width: 100%;
+  display: flex;
+  gap: 10px;
+}
+
+.crash-bet-input-wrap {
+  flex: 1;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 12px 14px;
+
+  border-radius: 16px;
+
+  background: linear-gradient(
+    145deg,
+    rgba(255,255,255,0.12),
+    rgba(255,255,255,0.04)
+  );
+
+  border: 1px solid rgba(255,255,255,0.18);
+
+  backdrop-filter: blur(8px);
+}
+
+.crash-bet-input {
+
+  width: 100%;
+  border: none;
+  outline: none;
+
+  background: transparent;
+
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.crash-bet-btn {
+
+  min-width: 150px;
+
+  padding: 14px 18px;
+  border-radius: 18px;
+
+  border: none;
+
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+
+  background: linear-gradient(
+    145deg,
+    rgba(140,220,255,0.95),
+    rgba(55,170,240,0.95)
+  );
+
+  box-shadow:
+    0 10px 24px rgba(55,170,240,0.35),
+    inset 0 1px 0 rgba(255,255,255,0.3);
+
+  transition: transform .15s ease;
+}
+
+.crash-bet-btn:active {
+  transform: scale(.96);
+}
+
+.crash-bet-btn.cashout {
+  background: linear-gradient(
+    145deg,
+    #62ffb4,
+    #27d38b
+  );
+
+  box-shadow:
+    0 10px 28px rgba(39,211,139,0.45),
+    inset 0 1px 0 rgba(255,255,255,0.25);
+}
+
+/* ============================= */
+/* ANIMATIONS */
+/* ============================= */
+
+@keyframes crashTextAppear {
+
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(.78);
+  }
+
+  60% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.08);
+  }
+
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+}
+
+@keyframes crashCountdownPop {
+
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(.85);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+}
+
+@keyframes crashProfitAppear {
+
+  0% {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+}
+
+/* ============================= */
+/* MOBILE FIX (INPUT JUMP) */
+/* ============================= */
+
+html,
+body {
+  height: 100%;
+  overscroll-behavior: none;
+}
+
+.app {
+  min-height: 100dvh;
+}
+
+/* navigation фикс */
+
+.bottom-nav {
+  position: fixed;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+}
