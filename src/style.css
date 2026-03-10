@@ -784,7 +784,7 @@ body::after {
   font-size: 18px;
   font-weight: 700;
 
-  border-radius: 22px;
+  border-radius: 28px;
   border: 1px solid rgba(255,255,255,0.16);
 
   background: linear-gradient(
@@ -797,7 +797,7 @@ body::after {
   -webkit-backdrop-filter: blur(10px) saturate(145%);
 
   box-shadow:
-    0 12px 28px rgba(0,0,0,0.18),
+    0 8px 18px rgba(0,0,0,0.10),
     inset 0 1px 0 rgba(255,255,255,0.16);
 }
 
@@ -814,7 +814,7 @@ body::after {
   flex-shrink: 0;
 
   border: 1px solid rgba(165, 232, 255, 0.40);
-  border-radius: 22px;
+  border-radius: 28px;
 
   color: #fff;
   font-size: 30px;
@@ -829,7 +829,7 @@ body::after {
   );
 
   box-shadow:
-    0 10px 24px rgba(60,150,255,0.20),
+    0 8px 18px rgba(60,150,255,0.14),
     inset 0 1px 0 rgba(255,255,255,0.24);
 
   cursor: pointer;
@@ -977,7 +977,7 @@ body::after {
   -webkit-backdrop-filter: blur(7px) saturate(145%);
 
   box-shadow:
-    0 12px 30px rgba(0,0,0,0.16),
+    0 4px 12px rgba(0,0,0,0.08),
     inset 0 1px 0 rgba(255,255,255,0.12);
 }
 
@@ -1050,7 +1050,7 @@ body::after {
   height: 34px;
   padding: 0 12px;
 
-  border-radius: 12px;
+  border-radius: 14px;
   border: 1px solid rgba(255,255,255,0.14);
 
   color: white;
@@ -1130,7 +1130,7 @@ body::after {
   -webkit-backdrop-filter: blur(7px) saturate(145%);
 
   box-shadow:
-    0 12px 30px rgba(0,0,0,0.16),
+    0 4px 12px rgba(0,0,0,0.08),
     inset 0 1px 0 rgba(255,255,255,0.12);
 }
 
@@ -1213,12 +1213,14 @@ body::after {
     height: 50px;
     padding: 0 14px;
     font-size: 17px;
+    border-radius: 26px;
   }
 
   .profile-topbar-plus {
     width: 50px;
     height: 50px;
     font-size: 28px;
+    border-radius: 26px;
   }
 
   .profile-tabs {
@@ -1310,13 +1312,14 @@ body::after {
     height: 46px;
     padding: 0 12px;
     font-size: 16px;
+    border-radius: 24px;
   }
 
   .profile-topbar-plus {
     width: 46px;
     height: 46px;
     font-size: 26px;
-    border-radius: 18px;
+    border-radius: 24px;
   }
 
   .profile-tab {
