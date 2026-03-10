@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import Lottie from "lottie-react"
 
@@ -11,7 +11,6 @@ const mockPlayers = [
     id: 1,
     username: "astro_max",
     avatar: "",
-    balance: 12450,
     casesOpened: 7,
     crashGamesPlayed: 3,
     bet: 250,
@@ -20,7 +19,6 @@ const mockPlayers = [
     id: 2,
     username: "nova_queen",
     avatar: "",
-    balance: 22100,
     casesOpened: 18,
     crashGamesPlayed: 11,
     bet: 500,
@@ -29,7 +27,6 @@ const mockPlayers = [
     id: 3,
     username: "voidrunner",
     avatar: "",
-    balance: 9800,
     casesOpened: 42,
     crashGamesPlayed: 6,
     bet: 1000,
@@ -38,12 +35,25 @@ const mockPlayers = [
     id: 4,
     username: "cosmo_jett",
     avatar: "",
-    balance: 17800,
     casesOpened: 81,
     crashGamesPlayed: 14,
     bet: 1500,
   },
 ]
+
+const formatStars = (value) => {
+  const num = Number(value || 0)
+  return new Intl.NumberFormat("ru-RU").format(num)
+}
+
+function getRandomCrashPoint() {
+  const roll = Math.random()
+
+  if (roll < 0.35) return 1.1 + Math.random() * 0.8
+  if (roll < 0.7) return 1.9 + Math.random() * 1.6
+  if (roll < 0.9) return 3.5 + Math.random() * 4.5
+  return 8 + Math.random() * 12
+}
 
 function Crash() {
   const navigate = useNavigate()
@@ -51,6 +61,17 @@ function Crash() {
 
   const [ufoAnim, setUfoAnim] = useState(null)
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+
+  const [betAmount, setBetAmount] = useState("100")
+  const [phase, setPhase] = useState("idle") // idle | flying | crashed | cashed
+  const [multiplier, setMultiplier] = useState(1.0)
+  const [crashPoint, setCrashPoint] = useState(null)
+  const [profit, setProfit] = useState(0)
+  const [resultText, setResultText] = useState("")
+
+  const animationFrameRef = useRef(null)
+  const startedAtRef = useRef(0)
+  const crashPointRef = useRef(0)
 
   const playerRank = useMemo(() => {
     return getPlayerRank(
@@ -82,6 +103,109 @@ function Crash() {
       cancelled = true
     }
   }, [])
+
+  useEffect(() => {
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current)
+      }
+    }
+  }, [])
+
+  const numericBet = Math.max(0, Number(betAmount || 0))
+  const canStart = phase === "idle" && numericBet > 0
+
+  const stopLoop = () => {
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current)
+      animationFrameRef.current = null
+    }
+  }
+
+  const resetRound = () => {
+    stopLoop()
+    setPhase("idle")
+    setMultiplier(1.0)
+    setCrashPoint(null)
+    setProfit(0)
+    setResultText("")
+  }
+
+  const startCrashLoop = () => {
+    const localCrashPoint = getRandomCrashPoint()
+    crashPointRef.current = localCrashPoint
+    setCrashPoint(localCrashPoint)
+    setPhase("flying")
+    setMultiplier(1.0)
+    setProfit(0)
+    setResultText("")
+    startedAtRef.current = performance.now()
+
+    const tick = (now) => {
+      const elapsed = (now - startedAtRef.current) / 1000
+
+      // Рост от 1.00x с ускорением
+      const nextMultiplier = Number((1 + elapsed * 0.85 + elapsed * elapsed * 0.12).toFixed(2))
+
+      if (nextMultiplier >= crashPointRef.current) {
+        setMultiplier(Number(crashPointRef.current.toFixed(2)))
+        setPhase("crashed")
+        setProfit(0)
+        setResultText(`Crash на x${crashPointRef.current.toFixed(2)}`)
+        animationFrameRef.current = null
+        return
+      }
+
+      setMultiplier(nextMultiplier)
+      animationFrameRef.current = requestAnimationFrame(tick)
+    }
+
+    animationFrameRef.current = requestAnimationFrame(tick)
+  }
+
+  const handleMainAction = () => {
+    if (phase === "idle") {
+      if (!canStart) return
+      startCrashLoop()
+      return
+    }
+
+    if (phase === "flying") {
+      stopLoop()
+
+      const payout = Math.floor(numericBet * multiplier)
+      const pureProfit = Math.max(payout - numericBet, 0)
+
+      setPhase("cashed")
+      setProfit(pureProfit)
+      setResultText(`Забрано на x${multiplier.toFixed(2)}`)
+      return
+    }
+
+    resetRound()
+  }
+
+  const mainButtonText =
+    phase === "idle"
+      ? "Сделать ставку"
+      : phase === "flying"
+        ? "Забрать"
+        : "Играть снова"
+
+  const crashPlayers = useMemo(() => {
+    if (phase !== "flying") return mockPlayers
+
+    const currentUser = {
+      id: "me",
+      username: user?.username || "you",
+      avatar: user?.photoUrl || "",
+      casesOpened: Number(user?.casesOpened || 0),
+      crashGamesPlayed: Number(user?.crashGamesPlayed || 0),
+      bet: numericBet,
+    }
+
+    return [currentUser, ...mockPlayers]
+  }, [phase, user?.username, user?.photoUrl, user?.casesOpened, user?.crashGamesPlayed, numericBet])
 
   return (
     <div className="app">
@@ -141,12 +265,7 @@ function Crash() {
             className="crash-header-btn crash-back-btn"
             onClick={() => navigate(-1)}
           >
-            <img
-              src="/ui/back.PNG"
-              className="crash-header-icon"
-              alt=""
-              draggable={false}
-            />
+            <img src="/ui/back.PNG" className="crash-header-icon" alt="" draggable={false} />
           </button>
 
           <button
@@ -154,12 +273,7 @@ function Crash() {
             className="crash-header-btn crash-settings-btn"
             onClick={() => setIsSettingsOpen((prev) => !prev)}
           >
-            <img
-              src="/ui/settings.PNG"
-              className="crash-header-icon"
-              alt=""
-              draggable={false}
-            />
+            <img src="/ui/settings.PNG" className="crash-header-icon" alt="" draggable={false} />
           </button>
         </div>
 
@@ -167,30 +281,62 @@ function Crash() {
           <div className="crash-settings-panel">
             <div className="crash-settings-title">UFO Crash</div>
             <div className="crash-settings-text">
-              Здесь позже добавим авто-вывод, звук и боевые настройки игры
+              Боевой режим позже подключим к Stars и истории игр
             </div>
           </div>
         )}
 
         <div className="crash-flight-zone">
+          <div className={`crash-multiplier ${phase === "crashed" ? "crashed" : ""}`}>
+            x{multiplier.toFixed(2)}
+          </div>
+
+          {resultText ? (
+            <div className={`crash-result-text ${phase}`}>
+              {resultText}
+              {phase === "cashed" && profit > 0 ? ` • +${formatStars(profit)} ⭐` : ""}
+            </div>
+          ) : null}
+
           {ufoAnim && (
-            <div className="crash-ufo-lottie" aria-hidden="true">
+            <div className={`crash-ufo-lottie ${phase === "flying" ? "flying" : ""}`}>
               <Lottie animationData={ufoAnim} loop autoplay />
             </div>
           )}
         </div>
 
         <div className="crash-bet-zone">
-          <button type="button" className="crash-bet-btn">
-            Сделать ставку
-          </button>
+          <div className="crash-bet-controls">
+            <div className="crash-bet-input-wrap">
+              <img src="/ui/star.PNG" className="crash-bet-input-icon" alt="" />
+              <input
+                type="number"
+                min="1"
+                inputMode="numeric"
+                className="crash-bet-input"
+                value={betAmount}
+                onChange={(e) => setBetAmount(e.target.value)}
+                disabled={phase === "flying"}
+                placeholder="Ставка"
+              />
+            </div>
+
+            <button
+              type="button"
+              className={`crash-bet-btn ${phase === "flying" ? "cashout" : ""}`}
+              onClick={handleMainAction}
+              disabled={phase === "idle" && !canStart}
+            >
+              {mainButtonText}
+            </button>
+          </div>
         </div>
 
         <div className="crash-live-block">
           <div className="crash-live-title">Live ставки</div>
 
           <div className="crash-live-list">
-            {mockPlayers.map((player) => {
+            {crashPlayers.map((player) => {
               const rank = getPlayerRank(player.casesOpened, player.crashGamesPlayed)
 
               return (
@@ -229,7 +375,7 @@ function Crash() {
 
                   <div className="crash-live-bet">
                     <img src="/ui/star.PNG" className="crash-live-bet-icon" alt="" />
-                    <span>{player.bet}</span>
+                    <span>{formatStars(player.bet)}</span>
                   </div>
                 </div>
               )
