@@ -17,11 +17,13 @@ export async function createUser(userData) {
     }),
   })
 
+  const data = await res.json()
+
   if (!res.ok) {
-    throw new Error("Failed to create user")
+    throw new Error(data?.error || "Failed to create user")
   }
 
-  return await res.json()
+  return data
 }
 
 // ПОЛУЧЕНИЕ БАЛАНСА
@@ -31,12 +33,13 @@ export async function getBalance(userId) {
   }
 
   const res = await fetch(`${API_URL}/balance/${userId}`)
+  const data = await res.json()
 
   if (!res.ok) {
-    throw new Error("Failed to fetch balance")
+    throw new Error(data?.error || "Failed to fetch balance")
   }
 
-  return await res.json()
+  return data
 }
 
 // ОТКРЫТИЕ КЕЙСА
@@ -72,14 +75,13 @@ export async function getInventory(telegram_id) {
   }
 
   const res = await fetch(`${API_URL}/inventory/${telegram_id}`)
-
   const data = await res.json()
 
   if (!res.ok) {
     throw new Error(data?.error || "Failed to fetch inventory")
   }
 
-  return data
+  return Array.isArray(data) ? data : []
 }
 
 // ПРОДАЖА ПРЕДМЕТА ИЗ ИНВЕНТАРЯ
@@ -115,15 +117,15 @@ export async function getTransactions(telegram_id) {
   }
 
   const res = await fetch(`${API_URL}/transactions/${telegram_id}`)
-
   const data = await res.json()
 
   if (!res.ok) {
     throw new Error(data?.error || "Failed to fetch transactions")
   }
 
-  return data
+  return Array.isArray(data) ? data : []
 }
+
 // ПОПОЛНЕНИЕ БАЛАНСА
 export async function depositBalance(data) {
   const res = await fetch(`${API_URL}/deposit`, {
@@ -137,9 +139,11 @@ export async function depositBalance(data) {
     }),
   })
 
+  const result = await res.json()
+
   if (!res.ok) {
-    throw new Error("Deposit failed")
+    throw new Error(result?.error || "Deposit failed")
   }
 
-  return await res.json()
+  return result
 }
