@@ -4,10 +4,10 @@ import Lottie from "lottie-react"
 
 import {
   cashoutCrash,
-  getCrashLive,
   getCrashState,
   placeCrashBet,
 } from "../api"
+import { socket } from "../socket"
 import { useUser } from "../context/UserContext"
 import { getPlayerRank } from "../utils/playerRank"
 import "../style.css"
@@ -41,10 +41,6 @@ function Crash() {
   const [isBetLoading, setIsBetLoading] = useState(false)
   const [isCashoutLoading, setIsCashoutLoading] = useState(false)
 
-  const stateRequestIdRef = useRef(0)
-  const liveRequestIdRef = useRef(0)
-  const stateLoadingRef = useRef(false)
-  const liveLoadingRef = useRef(false)
   const animationFrameRef = useRef(null)
 
   const playerRank = useMemo(() => {
@@ -78,82 +74,69 @@ function Crash() {
     }
   }, [])
 
-  useEffect(() => {
+  const refreshCrashData = async () => {
     if (!user?.id || user.id === "—") return
 
-    let isMounted = true
+    try {
+      const stateData = await getCrashState(user.id)
 
-    const loadCrashStateOnly = async () => {
-      if (!isMounted || stateLoadingRef.current) return
+      setCrashState((prev) => {
+        if (!prev) return stateData
+        if ((stateData?.roundNumber || 0) < (prev?.roundNumber || 0)) return prev
 
-      stateLoadingRef.current = true
-      const requestId = ++stateRequestIdRef.current
-
-      try {
-        const stateData = await getCrashState(user.id)
-
-        if (!isMounted) return
-        if (requestId !== stateRequestIdRef.current) return
-
-        setCrashState((prev) => {
-          if (!prev) return stateData
-
-          if ((stateData?.roundNumber || 0) < (prev?.roundNumber || 0)) {
-            return prev
-          }
-
-          if (
-            stateData?.roundNumber === prev?.roundNumber &&
-            prev?.status === "crashed" &&
-            stateData?.status === "flying"
-          ) {
-            return prev
-          }
-
-          return stateData
-        })
-
-        if (stateData?.myBet?.status !== "cashed_out") {
-          setProfit(0)
+        return {
+          ...prev,
+          ...stateData,
+          myBet: stateData?.myBet || null,
         }
-      } catch (err) {
-        console.error("CRASH STATE LOAD ERROR:", err)
-      } finally {
-        stateLoadingRef.current = false
-      }
+      })
+    } catch (err) {
+      console.error("REFRESH CRASH DATA ERROR:", err)
+    }
+  }
+
+  useEffect(() => {
+    const handleCrashState = (stateData) => {
+      setCrashState((prev) => {
+        if (!prev) return stateData
+
+        if ((stateData?.roundNumber || 0) < (prev?.roundNumber || 0)) {
+          return prev
+        }
+
+        if (
+          stateData?.roundNumber === prev?.roundNumber &&
+          prev?.status === "crashed" &&
+          stateData?.status === "flying"
+        ) {
+          return prev
+        }
+
+        const isNewRound = (stateData?.roundNumber || 0) > (prev?.roundNumber || 0)
+
+        return {
+          ...stateData,
+          myBet: isNewRound ? null : (prev?.myBet ?? null),
+        }
+      })
     }
 
-    const loadCrashLiveOnly = async () => {
-      if (!isMounted || liveLoadingRef.current) return
-
-      liveLoadingRef.current = true
-      const requestId = ++liveRequestIdRef.current
-
-      try {
-        const liveData = await getCrashLive()
-
-        if (!isMounted) return
-        if (requestId !== liveRequestIdRef.current) return
-
-        setLivePlayers(Array.isArray(liveData) ? liveData : [])
-      } catch (err) {
-        console.error("CRASH LIVE LOAD ERROR:", err)
-      } finally {
-        liveLoadingRef.current = false
-      }
+    const handleCrashLive = (liveData) => {
+      setLivePlayers(Array.isArray(liveData) ? liveData : [])
     }
 
-    loadCrashStateOnly()
-    loadCrashLiveOnly()
-
-    const stateInterval = setInterval(loadCrashStateOnly, 150)
-    const liveInterval = setInterval(loadCrashLiveOnly, 1200)
+    socket.on("crash:state", handleCrashState)
+    socket.on("crash:live", handleCrashLive)
 
     return () => {
-      isMounted = false
-      clearInterval(stateInterval)
-      clearInterval(liveInterval)
+      socket.off("crash:state", handleCrashState)
+      socket.off("crash:live", handleCrashLive)
     }
+  }, [])
+
+  useEffect(() => {
+    if (!user?.id || user.id === "—") return
+    refreshCrashData()
   }, [user?.id])
 
   useEffect(() => {
@@ -275,27 +258,6 @@ function Crash() {
     myBet?.status === "active" &&
     !isCashoutLoading &&
     !isBetLoading
-
-  const refreshCrashData = async () => {
-    if (!user?.id || user.id === "—") return
-
-    try {
-      const [stateData, liveData] = await Promise.all([
-        getCrashState(user.id),
-        getCrashLive(),
-      ])
-
-      setCrashState((prev) => {
-        if (!prev) return stateData
-        if ((stateData?.roundNumber || 0) < (prev?.roundNumber || 0)) return prev
-        return stateData
-      })
-
-      setLivePlayers(Array.isArray(liveData) ? liveData : [])
-    } catch (err) {
-      console.error("REFRESH CRASH DATA ERROR:", err)
-    }
-  }
 
   const handleMainAction = async () => {
     if (!user?.id || user.id === "—") return
