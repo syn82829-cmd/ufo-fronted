@@ -80,8 +80,6 @@ export function useCrashSocket({ userId, refreshUser }) {
         amount,
       })
 
-      setIsBetLoading(false)
-
       refreshUser?.().catch((err) => {
         console.error("REFRESH USER AFTER BET ERROR:", err)
       })
@@ -92,8 +90,9 @@ export function useCrashSocket({ userId, refreshUser }) {
     } catch (err) {
       console.error("PLACE CRASH BET ERROR:", err)
       await refreshUser?.().catch(() => {})
-      setIsBetLoading(false)
       throw err
+    } finally {
+      setIsBetLoading(false)
     }
   }, [userId, refreshUser, refreshCrashData])
 
@@ -108,7 +107,6 @@ export function useCrashSocket({ userId, refreshUser }) {
       })
 
       setProfit(Number(result?.profit || 0))
-      setIsCashoutLoading(false)
 
       refreshUser?.().catch((err) => {
         console.error("REFRESH USER AFTER CASHOUT ERROR:", err)
@@ -122,8 +120,9 @@ export function useCrashSocket({ userId, refreshUser }) {
     } catch (err) {
       console.error("CRASH CASHOUT ERROR:", err)
       await refreshUser?.().catch(() => {})
-      setIsCashoutLoading(false)
       throw err
+    } finally {
+      setIsCashoutLoading(false)
     }
   }, [userId, refreshUser, refreshCrashData])
 
@@ -136,6 +135,5 @@ export function useCrashSocket({ userId, refreshUser }) {
     refreshCrashData,
     placeBet,
     cashout,
-    setProfit,
   }
 }
