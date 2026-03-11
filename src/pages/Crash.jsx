@@ -97,29 +97,41 @@ function Crash() {
 
   useEffect(() => {
     const handleCrashState = (stateData) => {
-      setCrashState((prev) => {
-        if (!prev) return stateData
+  setCrashState((prev) => {
+    if (!prev) return stateData
 
-        if ((stateData?.roundNumber || 0) < (prev?.roundNumber || 0)) {
-          return prev
-        }
-
-        if (
-          stateData?.roundNumber === prev?.roundNumber &&
-          prev?.status === "crashed" &&
-          stateData?.status === "flying"
-        ) {
-          return prev
-        }
-
-        const isNewRound = (stateData?.roundNumber || 0) > (prev?.roundNumber || 0)
-
-        return {
-          ...stateData,
-          myBet: isNewRound ? null : (prev?.myBet ?? null),
-        }
-      })
+    if ((stateData?.roundNumber || 0) < (prev?.roundNumber || 0)) {
+      return prev
     }
+
+    if (
+      stateData?.roundNumber === prev?.roundNumber &&
+      prev?.status === "crashed" &&
+      stateData?.status === "flying"
+    ) {
+      return prev
+    }
+
+    if (
+      stateData?.roundNumber === prev?.roundNumber &&
+      prev?.status === "flying" &&
+      stateData?.status === "flying"
+    ) {
+      return {
+        ...prev,
+        ...stateData,
+        myBet: prev?.myBet ?? null,
+      }
+    }
+
+    const isNewRound = (stateData?.roundNumber || 0) > (prev?.roundNumber || 0)
+
+    return {
+      ...stateData,
+      myBet: isNewRound ? null : (prev?.myBet ?? null),
+    }
+  })
+}
 
     const handleCrashLive = (liveData) => {
       setLivePlayers(Array.isArray(liveData) ? liveData : [])
