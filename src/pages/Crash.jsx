@@ -1,26 +1,13 @@
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import Lottie from "lottie-react"
 
-import {
-  cashoutCrash,
-  getCrashState,
-  placeCrashBet,
-} from "../api"
-import { socket } from "../socket"
+import { useCrashSocket } from "../hooks/useCrashSocket"
+import { useCrashDisplay } from "../hooks/useCrashDisplay"
+import { formatStars } from "../utils/crashHelpers"
 import { useUser } from "../context/UserContext"
 import { getPlayerRank } from "../utils/playerRank"
 import "../style.css"
-
-const formatStars = (value) => {
-  const num = Number(value || 0)
-  return new Intl.NumberFormat("ru-RU").format(num)
-}
-
-const getMultiplierByElapsedMs = (elapsedMs) => {
-  const elapsed = Math.max(0, elapsedMs) / 1000
-  return +Math.exp(0.14 * elapsed).toFixed(2)
-}
 
 function Crash() {
   const navigate = useNavigate()
@@ -28,20 +15,26 @@ function Crash() {
 
   const [ufoAnim, setUfoAnim] = useState(null)
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
-
   const [betAmount, setBetAmount] = useState("100")
-  const [crashState, setCrashState] = useState(null)
-  const [livePlayers, setLivePlayers] = useState([])
-  const [profit, setProfit] = useState(0)
 
-  const [displayMultiplier, setDisplayMultiplier] = useState(1)
-  const [displayCountdown, setDisplayCountdown] = useState(null)
-  const [showStartText, setShowStartText] = useState(false)
+  const {
+    crashState,
+    livePlayers,
+    profit,
+    isBetLoading,
+    isCashoutLoading,
+    placeBet,
+    cashout,
+  } = useCrashSocket({
+    userId: user?.id,
+    refreshUser,
+  })
 
-  const [isBetLoading, setIsBetLoading] = useState(false)
-  const [isCashoutLoading, setIsCashoutLoading] = useState(false)
-
-  const animationFrameRef = useRef(null)
+  const {
+    displayMultiplier,
+    displayCountdown,
+    showStartText,
+  } = useCrashDisplay(crashState)
 
   const playerRank = useMemo(() => {
     return getPlayerRank(
@@ -56,7 +49,10 @@ function Crash() {
     async function loadUfoAnim() {
       try {
         const res = await fetch("/animations/ufo.json")
-        if (!res.ok) throw new Error(`Failed to load /animations/ufo.json: ${res.status}`)
+        if (!res.ok) {
+          throw new Error(`Failed to load /animations/ufo.json: ${res.status}`)
+        }
+
         const data = await res.json()
 
         if (!cancelled) {
@@ -73,176 +69,6 @@ function Crash() {
       cancelled = true
     }
   }, [])
-
-  const refreshCrashData = async () => {
-    if (!user?.id || user.id === "—") return
-
-    try {
-      const stateData = await getCrashState(user.id)
-
-      setCrashState((prev) => {
-        if (!prev) return stateData
-        if ((stateData?.roundNumber || 0) < (prev?.roundNumber || 0)) return prev
-
-        return {
-          ...prev,
-          ...stateData,
-          myBet: stateData?.myBet || null,
-        }
-      })
-    } catch (err) {
-      console.error("REFRESH CRASH DATA ERROR:", err)
-    }
-  }
-
-  useEffect(() => {
-    const handleCrashState = (stateData) => {
-  setCrashState((prev) => {
-    if (!prev) return stateData
-
-    if ((stateData?.roundNumber || 0) < (prev?.roundNumber || 0)) {
-      return prev
-    }
-
-    if (
-      stateData?.roundNumber === prev?.roundNumber &&
-      prev?.status === "crashed" &&
-      stateData?.status === "flying"
-    ) {
-      return prev
-    }
-
-    if (
-      stateData?.roundNumber === prev?.roundNumber &&
-      prev?.status === "flying" &&
-      stateData?.status === "flying"
-    ) {
-      return {
-        ...prev,
-        ...stateData,
-        myBet: prev?.myBet ?? null,
-      }
-    }
-
-    const isNewRound = (stateData?.roundNumber || 0) > (prev?.roundNumber || 0)
-
-    return {
-      ...stateData,
-      myBet: isNewRound ? null : (prev?.myBet ?? null),
-    }
-  })
-}
-
-    const handleCrashLive = (liveData) => {
-      setLivePlayers(Array.isArray(liveData) ? liveData : [])
-    }
-
-    socket.on("crash:state", handleCrashState)
-    socket.on("crash:live", handleCrashLive)
-
-    return () => {
-      socket.off("crash:state", handleCrashState)
-      socket.off("crash:live", handleCrashLive)
-    }
-  }, [])
-
-  useEffect(() => {
-    if (!user?.id || user.id === "—") return
-    refreshCrashData()
-  }, [user?.id])
-
-  useEffect(() => {
-    if (animationFrameRef.current) {
-      cancelAnimationFrame(animationFrameRef.current)
-      animationFrameRef.current = null
-    }
-
-    if (!crashState) {
-      setDisplayMultiplier(1)
-      setDisplayCountdown(null)
-      setShowStartText(false)
-      return
-    }
-
-    const status = crashState.status
-
-    if (status === "waiting") {
-      setDisplayMultiplier(1)
-
-      const serverNow = crashState.serverTime
-        ? new Date(crashState.serverTime).getTime()
-        : Date.now()
-      const localNow = Date.now()
-      const offsetMs = localNow - serverNow
-
-      const countdownStartedAt = crashState.countdownStartedAt
-        ? new Date(crashState.countdownStartedAt).getTime()
-        : null
-
-      const updateWaiting = () => {
-        if (!countdownStartedAt) {
-          setDisplayCountdown(crashState.countdown ?? null)
-          setShowStartText(false)
-          animationFrameRef.current = requestAnimationFrame(updateWaiting)
-          return
-        }
-
-        const correctedNow = Date.now() - offsetMs
-        const elapsedMs = Math.max(0, correctedNow - countdownStartedAt)
-        const remainingMs = Math.max(0, 5000 - elapsedMs)
-
-        if (remainingMs <= 250) {
-          setDisplayCountdown(0)
-          setShowStartText(true)
-        } else {
-          setDisplayCountdown(Math.ceil(remainingMs / 1000))
-          setShowStartText(false)
-        }
-
-        animationFrameRef.current = requestAnimationFrame(updateWaiting)
-      }
-
-      updateWaiting()
-      return
-    }
-
-    if (status === "flying") {
-      setDisplayCountdown(null)
-      setShowStartText(false)
-
-      const flyingStartedAt = crashState.flyingStartedAt
-        ? new Date(crashState.flyingStartedAt).getTime()
-        : null
-
-      const serverSnapshotTime = crashState.serverTime
-        ? new Date(crashState.serverTime).getTime()
-        : Date.now()
-
-      const localSnapshotReceivedAt = Date.now()
-      const updateFlying = () => {
-  if (!flyingStartedAt) {
-    animationFrameRef.current = requestAnimationFrame(updateFlying)
-    return
-  }
-
-  const elapsedMs = Date.now() - flyingStartedAt
-  const animatedMultiplier = getMultiplierByElapsedMs(elapsedMs)
-
-  setDisplayMultiplier(animatedMultiplier)
-
-  animationFrameRef.current = requestAnimationFrame(updateFlying)
-}
-
-      updateFlying()
-      return
-    }
-
-    if (status === "crashed") {
-      setDisplayCountdown(null)
-      setShowStartText(false)
-      setDisplayMultiplier(Number(crashState.crashPoint || crashState.multiplier || 1))
-    }
-  }, [crashState])
 
   const numericBet = Math.max(0, Number(betAmount || 0))
   const status = crashState?.status || "waiting"
@@ -269,56 +95,12 @@ function Crash() {
     if (!user?.id || user.id === "—") return
 
     if (canPlaceBet) {
-      try {
-        setIsBetLoading(true)
-        setProfit(0)
-
-        await placeCrashBet({
-          telegram_id: user.id,
-          amount: numericBet,
-        })
-
-        setIsBetLoading(false)
-
-        refreshUser().catch((err) => {
-          console.error("REFRESH USER AFTER BET ERROR:", err)
-        })
-
-        refreshCrashData().catch((err) => {
-          console.error("REFRESH CRASH AFTER BET ERROR:", err)
-        })
-      } catch (err) {
-        console.error("PLACE CRASH BET ERROR:", err)
-        await refreshUser().catch(() => {})
-        setIsBetLoading(false)
-      }
-
+      await placeBet(numericBet).catch(() => {})
       return
     }
 
     if (canCashout) {
-      try {
-        setIsCashoutLoading(true)
-
-        const result = await cashoutCrash({
-          telegram_id: user.id,
-        })
-
-        setProfit(Number(result?.profit || 0))
-        setIsCashoutLoading(false)
-
-        refreshUser().catch((err) => {
-          console.error("REFRESH USER AFTER CASHOUT ERROR:", err)
-        })
-
-        refreshCrashData().catch((err) => {
-          console.error("REFRESH CRASH AFTER CASHOUT ERROR:", err)
-        })
-      } catch (err) {
-        console.error("CRASH CASHOUT ERROR:", err)
-        await refreshUser().catch(() => {})
-        setIsCashoutLoading(false)
-      }
+      await cashout().catch(() => {})
     }
   }
 
