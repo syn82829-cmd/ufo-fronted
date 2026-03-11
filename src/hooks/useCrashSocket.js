@@ -75,9 +75,24 @@ export function useCrashSocket({ userId, refreshUser }) {
       setIsBetLoading(true)
       setProfit(0)
 
-      await placeCrashBet({
+      const result = await placeCrashBet({
         telegram_id: userId,
         amount,
+      })
+
+      setCrashState((prev) => {
+        if (!prev) return prev
+
+        return {
+          ...prev,
+          myBet: {
+            ...(prev?.myBet || {}),
+            ...(result?.bet || {}),
+            roundId: result?.roundId || prev?.roundId || null,
+            amount: Number(amount),
+            status: "active",
+          },
+        }
       })
 
       refreshUser?.().catch((err) => {
@@ -87,6 +102,8 @@ export function useCrashSocket({ userId, refreshUser }) {
       refreshCrashData().catch((err) => {
         console.error("REFRESH CRASH AFTER BET ERROR:", err)
       })
+
+      return result
     } catch (err) {
       console.error("PLACE CRASH BET ERROR:", err)
       await refreshUser?.().catch(() => {})
@@ -107,6 +124,19 @@ export function useCrashSocket({ userId, refreshUser }) {
       })
 
       setProfit(Number(result?.profit || 0))
+
+      setCrashState((prev) => {
+        if (!prev) return prev
+
+        return {
+          ...prev,
+          myBet: {
+            ...(prev?.myBet || {}),
+            ...(result?.bet || {}),
+            status: "cashed_out",
+          },
+        }
+      })
 
       refreshUser?.().catch((err) => {
         console.error("REFRESH USER AFTER CASHOUT ERROR:", err)
