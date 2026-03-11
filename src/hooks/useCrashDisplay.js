@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react"
-import { CRASH_WAITING_MS, getMultiplierByElapsedMs } from "../utils/crashMath"
+import { CRASH_WAITING_MS } from "../utils/crashMath"
 
 export function useCrashDisplay(crashState) {
   const [displayMultiplier, setDisplayMultiplier] = useState(1)
@@ -28,9 +28,9 @@ export function useCrashDisplay(crashState) {
       roundNumber,
       serverTime,
       countdownStartedAt,
-      flyingStartedAt,
       crashPoint,
       multiplier,
+      countdown,
     } = crashState
 
     roundRef.current = roundNumber
@@ -50,7 +50,7 @@ export function useCrashDisplay(crashState) {
         if (roundRef.current !== roundNumber) return
 
         if (!countdownStartMs) {
-          setDisplayCountdown(crashState.countdown ?? null)
+          setDisplayCountdown(countdown ?? null)
           setShowStartText(false)
           animationFrameRef.current = requestAnimationFrame(updateWaiting)
           return
@@ -78,29 +78,7 @@ export function useCrashDisplay(crashState) {
     if (status === "flying") {
       setDisplayCountdown(null)
       setShowStartText(false)
-
-      const flyingStartMs = flyingStartedAt
-        ? new Date(flyingStartedAt).getTime()
-        : null
-
-      const updateFlying = () => {
-        if (roundRef.current !== roundNumber) return
-
-        if (!flyingStartMs) {
-          setDisplayMultiplier(Number(multiplier || 1))
-          animationFrameRef.current = requestAnimationFrame(updateFlying)
-          return
-        }
-
-        const correctedNow = Date.now() - offsetMs
-        const elapsedMs = Math.max(0, correctedNow - flyingStartMs)
-        const nextMultiplier = getMultiplierByElapsedMs(elapsedMs)
-
-        setDisplayMultiplier(nextMultiplier)
-        animationFrameRef.current = requestAnimationFrame(updateFlying)
-      }
-
-      updateFlying()
+      setDisplayMultiplier(Number(multiplier || 1))
       return
     }
 
