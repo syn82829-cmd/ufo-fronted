@@ -1,11 +1,5 @@
 import { useEffect, useRef, useState } from "react"
-
-const CRASH_WAITING_MS = 5000
-
-function getMultiplierByElapsedMs(elapsedMs) {
-  const elapsed = Math.max(0, elapsedMs) / 1000
-  return +Math.exp(0.14 * elapsed).toFixed(2)
-}
+import { CRASH_WAITING_MS, getMultiplierByElapsedMs } from "../utils/crashMath"
 
 export function useCrashDisplay(crashState) {
   const [displayMultiplier, setDisplayMultiplier] = useState(1)
