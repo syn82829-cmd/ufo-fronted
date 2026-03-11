@@ -219,25 +219,19 @@ function Crash() {
         : Date.now()
 
       const localSnapshotReceivedAt = Date.now()
-      const baseMultiplier = Number(crashState.multiplier || 1)
-
       const updateFlying = () => {
-        if (!flyingStartedAt) {
-          setDisplayMultiplier(baseMultiplier)
-          animationFrameRef.current = requestAnimationFrame(updateFlying)
-          return
-        }
+  if (!flyingStartedAt) {
+    animationFrameRef.current = requestAnimationFrame(updateFlying)
+    return
+  }
 
-        const localElapsedSinceSnapshot = Date.now() - localSnapshotReceivedAt
-        const extrapolatedServerTime =
-          serverSnapshotTime + Math.min(localElapsedSinceSnapshot, 180)
+  const elapsedMs = Date.now() - flyingStartedAt
+  const animatedMultiplier = getMultiplierByElapsedMs(elapsedMs)
 
-        const elapsedMs = Math.max(0, extrapolatedServerTime - flyingStartedAt)
-        const animatedMultiplier = getMultiplierByElapsedMs(elapsedMs)
+  setDisplayMultiplier(animatedMultiplier)
 
-        setDisplayMultiplier(Math.max(baseMultiplier, animatedMultiplier))
-        animationFrameRef.current = requestAnimationFrame(updateFlying)
-      }
+  animationFrameRef.current = requestAnimationFrame(updateFlying)
+}
 
       updateFlying()
       return
