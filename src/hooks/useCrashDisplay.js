@@ -7,6 +7,7 @@ export function useCrashDisplay(crashState) {
   const [showStartText, setShowStartText] = useState(false)
 
   const animationFrameRef = useRef(null)
+  const roundRef = useRef(null)
 
   useEffect(() => {
     if (animationFrameRef.current) {
@@ -15,30 +16,40 @@ export function useCrashDisplay(crashState) {
     }
 
     if (!crashState) {
+      roundRef.current = null
       setDisplayMultiplier(1)
       setDisplayCountdown(null)
       setShowStartText(false)
       return
     }
 
-    const status = crashState.status
+    const {
+      status,
+      roundNumber,
+      serverTime,
+      countdownStartedAt,
+      flyingStartedAt,
+      crashPoint,
+      multiplier,
+    } = crashState
+
+    roundRef.current = roundNumber
+
+    const serverNow = serverTime ? new Date(serverTime).getTime() : Date.now()
+    const localNow = Date.now()
+    const offsetMs = localNow - serverNow
 
     if (status === "waiting") {
       setDisplayMultiplier(1)
 
-      const serverNow = crashState.serverTime
-        ? new Date(crashState.serverTime).getTime()
-        : Date.now()
-
-      const localNow = Date.now()
-      const offsetMs = localNow - serverNow
-
-      const countdownStartedAt = crashState.countdownStartedAt
-        ? new Date(crashState.countdownStartedAt).getTime()
+      const countdownStartMs = countdownStartedAt
+        ? new Date(countdownStartedAt).getTime()
         : null
 
       const updateWaiting = () => {
-        if (!countdownStartedAt) {
+        if (roundRef.current !== roundNumber) return
+
+        if (!countdownStartMs) {
           setDisplayCountdown(crashState.countdown ?? null)
           setShowStartText(false)
           animationFrameRef.current = requestAnimationFrame(updateWaiting)
@@ -46,10 +57,10 @@ export function useCrashDisplay(crashState) {
         }
 
         const correctedNow = Date.now() - offsetMs
-        const elapsedMs = Math.max(0, correctedNow - countdownStartedAt)
+        const elapsedMs = Math.max(0, correctedNow - countdownStartMs)
         const remainingMs = Math.max(0, CRASH_WAITING_MS - elapsedMs)
 
-        if (remainingMs <= 250) {
+        if (remainingMs <= 120) {
           setDisplayCountdown(0)
           setShowStartText(true)
         } else {
@@ -68,20 +79,24 @@ export function useCrashDisplay(crashState) {
       setDisplayCountdown(null)
       setShowStartText(false)
 
-      const flyingStartedAt = crashState.flyingStartedAt
-        ? new Date(crashState.flyingStartedAt).getTime()
+      const flyingStartMs = flyingStartedAt
+        ? new Date(flyingStartedAt).getTime()
         : null
 
       const updateFlying = () => {
-        if (!flyingStartedAt) {
+        if (roundRef.current !== roundNumber) return
+
+        if (!flyingStartMs) {
+          setDisplayMultiplier(Number(multiplier || 1))
           animationFrameRef.current = requestAnimationFrame(updateFlying)
           return
         }
 
-        const elapsedMs = Date.now() - flyingStartedAt
-        const animatedMultiplier = getMultiplierByElapsedMs(elapsedMs)
+        const correctedNow = Date.now() - offsetMs
+        const elapsedMs = Math.max(0, correctedNow - flyingStartMs)
+        const nextMultiplier = getMultiplierByElapsedMs(elapsedMs)
 
-        setDisplayMultiplier(animatedMultiplier)
+        setDisplayMultiplier(nextMultiplier)
         animationFrameRef.current = requestAnimationFrame(updateFlying)
       }
 
@@ -92,7 +107,8 @@ export function useCrashDisplay(crashState) {
     if (status === "crashed") {
       setDisplayCountdown(null)
       setShowStartText(false)
-      setDisplayMultiplier(Number(crashState.crashPoint || crashState.multiplier || 1))
+      setDisplayMultiplier(Number(crashPoint || multiplier || 1))
+      return
     }
 
     return () => {
