@@ -15,63 +15,39 @@ export function useCrashSocket({ userId, refreshUser }) {
   const [isBetLoading, setIsBetLoading] = useState(false)
   const [isCashoutLoading, setIsCashoutLoading] = useState(false)
 
+  const mergeCrashState = useCallback((prev, next) => {
+    if (!next) return prev
+    if (!prev) return next
+
+    const prevRound = Number(prev?.roundNumber || 0)
+    const nextRound = Number(next?.roundNumber || 0)
+
+    if (nextRound < prevRound) {
+      return prev
+    }
+
+    const isNewRound = nextRound > prevRound
+
+    return {
+      ...next,
+      myBet: isNewRound ? null : (next?.myBet ?? prev?.myBet ?? null),
+    }
+  }, [])
+
   const refreshCrashData = useCallback(async () => {
     if (!userId || userId === "—") return
 
     try {
       const stateData = await getCrashState(userId)
-
-      setCrashState((prev) => {
-        if (!prev) return stateData
-        if ((stateData?.roundNumber || 0) < (prev?.roundNumber || 0)) return prev
-
-        return {
-          ...prev,
-          ...stateData,
-          myBet: stateData?.myBet || null,
-        }
-      })
+      setCrashState((prev) => mergeCrashState(prev, stateData))
     } catch (err) {
       console.error("REFRESH CRASH DATA ERROR:", err)
     }
-  }, [userId])
+  }, [userId, mergeCrashState])
 
   useEffect(() => {
     const handleCrashState = (stateData) => {
-      setCrashState((prev) => {
-        if (!prev) return stateData
-
-        if ((stateData?.roundNumber || 0) < (prev?.roundNumber || 0)) {
-          return prev
-        }
-
-        if (
-          stateData?.roundNumber === prev?.roundNumber &&
-          prev?.status === "crashed" &&
-          stateData?.status === "flying"
-        ) {
-          return prev
-        }
-
-        if (
-          stateData?.roundNumber === prev?.roundNumber &&
-          prev?.status === "flying" &&
-          stateData?.status === "flying"
-        ) {
-          return {
-            ...prev,
-            ...stateData,
-            myBet: prev?.myBet ?? null,
-          }
-        }
-
-        const isNewRound = (stateData?.roundNumber || 0) > (prev?.roundNumber || 0)
-
-        return {
-          ...stateData,
-          myBet: isNewRound ? null : (prev?.myBet ?? null),
-        }
-      })
+      setCrashState((prev) => mergeCrashState(prev, stateData))
     }
 
     const handleCrashLive = (liveData) => {
@@ -85,7 +61,7 @@ export function useCrashSocket({ userId, refreshUser }) {
       socket.off("crash:state", handleCrashState)
       socket.off("crash:live", handleCrashLive)
     }
-  }, [])
+  }, [mergeCrashState])
 
   useEffect(() => {
     if (!userId || userId === "—") return
