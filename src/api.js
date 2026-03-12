@@ -241,3 +241,31 @@ export async function cashoutCrash({ telegram_id }) {
 
   return data
 }
+// =============================
+// TELEGRAM STARS INVOICE
+// =============================
+
+export async function createStarsInvoice({ telegram_id, amount }) {
+  if (!telegram_id || !amount) {
+    throw new Error("telegram_id and amount required")
+  }
+
+  const res = await fetch(`${API_URL}/stars/invoice`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      telegram_id,
+      amount,
+    }),
+  })
+
+  const data = await res.json()
+
+  if (!res.ok) {
+    throw new Error(data?.error || "Failed to create stars invoice")
+  }
+
+  return data
+}
