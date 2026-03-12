@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react"
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react"
 import { createUser } from "../api"
 
 const UserContext = createContext(null)
@@ -34,7 +34,7 @@ export function UserProvider({ children }) {
 
   const [isUserLoading, setIsUserLoading] = useState(true)
 
-  const refreshUser = async () => {
+  const refreshUser = useCallback(async () => {
     const tgUser = getTelegramUser()
 
     try {
@@ -46,7 +46,7 @@ export function UserProvider({ children }) {
       setUser({
         id: dbUser.telegram_id,
         username: dbUser.username || tgUser.username || "Гость",
-        balance: dbUser.balance ?? 0,
+        balance: Number(dbUser.balance ?? 0),
         photoUrl: tgUser.photoUrl || tgUser.photo_url || "",
         casesOpened: Number(dbUser.casesOpened || 0),
         crashGamesPlayed: Number(dbUser.crashGamesPlayed || 0),
@@ -67,7 +67,36 @@ export function UserProvider({ children }) {
     } finally {
       setIsUserLoading(false)
     }
-  }
+  }, [])
+
+  const patchUser = useCallback((patch) => {
+    setUser((prev) => ({
+      ...prev,
+      ...(typeof patch === "function" ? patch(prev) : patch),
+    }))
+  }, [])
+
+  const incrementBalance = useCallback((amount) => {
+    const value = Number(amount || 0)
+
+    if (!value) return
+
+    setUser((prev) => ({
+      ...prev,
+      balance: Math.max(0, Number(prev.balance || 0) + value),
+    }))
+  }, [])
+
+  const decrementBalance = useCallback((amount) => {
+    const value = Number(amount || 0)
+
+    if (!value) return
+
+    setUser((prev) => ({
+      ...prev,
+      balance: Math.max(0, Number(prev.balance || 0) - value),
+    }))
+  }, [])
 
   useEffect(() => {
     const tg = window.Telegram?.WebApp
@@ -77,16 +106,26 @@ export function UserProvider({ children }) {
     }
 
     refreshUser()
-  }, [])
+  }, [refreshUser])
 
   const value = useMemo(() => {
     return {
       user,
       setUser,
+      patchUser,
+      incrementBalance,
+      decrementBalance,
       refreshUser,
       isUserLoading,
     }
-  }, [user, isUserLoading])
+  }, [
+    user,
+    patchUser,
+    incrementBalance,
+    decrementBalance,
+    refreshUser,
+    isUserLoading,
+  ])
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>
 }
