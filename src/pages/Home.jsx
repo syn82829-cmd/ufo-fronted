@@ -110,7 +110,7 @@ function Home() {
   const showCountdown = isWaiting && countdown > 0
 
   const crashMainValue = isFlying
-    ? `> x${multiplier.toFixed(2)}`
+    ? `x${multiplier.toFixed(2)}`
     : showCountdown
       ? String(countdown)
       : showStart
@@ -119,11 +119,11 @@ function Home() {
           ? `x${multiplier.toFixed(2)}`
           : "5"
 
-  const crashSubText = isCrashed
-    ? "Crash!"
+  const crashSubText = showCountdown
+    ? "Ожидание игроков"
     : showStart
       ? "Start!"
-      : "Ожидание игроков…"
+      : ""
 
   const crashMainClass = isCrashed
     ? "multiplier crashed"
@@ -189,9 +189,11 @@ function Home() {
           {crashMainValue}
         </div>
 
-        <div className={`home-crash-subtext ${isCrashed ? "crashed" : ""}`}>
-          {crashSubText}
-        </div>
+        {!!crashSubText && (
+          <div className="home-crash-subtext">
+            {crashSubText}
+          </div>
+        )}
 
         <button className="launch-btn" type="button">
           Запустить НЛО
