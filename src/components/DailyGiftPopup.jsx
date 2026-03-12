@@ -44,7 +44,14 @@ function DailyGiftPopup() {
           return
         }
 
-        await getBonusState(user.id)
+        const bonusState = await getBonusState(user.id)
+        const isAvailable = bonusState?.canClaim === true
+
+        if (!isAvailable) {
+          setIsOpen(false)
+          setIsLoading(false)
+          return
+        }
 
         setIsOpen(true)
         sessionStorage.setItem("ufomo_daily_gift_popup_shown", "true")
