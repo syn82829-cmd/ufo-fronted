@@ -4502,3 +4502,50 @@ body {
     font-size: 13px;
   }
 }
+/* ============================= */
+/* INTERACTION LOCKS */
+/* ============================= */
+
+html,
+body,
+#root {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+img {
+  -webkit-user-drag: none;
+  user-drag: none;
+}
+
+button,
+a,
+div,
+span,
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+img {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+.nav-item,
+.case-card,
+.crash-panel,
+.profile-item-action-btn,
+.bonus-link-btn,
+.bonus-claim-btn,
+.daily-gift-claim-btn,
+.deposit-option,
+.deposit-close,
+.home-topbar-plus,
+.profile-topbar-plus,
+.crash-bet-btn {
+  touch-action: manipulation;
+}
