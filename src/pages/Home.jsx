@@ -6,6 +6,7 @@ import { useUser } from "../context/UserContext"
 import { getPlayerRank } from "../utils/playerRank"
 import { socket } from "../socket"
 import CaseCard from "../components/CaseCard"
+import DepositMenu from "../components/DepositMenu"
 
 import "../style.css"
 
@@ -16,6 +17,7 @@ function Home() {
   const [ufoAnim, setUfoAnim] = useState(null)
   const [casesFilter, setCasesFilter] = useState("expensive")
   const [crashState, setCrashState] = useState(null)
+  const [isDepositOpen, setIsDepositOpen] = useState(false)
 
   const cases = [
     { id: "firstpepe", image: "/cases/case1.png.PNG", name: "Pepe Case", price: 9999, free: false },
@@ -175,7 +177,7 @@ function Home() {
           <button
             type="button"
             className="home-topbar-plus"
-            onClick={() => navigate("/profile")}
+            onClick={() => setIsDepositOpen(true)}
           >
             +
           </button>
@@ -237,6 +239,11 @@ function Home() {
           Профиль
         </div>
       </div>
+
+      <DepositMenu
+        isOpen={isDepositOpen}
+        onClose={() => setIsDepositOpen(false)}
+      />
     </div>
   )
 }
