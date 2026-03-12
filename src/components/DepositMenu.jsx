@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react"
 import { createStarsInvoice } from "../api"
 import { useUser } from "../context/UserContext"
+import { triggerHaptic } from "../utils/haptics"
 
 function DepositMenu({ isOpen, onClose }) {
   const { user, refreshUser } = useUser()
@@ -16,16 +17,19 @@ function DepositMenu({ isOpen, onClose }) {
   const canDeposit = numericAmount > 0 && !isLoading
 
   const handleOptionClick = (value) => {
+    triggerHaptic("light")
     setAmount(String(value))
   }
 
   const handleChange = (e) => {
+    triggerHaptic("light")
     const digitsOnly = e.target.value.replace(/[^\d]/g, "")
     setAmount(digitsOnly)
   }
 
   const handleMainAction = async () => {
     if (!canDeposit) {
+      triggerHaptic("light")
       onClose()
       return
     }
@@ -33,6 +37,8 @@ function DepositMenu({ isOpen, onClose }) {
     if (!user?.id) return
 
     try {
+      triggerHaptic("medium")
+
       setIsLoading(true)
 
       const result = await createStarsInvoice({
@@ -48,12 +54,23 @@ function DepositMenu({ isOpen, onClose }) {
 
       tg.openInvoice(result.invoiceLink, async (status) => {
         if (status === "paid") {
+          triggerHaptic("success")
+
           await refreshUser().catch(() => {})
           setAmount("")
           onClose()
         }
+
+        if (status === "cancelled") {
+          triggerHaptic("light")
+        }
+
+        if (status === "failed") {
+          triggerHaptic("error")
+        }
       })
     } catch (err) {
+      triggerHaptic("error")
       console.error("STARS INVOICE ERROR:", err)
     } finally {
       setIsLoading(false)
@@ -61,7 +78,13 @@ function DepositMenu({ isOpen, onClose }) {
   }
 
   return (
-    <div className="deposit-overlay" onClick={onClose}>
+    <div
+      className="deposit-overlay"
+      onClick={() => {
+        triggerHaptic("light")
+        onClose()
+      }}
+    >
       <div className="deposit-sheet" onClick={(e) => e.stopPropagation()}>
         <div className="deposit-handle" />
 
