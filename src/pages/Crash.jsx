@@ -5,6 +5,7 @@ import Lottie from "lottie-react"
 import { useCrashSocket } from "../hooks/useCrashSocket"
 import { useCrashDisplay } from "../hooks/useCrashDisplay"
 import { formatStars } from "../utils/crashHelpers"
+import { triggerHaptic } from "../utils/haptics"
 import { useUser } from "../context/UserContext"
 import { getPlayerRank } from "../utils/playerRank"
 import "../style.css"
@@ -98,13 +99,27 @@ function Crash() {
     if (!user?.id || user.id === "—") return
 
     if (canPlaceBet) {
-      await placeBet(numericBet).catch(() => {})
+      try {
+        triggerHaptic("medium")
+        await placeBet(numericBet)
+      } catch (err) {
+        triggerHaptic("error")
+      }
       return
     }
 
     if (canCashout) {
-      await cashout().catch(() => {})
+      try {
+        triggerHaptic("medium")
+        await cashout()
+        triggerHaptic("success")
+      } catch (err) {
+        triggerHaptic("error")
+      }
+      return
     }
+
+    triggerHaptic("error")
   }
 
   const mainButtonText = (() => {
@@ -128,7 +143,13 @@ function Crash() {
     <div className="app">
       <div className="crash-page">
         <div className="crash-topbar">
-          <div className="crash-topbar-left" onClick={() => navigate("/profile")}>
+          <div
+            className="crash-topbar-left"
+            onClick={() => {
+              triggerHaptic("light")
+              navigate("/profile")
+            }}
+          >
             <div className="crash-topbar-avatar">
               {user.photoUrl ? (
                 <img
@@ -177,7 +198,10 @@ function Crash() {
             <button
               type="button"
               className="crash-topbar-plus"
-              onClick={() => navigate("/profile")}
+              onClick={() => {
+                triggerHaptic("light")
+                navigate("/profile")
+              }}
             >
               +
             </button>
@@ -188,7 +212,10 @@ function Crash() {
           <button
             type="button"
             className="crash-header-btn crash-back-btn"
-            onClick={() => navigate(-1)}
+            onClick={() => {
+              triggerHaptic("light")
+              navigate(-1)
+            }}
           >
             <img src="/ui/back.PNG" className="crash-header-icon" alt="" draggable={false} />
           </button>
@@ -196,7 +223,10 @@ function Crash() {
           <button
             type="button"
             className="crash-header-btn crash-settings-btn"
-            onClick={() => setIsSettingsOpen((prev) => !prev)}
+            onClick={() => {
+              triggerHaptic("light")
+              setIsSettingsOpen((prev) => !prev)
+            }}
           >
             <img src="/ui/settings.PNG" className="crash-header-icon" alt="" draggable={false} />
           </button>
@@ -315,19 +345,43 @@ function Crash() {
       </div>
 
       <div className="bottom-nav">
-        <div className="nav-item" onClick={() => navigate("/bonus")}>
+        <div
+          className="nav-item"
+          onClick={() => {
+            triggerHaptic("light")
+            navigate("/bonus")
+          }}
+        >
           Бонусы
         </div>
 
-        <div className="nav-item" onClick={() => navigate("/giveaways")}>
+        <div
+          className="nav-item"
+          onClick={() => {
+            triggerHaptic("light")
+            navigate("/giveaways")
+          }}
+        >
           Розыгрыши
         </div>
 
-        <div className="nav-item" onClick={() => navigate("/")}>
+        <div
+          className="nav-item"
+          onClick={() => {
+            triggerHaptic("light")
+            navigate("/")
+          }}
+        >
           Главная
         </div>
 
-        <div className="nav-item" onClick={() => navigate("/profile")}>
+        <div
+          className="nav-item"
+          onClick={() => {
+            triggerHaptic("light")
+            navigate("/profile")
+          }}
+        >
           Профиль
         </div>
       </div>
