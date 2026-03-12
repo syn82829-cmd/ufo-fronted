@@ -1,14 +1,17 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import Lottie from "lottie-react"
+
 import { getBonusState } from "../api"
 import { useUser } from "../context/UserContext"
+import podarokAnimation from "../assets/animations/podarok.json"
 
 function DailyGiftPopup() {
   const navigate = useNavigate()
   const { user } = useUser()
 
   const [isOpen, setIsOpen] = useState(false)
-  const [dontShow, setDontShow] = useState(false)
+  const [dontShowToday, setDontShowToday] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
@@ -19,17 +22,32 @@ function DailyGiftPopup() {
       }
 
       try {
-        const hidden = localStorage.getItem("ufomo_hide_daily_gift_popup") === "true"
-        setDontShow(hidden)
+        const today = new Date().toISOString().slice(0, 10)
 
-        if (hidden) {
+        const hiddenToday =
+          localStorage.getItem("ufomo_hide_daily_gift_popup_date") === today
+
+        setDontShowToday(hiddenToday)
+
+        if (hiddenToday) {
+          setIsOpen(false)
+          setIsLoading(false)
+          return
+        }
+
+        const sessionShown =
+          sessionStorage.getItem("ufomo_daily_gift_popup_shown") === "true"
+
+        if (sessionShown) {
           setIsOpen(false)
           setIsLoading(false)
           return
         }
 
         await getBonusState(user.id)
+
         setIsOpen(true)
+        sessionStorage.setItem("ufomo_daily_gift_popup_shown", "true")
       } catch (error) {
         console.error("DAILY GIFT POPUP ERROR:", error)
         setIsOpen(false)
@@ -41,10 +59,17 @@ function DailyGiftPopup() {
     loadBonusPopup()
   }, [user?.id])
 
-  const handleToggleDontShow = () => {
-    const nextValue = !dontShow
-    setDontShow(nextValue)
-    localStorage.setItem("ufomo_hide_daily_gift_popup", String(nextValue))
+  const handleToggleDontShowToday = () => {
+    const today = new Date().toISOString().slice(0, 10)
+    const nextValue = !dontShowToday
+
+    setDontShowToday(nextValue)
+
+    if (nextValue) {
+      localStorage.setItem("ufomo_hide_daily_gift_popup_date", today)
+    } else {
+      localStorage.removeItem("ufomo_hide_daily_gift_popup_date")
+    }
   }
 
   const handleClose = () => {
@@ -62,30 +87,33 @@ function DailyGiftPopup() {
     <div className="daily-gift-overlay" onClick={handleClose}>
       <div className="daily-gift-popup" onClick={(e) => e.stopPropagation()}>
         <div className="daily-gift-visual">
-          <div className="daily-gift-placeholder">
-            🎁
-          </div>
+          <Lottie
+            animationData={podarokAnimation}
+            loop={true}
+            autoplay={true}
+            className="daily-gift-lottie"
+          />
         </div>
 
         <div className="daily-gift-title">
-          Ежедневный Бесплатный подарок!
+          Бесплатный подарок!
         </div>
 
         <div className="daily-gift-subtitle">
-          Заходи каждый день и забирай подарок бесплатно!
+          Заходите каждый день и забирайте новый подарок бесплатно.
         </div>
 
         <div className="daily-gift-bottom">
           <button
             type="button"
-            className={`daily-gift-checkbox ${dontShow ? "active" : ""}`}
-            onClick={handleToggleDontShow}
+            className={`daily-gift-checkbox ${dontShowToday ? "active" : ""}`}
+            onClick={handleToggleDontShowToday}
           >
-            {dontShow ? "✓" : ""}
+            {dontShowToday ? "✓" : ""}
           </button>
 
           <div className="daily-gift-checkbox-label">
-            Больше не показывать
+            Не показывать сегодня
           </div>
 
           <button
