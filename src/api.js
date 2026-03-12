@@ -248,3 +248,93 @@ export async function cashoutCrash({ telegram_id }) {
 
   return data
 }
+// =============================
+// BONUS STATE
+// =============================
+
+export async function getBonusState(telegram_id) {
+  if (!telegram_id) {
+    throw new Error("telegram_id is required")
+  }
+
+  const res = await fetch(`${API_URL}/bonus/state/${telegram_id}`)
+  const data = await res.json()
+
+  if (!res.ok) {
+    throw new Error(data?.error || "Failed to fetch bonus state")
+  }
+
+  return data
+}
+
+// =============================
+// BONUS CHECK CHANNEL
+// =============================
+
+export async function checkBonusChannel(telegram_id) {
+  const res = await fetch(`${API_URL}/bonus/check-channel`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      telegram_id,
+    }),
+  })
+
+  const data = await res.json()
+
+  if (!res.ok) {
+    throw new Error(data?.error || "Failed to check channel")
+  }
+
+  return data
+}
+
+// =============================
+// BONUS FRIEND INVITED
+// =============================
+
+export async function markFriendInvited(telegram_id) {
+  const res = await fetch(`${API_URL}/bonus/friend`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      telegram_id,
+    }),
+  })
+
+  const data = await res.json()
+
+  if (!res.ok) {
+    throw new Error(data?.error || "Failed to mark friend invited")
+  }
+
+  return data
+}
+
+// =============================
+// BONUS CLAIM
+// =============================
+
+export async function claimBonus(telegram_id) {
+  const res = await fetch(`${API_URL}/bonus/claim`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      telegram_id,
+    }),
+  })
+
+  const data = await res.json()
+
+  if (!res.ok) {
+    throw new Error(data?.error || "Failed to claim bonus")
+  }
+
+  return data
+}
