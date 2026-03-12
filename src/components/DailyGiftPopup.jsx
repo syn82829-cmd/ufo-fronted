@@ -96,27 +96,25 @@ function DailyGiftPopup() {
         </div>
 
         <div className="daily-gift-title">
-          Ваш бесплатный подарок!
+          Ежедневный подарок!
         </div>
 
         <div className="daily-gift-subtitle">
-          Заходите каждый день и забирайте новый подарок бесплатно.
+          Заходи каждый день и забирай подарок бесплатно.
         </div>
 
         <div className="daily-gift-bottom">
           <button
             type="button"
-            className="daily-gift-checkbox-wrap"
+            className={`daily-gift-checkbox ${dontShowToday ? "active" : ""}`}
             onClick={handleToggleDontShowToday}
           >
-            <span className={`daily-gift-checkbox ${dontShowToday ? "active" : ""}`}>
-              {dontShowToday ? "✓" : ""}
-            </span>
-
-            <span className="daily-gift-checkbox-label">
-              Не показывать сегодня
-            </span>
+            {dontShowToday ? "✓" : ""}
           </button>
+
+          <div className="daily-gift-checkbox-label">
+            Не показывать сегодня
+          </div>
 
           <button
             type="button"
