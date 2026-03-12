@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useState } from "react"
+imimport { useEffect, useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import Lottie from "lottie-react"
 
 import { useUser } from "../context/UserContext"
 import { getPlayerRank } from "../utils/playerRank"
+import { triggerHaptic } from "../utils/haptics"
 import { socket } from "../socket"
 import CaseCard from "../components/CaseCard"
 import DepositMenu from "../components/DepositMenu"
@@ -75,6 +76,8 @@ function Home() {
   }, [])
 
   const cycleFilter = () => {
+    triggerHaptic("light")
+
     setCasesFilter((prev) => {
       if (prev === "expensive") return "cheap"
       if (prev === "cheap") return "free"
@@ -137,7 +140,13 @@ function Home() {
   return (
     <div className="app">
       <div className="home-topbar">
-        <div className="home-topbar-left" onClick={() => navigate("/profile")}>
+        <div
+          className="home-topbar-left"
+          onClick={() => {
+            triggerHaptic("light")
+            navigate("/profile")
+          }}
+        >
           <div className="home-topbar-avatar">
             {user.photoUrl ? (
               <img
@@ -178,14 +187,23 @@ function Home() {
           <button
             type="button"
             className="home-topbar-plus"
-            onClick={() => setIsDepositOpen(true)}
+            onClick={() => {
+              triggerHaptic("light")
+              setIsDepositOpen(true)
+            }}
           >
             +
           </button>
         </div>
       </div>
 
-      <div className="crash-panel" onClick={() => navigate("/crash")}>
+      <div
+        className="crash-panel"
+        onClick={() => {
+          triggerHaptic("light")
+          navigate("/crash")
+        }}
+      >
         <div className="crash-title">UFO Crash</div>
 
         <div className={crashMainClass}>
@@ -220,23 +238,44 @@ function Home() {
           <CaseCard
             key={item.id}
             caseItem={item}
-            onClick={() => navigate(`/case/${item.id}`)}
+            onClick={() => {
+              triggerHaptic("light")
+              navigate(`/case/${item.id}`)
+            }}
           />
         ))}
       </div>
 
       <div className="bottom-nav">
-        <div className="nav-item" onClick={() => navigate("/bonus")}>
+        <div
+          className="nav-item"
+          onClick={() => {
+            triggerHaptic("light")
+            navigate("/bonus")
+          }}
+        >
           Бонусы
         </div>
 
-        <div className="nav-item" onClick={() => navigate("/giveaways")}>
+        <div
+          className="nav-item"
+          onClick={() => {
+            triggerHaptic("light")
+            navigate("/giveaways")
+          }}
+        >
           Розыгрыши
         </div>
 
         <div className="nav-item active">Главная</div>
 
-        <div className="nav-item" onClick={() => navigate("/profile")}>
+        <div
+          className="nav-item"
+          onClick={() => {
+            triggerHaptic("light")
+            navigate("/profile")
+          }}
+        >
           Профиль
         </div>
       </div>
