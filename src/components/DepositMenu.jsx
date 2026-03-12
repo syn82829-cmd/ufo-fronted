@@ -1,34 +1,79 @@
-import { createStarsInvoice } from "../api"
+import { useState } from "react"
+import { depositBalance } from "../api"
 import { useUser } from "../context/UserContext"
 
 function DepositMenu({ isOpen, onClose }) {
-  const { user } = useUser()
+  const { user, refreshUser } = useUser()
+
+  const [isLoading, setIsLoading] = useState(false)
 
   if (!isOpen) return null
 
-  const handleBuy = async (amount) => {
+  const depositOptions = [
+    100,
+    250,
+    500,
+    1000,
+    2500,
+    5000,
+  ]
+
+  const handleDeposit = async (amount) => {
+    if (!user?.id || isLoading) return
+
     try {
-      const result = await createStarsInvoice({
+      setIsLoading(true)
+
+      await depositBalance({
         telegram_id: user.id,
         amount,
       })
 
-      window.Telegram.WebApp.openInvoice(result.invoiceLink)
+      await refreshUser()
+
+      onClose()
     } catch (err) {
-      console.error("STARS ERROR:", err)
+      console.error("DEPOSIT ERROR:", err)
+    } finally {
+      setIsLoading(false)
     }
   }
 
   return (
     <div className="deposit-overlay" onClick={onClose}>
-      <div className="deposit-menu" onClick={(e) => e.stopPropagation()}>
-        <div className="deposit-title">Пополнение</div>
+      <div
+        className="deposit-sheet"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="deposit-handle" />
 
-        <button onClick={() => handleBuy(100)}>100 ⭐</button>
-        <button onClick={() => handleBuy(500)}>500 ⭐</button>
-        <button onClick={() => handleBuy(1000)}>1000 ⭐</button>
+        <div className="deposit-title">
+          Пополнить баланс
+        </div>
 
-        <button className="deposit-close" onClick={onClose}>
+        <div className="deposit-grid">
+          {depositOptions.map((amount) => (
+            <button
+              key={amount}
+              className="deposit-option"
+              onClick={() => handleDeposit(amount)}
+              disabled={isLoading}
+            >
+              <img
+                src="/ui/star.PNG"
+                className="deposit-star"
+                alt=""
+              />
+
+              <span>{amount}</span>
+            </button>
+          ))}
+        </div>
+
+        <button
+          className="deposit-close"
+          onClick={onClose}
+        >
           Закрыть
         </button>
       </div>
