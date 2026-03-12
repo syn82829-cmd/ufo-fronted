@@ -154,7 +154,6 @@ body::after {
     rgba(255,255,255,0.011)
   );
 
-  /* чуть-чуть больше blur, но без грязи */
   backdrop-filter: blur(4px) saturate(135%);
   -webkit-backdrop-filter: blur(4px) saturate(135%);
 
@@ -192,7 +191,7 @@ body::after {
   text-shadow: 0 8px 20px rgba(0,0,0,0.20);
 }
 
-/* MULTIPLIER */
+/* MAIN VALUE */
 
 .multiplier {
   position: absolute;
@@ -202,11 +201,53 @@ body::after {
   font-size: 26px;
   font-weight: 700;
 
-  color: #00ffaa;
+  text-shadow:
+    0 10px 24px rgba(0,0,0,0.20);
+}
 
+.multiplier.flying {
+  color: #00ffaa;
   text-shadow:
     0 0 10px rgba(0,255,170,0.46),
     0 10px 24px rgba(0,0,0,0.20);
+}
+
+.multiplier.waiting {
+  color: rgba(255,255,255,0.96);
+  text-shadow:
+    0 0 10px rgba(255,255,255,0.12),
+    0 10px 24px rgba(0,0,0,0.20);
+}
+
+.multiplier.crashed {
+  color: #ff5a6e;
+  text-shadow:
+    0 0 10px rgba(255,90,110,0.36),
+    0 10px 24px rgba(0,0,0,0.20);
+}
+
+/* SUBTEXT */
+
+.home-crash-subtext {
+  position: absolute;
+  left: 25px;
+  top: 98px;
+
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.2;
+
+  color: rgba(255,255,255,0.88);
+
+  text-shadow:
+    0 6px 16px rgba(0,0,0,0.18);
+}
+
+.home-crash-subtext.crashed {
+  color: #ff5a6e;
+  text-shadow:
+    0 0 8px rgba(255,90,110,0.24),
+    0 6px 16px rgba(0,0,0,0.18);
 }
 
 /* ============================= */
@@ -249,12 +290,10 @@ body::after {
 
   color: #eaffff;
 
-  position: absolute;
   overflow: hidden;
 
   border-radius: 14px;
 
-  /* холодный голубой фон */
   background: linear-gradient(
     135deg,
     rgba(0,190,255,0.85),
@@ -272,7 +311,6 @@ body::after {
     inset 0 1px 0 rgba(255,255,255,0.25);
 }
 
-/* световая линия */
 .launch-btn::before {
   content: "";
 
@@ -307,6 +345,7 @@ body::after {
   max-width: 480px;
   filter: drop-shadow(0 55px 90px rgba(0,0,0,0.72));
 }
+
 .ufo-lottie > * {
   width: 100%;
   height: 100%;
