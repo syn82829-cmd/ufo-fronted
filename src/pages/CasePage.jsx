@@ -4,6 +4,7 @@ import { useLayoutEffect, useMemo, useRef, useState, useEffect } from "react"
 import { cases } from "../data/cases"
 import { openCaseRequest, sellInventoryItem } from "../api"
 import { useUser } from "../context/UserContext"
+import { triggerHaptic } from "../utils/haptics"
 import useCaseAnimations from "../hooks/useCaseAnimations"
 import CaseHeader from "../components/case/CaseHeader"
 import CaseRoulette from "../components/case/CaseRoulette"
@@ -89,6 +90,11 @@ function CasePage() {
   const isSpinning = isPreparingOrSpinning
   const isInfoLayout = caseData.specialLayout === "info"
 
+  const navigateWithHaptic = (...args) => {
+    triggerHaptic("light")
+    navigate(...args)
+  }
+
   const preloadAllPng = async () => {
     const uniq = Array.from(new Set(safeDrops.map((drop) => pngSrcByDrop(drop))))
     await Promise.all(
@@ -113,6 +119,12 @@ function CasePage() {
     preloadKeyRef.current = key
     preloadPromiseRef.current = preloadAllPng()
   }, [safeDrops])
+
+  useEffect(() => {
+    if (resultDrop?.id) {
+      triggerHaptic("success")
+    }
+  }, [resultDrop?.id])
 
   const nextFrame = () =>
     new Promise((resolve) => {
@@ -140,6 +152,8 @@ function CasePage() {
   }
 
   const handleClick = (dropId) => {
+    triggerHaptic("light")
+
     if (activeDrop === dropId) {
       setActiveDrop(null)
       setTimeout(() => setActiveDrop(dropId), 10)
@@ -223,6 +237,8 @@ function CasePage() {
     openLockRef.current = true
 
     try {
+      triggerHaptic("medium")
+
       setResultId(null)
       setResultInventoryItemId(null)
       setReelItems([])
@@ -274,6 +290,7 @@ function CasePage() {
 
       setPhase("spinning")
     } catch (err) {
+      triggerHaptic("error")
       console.error("OPEN CASE ERROR:", err)
 
       if (!demoMode) {
@@ -364,6 +381,7 @@ function CasePage() {
   }, [phase])
 
   const sellItem = () => {
+    triggerHaptic("light")
     resetResultState()
   }
 
@@ -371,6 +389,7 @@ function CasePage() {
     if (openLockRef.current) return
 
     try {
+      triggerHaptic("medium")
       openLockRef.current = true
 
       if (!demoMode && telegramId && resultInventoryItemId) {
@@ -381,7 +400,10 @@ function CasePage() {
 
         await refreshUser()
       }
+
+      triggerHaptic("success")
     } catch (err) {
+      triggerHaptic("error")
       console.error("SELL ITEM ERROR:", err)
       await refreshUser().catch(() => {})
     } finally {
@@ -402,8 +424,11 @@ function CasePage() {
         caseData={caseData}
         isSpinning={isSpinning}
         imgRef={imgRef}
-        navigate={navigate}
-        onOpenSettings={() => setIsSettingsOpen((prev) => !prev)}
+        navigate={navigateWithHaptic}
+        onOpenSettings={() => {
+          triggerHaptic("light")
+          setIsSettingsOpen((prev) => !prev)
+        }}
       />
 
       {isSettingsOpen && !resultDrop && (
@@ -419,7 +444,10 @@ function CasePage() {
             <button
               type="button"
               className={`case-settings-toggle ${demoMode ? "active" : ""}`}
-              onClick={() => setDemoMode((prev) => !prev)}
+              onClick={() => {
+                triggerHaptic("light")
+                setDemoMode((prev) => !prev)
+              }}
             >
               <span className="case-settings-toggle-thumb" />
             </button>
@@ -461,7 +489,10 @@ function CasePage() {
               <button
                 type="button"
                 className="casepage-topup-btn"
-                onClick={() => navigate("/profile")}
+                onClick={() => {
+                  triggerHaptic("light")
+                  navigate("/profile")
+                }}
               >
                 Пополнить баланс
               </button>
