@@ -126,26 +126,33 @@ export async function getTransactions(telegram_id) {
   return Array.isArray(data) ? data : []
 }
 
-// ПОПОЛНЕНИЕ БАЛАНСА
-export async function depositBalance(data) {
-  const res = await fetch(`${API_URL}/deposit`, {
+// =============================
+// TELEGRAM STARS INVOICE
+// =============================
+
+export async function createStarsInvoice({ telegram_id, amount }) {
+  if (!telegram_id || !amount || Number(amount) <= 0) {
+    throw new Error("telegram_id and valid amount are required")
+  }
+
+  const res = await fetch(`${API_URL}/stars/invoice`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      telegram_id: data.telegram_id,
-      amount: data.amount,
+      telegram_id,
+      amount: Number(amount),
     }),
   })
 
-  const result = await res.json()
+  const data = await res.json()
 
   if (!res.ok) {
-    throw new Error(result?.error || "Deposit failed")
+    throw new Error(data?.error || "Failed to create stars invoice")
   }
 
-  return result
+  return data
 }
 
 // =============================
@@ -237,34 +244,6 @@ export async function cashoutCrash({ telegram_id }) {
 
   if (!res.ok) {
     throw new Error(data?.error || "Failed to cash out crash")
-  }
-
-  return data
-}
-// =============================
-// TELEGRAM STARS INVOICE
-// =============================
-
-export async function createStarsInvoice({ telegram_id, amount }) {
-  if (!telegram_id || !amount) {
-    throw new Error("telegram_id and amount required")
-  }
-
-  const res = await fetch(`${API_URL}/stars/invoice`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      telegram_id,
-      amount,
-    }),
-  })
-
-  const data = await res.json()
-
-  if (!res.ok) {
-    throw new Error(data?.error || "Failed to create stars invoice")
   }
 
   return data
