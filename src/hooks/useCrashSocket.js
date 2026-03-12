@@ -7,7 +7,7 @@ import {
 } from "../api"
 import { socket } from "../socket"
 
-export function useCrashSocket({ userId, refreshUser }) {
+export function useCrashSocket({ userId, refreshUser, user }) {
   const [crashState, setCrashState] = useState(null)
   const [livePlayers, setLivePlayers] = useState([])
   const [profit, setProfit] = useState(0)
@@ -95,6 +95,32 @@ export function useCrashSocket({ userId, refreshUser }) {
         }
       })
 
+      setLivePlayers((prev) => {
+        const optimisticItem = {
+          id: result?.bet?.id || `optimistic-${userId}-${Date.now()}`,
+          amount: Number(amount),
+          status: "active",
+          cashout_multiplier: null,
+          payout: null,
+          profit: null,
+          created_at: new Date().toISOString(),
+          user: {
+            id: user?.id ?? null,
+            telegram_id: String(userId),
+            username: user?.username || "You",
+            casesOpened: Number(user?.casesOpened || 0),
+            crashGamesPlayed: Number(user?.crashGamesPlayed || 0),
+            crashWins: Number(user?.crashWins || 0),
+          },
+        }
+
+        const filtered = Array.isArray(prev)
+          ? prev.filter((item) => String(item?.user?.telegram_id) !== String(userId))
+          : []
+
+        return [optimisticItem, ...filtered]
+      })
+
       refreshUser?.().catch((err) => {
         console.error("REFRESH USER AFTER BET ERROR:", err)
       })
@@ -111,7 +137,7 @@ export function useCrashSocket({ userId, refreshUser }) {
     } finally {
       setIsBetLoading(false)
     }
-  }, [userId, refreshUser, refreshCrashData])
+  }, [userId, user, refreshUser, refreshCrashData])
 
   const cashout = useCallback(async () => {
     if (!userId || userId === "—") return
@@ -136,6 +162,24 @@ export function useCrashSocket({ userId, refreshUser }) {
             status: "cashed_out",
           },
         }
+      })
+
+      setLivePlayers((prev) => {
+        if (!Array.isArray(prev)) return prev
+
+        return prev.map((item) => {
+          if (String(item?.user?.telegram_id) !== String(userId)) {
+            return item
+          }
+
+          return {
+            ...item,
+            status: "cashed_out",
+            cashout_multiplier: result?.bet?.cashout_multiplier ?? result?.multiplier ?? null,
+            payout: result?.payout ?? item?.payout ?? null,
+            profit: result?.profit ?? item?.profit ?? null,
+          }
+        })
       })
 
       refreshUser?.().catch((err) => {
