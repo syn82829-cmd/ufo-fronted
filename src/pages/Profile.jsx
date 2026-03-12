@@ -7,6 +7,7 @@ import {
 } from "../api"
 import { useUser } from "../context/UserContext"
 import { getPlayerRank } from "../utils/playerRank"
+import { triggerHaptic } from "../utils/haptics"
 import DepositMenu from "../components/DepositMenu"
 import "../style.css"
 
@@ -82,12 +83,16 @@ function Profile() {
     if (!user?.id || !itemId || sellingItemId) return
 
     try {
+      triggerHaptic("medium")
+
       setSellingItemId(itemId)
 
       await sellInventoryItem({
         telegram_id: user.id,
         inventoryItemId: itemId,
       })
+
+      triggerHaptic("success")
 
       setInventory((prev) => prev.filter((item) => item.id !== itemId))
       await refreshUser()
@@ -179,7 +184,10 @@ function Profile() {
             <button
               type="button"
               className="profile-topbar-plus"
-              onClick={() => setIsDepositOpen(true)}
+              onClick={() => {
+                triggerHaptic("light")
+                setIsDepositOpen(true)
+              }}
             >
               +
             </button>
@@ -190,7 +198,10 @@ function Profile() {
           <button
             type="button"
             className={`profile-tab ${activeTab === "inventory" ? "active" : ""}`}
-            onClick={() => setActiveTab("inventory")}
+            onClick={() => {
+              triggerHaptic("light")
+              setActiveTab("inventory")
+            }}
           >
             Инвентарь
           </button>
@@ -198,7 +209,10 @@ function Profile() {
           <button
             type="button"
             className={`profile-tab ${activeTab === "history" ? "active" : ""}`}
-            onClick={() => setActiveTab("history")}
+            onClick={() => {
+              triggerHaptic("light")
+              setActiveTab("history")
+            }}
           >
             История
           </button>
@@ -298,15 +312,33 @@ function Profile() {
       </div>
 
       <div className="bottom-nav">
-        <div className="nav-item" onClick={() => navigate("/bonus")}>
+        <div
+          className="nav-item"
+          onClick={() => {
+            triggerHaptic("light")
+            navigate("/bonus")
+          }}
+        >
           Бонусы
         </div>
 
-        <div className="nav-item" onClick={() => navigate("/giveaways")}>
+        <div
+          className="nav-item"
+          onClick={() => {
+            triggerHaptic("light")
+            navigate("/giveaways")
+          }}
+        >
           Розыгрыши
         </div>
 
-        <div className="nav-item" onClick={() => navigate("/")}>
+        <div
+          className="nav-item"
+          onClick={() => {
+            triggerHaptic("light")
+            navigate("/")
+          }}
+        >
           Главная
         </div>
 
