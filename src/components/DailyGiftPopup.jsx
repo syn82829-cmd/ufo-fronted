@@ -96,14 +96,14 @@ function DailyGiftPopup() {
         <div className="daily-gift-visual">
           <Lottie
             animationData={podarokAnimation}
-            loop={true}
-            autoplay={true}
+            loop
+            autoplay
             className="daily-gift-lottie"
           />
         </div>
 
         <div className="daily-gift-title">
-          Бесплатный подарок!
+          Ваш бесплатный подарок!
         </div>
 
         <div className="daily-gift-subtitle">
