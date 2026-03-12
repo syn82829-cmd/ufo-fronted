@@ -3,11 +3,11 @@ import { useNavigate } from "react-router-dom"
 import {
   getInventory,
   sellInventoryItem,
-  depositBalance,
   getTransactions,
 } from "../api"
 import { useUser } from "../context/UserContext"
 import { getPlayerRank } from "../utils/playerRank"
+import DepositMenu from "../components/DepositMenu"
 import "../style.css"
 
 function Profile() {
@@ -23,7 +23,7 @@ function Profile() {
   const [transactions, setTransactions] = useState([])
   const [isTransactionsLoading, setIsTransactionsLoading] = useState(true)
 
-  const [isDepositing, setIsDepositing] = useState(false)
+  const [isDepositOpen, setIsDepositOpen] = useState(false)
 
   const playerRank = useMemo(() => {
     return getPlayerRank(
@@ -77,31 +77,6 @@ function Profile() {
 
     loadTransactions()
   }, [user?.id])
-
-  const handleDeposit = async () => {
-    if (!user?.id || isDepositing) return
-
-    try {
-      setIsDepositing(true)
-
-      await depositBalance({
-        telegram_id: user.id,
-        amount: 10000,
-      })
-
-      await refreshUser()
-
-      const updatedTransactions = await getTransactions(user.id).catch(() => null)
-      if (updatedTransactions) {
-        setTransactions(updatedTransactions)
-      }
-    } catch (err) {
-      console.error("DEPOSIT ERROR:", err)
-      await refreshUser().catch(() => {})
-    } finally {
-      setIsDepositing(false)
-    }
-  }
 
   const handleSellItem = async (itemId) => {
     if (!user?.id || !itemId || sellingItemId) return
@@ -204,8 +179,7 @@ function Profile() {
             <button
               type="button"
               className="profile-topbar-plus"
-              onClick={handleDeposit}
-              disabled={isDepositing}
+              onClick={() => setIsDepositOpen(true)}
             >
               +
             </button>
@@ -338,6 +312,11 @@ function Profile() {
 
         <div className="nav-item active">Профиль</div>
       </div>
+
+      <DepositMenu
+        isOpen={isDepositOpen}
+        onClose={() => setIsDepositOpen(false)}
+      />
     </div>
   )
 }
