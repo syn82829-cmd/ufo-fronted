@@ -11,25 +11,27 @@ import "../style.css"
 
 function Crash() {
   const navigate = useNavigate()
-  const { user, refreshUser } = useUser()
+  const { user, refreshUser, incrementBalance, decrementBalance } = useUser()
 
   const [ufoAnim, setUfoAnim] = useState(null)
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [betAmount, setBetAmount] = useState("100")
 
   const {
-  crashState,
-  livePlayers,
-  profit,
-  isBetLoading,
-  isCashoutLoading,
-  placeBet,
-  cashout,
-} = useCrashSocket({
-  userId: user?.id,
-  refreshUser,
-  user,
-})
+    crashState,
+    livePlayers,
+    profit,
+    isBetLoading,
+    isCashoutLoading,
+    placeBet,
+    cashout,
+  } = useCrashSocket({
+    userId: user?.id,
+    refreshUser,
+    user,
+    incrementBalance,
+    decrementBalance,
+  })
 
   const {
     displayMultiplier,
