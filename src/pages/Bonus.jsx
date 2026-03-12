@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import Lottie from "lottie-react"
+
 import {
   checkBonusChannel,
   claimBonus,
   getBonusState,
 } from "../api"
 import { useUser } from "../context/UserContext"
+import podarokAnimation from "../assets/animations/podarok.json"
 import "../style.css"
 
 function Bonus() {
@@ -99,21 +102,15 @@ function Bonus() {
   return (
     <div className="app">
       <div className="bonus-page">
-        <div className="bonus-header-actions">
-          <button
-            type="button"
-            className="bonus-header-btn bonus-back-btn"
-            onClick={() => navigate(-1)}
-          >
-            <img src="/ui/back.PNG" className="bonus-header-icon" alt="" draggable={false} />
-          </button>
-        </div>
 
         <div className="bonus-card">
           <div className="bonus-card-visual">
-            <div className="bonus-gift-placeholder">
-              🎁
-            </div>
+            <Lottie
+              animationData={podarokAnimation}
+              loop
+              autoplay
+              className="bonus-gift-lottie"
+            />
           </div>
 
           <div className="bonus-card-title">
