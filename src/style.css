@@ -3910,3 +3910,212 @@ body {
   left: 50%;
   transform: translateX(-50%);
 }
+/* ============================= */
+/* DEPOSIT OVERLAY */
+/* ============================= */
+
+.deposit-overlay {
+  position: fixed;
+  inset: 0;
+
+  background: rgba(0,0,0,0.55);
+
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+
+  z-index: 999;
+}
+
+/* ============================= */
+/* SHEET */
+/* ============================= */
+
+.deposit-sheet {
+  width: 100%;
+  max-width: 920px;
+
+  background:
+    radial-gradient(circle at top, rgba(255,255,255,0.06), transparent 40%),
+    linear-gradient(
+      160deg,
+      rgba(255,255,255,0.04),
+      rgba(255,255,255,0.015)
+    );
+
+  border-radius: 28px 28px 0 0;
+
+  border-top: 1px solid rgba(255,255,255,0.18);
+
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+
+  box-shadow:
+    0 -10px 40px rgba(0,0,0,0.45),
+    inset 0 1px 0 rgba(255,255,255,0.15);
+
+  padding: 26px 24px 30px;
+
+  animation: depositSlideUp 0.35s cubic-bezier(.22,.8,.36,1);
+}
+
+/* ============================= */
+/* SLIDE ANIMATION */
+/* ============================= */
+
+@keyframes depositSlideUp {
+
+  0% {
+    transform: translateY(80px);
+    opacity: 0;
+  }
+
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+}
+
+/* ============================= */
+/* HANDLE */
+/* ============================= */
+
+.deposit-handle {
+  width: 48px;
+  height: 5px;
+
+  border-radius: 10px;
+
+  background: rgba(255,255,255,0.35);
+
+  margin: 0 auto 20px auto;
+}
+
+/* ============================= */
+/* TITLE */
+/* ============================= */
+
+.deposit-title {
+
+  text-align: center;
+
+  font-size: 18px;
+  font-weight: 650;
+
+  letter-spacing: -0.01em;
+
+  color: rgba(255,255,255,0.95);
+
+  margin-bottom: 22px;
+}
+
+/* ============================= */
+/* GRID */
+/* ============================= */
+
+.deposit-grid {
+
+  display: grid;
+
+  grid-template-columns: repeat(3,1fr);
+
+  gap: 14px;
+
+  margin-bottom: 22px;
+
+}
+
+/* ============================= */
+/* OPTION BUTTON */
+/* ============================= */
+
+.deposit-option {
+
+  height: 58px;
+
+  border-radius: 14px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  font-size: 16px;
+  font-weight: 600;
+
+  color: white;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,0.05),
+      rgba(255,255,255,0.015)
+    );
+
+  border: 1px solid rgba(255,255,255,0.18);
+
+  backdrop-filter: blur(10px);
+
+  transition:
+    transform .15s ease,
+    box-shadow .15s ease,
+    border .15s ease;
+}
+
+/* hover эффект */
+
+.deposit-option:active {
+
+  transform: scale(.96);
+
+  box-shadow:
+    0 6px 18px rgba(0,0,0,0.35) inset;
+
+}
+
+/* ============================= */
+/* STAR ICON */
+/* ============================= */
+
+.deposit-star {
+
+  width: 16px;
+  height: 16px;
+
+}
+
+/* ============================= */
+/* CLOSE BUTTON */
+/* ============================= */
+
+.deposit-close {
+
+  width: 100%;
+  height: 52px;
+
+  border-radius: 14px;
+
+  font-size: 15px;
+  font-weight: 600;
+
+  color: #eafcff;
+
+  background:
+
+    linear-gradient(
+      135deg,
+      rgba(35,189,255,0.88),
+      rgba(20,133,232,0.95)
+    );
+
+  border: 1px solid rgba(101,220,255,0.55);
+
+  box-shadow:
+    0 10px 24px rgba(0,0,0,0.25),
+    inset 0 1px 0 rgba(255,255,255,0.25);
+
+}
