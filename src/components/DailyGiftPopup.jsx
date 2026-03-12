@@ -44,14 +44,7 @@ function DailyGiftPopup() {
           return
         }
 
-        const bonusState = await getBonusState(user.id)
-        const isAvailable = bonusState?.canClaim === true
-
-        if (!isAvailable) {
-          setIsOpen(false)
-          setIsLoading(false)
-          return
-        }
+        await getBonusState(user.id)
 
         setIsOpen(true)
         sessionStorage.setItem("ufomo_daily_gift_popup_shown", "true")
@@ -113,15 +106,17 @@ function DailyGiftPopup() {
         <div className="daily-gift-bottom">
           <button
             type="button"
-            className={`daily-gift-checkbox ${dontShowToday ? "active" : ""}`}
+            className="daily-gift-checkbox-wrap"
             onClick={handleToggleDontShowToday}
           >
-            {dontShowToday ? "✓" : ""}
-          </button>
+            <span className={`daily-gift-checkbox ${dontShowToday ? "active" : ""}`}>
+              {dontShowToday ? "✓" : ""}
+            </span>
 
-          <div className="daily-gift-checkbox-label">
-            Не показывать сегодня
-          </div>
+            <span className="daily-gift-checkbox-label">
+              Не показывать сегодня
+            </span>
+          </button>
 
           <button
             type="button"
