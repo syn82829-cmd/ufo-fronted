@@ -185,9 +185,12 @@ function Home() {
       <div className="crash-panel" onClick={() => navigate("/crash")}>
         <div className="crash-title">UFO Crash</div>
 
-        <div className={crashMainClass}>
-          {crashMainValue}
-        </div>
+        <div
+  key={crashMainValue}
+  className={`${crashMainClass} ${showCountdown ? "countdown-animated" : ""} ${isFlying ? "multiplier-live" : ""}`}
+>
+  {crashMainValue}
+</div>
 
         {!!crashSubText && (
           <div className="home-crash-subtext">
