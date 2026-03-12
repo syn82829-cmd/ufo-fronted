@@ -4,6 +4,7 @@ import Lottie from "lottie-react"
 
 import { useUser } from "../context/UserContext"
 import { getPlayerRank } from "../utils/playerRank"
+import { socket } from "../socket"
 import CaseCard from "../components/CaseCard"
 
 import "../style.css"
@@ -14,6 +15,7 @@ function Home() {
 
   const [ufoAnim, setUfoAnim] = useState(null)
   const [casesFilter, setCasesFilter] = useState("expensive")
+  const [crashState, setCrashState] = useState(null)
 
   const cases = [
     { id: "firstpepe", image: "/cases/case1.png.PNG", name: "Pepe Case", price: 9999, free: false },
@@ -57,6 +59,18 @@ function Home() {
     }
   }, [])
 
+  useEffect(() => {
+    const handleCrashState = (stateData) => {
+      setCrashState(stateData)
+    }
+
+    socket.on("crash:state", handleCrashState)
+
+    return () => {
+      socket.off("crash:state", handleCrashState)
+    }
+  }, [])
+
   const cycleFilter = () => {
     setCasesFilter((prev) => {
       if (prev === "expensive") return "cheap"
@@ -83,6 +97,39 @@ function Home() {
 
     return sorted
   }, [casesFilter])
+
+  const status = crashState?.status || "waiting"
+  const multiplier = Number(crashState?.multiplier || 1)
+  const countdown = crashState?.countdown ?? 5
+
+  const isWaiting = status === "waiting"
+  const isFlying = status === "flying"
+  const isCrashed = status === "crashed"
+
+  const showStart = isWaiting && countdown === 0
+  const showCountdown = isWaiting && countdown > 0
+
+  const crashMainValue = isFlying
+    ? `> x${multiplier.toFixed(2)}`
+    : showCountdown
+      ? String(countdown)
+      : showStart
+        ? "Start!"
+        : isCrashed
+          ? `x${multiplier.toFixed(2)}`
+          : "5"
+
+  const crashSubText = isCrashed
+    ? "Crash!"
+    : showStart
+      ? "Start!"
+      : "Ожидание игроков…"
+
+  const crashMainClass = isCrashed
+    ? "multiplier crashed"
+    : isFlying
+      ? "multiplier flying"
+      : "multiplier waiting"
 
   return (
     <div className="app">
@@ -137,7 +184,14 @@ function Home() {
 
       <div className="crash-panel" onClick={() => navigate("/crash")}>
         <div className="crash-title">UFO Crash</div>
-        <div className="multiplier">&gt; x1.63</div>
+
+        <div className={crashMainClass}>
+          {crashMainValue}
+        </div>
+
+        <div className={`home-crash-subtext ${isCrashed ? "crashed" : ""}`}>
+          {crashSubText}
+        </div>
 
         <button className="launch-btn" type="button">
           Запустить НЛО
