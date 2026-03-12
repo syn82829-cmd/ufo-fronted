@@ -7,6 +7,7 @@ import { getPlayerRank } from "../utils/playerRank"
 import { socket } from "../socket"
 import CaseCard from "../components/CaseCard"
 import DepositMenu from "../components/DepositMenu"
+import DailyGiftPopup from "../components/DailyGiftPopup"
 
 import "../style.css"
 
@@ -244,6 +245,8 @@ function Home() {
         isOpen={isDepositOpen}
         onClose={() => setIsDepositOpen(false)}
       />
+
+      <DailyGiftPopup />
     </div>
   )
 }
