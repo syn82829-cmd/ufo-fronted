@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react"
-import { depositBalance } from "../api"
+import { createStarsInvoice } from "../api"
 import { useUser } from "../context/UserContext"
 
 function DepositMenu({ isOpen, onClose }) {
@@ -35,16 +35,26 @@ function DepositMenu({ isOpen, onClose }) {
     try {
       setIsLoading(true)
 
-      await depositBalance({
+      const result = await createStarsInvoice({
         telegram_id: user.id,
         amount: numericAmount,
       })
 
-      await refreshUser()
-      setAmount("")
-      onClose()
+      const tg = window.Telegram?.WebApp
+
+      if (!tg?.openInvoice) {
+        throw new Error("Telegram invoice is not available")
+      }
+
+      tg.openInvoice(result.invoiceLink, async (status) => {
+        if (status === "paid") {
+          await refreshUser().catch(() => {})
+          setAmount("")
+          onClose()
+        }
+      })
     } catch (err) {
-      console.error("DEPOSIT ERROR:", err)
+      console.error("STARS INVOICE ERROR:", err)
     } finally {
       setIsLoading(false)
     }
