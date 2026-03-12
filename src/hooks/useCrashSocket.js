@@ -7,7 +7,13 @@ import {
 } from "../api"
 import { socket } from "../socket"
 
-export function useCrashSocket({ userId, refreshUser, user }) {
+export function useCrashSocket({
+  userId,
+  refreshUser,
+  user,
+  incrementBalance,
+  decrementBalance,
+}) {
   const [crashState, setCrashState] = useState(null)
   const [livePlayers, setLivePlayers] = useState([])
   const [profit, setProfit] = useState(0)
@@ -71,13 +77,17 @@ export function useCrashSocket({ userId, refreshUser, user }) {
   const placeBet = useCallback(async (amount) => {
     if (!userId || userId === "—") return
 
+    const numericAmount = Number(amount || 0)
+
     try {
       setIsBetLoading(true)
       setProfit(0)
 
+      decrementBalance?.(numericAmount)
+
       const result = await placeCrashBet({
         telegram_id: userId,
-        amount,
+        amount: numericAmount,
       })
 
       setCrashState((prev) => {
@@ -89,7 +99,7 @@ export function useCrashSocket({ userId, refreshUser, user }) {
             ...(prev?.myBet || {}),
             ...(result?.bet || {}),
             roundId: result?.roundId || prev?.roundId || null,
-            amount: Number(amount),
+            amount: numericAmount,
             status: "active",
           },
         }
@@ -98,7 +108,7 @@ export function useCrashSocket({ userId, refreshUser, user }) {
       setLivePlayers((prev) => {
         const optimisticItem = {
           id: result?.bet?.id || `optimistic-${userId}-${Date.now()}`,
-          amount: Number(amount),
+          amount: numericAmount,
           status: "active",
           cashout_multiplier: null,
           payout: null,
@@ -131,13 +141,21 @@ export function useCrashSocket({ userId, refreshUser, user }) {
 
       return result
     } catch (err) {
+      incrementBalance?.(numericAmount)
       console.error("PLACE CRASH BET ERROR:", err)
       await refreshUser?.().catch(() => {})
       throw err
     } finally {
       setIsBetLoading(false)
     }
-  }, [userId, user, refreshUser, refreshCrashData])
+  }, [
+    userId,
+    user,
+    refreshUser,
+    refreshCrashData,
+    decrementBalance,
+    incrementBalance,
+  ])
 
   const cashout = useCallback(async () => {
     if (!userId || userId === "—") return
@@ -149,7 +167,11 @@ export function useCrashSocket({ userId, refreshUser, user }) {
         telegram_id: userId,
       })
 
-      setProfit(Number(result?.profit || 0))
+      const payout = Number(result?.payout || 0)
+      const nextProfit = Number(result?.profit || 0)
+
+      setProfit(nextProfit)
+      incrementBalance?.(payout)
 
       setCrashState((prev) => {
         if (!prev) return prev
@@ -198,7 +220,7 @@ export function useCrashSocket({ userId, refreshUser, user }) {
     } finally {
       setIsCashoutLoading(false)
     }
-  }, [userId, refreshUser, refreshCrashData])
+  }, [userId, refreshUser, refreshCrashData, incrementBalance])
 
   return {
     crashState,
