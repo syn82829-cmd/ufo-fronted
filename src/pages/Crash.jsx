@@ -18,17 +18,18 @@ function Crash() {
   const [betAmount, setBetAmount] = useState("100")
 
   const {
-    crashState,
-    livePlayers,
-    profit,
-    isBetLoading,
-    isCashoutLoading,
-    placeBet,
-    cashout,
-  } = useCrashSocket({
-    userId: user?.id,
-    refreshUser,
-  })
+  crashState,
+  livePlayers,
+  profit,
+  isBetLoading,
+  isCashoutLoading,
+  placeBet,
+  cashout,
+} = useCrashSocket({
+  userId: user?.id,
+  refreshUser,
+  user,
+})
 
   const {
     displayMultiplier,
