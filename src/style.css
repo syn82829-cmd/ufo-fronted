@@ -369,6 +369,21 @@ body::after {
 }
 
 /* ============================= */
+/* CASES SECTION */
+/* ============================= */
+
+.cases-section {
+  width: 90%;
+  max-width: 920px;
+
+  margin-top: 40px;
+
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 22px;
+}
+
+/* ============================= */
 /* CASE CARD */
 /* ============================= */
 
