@@ -4144,7 +4144,7 @@ body {
   width: 100%;
   max-width: 420px;
 
-  padding: 28px 24px 22px;
+  padding: 24px 22px 20px;
 
   border-radius: 26px;
   border: 1px solid rgba(255,255,255,0.16);
@@ -4165,20 +4165,16 @@ body {
     inset 0 1px 0 rgba(255,255,255,0.16);
 }
 
-/* gift */
-
 .daily-gift-visual {
   display: flex;
   justify-content: center;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
 .daily-gift-lottie {
-  width: 110px;
-  height: 110px;
+  width: 86px;
+  height: 86px;
 }
-
-/* text */
 
 .daily-gift-title {
   text-align: center;
@@ -4193,25 +4189,21 @@ body {
   text-align: center;
   font-size: 14px;
   font-weight: 500;
-  line-height: 1.45;
+  line-height: 1.4;
   color: rgba(229,236,245,0.82);
-  margin-bottom: 24px;
+  margin-bottom: 22px;
 }
 
-/* bottom row */
-
 .daily-gift-bottom {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 10px;
 }
 
-/* checkbox */
-
 .daily-gift-checkbox {
-  width: 26px;
-  height: 26px;
-  min-width: 26px;
+  width: 24px;
+  height: 24px;
 
   border-radius: 8px;
   border: 1px solid rgba(255,255,255,0.18);
@@ -4225,8 +4217,6 @@ body {
 
   font-size: 14px;
   font-weight: 700;
-
-  flex-shrink: 0;
 }
 
 .daily-gift-checkbox.active {
@@ -4234,20 +4224,16 @@ body {
   box-shadow: 0 0 16px rgba(61,242,178,0.14);
 }
 
-/* label */
-
 .daily-gift-checkbox-label {
   font-size: 13px;
   font-weight: 500;
   color: rgba(229,236,245,0.78);
-  flex: 1;
 }
 
-/* claim button */
-
 .daily-gift-claim-btn {
+  min-width: 108px;
   height: 42px;
-  padding: 0 18px;
+  padding: 0 16px;
 
   border-radius: 14px;
   border: 1px solid rgba(101,220,255,0.48);
