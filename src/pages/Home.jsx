@@ -24,7 +24,7 @@ function Home() {
   const cases = [
     { id: "firstpepe", image: "/cases/case1.png.PNG", name: "Pepe Case", price: 9999, free: false },
     { id: "crash", image: "/cases/case2.png.PNG", name: "All or Nothing", price: 7999, free: false },
-    { id: "darkmatter", image: "/cases/case3.png.PNG", name: "Dark Matter", price: 5999, free: false },
+    { id: "darkmatter", image: "/cases/case3.png.PNG", name: "Crypto Punk", price: 5999, free: false },
     { id: "godparticle", image: "/cases/case4.png.PNG", name: "God Particle", price: 4999, free: false },
     { id: "purplehole", image: "/cases/case5.png.PNG", name: "Purple Hole", price: 2299, free: false },
     { id: "spacetrash", image: "/cases/case6.png.PNG", name: "Space Trash", price: 799, free: false },
