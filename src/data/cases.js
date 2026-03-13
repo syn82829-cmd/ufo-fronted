@@ -1,7 +1,7 @@
 export const cases = {
   darkmatter: {
     id: "darkmatter",
-    name: "Dark Matter",
+    name: "Crypto Punk",
     image: "/cases/case3.png.PNG",
     price: 5999,
     drops: [
