@@ -25,8 +25,14 @@ function CaseCard({ caseItem }) {
 
       {/* PRICE */}
       <div className="case-price-badge">
-        <img src="/ui/star.PNG" className="case-price-icon" alt="" />
-        <span>{caseItem.price}</span>
+        {caseItem.free ? (
+          <span className="case-free">FREE</span>
+        ) : (
+          <>
+            <img src="/ui/star.PNG" className="case-price-icon" alt="" />
+            <span>{caseItem.price}</span>
+          </>
+        )}
       </div>
     </div>
   )
