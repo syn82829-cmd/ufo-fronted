@@ -4549,3 +4549,9 @@ button,
 .crash-bet-btn {
   touch-action: manipulation;
 }
+
+.case-free {
+  color: #35e17a;
+  font-weight: 700;
+  text-shadow: 0 0 6px rgba(53,225,122,0.6);
+}
