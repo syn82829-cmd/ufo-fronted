@@ -1,9 +1,11 @@
 import { useParams, useNavigate } from "react-router-dom"
 import { useLayoutEffect, useMemo, useRef, useState, useEffect } from "react"
+import Lottie from "lottie-react"
 
 import { cases } from "../data/cases"
 import {
   openCaseRequest,
+  openFreeCase,
   sellInventoryItem,
   getFreeCaseState,
   checkBonusChannel,
@@ -39,6 +41,7 @@ function CasePage() {
   const [freeCaseState, setFreeCaseState] = useState(null)
   const [isFreeCaseLoading, setIsFreeCaseLoading] = useState(false)
   const [isCheckingFreeCaseChannel, setIsCheckingFreeCaseChannel] = useState(false)
+  const [caseInviteAnim, setCaseInviteAnim] = useState(null)
   const [demoMode, setDemoMode] = useState(() => {
     try {
       return localStorage.getItem("ufo_demo_mode") === "true"
@@ -138,6 +141,41 @@ function CasePage() {
       triggerHaptic("success")
     }
   }, [resultDrop?.id])
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function loadInviteAnim() {
+      if (!isInviteCase || !caseData?.inviteLottie) {
+        setCaseInviteAnim(null)
+        return
+      }
+
+      try {
+        const res = await fetch(caseData.inviteLottie)
+        if (!res.ok) {
+          throw new Error(`Failed to load invite lottie: ${res.status}`)
+        }
+
+        const data = await res.json()
+
+        if (!cancelled) {
+          setCaseInviteAnim(data)
+        }
+      } catch (err) {
+        console.error("INVITE LOTTIE LOAD ERROR:", err)
+        if (!cancelled) {
+          setCaseInviteAnim(null)
+        }
+      }
+    }
+
+    loadInviteAnim()
+
+    return () => {
+      cancelled = true
+    }
+  }, [isInviteCase, caseData?.inviteLottie])
 
   useEffect(() => {
     async function loadFreeCaseState() {
@@ -349,10 +387,15 @@ function CasePage() {
           throw new Error("Telegram user not ready")
         }
 
-        const data = await openCaseRequest({
-          telegram_id: telegramId,
-          caseId: caseData.id,
-        })
+        const data = isInviteCase
+          ? await openFreeCase({
+              telegram_id: telegramId,
+              caseId: caseData.id,
+            })
+          : await openCaseRequest({
+              telegram_id: telegramId,
+              caseId: caseData.id,
+            })
 
         winnerId = data?.drop?.dropId || null
         inventoryItemId = data?.drop?.id || null
@@ -565,37 +608,38 @@ function CasePage() {
               </button>
             ) : (
               <div className="case-invite-block">
-                <div className="case-invite-left">
-                  <div className="case-invite-title">
-                    Чтобы открыть кейс, выполните:
+                <div className="case-invite-title">
+                  Выполните условия:
+                </div>
+
+                <div className={`case-invite-row ${invitesDone ? "done" : ""}`}>
+                  <div className={`case-invite-check ${invitesDone ? "done" : ""}`}>
+                    {invitesDone ? "✓" : ""}
                   </div>
 
-                  <div className={`case-invite-row ${invitesDone ? "done" : ""}`}>
-                    <div className={`case-invite-check ${invitesDone ? "done" : ""}`}>
-                      {invitesDone ? "✓" : ""}
-                    </div>
-
+                  <div className="case-invite-main">
                     <div className="case-invite-text">
-                      <span>Пригласить {invitesRequired} друзей</span>
+                      Пригласить {invitesRequired} друзей
                     </div>
-
                     <div className="case-invite-progress">
                       {invitesCount}/{invitesRequired}
                     </div>
                   </div>
+                </div>
 
-                  <div className={`case-invite-row ${channelDone ? "done" : ""}`}>
-                    <button
-                      type="button"
-                      className={`case-invite-check ${channelDone ? "done" : ""}`}
-                      onClick={handleCheckFreeCaseChannel}
-                      disabled={isCheckingFreeCaseChannel}
-                    >
-                      {channelDone ? "✓" : ""}
-                    </button>
+                <div className={`case-invite-row ${channelDone ? "done" : ""}`}>
+                  <button
+                    type="button"
+                    className={`case-invite-check ${channelDone ? "done" : ""}`}
+                    onClick={handleCheckFreeCaseChannel}
+                    disabled={isCheckingFreeCaseChannel}
+                  >
+                    {channelDone ? "✓" : ""}
+                  </button>
 
+                  <div className="case-invite-main">
                     <div className="case-invite-text">
-                      <span>Подписаться на </span>
+                      Подписаться на{" "}
                       <button
                         type="button"
                         className="case-invite-link"
@@ -604,7 +648,6 @@ function CasePage() {
                         канал
                       </button>
                     </div>
-
                     <div className="case-invite-progress">
                       {channelDone ? "1/1" : "0/1"}
                     </div>
@@ -612,14 +655,14 @@ function CasePage() {
                 </div>
 
                 <div className="case-invite-right">
-                  {caseData.image ? (
-                    <img
-                      src={caseData.image}
-                      alt={caseData.name}
-                      className="case-invite-preview"
-                      draggable={false}
+                  {caseInviteAnim && (
+                    <Lottie
+                      animationData={caseInviteAnim}
+                      loop
+                      autoplay
+                      className="case-invite-lottie"
                     />
-                  ) : null}
+                  )}
                 </div>
               </div>
             )
@@ -676,6 +719,10 @@ function CasePage() {
         dropMap={dropMap}
         pngSrcByDrop={pngSrcByDrop}
       />
+
+      <div className="case-drops-heading">
+        Возможный выигрыш
+      </div>
 
       {!isSpinning &&
         (isInfoLayout ? (
