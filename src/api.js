@@ -68,6 +68,57 @@ export async function openCaseRequest({ telegram_id, caseId }) {
   return data
 }
 
+// =============================
+// FREE CASE STATE
+// =============================
+
+export async function getFreeCaseState({ telegram_id, caseId }) {
+  if (!telegram_id || !caseId) {
+    throw new Error("telegram_id and caseId are required")
+  }
+
+  const res = await fetch(
+    `${API_URL}/case/free-state?telegram_id=${encodeURIComponent(telegram_id)}&caseId=${encodeURIComponent(caseId)}`
+  )
+
+  const data = await res.json()
+
+  if (!res.ok) {
+    throw new Error(data?.error || "Failed to fetch free case state")
+  }
+
+  return data
+}
+
+// =============================
+// FREE CASE OPEN
+// =============================
+
+export async function openFreeCase({ telegram_id, caseId }) {
+  if (!telegram_id || !caseId) {
+    throw new Error("telegram_id and caseId are required")
+  }
+
+  const res = await fetch(`${API_URL}/case/free-open`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      telegram_id,
+      caseId,
+    }),
+  })
+
+  const data = await res.json()
+
+  if (!res.ok) {
+    throw new Error(data?.error || "Failed to open free case")
+  }
+
+  return data
+}
+
 // ПОЛУЧЕНИЕ ИНВЕНТАРЯ
 export async function getInventory(telegram_id) {
   if (!telegram_id) {
@@ -248,6 +299,7 @@ export async function cashoutCrash({ telegram_id }) {
 
   return data
 }
+
 // =============================
 // BONUS STATE
 // =============================
