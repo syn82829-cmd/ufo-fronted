@@ -588,7 +588,7 @@ export const cases = {
     id: "purplehole",
     name: "Purple Hole",
     image: "/cases/case5.png.PNG",
-    price: 1899,
+    price: 1199,
     drops: [
       {
         id: "cat",
