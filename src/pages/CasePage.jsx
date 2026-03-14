@@ -2,7 +2,12 @@ import { useParams, useNavigate } from "react-router-dom"
 import { useLayoutEffect, useMemo, useRef, useState, useEffect } from "react"
 
 import { cases } from "../data/cases"
-import { openCaseRequest, sellInventoryItem } from "../api"
+import {
+  openCaseRequest,
+  sellInventoryItem,
+  getFreeCaseState,
+  checkBonusChannel,
+} from "../api"
 import { useUser } from "../context/UserContext"
 import { triggerHaptic } from "../utils/haptics"
 import useCaseAnimations from "../hooks/useCaseAnimations"
@@ -31,6 +36,9 @@ function CasePage() {
   const [resultInventoryItemId, setResultInventoryItemId] = useState(null)
   const [reelItems, setReelItems] = useState([])
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+  const [freeCaseState, setFreeCaseState] = useState(null)
+  const [isFreeCaseLoading, setIsFreeCaseLoading] = useState(false)
+  const [isCheckingFreeCaseChannel, setIsCheckingFreeCaseChannel] = useState(false)
   const [demoMode, setDemoMode] = useState(() => {
     try {
       return localStorage.getItem("ufo_demo_mode") === "true"
@@ -60,6 +68,8 @@ function CasePage() {
 
   if (!caseData) return <div className="app">Case config missing</div>
 
+  const isInviteCase = caseData.type === "invite"
+
   const animationsById = useCaseAnimations(caseData.drops)
 
   const dropMap = useMemo(() => {
@@ -85,7 +95,10 @@ function CasePage() {
   const missingStars = Math.max(casePrice - userBalance, 0)
 
   const hasEnoughBalance = userBalance >= casePrice
-  const canOpenCase = demoMode || hasEnoughBalance
+  const canOpenPaidCase = demoMode || hasEnoughBalance
+  const canOpenInviteCase = Boolean(freeCaseState?.canOpen)
+  const canOpenCase = isInviteCase ? canOpenInviteCase : canOpenPaidCase
+
   const isPreparingOrSpinning = phase === "preparing" || phase === "spinning"
   const isSpinning = isPreparingOrSpinning
   const isInfoLayout = caseData.specialLayout === "info"
@@ -125,6 +138,80 @@ function CasePage() {
       triggerHaptic("success")
     }
   }, [resultDrop?.id])
+
+  useEffect(() => {
+    async function loadFreeCaseState() {
+      if (!isInviteCase) {
+        setFreeCaseState(null)
+        setIsFreeCaseLoading(false)
+        return
+      }
+
+      if (!telegramId || telegramId === "—") {
+        setFreeCaseState(null)
+        setIsFreeCaseLoading(false)
+        return
+      }
+
+      try {
+        setIsFreeCaseLoading(true)
+        const data = await getFreeCaseState({
+          telegram_id: telegramId,
+          caseId: caseData.id,
+        })
+        setFreeCaseState(data)
+      } catch (err) {
+        console.error("FREE CASE STATE LOAD ERROR:", err)
+        setFreeCaseState(null)
+      } finally {
+        setIsFreeCaseLoading(false)
+      }
+    }
+
+    loadFreeCaseState()
+  }, [isInviteCase, telegramId, caseData.id])
+
+  const handleOpenChannel = () => {
+    triggerHaptic("light")
+
+    const tg = window.Telegram?.WebApp
+
+    if (tg?.openTelegramLink) {
+      tg.openTelegramLink("https://t.me/ufomochannel")
+      return
+    }
+
+    window.open("https://t.me/ufomochannel", "_blank")
+  }
+
+  const handleCheckFreeCaseChannel = async () => {
+    if (!telegramId || isCheckingFreeCaseChannel || !isInviteCase) return
+
+    try {
+      triggerHaptic("light")
+      setIsCheckingFreeCaseChannel(true)
+
+      const result = await checkBonusChannel(telegramId)
+
+      setFreeCaseState((prev) => {
+        const invitesCount = Number(prev?.invitesCount || 0)
+        const invitesRequired = Number(prev?.invitesRequired || caseData.invitesRequired || 0)
+        const nextChannelSubscribed = Boolean(result?.channelSubscribed)
+
+        return {
+          ...(prev || {}),
+          invitesCount,
+          invitesRequired,
+          channelSubscribed: nextChannelSubscribed,
+          canOpen: nextChannelSubscribed && invitesCount >= invitesRequired,
+        }
+      })
+    } catch (err) {
+      console.error("FREE CASE CHANNEL CHECK ERROR:", err)
+    } finally {
+      setIsCheckingFreeCaseChannel(false)
+    }
+  }
 
   const nextFrame = () =>
     new Promise((resolve) => {
@@ -255,7 +342,7 @@ function CasePage() {
       let winnerId = null
       let inventoryItemId = null
 
-      if (demoMode) {
+      if (demoMode && !isInviteCase) {
         winnerId = pickWeighted()
       } else {
         if (!telegramId) {
@@ -293,7 +380,7 @@ function CasePage() {
       triggerHaptic("error")
       console.error("OPEN CASE ERROR:", err)
 
-      if (!demoMode) {
+      if (!demoMode || isInviteCase) {
         await refreshUser().catch(() => {})
       }
 
@@ -418,6 +505,12 @@ function CasePage() {
         ? "Крутится…"
         : "Открыть кейс"
 
+  const invitesRequired = Number(freeCaseState?.invitesRequired || caseData.invitesRequired || 0)
+  const invitesCount = Number(freeCaseState?.invitesCount || 0)
+  const channelDone = Boolean(freeCaseState?.channelSubscribed)
+  const invitesDone = invitesCount >= invitesRequired && invitesRequired > 0
+  const showInviteOpenButton = !isFreeCaseLoading && canOpenInviteCase && !isPreparingOrSpinning
+
   return (
     <div className="app">
       <CaseHeader
@@ -431,7 +524,7 @@ function CasePage() {
         }}
       />
 
-      {isSettingsOpen && !resultDrop && (
+      {isSettingsOpen && !resultDrop && !isInviteCase && (
         <div className="case-settings-panel">
           <div className="case-settings-row">
             <div className="case-settings-copy">
@@ -457,11 +550,84 @@ function CasePage() {
 
       {!resultDrop && (
         <div className="casepage-action-stack">
-          {isPreparingOrSpinning ? (
+          {isInviteCase ? (
+            isPreparingOrSpinning ? (
+              <button type="button" className="casepage-open-btn" disabled>
+                {openButtonText}
+              </button>
+            ) : showInviteOpenButton ? (
+              <button
+                type="button"
+                className="casepage-open-btn"
+                onClick={openCase}
+              >
+                Открыть кейс
+              </button>
+            ) : (
+              <div className="case-invite-block">
+                <div className="case-invite-left">
+                  <div className="case-invite-title">
+                    Чтобы открыть кейс, выполните:
+                  </div>
+
+                  <div className={`case-invite-row ${invitesDone ? "done" : ""}`}>
+                    <div className={`case-invite-check ${invitesDone ? "done" : ""}`}>
+                      {invitesDone ? "✓" : ""}
+                    </div>
+
+                    <div className="case-invite-text">
+                      <span>Пригласить {invitesRequired} друзей</span>
+                    </div>
+
+                    <div className="case-invite-progress">
+                      {invitesCount}/{invitesRequired}
+                    </div>
+                  </div>
+
+                  <div className={`case-invite-row ${channelDone ? "done" : ""}`}>
+                    <button
+                      type="button"
+                      className={`case-invite-check ${channelDone ? "done" : ""}`}
+                      onClick={handleCheckFreeCaseChannel}
+                      disabled={isCheckingFreeCaseChannel}
+                    >
+                      {channelDone ? "✓" : ""}
+                    </button>
+
+                    <div className="case-invite-text">
+                      <span>Подписаться на </span>
+                      <button
+                        type="button"
+                        className="case-invite-link"
+                        onClick={handleOpenChannel}
+                      >
+                        канал
+                      </button>
+                    </div>
+
+                    <div className="case-invite-progress">
+                      {channelDone ? "1/1" : "0/1"}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="case-invite-right">
+                  {caseData.image ? (
+                    <img
+                      src={caseData.image}
+                      alt={caseData.name}
+                      className="case-invite-preview"
+                      draggable={false}
+                    />
+                  ) : null}
+                </div>
+              </div>
+            )
+          ) : isPreparingOrSpinning ? (
             <button type="button" className="casepage-open-btn" disabled>
               {openButtonText}
             </button>
-          ) : canOpenCase ? (
+          ) : canOpenPaidCase ? (
             <button
               type="button"
               className="casepage-open-btn"
