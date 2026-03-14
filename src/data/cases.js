@@ -995,10 +995,10 @@ randomcase: {
   ],
 },
   
-  3friends: {
+  "3friends": {
   id: "3friends",
   name: "For 3 Friends",
-  image: "/cases/friends3.PNG",
+  image: "/cases/3friends.PNG",
   price: 0,
   type: "invite",
   invitesRequired: 3,
