@@ -31,6 +31,7 @@ function Home() {
     { id: "spacetrash", image: "/cases/case6.png.PNG", name: "Space Trash", price: 799, free: false },
     { id: "starfall", image: "/cases/case7.png.PNG", name: "Starfall", price: 499, free: false },
     { id: "randomcase", image: "/cases/case8.png.PNG", name: "Random Case", price: 999, free: false },
+    { id: "3friends", image: "/cases/3friends.PNG", name: "For 3 Friends", price: null, free: true },
   ]
 
   const playerRank = useMemo(() => {
