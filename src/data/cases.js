@@ -352,7 +352,7 @@ export const cases = {
 
   godparticle: {
     id: "godparticle",
-    name: "God Particle",
+    name: "Iced Memory",
     image: "/cases/case4.png.PNG",
     price: 3999,
     drops: [
