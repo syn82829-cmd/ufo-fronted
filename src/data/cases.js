@@ -434,7 +434,7 @@ export const cases = {
       chance: 10,
       priceStars: "3.477",
       priceGems: "40",
-      png: "drop11",
+      png: "santa",
       lottie: "/animations/icedmemory/santa.json",
     },
     {
