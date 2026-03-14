@@ -4555,3 +4555,136 @@ button,
   font-weight: 700;
   text-shadow: 0 0 6px rgba(53,225,122,0.6);
 }
+
+.case-invite-block {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  padding: 18px 18px;
+  box-sizing: border-box;
+
+  border-radius: 22px;
+  border: 1px solid rgba(255,255,255,0.14);
+
+  background: linear-gradient(
+    145deg,
+    rgba(255,255,255,0.045),
+    rgba(255,255,255,0.015)
+  );
+
+  backdrop-filter: blur(12px) saturate(145%);
+  -webkit-backdrop-filter: blur(12px) saturate(145%);
+
+  box-shadow:
+    0 18px 40px rgba(0,0,0,0.24),
+    inset 0 1px 0 rgba(255,255,255,0.12);
+}
+
+.case-invite-left {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.case-invite-title {
+  font-size: 15px;
+  font-weight: 650;
+  line-height: 1.3;
+  color: rgba(255,255,255,0.94);
+}
+
+.case-invite-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 30px;
+}
+
+.case-invite-row.done .case-invite-text,
+.case-invite-row.done .case-invite-progress {
+  color: #6df0a5;
+}
+
+.case-invite-check {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.18);
+
+  background: rgba(255,255,255,0.04);
+  color: transparent;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+.case-invite-check.done {
+  color: #ecfff4;
+  background: linear-gradient(
+    135deg,
+    rgba(61,242,178,0.88),
+    rgba(33,195,131,0.92)
+  );
+  border-color: rgba(61,242,178,0.36);
+  box-shadow:
+    0 0 16px rgba(61,242,178,0.18),
+    inset 0 1px 0 rgba(255,255,255,0.18);
+}
+
+.case-invite-text {
+  flex: 1;
+  min-width: 0;
+
+  font-size: 14px;
+  font-weight: 560;
+  line-height: 1.3;
+  color: rgba(239,244,250,0.92);
+}
+
+.case-invite-progress {
+  flex-shrink: 0;
+  font-size: 14px;
+  font-weight: 650;
+  color: rgba(255,255,255,0.72);
+}
+
+.case-invite-link {
+  padding: 0;
+  border: none;
+  background: transparent;
+
+  color: #53a8ff;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.case-invite-right {
+  width: 96px;
+  height: 96px;
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.case-invite-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 20px rgba(0,0,0,0.22));
+}
