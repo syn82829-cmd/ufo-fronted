@@ -1003,7 +1003,7 @@ randomcase: {
   type: "invite",
   invitesRequired: 3,
   requireChannel: true,
-  inviteLottie: "/assets/animations/mrms.json",
+  inviteLottie: "/animations/3friends/mrms.json",
   drops: [
     {
       id: "ilu",
