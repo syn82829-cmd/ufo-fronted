@@ -720,9 +720,11 @@ function CasePage() {
         pngSrcByDrop={pngSrcByDrop}
       />
 
-      <div className="case-drops-heading">
-        Возможный выигрыш
-      </div>
+      {!isInfoLayout && (
+        <div className="case-drops-heading">
+          Возможный выигрыш
+        </div>
+      )}
 
       {!isSpinning &&
         (isInfoLayout ? (
