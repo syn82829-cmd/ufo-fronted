@@ -71,11 +71,19 @@ function CasePage() {
 
   if (!caseData) return <div className="app">Case config missing</div>
 
-  const isInviteCase = caseData.type === "invite"
+const isInviteCase = caseData.type === "invite"
 
-  const animationsById = useCaseAnimations(caseData.drops)
+useEffect(() => {
+  window.scrollTo({
+    top: 0,
+    left: 0,
+    behavior: "auto",
+  })
+}, [id])
 
-  const dropMap = useMemo(() => {
+const animationsById = useCaseAnimations(caseData.drops)
+
+const dropMap = useMemo(() => {
     return Object.fromEntries((caseData.drops || []).map((drop) => [drop.id, drop]))
   }, [caseData.drops])
 
