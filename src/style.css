@@ -4694,9 +4694,16 @@ button,
 }
 
 .case-drops-heading {
-  width: 90%;
-  max-width: 920px;
+  width: 100%;
+  max-width: var(--content-max-width);
+  padding: 0 var(--content-padding);
   margin: 0 auto 12px;
+
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: rgba(255,255,255,0.96);
+}
 
   font-size: 18px;
   font-weight: 700;
