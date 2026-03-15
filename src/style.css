@@ -4705,11 +4705,6 @@ button,
   color: rgba(255,255,255,0.96);
 }
 
-  font-size: 18px;
-  font-weight: 700;
-  line-height: 1.2;
-  color: rgba(255,255,255,0.96);
-}
 
 @media (max-width: 640px) {
   .case-invite-block {
