@@ -69,38 +69,58 @@ function CasePage() {
     }
   }, [demoMode])
 
-  if (!caseData) return <div className="app">Case config missing</div>
+  const isInviteCase = caseData?.type === "invite"
 
-const isInviteCase = caseData.type === "invite"
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0)
+    document.body.scrollTop = 0
+    document.documentElement.scrollTop = 0
 
-useEffect(() => {
-  window.scrollTo({
-    top: 0,
-    left: 0,
-    behavior: "auto",
-  })
-}, [id])
+    const root = document.getElementById("root")
+    if (root) {
+      root.scrollTop = 0
+    }
 
-const animationsById = useCaseAnimations(caseData.drops)
+    const app = document.querySelector(".app")
+    if (app) {
+      app.scrollTop = 0
+    }
 
-const dropMap = useMemo(() => {
-    return Object.fromEntries((caseData.drops || []).map((drop) => [drop.id, drop]))
-  }, [caseData.drops])
+    requestAnimationFrame(() => {
+      window.scrollTo(0, 0)
+      document.body.scrollTop = 0
+      document.documentElement.scrollTop = 0
+
+      if (root) {
+        root.scrollTop = 0
+      }
+
+      if (app) {
+        app.scrollTop = 0
+      }
+    })
+  }, [id])
+
+  const animationsById = useCaseAnimations(caseData?.drops || [])
+
+  const dropMap = useMemo(() => {
+    return Object.fromEntries(((caseData?.drops) || []).map((drop) => [drop.id, drop]))
+  }, [caseData?.drops])
 
   const safeDrops = useMemo(() => {
-    return (caseData.drops || []).filter((drop) => {
+    return ((caseData?.drops) || []).filter((drop) => {
       if (!drop) return false
       if (!drop.chance || drop.chance <= 0) return false
       if (!drop.png || drop.png === "placeholder") return false
       return true
     })
-  }, [caseData.drops])
+  }, [caseData?.drops])
 
   const resultDrop = useMemo(() => {
     return resultId ? dropMap[resultId] || null : null
   }, [dropMap, resultId])
 
-  const casePrice = Number(caseData.price || 0)
+  const casePrice = Number(caseData?.price || 0)
   const telegramId = user?.id
   const userBalance = Number(user?.balance || 0)
   const missingStars = Math.max(casePrice - userBalance, 0)
@@ -112,7 +132,7 @@ const dropMap = useMemo(() => {
 
   const isPreparingOrSpinning = phase === "preparing" || phase === "spinning"
   const isSpinning = isPreparingOrSpinning
-  const isInfoLayout = caseData.specialLayout === "info"
+  const isInfoLayout = caseData?.specialLayout === "info"
 
   const navigateWithHaptic = (...args) => {
     triggerHaptic("light")
@@ -214,8 +234,10 @@ const dropMap = useMemo(() => {
       }
     }
 
-    loadFreeCaseState()
-  }, [isInviteCase, telegramId, caseData.id])
+    if (caseData?.id) {
+      loadFreeCaseState()
+    }
+  }, [isInviteCase, telegramId, caseData?.id])
 
   const handleOpenChannel = () => {
     triggerHaptic("light")
@@ -241,7 +263,7 @@ const dropMap = useMemo(() => {
 
       setFreeCaseState((prev) => {
         const invitesCount = Number(prev?.invitesCount || 0)
-        const invitesRequired = Number(prev?.invitesRequired || caseData.invitesRequired || 0)
+        const invitesRequired = Number(prev?.invitesRequired || caseData?.invitesRequired || 0)
         const nextChannelSubscribed = Boolean(result?.channelSubscribed)
 
         return {
@@ -556,11 +578,15 @@ const dropMap = useMemo(() => {
         ? "Крутится…"
         : "Открыть кейс"
 
-  const invitesRequired = Number(freeCaseState?.invitesRequired || caseData.invitesRequired || 0)
+  const invitesRequired = Number(freeCaseState?.invitesRequired || caseData?.invitesRequired || 0)
   const invitesCount = Number(freeCaseState?.invitesCount || 0)
   const channelDone = Boolean(freeCaseState?.channelSubscribed)
   const invitesDone = invitesCount >= invitesRequired && invitesRequired > 0
   const showInviteOpenButton = !isFreeCaseLoading && canOpenInviteCase && !isPreparingOrSpinning
+
+  if (!caseData) {
+    return <div className="app">Case config missing</div>
+  }
 
   return (
     <div className="app">
