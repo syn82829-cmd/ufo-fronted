@@ -197,11 +197,11 @@ function Bonus() {
           </div>
 
           <div className="bonus-event-title">
-            Пригласи друга - забери подарок
+            Пригласи друга - получи подарок
           </div>
 
           <div className="bonus-event-subtitle">
-            Друг должен открыть любой кейс. Подарок можно вывести или обменять на звезды!
+            Друг должен открыть любой кейс. Подарок можно вывести или обменять на звезды. Только один раз в день!
           </div>
 
           <div className="bonus-event-progress">
@@ -226,7 +226,7 @@ function Bonus() {
               className="bonus-open-sheet-btn"
               onClick={() => setIsBonusSheetOpen(true)}
             >
-              Забрать подарок
+              Получить подарок
             </button>
           )}
         </div>
