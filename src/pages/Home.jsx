@@ -256,7 +256,7 @@ function Home() {
             navigate("/bonus")
           }}
         >
-          Вознаграждения 
+          Награды 
         </div>
 
         <div
