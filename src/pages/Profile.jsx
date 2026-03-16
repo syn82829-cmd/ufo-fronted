@@ -319,7 +319,7 @@ function Profile() {
             navigate("/bonus")
           }}
         >
-          Бонусы
+          Вознаграждения
         </div>
 
         <div
@@ -329,7 +329,7 @@ function Profile() {
             navigate("/giveaways")
           }}
         >
-          Розыгрыши
+          Друзья
         </div>
 
         <div
