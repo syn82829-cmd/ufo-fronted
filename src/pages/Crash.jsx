@@ -352,7 +352,7 @@ function Crash() {
             navigate("/bonus")
           }}
         >
-          Вознаграждения
+          Награды
         </div>
 
         <div
