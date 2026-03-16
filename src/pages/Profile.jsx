@@ -319,7 +319,7 @@ function Profile() {
             navigate("/bonus")
           }}
         >
-          Вознаграждения
+          Награды
         </div>
 
         <div
