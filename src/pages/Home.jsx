@@ -256,7 +256,7 @@ function Home() {
             navigate("/bonus")
           }}
         >
-          Бонусы
+          Вознаграждения 
         </div>
 
         <div
@@ -266,7 +266,7 @@ function Home() {
             navigate("/giveaways")
           }}
         >
-          Розыгрыши
+          Друзья
         </div>
 
         <div className="nav-item active">Главная</div>
