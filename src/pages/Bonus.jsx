@@ -195,7 +195,7 @@ function Bonus() {
 
       <div className="bottom-nav">
         <div className="nav-item active">
-          Вознаграждения
+          Награды
         </div>
 
         <div
