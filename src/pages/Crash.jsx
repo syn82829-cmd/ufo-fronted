@@ -352,7 +352,7 @@ function Crash() {
             navigate("/bonus")
           }}
         >
-          Бонусы
+          Вознаграждения
         </div>
 
         <div
@@ -362,7 +362,7 @@ function Crash() {
             navigate("/giveaways")
           }}
         >
-          Розыгрыши
+          Друзья
         </div>
 
         <div
