@@ -22,7 +22,7 @@ function Giveaways() {
           className="nav-item"
           onClick={() => navigate("/bonus")}
         >
-          Вознаграждения
+          Награды
         </div>
 
         <div className="nav-item active">
