@@ -195,14 +195,14 @@ function Bonus() {
 
       <div className="bottom-nav">
         <div className="nav-item active">
-          Бонусы
+          Вознаграждения
         </div>
 
         <div
           className="nav-item"
           onClick={() => navigate("/giveaways")}
         >
-          Розыгрыши
+          Друзья
         </div>
 
         <div
