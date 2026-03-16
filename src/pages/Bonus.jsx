@@ -183,7 +183,7 @@ function Bonus() {
 
       <div className="bonus-page">
         <div className="case-drops-heading">
-          Бонусы
+          Награды
         </div>
 
         <div className="bonus-card">
@@ -201,7 +201,7 @@ function Bonus() {
           </div>
 
           <div className="bonus-event-subtitle">
-            Друг должен открыть любой кейс. Подарок можно вывести или обменять на 25 звезд!
+            Друг должен открыть любой кейс. Подарок можно вывести или обменять на звезды!
           </div>
 
           <div className="bonus-event-progress">
