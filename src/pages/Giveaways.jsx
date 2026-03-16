@@ -11,7 +11,7 @@ function Giveaways() {
       <div className="empty-page">
 
         <div className="empty-glass">
-          Розыгрыши — скоро 🚀
+          Друзья — скоро 🚀
         </div>
 
       </div>
@@ -22,11 +22,11 @@ function Giveaways() {
           className="nav-item"
           onClick={() => navigate("/bonus")}
         >
-          Бонусы
+          Вознаграждения
         </div>
 
         <div className="nav-item active">
-          Розыгрыши
+          Друзья
         </div>
 
         <div
