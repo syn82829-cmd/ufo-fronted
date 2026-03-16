@@ -4803,12 +4803,17 @@ button,
 /* ============================= */
 
 .bonus-section-title {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+
   font-size: 22px;
   font-weight: 750;
   letter-spacing: -0.02em;
   color: rgba(255,255,255,0.96);
+
   margin: 0 0 14px 0;
-  padding-left: 4px;
+  padding-left: 14px;
 }
 
 .bonus-event-title {
@@ -4868,10 +4873,13 @@ button,
 }
 
 .bonus-open-sheet-btn {
-  width: 100%;
-  height: 46px;
+  display: block;
+  width: 88%;
+  margin: 0 auto;
+
+  height: 44px;
   border-radius: 14px;
-  border: 1px solid rgba(101,220,255,0.45);
+  border: 1px solid rgba(101,220,255,0.42);
 
   background: linear-gradient(
     135deg,
@@ -4885,15 +4893,15 @@ button,
   letter-spacing: -0.01em;
 
   box-shadow:
-    0 8px 20px rgba(0,0,0,0.22),
-    0 0 14px rgba(48,190,255,0.14),
-    inset 0 1px 0 rgba(255,255,255,0.2);
+    0 8px 20px rgba(0,0,0,0.2),
+    0 0 14px rgba(48,190,255,0.12),
+    inset 0 1px 0 rgba(255,255,255,0.18);
 
   transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
 }
 
 .bonus-open-sheet-btn:active {
-  transform: scale(0.98);
+  transform: scale(0.985);
 }
 
 .bonus-open-sheet-btn:disabled {
@@ -4978,7 +4986,7 @@ button,
   .bonus-section-title {
     font-size: 20px;
     margin-bottom: 12px;
-    padding-left: 2px;
+    padding-left: 14px;
   }
 
   .bonus-event-title {
@@ -5000,7 +5008,8 @@ button,
   }
 
   .bonus-open-sheet-btn {
-    height: 44px;
+    width: 86%;
+    height: 42px;
     border-radius: 13px;
     font-size: 14px;
   }
