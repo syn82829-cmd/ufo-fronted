@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import Lottie from "lottie-react"
 
@@ -8,6 +8,8 @@ import {
   getBonusState,
 } from "../api"
 import { useUser } from "../context/UserContext"
+import { getPlayerRank } from "../utils/playerRank"
+import DepositMenu from "../components/DepositMenu"
 import podarokAnimation from "../assets/animations/podarok.json"
 import "../style.css"
 
@@ -19,6 +21,14 @@ function Bonus() {
   const [isLoading, setIsLoading] = useState(true)
   const [isCheckingChannel, setIsCheckingChannel] = useState(false)
   const [isClaiming, setIsClaiming] = useState(false)
+  const [isDepositOpen, setIsDepositOpen] = useState(false)
+
+  const playerRank = useMemo(() => {
+    return getPlayerRank(
+      Number(user?.casesOpened || 0),
+      Number(user?.crashGamesPlayed || 0)
+    )
+  }, [user?.casesOpened, user?.crashGamesPlayed])
 
   useEffect(() => {
     async function loadBonusState() {
@@ -99,9 +109,80 @@ function Bonus() {
   const friendDone = Boolean(bonusState?.friendInvited)
   const canClaim = Boolean(bonusState?.canClaim)
 
+  const claimedCount =
+    Number(
+      bonusState?.claimedCount ??
+      bonusState?.campaignClaimedCount ??
+      bonusState?.totalClaimed ??
+      0
+    ) || 0
+
+  const claimedLimit =
+    Number(
+      bonusState?.claimedLimit ??
+      bonusState?.campaignClaimedLimit ??
+      bonusState?.totalLimit ??
+      500
+    ) || 500
+
+  const progressPercent =
+    claimedLimit > 0 ? Math.min((claimedCount / claimedLimit) * 100, 100) : 0
+
   return (
     <div className="app">
       <div className="bonus-page">
+        <div className="home-topbar">
+          <div className="home-topbar-left" onClick={() => navigate("/profile")}>
+            <div className="home-topbar-avatar">
+              {user.photoUrl ? (
+                <img
+                  src={user.photoUrl}
+                  alt={user.username}
+                  className="home-topbar-avatar-image"
+                  draggable={false}
+                  referrerPolicy="no-referrer"
+                />
+              ) : (
+                <span className="home-topbar-avatar-fallback">
+                  {(user.username?.[0] || "G").toUpperCase()}
+                </span>
+              )}
+            </div>
+
+            <div className="home-topbar-user">
+              <div className="home-topbar-name">{user.username}</div>
+
+              <div className="home-topbar-rank">
+                <img
+                  src={playerRank.image}
+                  alt={playerRank.name}
+                  className="home-topbar-rank-icon"
+                  draggable={false}
+                />
+                <span className="home-topbar-rank-text">{playerRank.name}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="home-topbar-right">
+            <div className="home-topbar-balance">
+              <img src="/ui/star.PNG" className="home-topbar-balance-icon" alt="" />
+              <span>{user.balance}</span>
+            </div>
+
+            <button
+              type="button"
+              className="home-topbar-plus"
+              onClick={() => setIsDepositOpen(true)}
+            >
+              +
+            </button>
+          </div>
+        </div>
+
+        <div className="case-drops-heading">
+          Бонусы
+        </div>
 
         <div className="bonus-card">
           <div className="bonus-card-visual">
@@ -113,8 +194,24 @@ function Bonus() {
             />
           </div>
 
-          <div className="bonus-card-title">
-            Ежедневный Бесплатный подарок!
+          <div className="bonus-event-title">
+            Пригласи друга - забери подарок
+          </div>
+
+          <div className="bonus-event-subtitle">
+            Друг должен открыть любой кейс. Подарок можно вывести или обменять на 25 звезд!
+          </div>
+
+          <div className="bonus-event-progress">
+            <div
+              className="bonus-event-progress-fill"
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
+
+          <div className="bonus-event-progress-meta">
+            <span>Получено</span>
+            <span>{claimedCount}/{claimedLimit}</span>
           </div>
 
           {isLoading ? (
@@ -219,6 +316,11 @@ function Bonus() {
           Профиль
         </div>
       </div>
+
+      <DepositMenu
+        isOpen={isDepositOpen}
+        onClose={() => setIsDepositOpen(false)}
+      />
     </div>
   )
 }
