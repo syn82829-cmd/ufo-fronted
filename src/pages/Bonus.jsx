@@ -22,6 +22,7 @@ function Bonus() {
   const [isCheckingChannel, setIsCheckingChannel] = useState(false)
   const [isClaiming, setIsClaiming] = useState(false)
   const [isDepositOpen, setIsDepositOpen] = useState(false)
+  const [isBonusSheetOpen, setIsBonusSheetOpen] = useState(false)
 
   const playerRank = useMemo(() => {
     return getPlayerRank(
@@ -98,6 +99,7 @@ function Bonus() {
 
       const updatedState = await getBonusState(user.id)
       setBonusState(updatedState)
+      setIsBonusSheetOpen(false)
     } catch (err) {
       console.error("BONUS CLAIM ERROR:", err)
     } finally {
@@ -130,56 +132,56 @@ function Bonus() {
 
   return (
     <div className="app">
-      <div className="bonus-page">
-        <div className="home-topbar">
-          <div className="home-topbar-left" onClick={() => navigate("/profile")}>
-            <div className="home-topbar-avatar">
-              {user.photoUrl ? (
-                <img
-                  src={user.photoUrl}
-                  alt={user.username}
-                  className="home-topbar-avatar-image"
-                  draggable={false}
-                  referrerPolicy="no-referrer"
-                />
-              ) : (
-                <span className="home-topbar-avatar-fallback">
-                  {(user.username?.[0] || "G").toUpperCase()}
-                </span>
-              )}
-            </div>
-
-            <div className="home-topbar-user">
-              <div className="home-topbar-name">{user.username}</div>
-
-              <div className="home-topbar-rank">
-                <img
-                  src={playerRank.image}
-                  alt={playerRank.name}
-                  className="home-topbar-rank-icon"
-                  draggable={false}
-                />
-                <span className="home-topbar-rank-text">{playerRank.name}</span>
-              </div>
-            </div>
+      <div className="home-topbar">
+        <div className="home-topbar-left" onClick={() => navigate("/profile")}>
+          <div className="home-topbar-avatar">
+            {user.photoUrl ? (
+              <img
+                src={user.photoUrl}
+                alt={user.username}
+                className="home-topbar-avatar-image"
+                draggable={false}
+                referrerPolicy="no-referrer"
+              />
+            ) : (
+              <span className="home-topbar-avatar-fallback">
+                {(user.username?.[0] || "G").toUpperCase()}
+              </span>
+            )}
           </div>
 
-          <div className="home-topbar-right">
-            <div className="home-topbar-balance">
-              <img src="/ui/star.PNG" className="home-topbar-balance-icon" alt="" />
-              <span>{user.balance}</span>
-            </div>
+          <div className="home-topbar-user">
+            <div className="home-topbar-name">{user.username}</div>
 
-            <button
-              type="button"
-              className="home-topbar-plus"
-              onClick={() => setIsDepositOpen(true)}
-            >
-              +
-            </button>
+            <div className="home-topbar-rank">
+              <img
+                src={playerRank.image}
+                alt={playerRank.name}
+                className="home-topbar-rank-icon"
+                draggable={false}
+              />
+              <span className="home-topbar-rank-text">{playerRank.name}</span>
+            </div>
           </div>
         </div>
 
+        <div className="home-topbar-right">
+          <div className="home-topbar-balance">
+            <img src="/ui/star.PNG" className="home-topbar-balance-icon" alt="" />
+            <span>{user.balance}</span>
+          </div>
+
+          <button
+            type="button"
+            className="home-topbar-plus"
+            onClick={() => setIsDepositOpen(true)}
+          >
+            +
+          </button>
+        </div>
+      </div>
+
+      <div className="bonus-page">
         <div className="case-drops-heading">
           Бонусы
         </div>
@@ -219,76 +221,96 @@ function Bonus() {
               Загрузка бонуса...
             </div>
           ) : (
-            <>
-              <div className="bonus-conditions-title">
-                Условия:
-              </div>
-
-              <div className="bonus-conditions-list">
-                <div className="bonus-condition-row">
-                  <div className="bonus-condition-left">
-                    <button
-                      type="button"
-                      className={`bonus-check-circle ${channelDone ? "done" : ""}`}
-                      onClick={handleCheckChannel}
-                      disabled={isCheckingChannel}
-                    >
-                      {channelDone ? "✓" : ""}
-                    </button>
-
-                    <div className="bonus-condition-text-wrap">
-                      <div className="bonus-condition-text">
-                        Подписаться на канал @ufomochannel
-                      </div>
-
-                      {!channelDone && (
-                        <button
-                          type="button"
-                          className="bonus-link-btn"
-                          onClick={handleOpenChannel}
-                        >
-                          Открыть канал
-                        </button>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="bonus-condition-progress">
-                    {channelDone ? "1/1" : "0/1"}
-                  </div>
-                </div>
-
-                <div className="bonus-condition-row">
-                  <div className="bonus-condition-left">
-                    <div className={`bonus-check-circle ${friendDone ? "done" : ""}`}>
-                      {friendDone ? "✓" : ""}
-                    </div>
-
-                    <div className="bonus-condition-text-wrap">
-                      <div className="bonus-condition-text">
-                        Пригласить друга
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bonus-condition-progress">
-                    {friendDone ? "1/1" : "0/1"}
-                  </div>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                className="bonus-claim-btn"
-                onClick={handleClaim}
-                disabled={!canClaim || isClaiming}
-              >
-                {isClaiming ? "Загрузка..." : canClaim ? "Забрать" : "Выполните условия"}
-              </button>
-            </>
+            <button
+              type="button"
+              className="bonus-open-sheet-btn"
+              onClick={() => setIsBonusSheetOpen(true)}
+            >
+              Забрать подарок
+            </button>
           )}
         </div>
       </div>
+
+      {isBonusSheetOpen && (
+        <div
+          className="bonus-sheet-overlay"
+          onClick={() => setIsBonusSheetOpen(false)}
+        >
+          <div
+            className="bonus-sheet"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="bonus-sheet-handle" />
+
+            <div className="bonus-sheet-title">
+              Условия получения
+            </div>
+
+            <div className="bonus-conditions-list">
+              <div className="bonus-condition-row">
+                <div className="bonus-condition-left">
+                  <button
+                    type="button"
+                    className={`bonus-check-circle ${channelDone ? "done" : ""}`}
+                    onClick={handleCheckChannel}
+                    disabled={isCheckingChannel}
+                  >
+                    {channelDone ? "✓" : ""}
+                  </button>
+
+                  <div className="bonus-condition-text-wrap">
+                    <div className="bonus-condition-text">
+                      Подписаться на канал @ufomochannel
+                    </div>
+
+                    {!channelDone && (
+                      <button
+                        type="button"
+                        className="bonus-link-btn"
+                        onClick={handleOpenChannel}
+                      >
+                        Открыть канал
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <div className="bonus-condition-progress">
+                  {channelDone ? "1/1" : "0/1"}
+                </div>
+              </div>
+
+              <div className="bonus-condition-row">
+                <div className="bonus-condition-left">
+                  <div className={`bonus-check-circle ${friendDone ? "done" : ""}`}>
+                    {friendDone ? "✓" : ""}
+                  </div>
+
+                  <div className="bonus-condition-text-wrap">
+                    <div className="bonus-condition-text">
+                      Пригласить друга
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bonus-condition-progress">
+                  {friendDone ? "1/1" : "0/1"}
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              className="bonus-claim-btn"
+              onClick={handleClaim}
+              disabled={!canClaim || isClaiming}
+            >
+              {isClaiming ? "Загрузка..." : canClaim ? "Забрать" : "Выполните условия"}
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="bottom-nav">
         <div className="nav-item active">
