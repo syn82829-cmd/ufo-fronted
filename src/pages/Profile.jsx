@@ -379,7 +379,7 @@ function Profile() {
         <div className="profile-item-name">{item.dropName}</div>
 
         <div className="profile-item-bonus-badge">
-          Закреплён за вами
+          Закреплён за Вами
         </div>
       </div>
 
