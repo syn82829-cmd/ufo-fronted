@@ -373,34 +373,54 @@ function Profile() {
                       </div>
 
                       <div className="profile-item-main">
-                        <div className="profile-item-name">{item.dropName}</div>
+  {isLockedBonus ? (
+    <>
+      <div className="profile-item-bonus-topline">
+        <div className="profile-item-name">{item.dropName}</div>
 
-                        {isLockedBonus && (
-                          <>
-                            <div className="profile-item-bonus-badge">
-                              Закреплён за вами
-                            </div>
+        <div className="profile-item-bonus-badge">
+          Закреплён за вами
+        </div>
+      </div>
 
-                            <div className="profile-item-bonus-timer">
-                              {formatTimer(bonusTimeLeftMs)}
-                            </div>
-                          </>
-                        )}
+      <div className="profile-item-bonus-timer">
+        {formatTimer(bonusTimeLeftMs)}
+      </div>
 
-                        <div className="profile-item-prices">
-                          <span className="profile-item-price">
-                            <img src="/ui/star.PNG" className="profile-item-price-icon" alt="" />
-                            <span>{item.priceStars}</span>
-                          </span>
+      <div className="profile-item-prices">
+        <span className="profile-item-price">
+          <img src="/ui/star.PNG" className="profile-item-price-icon" alt="" />
+          <span>{item.priceStars}</span>
+        </span>
 
-                          {item.priceGems && (
-                            <span className="profile-item-price">
-                              <img src="/ui/ton.PNG" className="profile-item-price-icon" alt="" />
-                              <span>{item.priceGems}</span>
-                            </span>
-                          )}
-                        </div>
-                      </div>
+        {item.priceGems && (
+          <span className="profile-item-price">
+            <img src="/ui/ton.PNG" className="profile-item-price-icon" alt="" />
+            <span>{item.priceGems}</span>
+          </span>
+        )}
+      </div>
+    </>
+  ) : (
+    <>
+      <div className="profile-item-name">{item.dropName}</div>
+
+      <div className="profile-item-prices">
+        <span className="profile-item-price">
+          <img src="/ui/star.PNG" className="profile-item-price-icon" alt="" />
+          <span>{item.priceStars}</span>
+        </span>
+
+        {item.priceGems && (
+          <span className="profile-item-price">
+            <img src="/ui/ton.PNG" className="profile-item-price-icon" alt="" />
+            <span>{item.priceGems}</span>
+          </span>
+        )}
+      </div>
+    </>
+  )}
+</div>
 
                       <div className="profile-item-actions">
                         <button
