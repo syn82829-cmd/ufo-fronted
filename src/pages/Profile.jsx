@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import {
+  checkBonusChannel,
+  getBonusState,
   getInventory,
   sellInventoryItem,
   getTransactions,
@@ -10,6 +12,8 @@ import { getPlayerRank } from "../utils/playerRank"
 import { triggerHaptic } from "../utils/haptics"
 import DepositMenu from "../components/DepositMenu"
 import "../style.css"
+
+const BONUS_REWARD_STORAGE_KEY = "ufo_bonus_reserved_reward"
 
 function Profile() {
   const navigate = useNavigate()
@@ -25,6 +29,12 @@ function Profile() {
   const [isTransactionsLoading, setIsTransactionsLoading] = useState(true)
 
   const [isDepositOpen, setIsDepositOpen] = useState(false)
+
+  const [bonusLockedItem, setBonusLockedItem] = useState(null)
+  const [bonusTimeLeftMs, setBonusTimeLeftMs] = useState(0)
+  const [isBonusSheetOpen, setIsBonusSheetOpen] = useState(false)
+  const [bonusState, setBonusState] = useState(null)
+  const [isCheckingChannel, setIsCheckingChannel] = useState(false)
 
   const playerRank = useMemo(() => {
     return getPlayerRank(
@@ -79,6 +89,73 @@ function Profile() {
     loadTransactions()
   }, [user?.id])
 
+  useEffect(() => {
+    if (!user?.id) {
+      setBonusLockedItem(null)
+      setBonusTimeLeftMs(0)
+      return
+    }
+
+    const syncReservedReward = () => {
+      try {
+        const raw = localStorage.getItem(BONUS_REWARD_STORAGE_KEY)
+        if (!raw) {
+          setBonusLockedItem(null)
+          setBonusTimeLeftMs(0)
+          return
+        }
+
+        const parsed = JSON.parse(raw)
+
+        if (String(parsed?.ownerId) !== String(user.id)) {
+          setBonusLockedItem(null)
+          setBonusTimeLeftMs(0)
+          return
+        }
+
+        const left = Math.max(Number(parsed?.reservedUntil || 0) - Date.now(), 0)
+
+        if (left <= 0) {
+          localStorage.removeItem(BONUS_REWARD_STORAGE_KEY)
+          setBonusLockedItem(null)
+          setBonusTimeLeftMs(0)
+          return
+        }
+
+        setBonusLockedItem(parsed)
+        setBonusTimeLeftMs(left)
+      } catch (err) {
+        console.error("BONUS RESERVED READ ERROR:", err)
+        setBonusLockedItem(null)
+        setBonusTimeLeftMs(0)
+      }
+    }
+
+    syncReservedReward()
+
+    const interval = setInterval(syncReservedReward, 1000)
+    return () => clearInterval(interval)
+  }, [user?.id])
+
+  useEffect(() => {
+    async function loadBonusState() {
+      if (!user?.id || !bonusLockedItem) {
+        setBonusState(null)
+        return
+      }
+
+      try {
+        const data = await getBonusState(user.id)
+        setBonusState(data)
+      } catch (err) {
+        console.error("PROFILE BONUS STATE LOAD ERROR:", err)
+        setBonusState(null)
+      }
+    }
+
+    loadBonusState()
+  }, [user?.id, bonusLockedItem])
+
   const handleSellItem = async (itemId) => {
     if (!user?.id || !itemId || sellingItemId) return
 
@@ -109,6 +186,46 @@ function Profile() {
     }
   }
 
+  const handleLockedGiftAction = () => {
+    triggerHaptic("light")
+    setIsBonusSheetOpen(true)
+  }
+
+  const handleOpenChannel = () => {
+    const tg = window.Telegram?.WebApp
+
+    if (tg?.openTelegramLink) {
+      tg.openTelegramLink("https://t.me/ufomochannel")
+      return
+    }
+
+    window.open("https://t.me/ufomochannel", "_blank")
+  }
+
+  const handleCheckChannel = async () => {
+    if (!user?.id || isCheckingChannel) return
+
+    try {
+      setIsCheckingChannel(true)
+      const result = await checkBonusChannel(user.id)
+
+      setBonusState((prev) => ({
+        ...(prev || {}),
+        ...prev,
+        channelSubscribed: Boolean(result?.channelSubscribed),
+        conditionsMet: Boolean(result?.channelSubscribed) && Boolean(prev?.friendInvited),
+      }))
+    } catch (err) {
+      console.error("BONUS CHANNEL CHECK ERROR:", err)
+    } finally {
+      setIsCheckingChannel(false)
+    }
+  }
+
+  const channelDone = Boolean(bonusState?.channelSubscribed)
+  const friendDone = Boolean(bonusState?.friendInvited)
+  const conditionsDone = channelDone && friendDone
+
   const formatAmount = (value) => {
     const num = Number(value || 0)
     return new Intl.NumberFormat("ru-RU").format(num)
@@ -138,6 +255,18 @@ function Profile() {
       minute: "2-digit",
     }).format(date)
   }
+
+  const formatTimer = (ms) => {
+    const totalSeconds = Math.max(Math.floor(ms / 1000), 0)
+    const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, "0")
+    const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, "0")
+    const seconds = String(totalSeconds % 60).padStart(2, "0")
+    return `${hours}:${minutes}:${seconds}`
+  }
+
+  const mergedInventory = bonusLockedItem
+    ? [bonusLockedItem, ...inventory]
+    : inventory
 
   return (
     <div className="app">
@@ -222,59 +351,87 @@ function Profile() {
           {activeTab === "inventory" ? (
             isInventoryLoading ? (
               <div className="profile-empty-state">Загрузка инвентаря…</div>
-            ) : inventory.length === 0 ? (
+            ) : mergedInventory.length === 0 ? (
               <div className="profile-empty-state">В инвентаре пока пусто</div>
             ) : (
               <div className="profile-items-list">
-                {inventory.map((item) => (
-                  <div key={item.id} className="profile-item-row">
-                    <div className="profile-item-visual">
-                      <img
-                        src={`/drops/${item.png}.png`}
-                        alt={item.dropName}
-                        className="profile-item-image"
-                        draggable={false}
-                      />
-                    </div>
+                {mergedInventory.map((item) => {
+                  const isLockedBonus = item.source === "bonus" && item.status === "locked"
 
-                    <div className="profile-item-main">
-                      <div className="profile-item-name">{item.dropName}</div>
+                  return (
+                    <div
+                      key={item.id}
+                      className={`profile-item-row ${isLockedBonus ? "profile-item-row-bonus-locked" : ""}`}
+                    >
+                      <div className="profile-item-visual">
+                        <img
+                          src={`/drops/${item.png}.png`}
+                          alt={item.dropName}
+                          className="profile-item-image"
+                          draggable={false}
+                        />
+                      </div>
 
-                      <div className="profile-item-prices">
-                        <span className="profile-item-price">
-                          <img src="/ui/star.PNG" className="profile-item-price-icon" alt="" />
-                          <span>{item.priceStars}</span>
-                        </span>
+                      <div className="profile-item-main">
+                        <div className="profile-item-name">{item.dropName}</div>
 
-                        {item.priceGems && (
-                          <span className="profile-item-price">
-                            <img src="/ui/ton.PNG" className="profile-item-price-icon" alt="" />
-                            <span>{item.priceGems}</span>
-                          </span>
+                        {isLockedBonus && (
+                          <>
+                            <div className="profile-item-bonus-badge">
+                              Закреплён за вами
+                            </div>
+
+                            <div className="profile-item-bonus-timer">
+                              {formatTimer(bonusTimeLeftMs)}
+                            </div>
+                          </>
                         )}
+
+                        <div className="profile-item-prices">
+                          <span className="profile-item-price">
+                            <img src="/ui/star.PNG" className="profile-item-price-icon" alt="" />
+                            <span>{item.priceStars}</span>
+                          </span>
+
+                          {item.priceGems && (
+                            <span className="profile-item-price">
+                              <img src="/ui/ton.PNG" className="profile-item-price-icon" alt="" />
+                              <span>{item.priceGems}</span>
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="profile-item-actions">
+                        <button
+                          type="button"
+                          className="profile-item-action-btn secondary"
+                          onClick={isLockedBonus ? handleLockedGiftAction : undefined}
+                          disabled={!isLockedBonus}
+                        >
+                          Вывести
+                        </button>
+
+                        <button
+                          type="button"
+                          className="profile-item-action-btn primary"
+                          onClick={
+                            isLockedBonus
+                              ? handleLockedGiftAction
+                              : () => handleSellItem(item.id)
+                          }
+                          disabled={!isLockedBonus && sellingItemId === item.id}
+                        >
+                          {isLockedBonus
+                            ? "Продать"
+                            : sellingItemId === item.id
+                            ? "..."
+                            : "Продать"}
+                        </button>
                       </div>
                     </div>
-
-                    <div className="profile-item-actions">
-                      <button
-                        type="button"
-                        className="profile-item-action-btn secondary"
-                        disabled
-                      >
-                        Вывести
-                      </button>
-
-                      <button
-                        type="button"
-                        className="profile-item-action-btn primary"
-                        onClick={() => handleSellItem(item.id)}
-                        disabled={sellingItemId === item.id}
-                      >
-                        {sellingItemId === item.id ? "..." : "Продать"}
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             )
           ) : isTransactionsLoading ? (
@@ -310,6 +467,85 @@ function Profile() {
           )}
         </div>
       </div>
+
+      {isBonusSheetOpen && (
+        <div
+          className="bonus-sheet-overlay"
+          onClick={() => setIsBonusSheetOpen(false)}
+        >
+          <div
+            className="bonus-sheet"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="bonus-sheet-handle" />
+
+            <div className="bonus-sheet-title">
+              Активируйте подарок
+            </div>
+
+            <div className="bonus-conditions-list">
+              <div className="bonus-condition-row">
+                <div className="bonus-condition-left">
+                  <button
+                    type="button"
+                    className={`bonus-check-circle ${channelDone ? "done" : ""}`}
+                    onClick={handleCheckChannel}
+                    disabled={isCheckingChannel}
+                  >
+                    {channelDone ? "✓" : ""}
+                  </button>
+
+                  <div className="bonus-condition-text-wrap">
+                    <div className="bonus-condition-text">
+                      Подписаться на канал @ufomochannel
+                    </div>
+
+                    {!channelDone && (
+                      <button
+                        type="button"
+                        className="bonus-link-btn"
+                        onClick={handleOpenChannel}
+                      >
+                        Открыть канал
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <div className="bonus-condition-progress">
+                  {channelDone ? "1/1" : "0/1"}
+                </div>
+              </div>
+
+              <div className="bonus-condition-row">
+                <div className="bonus-condition-left">
+                  <div className={`bonus-check-circle ${friendDone ? "done" : ""}`}>
+                    {friendDone ? "✓" : ""}
+                  </div>
+
+                  <div className="bonus-condition-text-wrap">
+                    <div className="bonus-condition-text">
+                      Пригласить друга
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bonus-condition-progress">
+                  {friendDone ? "1/1" : "0/1"}
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              className="bonus-claim-btn"
+              disabled
+            >
+              {conditionsDone ? "Готово к активации на сервере" : "Выполните условия"}
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="bottom-nav">
         <div
