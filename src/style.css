@@ -5095,3 +5095,24 @@ button,
     font-size: 12px;
   }
 }
+
+.profile-item-bonus-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.profile-item-row-bonus-locked .profile-item-prices {
+  margin-top: 0;
+}
+
+.profile-item-bonus-timer {
+  color: rgba(255,255,255,0.92);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  text-align: right;
+}
