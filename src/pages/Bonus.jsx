@@ -2,27 +2,23 @@ import { useEffect, useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import Lottie from "lottie-react"
 
-import {
-  checkBonusChannel,
-  claimBonus,
-  getBonusState,
-} from "../api"
+import { getBonusState } from "../api"
 import { useUser } from "../context/UserContext"
 import { getPlayerRank } from "../utils/playerRank"
 import DepositMenu from "../components/DepositMenu"
 import podarokAnimation from "../assets/animations/podarok.json"
 import "../style.css"
 
+const BONUS_REWARD_STORAGE_KEY = "ufo_bonus_reserved_reward"
+
 function Bonus() {
   const navigate = useNavigate()
-  const { user, refreshUser } = useUser()
+  const { user } = useUser()
 
   const [bonusState, setBonusState] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [isCheckingChannel, setIsCheckingChannel] = useState(false)
-  const [isClaiming, setIsClaiming] = useState(false)
   const [isDepositOpen, setIsDepositOpen] = useState(false)
-  const [isBonusSheetOpen, setIsBonusSheetOpen] = useState(false)
+  const [isSavingReward, setIsSavingReward] = useState(false)
 
   const playerRank = useMemo(() => {
     return getPlayerRank(
@@ -53,64 +49,6 @@ function Bonus() {
     loadBonusState()
   }, [user?.id])
 
-  const handleOpenChannel = () => {
-    const tg = window.Telegram?.WebApp
-
-    if (tg?.openTelegramLink) {
-      tg.openTelegramLink("https://t.me/ufomochannel")
-      return
-    }
-
-    window.open("https://t.me/ufomochannel", "_blank")
-  }
-
-  const handleCheckChannel = async () => {
-    if (!user?.id || isCheckingChannel) return
-
-    try {
-      setIsCheckingChannel(true)
-      const result = await checkBonusChannel(user.id)
-
-      setBonusState((prev) => ({
-        ...(prev || {}),
-        ...prev,
-        channelSubscribed: Boolean(result?.channelSubscribed),
-        conditionsMet: Boolean(result?.channelSubscribed) && Boolean(prev?.friendInvited),
-        canClaim:
-          Boolean(result?.channelSubscribed) &&
-          Boolean(prev?.friendInvited) &&
-          Number(prev?.timeLeftMs || 0) <= 0,
-      }))
-    } catch (err) {
-      console.error("BONUS CHANNEL CHECK ERROR:", err)
-    } finally {
-      setIsCheckingChannel(false)
-    }
-  }
-
-  const handleClaim = async () => {
-    if (!user?.id || isClaiming || !bonusState?.canClaim) return
-
-    try {
-      setIsClaiming(true)
-
-      await claimBonus(user.id)
-      await refreshUser().catch(() => {})
-
-      const updatedState = await getBonusState(user.id)
-      setBonusState(updatedState)
-      setIsBonusSheetOpen(false)
-    } catch (err) {
-      console.error("BONUS CLAIM ERROR:", err)
-    } finally {
-      setIsClaiming(false)
-    }
-  }
-
-  const channelDone = Boolean(bonusState?.channelSubscribed)
-  const friendDone = Boolean(bonusState?.friendInvited)
-  const canClaim = Boolean(bonusState?.canClaim)
-
   const claimedCount =
     Number(
       bonusState?.claimedCount ??
@@ -129,6 +67,57 @@ function Bonus() {
 
   const progressPercent =
     claimedLimit > 0 ? Math.min((claimedCount / claimedLimit) * 100, 100) : 0
+
+  const hasReservedReward = (() => {
+    try {
+      const raw = localStorage.getItem(BONUS_REWARD_STORAGE_KEY)
+      if (!raw) return false
+
+      const parsed = JSON.parse(raw)
+      if (!parsed?.reservedUntil) return false
+
+      return Number(parsed.reservedUntil) > Date.now()
+    } catch {
+      return false
+    }
+  })()
+
+  const handleReserveGift = async () => {
+    if (!user?.id || isSavingReward || hasReservedReward) return
+
+    try {
+      setIsSavingReward(true)
+
+      const now = Date.now()
+      const reservedUntil = now + 24 * 60 * 60 * 1000
+
+      const rewardItem = {
+        id: `bonus_podarok_${now}`,
+        source: "bonus",
+        dropId: "podarok",
+        dropName: "Gift",
+        png: "podarok",
+        lottie: "/animations/spacetrash/podarok.json",
+        priceStars: "25",
+        priceGems: "0,15",
+        status: "locked",
+        createdAt: now,
+        reservedUntil,
+        conditions: {
+          channelSubscribed: false,
+          friendInvited: false,
+        },
+        ownerId: user.id,
+      }
+
+      localStorage.setItem(BONUS_REWARD_STORAGE_KEY, JSON.stringify(rewardItem))
+      navigate("/profile")
+    } catch (err) {
+      console.error("BONUS RESERVE ERROR:", err)
+    } finally {
+      setIsSavingReward(false)
+    }
+  }
 
   return (
     <div className="app">
@@ -224,93 +213,18 @@ function Bonus() {
             <button
               type="button"
               className="bonus-open-sheet-btn"
-              onClick={() => setIsBonusSheetOpen(true)}
+              onClick={handleReserveGift}
+              disabled={isSavingReward || hasReservedReward}
             >
-              Получить подарок
+              {isSavingReward
+                ? "Сохраняем..."
+                : hasReservedReward
+                ? "Подарок уже в инвентаре"
+                : "Получить подарок"}
             </button>
           )}
         </div>
       </div>
-
-      {isBonusSheetOpen && (
-        <div
-          className="bonus-sheet-overlay"
-          onClick={() => setIsBonusSheetOpen(false)}
-        >
-          <div
-            className="bonus-sheet"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="bonus-sheet-handle" />
-
-            <div className="bonus-sheet-title">
-              Условия получения
-            </div>
-
-            <div className="bonus-conditions-list">
-              <div className="bonus-condition-row">
-                <div className="bonus-condition-left">
-                  <button
-                    type="button"
-                    className={`bonus-check-circle ${channelDone ? "done" : ""}`}
-                    onClick={handleCheckChannel}
-                    disabled={isCheckingChannel}
-                  >
-                    {channelDone ? "✓" : ""}
-                  </button>
-
-                  <div className="bonus-condition-text-wrap">
-                    <div className="bonus-condition-text">
-                      Подписаться на канал @ufomochannel
-                    </div>
-
-                    {!channelDone && (
-                      <button
-                        type="button"
-                        className="bonus-link-btn"
-                        onClick={handleOpenChannel}
-                      >
-                        Открыть канал
-                      </button>
-                    )}
-                  </div>
-                </div>
-
-                <div className="bonus-condition-progress">
-                  {channelDone ? "1/1" : "0/1"}
-                </div>
-              </div>
-
-              <div className="bonus-condition-row">
-                <div className="bonus-condition-left">
-                  <div className={`bonus-check-circle ${friendDone ? "done" : ""}`}>
-                    {friendDone ? "✓" : ""}
-                  </div>
-
-                  <div className="bonus-condition-text-wrap">
-                    <div className="bonus-condition-text">
-                      Пригласить друга
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bonus-condition-progress">
-                  {friendDone ? "1/1" : "0/1"}
-                </div>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              className="bonus-claim-btn"
-              onClick={handleClaim}
-              disabled={!canClaim || isClaiming}
-            >
-              {isClaiming ? "Загрузка..." : canClaim ? "Забрать" : "Выполните условия"}
-            </button>
-          </div>
-        </div>
-      )}
 
       <div className="bottom-nav">
         <div className="nav-item active">
