@@ -206,7 +206,7 @@ function Home() {
           navigate("/crash")
         }}
       >
-        <div className="crash-title">UFO Crash</div>
+        <div className="crash-title">Paper Aviator</div>
 
         <div className={crashMainClass}>
           {crashMainValue}
