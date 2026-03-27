@@ -206,7 +206,7 @@ function Home() {
           navigate("/crash")
         }}
       >
-        <div className="crash-title">Paper Aviator</div>
+        <div className="crash-title">Aviator</div>
 
         <div className={crashMainClass}>
           {crashMainValue}
@@ -219,7 +219,7 @@ function Home() {
         )}
 
         <button className="launch-btn" type="button">
-          Запустить НЛО
+          Играть
         </button>
 
         {ufoAnim && (
