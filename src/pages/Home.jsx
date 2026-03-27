@@ -16,8 +16,6 @@ function Home() {
   const navigate = useNavigate()
   const { user } = useUser()
 
-  const activeTab = "home" // ✅ ДОБАВИЛИ ТОЛЬКО ЭТО
-
   const [ufoAnim, setUfoAnim] = useState(null)
   const [casesFilter, setCasesFilter] = useState("expensive")
   const [crashState, setCrashState] = useState(null)
@@ -252,46 +250,35 @@ function Home() {
 
       <div className="bottom-nav">
         <div
-          className={`nav-item ${activeTab === "bonus" ? "active" : ""}`}
-          onClick={() => navigate("/bonus")}
+          className="nav-item"
+          onClick={() => {
+            triggerHaptic("light")
+            navigate("/bonus")
+          }}
         >
-          <img src="/ui/cupnav.PNG" alt="" className="nav-icon" />
-          <span>Награды</span>
+          Награды 
         </div>
 
         <div
-          className={`nav-item ${activeTab === "friends" ? "active" : ""}`}
-          onClick={() => navigate("/giveaways")}
+          className="nav-item"
+          onClick={() => {
+            triggerHaptic("light")
+            navigate("/giveaways")
+          }}
         >
-          <img src="/ui/frnav.PNG" alt="" className="nav-icon" />
-          <span>Друзья</span>
+          Друзья
         </div>
 
-        <div
-          className={`nav-item ${activeTab === "home" ? "active" : ""}`}
-          onClick={() => navigate("/")}
-        >
-          <img src="/ui/main.PNG" alt="" className="nav-icon" />
-          <span>Главная</span>
-        </div>
+        <div className="nav-item active">Главная</div>
 
         <div
-          className={`nav-avatar-item ${activeTab === "profile" ? "active" : ""}`}
-          onClick={() => navigate("/profile")}
+          className="nav-item"
+          onClick={() => {
+            triggerHaptic("light")
+            navigate("/profile")
+          }}
         >
-          {user?.photoUrl ? (
-            <img
-              src={user.photoUrl}
-              alt={user.username}
-              className="nav-avatar-image"
-              draggable={false}
-              referrerPolicy="no-referrer"
-            />
-          ) : (
-            <span className="nav-avatar-fallback">
-              {(user?.username?.[0] || "G").toUpperCase()}
-            </span>
-          )}
+          Профиль
         </div>
       </div>
 
