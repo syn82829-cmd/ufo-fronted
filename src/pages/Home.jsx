@@ -16,7 +16,7 @@ function Home() {
   const navigate = useNavigate()
   const { user } = useUser()
 
-  const activeTab = "home" // ✅ ВАЖНО
+  const activeTab = "home" // ✅ ДОБАВИЛИ ТОЛЬКО ЭТО
 
   const [ufoAnim, setUfoAnim] = useState(null)
   const [casesFilter, setCasesFilter] = useState("expensive")
@@ -49,28 +49,44 @@ function Home() {
     async function loadUfoAnim() {
       try {
         const res = await fetch("/animations/ufo.json")
+        if (!res.ok) throw new Error(`Failed to load /animations/ufo.json: ${res.status}`)
         const data = await res.json()
-        if (!cancelled) setUfoAnim(data)
+
+        if (!cancelled) {
+          setUfoAnim(data)
+        }
       } catch (err) {
         console.error("UFO LOTTIE LOAD ERROR:", err)
       }
     }
 
     loadUfoAnim()
-    return () => { cancelled = true }
+
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   useEffect(() => {
-    const handler = (stateData) => setCrashState(stateData)
-    socket.on("crash:state", handler)
-    return () => socket.off("crash:state", handler)
+    const handleCrashState = (stateData) => {
+      setCrashState(stateData)
+    }
+
+    socket.on("crash:state", handleCrashState)
+
+    return () => {
+      socket.off("crash:state", handleCrashState)
+    }
   }, [])
 
   const cycleFilter = () => {
     triggerHaptic("light")
-    setCasesFilter((prev) =>
-      prev === "expensive" ? "cheap" : prev === "cheap" ? "free" : "expensive"
-    )
+
+    setCasesFilter((prev) => {
+      if (prev === "expensive") return "cheap"
+      if (prev === "cheap") return "free"
+      return "expensive"
+    })
   }
 
   const filterLabel =
@@ -81,41 +97,69 @@ function Home() {
         : "Бесплатные >"
 
   const visibleCases = useMemo(() => {
-    if (casesFilter === "free") return cases.filter((i) => i.free)
-    return [...cases].sort((a, b) =>
+    if (casesFilter === "free") {
+      return cases.filter((item) => item.free)
+    }
+
+    const sorted = [...cases].sort((a, b) =>
       casesFilter === "expensive" ? b.price - a.price : a.price - b.price
     )
+
+    return sorted
   }, [casesFilter])
 
   const status = crashState?.status || "waiting"
   const multiplier = Number(crashState?.multiplier || 1)
   const countdown = crashState?.countdown ?? 5
 
-  const crashMainValue =
-    status === "flying"
-      ? `x${multiplier.toFixed(2)}`
-      : status === "waiting" && countdown > 0
-        ? countdown
-        : status === "crashed"
+  const isWaiting = status === "waiting"
+  const isFlying = status === "flying"
+  const isCrashed = status === "crashed"
+
+  const showStart = isWaiting && countdown === 0
+  const showCountdown = isWaiting && countdown > 0
+
+  const crashMainValue = isFlying
+    ? `x${multiplier.toFixed(2)}`
+    : showCountdown
+      ? String(countdown)
+      : showStart
+        ? "Start!"
+        : isCrashed
           ? `x${multiplier.toFixed(2)}`
           : "5"
 
-  const crashMainClass =
-    status === "crashed"
-      ? "multiplier crashed"
-      : status === "flying"
-        ? "multiplier flying"
-        : "multiplier waiting"
+  const crashSubText = showCountdown
+    ? "Ожидание игроков"
+    : showStart
+      ? "Start!"
+      : ""
+
+  const crashMainClass = isCrashed
+    ? "multiplier crashed"
+    : isFlying
+      ? "multiplier flying"
+      : "multiplier waiting"
 
   return (
     <div className="app">
-
-      {/* TOPBAR */}
       <div className="home-topbar">
-        <div className="home-topbar-left" onClick={() => navigate("/profile")}>
+        <div
+          className="home-topbar-left"
+          onClick={() => {
+            triggerHaptic("light")
+            navigate("/profile")
+          }}
+        >
           <div className="home-topbar-avatar">
             {user.photoUrl ? (
-              <img src={user.photoUrl} className="home-topbar-avatar-image" />
+              <img
+                src={user.photoUrl}
+                alt={user.username}
+                className="home-topbar-avatar-image"
+                draggable={false}
+                referrerPolicy="no-referrer"
+              />
             ) : (
               <span className="home-topbar-avatar-fallback">
                 {(user.username?.[0] || "G").toUpperCase()}
@@ -125,8 +169,14 @@ function Home() {
 
           <div className="home-topbar-user">
             <div className="home-topbar-name">{user.username}</div>
+
             <div className="home-topbar-rank">
-              <img src={playerRank.image} className="home-topbar-rank-icon" />
+              <img
+                src={playerRank.image}
+                alt={playerRank.name}
+                className="home-topbar-rank-icon"
+                draggable={false}
+              />
               <span className="home-topbar-rank-text">{playerRank.name}</span>
             </div>
           </div>
@@ -134,57 +184,78 @@ function Home() {
 
         <div className="home-topbar-right">
           <div className="home-topbar-balance">
-            <img src="/ui/star.PNG" className="home-topbar-balance-icon" />
+            <img src="/ui/star.PNG" className="home-topbar-balance-icon" alt="" />
             <span>{user.balance}</span>
           </div>
 
-          <button className="home-topbar-plus" onClick={() => setIsDepositOpen(true)}>
+          <button
+            type="button"
+            className="home-topbar-plus"
+            onClick={() => {
+              triggerHaptic("light")
+              setIsDepositOpen(true)
+            }}
+          >
             +
           </button>
         </div>
       </div>
 
-      {/* CRASH */}
-      <div className="crash-panel" onClick={() => navigate("/crash")}>
+      <div
+        className="crash-panel"
+        onClick={() => {
+          triggerHaptic("light")
+          navigate("/crash")
+        }}
+      >
         <div className="crash-title">Rocket Crash</div>
 
-        <div className={crashMainClass}>{crashMainValue}</div>
+        <div className={crashMainClass}>
+          {crashMainValue}
+        </div>
 
-        <button className="launch-btn">Играть</button>
+        {!!crashSubText && (
+          <div className="home-crash-subtext">
+            {crashSubText}
+          </div>
+        )}
+
+        <button className="launch-btn" type="button">
+          Играть
+        </button>
 
         {ufoAnim && (
-          <div className="ufo-lottie">
+          <div className="ufo-lottie" aria-hidden="true">
             <Lottie animationData={ufoAnim} loop autoplay />
           </div>
         )}
       </div>
 
-      {/* FILTER */}
       <div className="cases-toolbar">
-        <button className="cases-filter-btn" onClick={cycleFilter}>
+        <button type="button" className="cases-filter-btn" onClick={cycleFilter}>
           {filterLabel}
         </button>
       </div>
 
-      {/* CASES */}
       <div className="cases-section">
         {visibleCases.map((item) => (
           <CaseCard
             key={item.id}
             caseItem={item}
-            onClick={() => navigate(`/case/${item.id}`)}
+            onClick={() => {
+              triggerHaptic("light")
+              navigate(`/case/${item.id}`)
+            }}
           />
         ))}
       </div>
 
-      {/* NAV */}
       <div className="bottom-nav">
-
         <div
           className={`nav-item ${activeTab === "bonus" ? "active" : ""}`}
           onClick={() => navigate("/bonus")}
         >
-          <img src="/ui/cupnav.PNG" className="nav-icon" />
+          <img src="/ui/cupnav.PNG" alt="" className="nav-icon" />
           <span>Награды</span>
         </div>
 
@@ -192,7 +263,7 @@ function Home() {
           className={`nav-item ${activeTab === "friends" ? "active" : ""}`}
           onClick={() => navigate("/giveaways")}
         >
-          <img src="/ui/frnav.PNG" className="nav-icon" />
+          <img src="/ui/frnav.PNG" alt="" className="nav-icon" />
           <span>Друзья</span>
         </div>
 
@@ -200,7 +271,7 @@ function Home() {
           className={`nav-item ${activeTab === "home" ? "active" : ""}`}
           onClick={() => navigate("/")}
         >
-          <img src="/ui/main.PNG" className="nav-icon" />
+          <img src="/ui/main.PNG" alt="" className="nav-icon" />
           <span>Главная</span>
         </div>
 
@@ -209,19 +280,27 @@ function Home() {
           onClick={() => navigate("/profile")}
         >
           {user?.photoUrl ? (
-            <img src={user.photoUrl} className="nav-avatar-image" />
+            <img
+              src={user.photoUrl}
+              alt={user.username}
+              className="nav-avatar-image"
+              draggable={false}
+              referrerPolicy="no-referrer"
+            />
           ) : (
             <span className="nav-avatar-fallback">
               {(user?.username?.[0] || "G").toUpperCase()}
             </span>
           )}
         </div>
-
       </div>
 
-      <DepositMenu isOpen={isDepositOpen} onClose={() => setIsDepositOpen(false)} />
-      <DailyGiftPopup />
+      <DepositMenu
+        isOpen={isDepositOpen}
+        onClose={() => setIsDepositOpen(false)}
+      />
 
+      <DailyGiftPopup />
     </div>
   )
 }
