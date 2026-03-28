@@ -220,7 +220,8 @@ function Home() {
             navigate("/bonus")
           }}
         >
-          Награды
+          <img src="/ui/cupnav.PNG" alt="" className="nav-icon" />
+          <span>Награды</span>
         </div>
 
         <div
@@ -230,11 +231,13 @@ function Home() {
             navigate("/giveaways")
           }}
         >
-          Друзья
+          <img src="/ui/frnav.PNG" alt="" className="nav-icon" />
+          <span>Друзья</span>
         </div>
 
         <div className="nav-item active">
-          Главная
+          <img src="/ui/main.PNG" alt="" className="nav-icon" />
+          <span>Главная</span>
         </div>
       </div>
 
