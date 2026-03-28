@@ -76,6 +76,7 @@ function Crash() {
 
   const numericBet = Math.max(0, Number(betAmount || 0))
   const status = crashState?.status || "waiting"
+  const multiplier = Number(displayMultiplier || 1)
   const myBet = crashState?.myBet || null
 
   const isWaiting = status === "waiting"
@@ -243,7 +244,7 @@ function Crash() {
 
         <div className="crash-flight-zone">
           <div className={`crash-multiplier ${isCrashed ? "crashed" : ""}`}>
-            x{Number(displayMultiplier || 1).toFixed(2)}
+            x{multiplier.toFixed(2)}
           </div>
 
           {showUfo && ufoAnim && (
@@ -344,45 +345,62 @@ function Crash() {
         </div>
       </div>
 
-      <div className="bottom-nav">
-        <div
-          className="nav-item"
-          onClick={() => {
-            triggerHaptic("light")
-            navigate("/bonus")
-          }}
-        >
-          Награды
+      <div className="bottom-nav-shell">
+        <div className="bottom-nav">
+          <div
+            className="nav-item"
+            onClick={() => {
+              triggerHaptic("light")
+              navigate("/bonus")
+            }}
+          >
+            <img src="/ui/cupnav.PNG" alt="" className="nav-icon" />
+            <span>Награды</span>
+          </div>
+
+          <div
+            className="nav-item"
+            onClick={() => {
+              triggerHaptic("light")
+              navigate("/giveaways")
+            }}
+          >
+            <img src="/ui/frnav.PNG" alt="" className="nav-icon" />
+            <span>Друзья</span>
+          </div>
+
+          <div
+            className="nav-item"
+            onClick={() => {
+              triggerHaptic("light")
+              navigate("/")
+            }}
+          >
+            <img src="/ui/main.PNG" alt="" className="nav-icon" />
+            <span>Главная</span>
+          </div>
         </div>
 
         <div
-          className="nav-item"
-          onClick={() => {
-            triggerHaptic("light")
-            navigate("/giveaways")
-          }}
-        >
-          Друзья
-        </div>
-
-        <div
-          className="nav-item"
-          onClick={() => {
-            triggerHaptic("light")
-            navigate("/")
-          }}
-        >
-          Главная
-        </div>
-
-        <div
-          className="nav-item"
+          className="floating-profile"
           onClick={() => {
             triggerHaptic("light")
             navigate("/profile")
           }}
         >
-          Профиль
+          {user?.photoUrl ? (
+            <img
+              src={user.photoUrl}
+              alt={user.username}
+              className="floating-profile-image"
+              draggable={false}
+              referrerPolicy="no-referrer"
+            />
+          ) : (
+            <span className="floating-profile-fallback">
+              {(user?.username?.[0] || "G").toUpperCase()}
+            </span>
+          )}
         </div>
       </div>
     </div>
