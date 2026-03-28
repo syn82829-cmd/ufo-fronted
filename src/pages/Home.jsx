@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom"
 import Lottie from "lottie-react"
 
 import { useUser } from "../context/UserContext"
+import { getPlayerRank } from "../utils/playerRank"
 import { triggerHaptic } from "../utils/haptics"
 import { socket } from "../socket"
 import CaseCard from "../components/CaseCard"
@@ -32,6 +33,13 @@ function Home() {
     { id: "randomcase", image: "/cases/case8.png.PNG", name: "Random Case", price: 999, free: false },
     { id: "3friends", image: "/cases/3friends.PNG", name: "For 3 Friends", price: null, free: true },
   ]
+
+  const playerRank = useMemo(() => {
+    return getPlayerRank(
+      Number(user?.casesOpened || 0),
+      Number(user?.crashGamesPlayed || 0)
+    )
+  }, [user?.casesOpened, user?.crashGamesPlayed])
 
   useEffect(() => {
     let cancelled = false
@@ -92,9 +100,7 @@ function Home() {
     }
 
     const sorted = [...cases].sort((a, b) =>
-      casesFilter === "expensive"
-        ? (b.price ?? -1) - (a.price ?? -1)
-        : (a.price ?? 999999) - (b.price ?? 999999)
+      casesFilter === "expensive" ? b.price - a.price : a.price - b.price
     )
 
     return sorted
@@ -135,15 +141,51 @@ function Home() {
 
   return (
     <div className="app">
-      <div className="home-topbar home-topbar-minimal">
-        <div className="home-topbar-left">
-          <div className="home-topbar-balance">
-            <img src="/ui/star.PNG" className="home-topbar-balance-icon" alt="" />
-            <span>{user?.balance ?? 0}</span>
+      <div className="home-topbar">
+        <div
+          className="home-topbar-left"
+          onClick={() => {
+            triggerHaptic("light")
+            navigate("/profile")
+          }}
+        >
+          <div className="home-topbar-avatar">
+            {user.photoUrl ? (
+              <img
+                src={user.photoUrl}
+                alt={user.username}
+                className="home-topbar-avatar-image"
+                draggable={false}
+                referrerPolicy="no-referrer"
+              />
+            ) : (
+              <span className="home-topbar-avatar-fallback">
+                {(user.username?.[0] || "G").toUpperCase()}
+              </span>
+            )}
+          </div>
+
+          <div className="home-topbar-user">
+            <div className="home-topbar-name">{user.username}</div>
+
+            <div className="home-topbar-rank">
+              <img
+                src={playerRank.image}
+                alt={playerRank.name}
+                className="home-topbar-rank-icon"
+                draggable={false}
+              />
+              <span className="home-topbar-rank-text">{playerRank.name}</span>
+            </div>
           </div>
         </div>
 
         <div className="home-topbar-right">
+          <div className="home-topbar-balance">
+            <img src="/ui/star.PNG" className="home-topbar-balance-icon" alt="" />
+            <span>{user.balance}</span>
+          </div>
+
           <button
             type="button"
             className="home-topbar-plus"
@@ -166,7 +208,9 @@ function Home() {
       >
         <div className="crash-title">Rocket Crash</div>
 
-        <div className={crashMainClass}>{crashMainValue}</div>
+        <div className={crashMainClass}>
+          {crashMainValue}
+        </div>
 
         {!!crashSubText && (
           <div className="home-crash-subtext">
@@ -175,7 +219,7 @@ function Home() {
         )}
 
         <button className="launch-btn" type="button">
-          Запустить
+          Играть
         </button>
 
         {ufoAnim && (
@@ -204,56 +248,37 @@ function Home() {
         ))}
       </div>
 
-      <div className="bottom-nav-shell">
-        <div className="bottom-nav">
-          <div
-            className="nav-item"
-            onClick={() => {
-              triggerHaptic("light")
-              navigate("/bonus")
-            }}
-          >
-            <img src="/ui/cupnav.PNG" alt="" className="nav-icon" />
-            <span>Награды</span>
-          </div>
-
-          <div
-            className="nav-item"
-            onClick={() => {
-              triggerHaptic("light")
-              navigate("/giveaways")
-            }}
-          >
-            <img src="/ui/frnav.PNG" alt="" className="nav-icon" />
-            <span>Друзья</span>
-          </div>
-
-          <div className="nav-item active">
-            <img src="/ui/main.PNG" alt="" className="nav-icon" />
-            <span>Главная</span>
-          </div>
+      <div className="bottom-nav">
+        <div
+          className="nav-item"
+          onClick={() => {
+            triggerHaptic("light")
+            navigate("/bonus")
+          }}
+        >
+          Награды 
         </div>
 
         <div
-          className="floating-profile"
+          className="nav-item"
+          onClick={() => {
+            triggerHaptic("light")
+            navigate("/giveaways")
+          }}
+        >
+          Друзья
+        </div>
+
+        <div className="nav-item active">Главная</div>
+
+        <div
+          className="nav-item"
           onClick={() => {
             triggerHaptic("light")
             navigate("/profile")
           }}
         >
-          {user?.photoUrl ? (
-            <img
-              src={user.photoUrl}
-              alt={user.username || "Profile"}
-              className="floating-profile-image"
-              draggable={false}
-              referrerPolicy="no-referrer"
-            />
-          ) : (
-            <span className="floating-profile-fallback">
-              {(user?.username?.[0] || "G").toUpperCase()}
-            </span>
-          )}
+          Профиль
         </div>
       </div>
 
