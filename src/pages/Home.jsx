@@ -91,8 +91,8 @@ function Home() {
     casesFilter === "expensive"
       ? "По цене ↓"
       : casesFilter === "cheap"
-      ? "По цене ↑"
-      : "Бесплатные >"
+        ? "По цене ↑"
+        : "Бесплатные >"
 
   const visibleCases = useMemo(() => {
     if (casesFilter === "free") {
@@ -120,24 +120,24 @@ function Home() {
   const crashMainValue = isFlying
     ? `x${multiplier.toFixed(2)}`
     : showCountdown
-    ? String(countdown)
-    : showStart
-    ? "Start!"
-    : isCrashed
-    ? `x${multiplier.toFixed(2)}`
-    : "5"
+      ? String(countdown)
+      : showStart
+        ? "Start!"
+        : isCrashed
+          ? `x${multiplier.toFixed(2)}`
+          : "5"
 
   const crashSubText = showCountdown
     ? "Ожидание игроков"
     : showStart
-    ? "Start!"
-    : ""
+      ? "Start!"
+      : ""
 
   const crashMainClass = isCrashed
     ? "multiplier crashed"
     : isFlying
-    ? "multiplier flying"
-    : "multiplier waiting"
+      ? "multiplier flying"
+      : "multiplier waiting"
 
   return (
     <div className="app">
@@ -212,7 +212,7 @@ function Home() {
         ))}
       </div>
 
-      <div className="bottom-nav-wrap">
+      <div className="bottom-nav-shell">
         <div className="bottom-nav">
           <div
             className="nav-item"
