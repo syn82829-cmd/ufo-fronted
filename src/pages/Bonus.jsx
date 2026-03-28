@@ -1,10 +1,9 @@
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import Lottie from "lottie-react"
 
 import { getBonusState } from "../api"
 import { useUser } from "../context/UserContext"
-import { getPlayerRank } from "../utils/playerRank"
 import DepositMenu from "../components/DepositMenu"
 import podarokAnimation from "../assets/animations/podarok.json"
 import "../style.css"
@@ -19,13 +18,6 @@ function Bonus() {
   const [isLoading, setIsLoading] = useState(true)
   const [isDepositOpen, setIsDepositOpen] = useState(false)
   const [isSavingReward, setIsSavingReward] = useState(false)
-
-  const playerRank = useMemo(() => {
-    return getPlayerRank(
-      Number(user?.casesOpened || 0),
-      Number(user?.crashGamesPlayed || 0)
-    )
-  }, [user?.casesOpened, user?.crashGamesPlayed])
 
   useEffect(() => {
     async function loadBonusState() {
@@ -121,45 +113,15 @@ function Bonus() {
 
   return (
     <div className="app">
-      <div className="home-topbar">
-        <div className="home-topbar-left" onClick={() => navigate("/profile")}>
-          <div className="home-topbar-avatar">
-            {user.photoUrl ? (
-              <img
-                src={user.photoUrl}
-                alt={user.username}
-                className="home-topbar-avatar-image"
-                draggable={false}
-                referrerPolicy="no-referrer"
-              />
-            ) : (
-              <span className="home-topbar-avatar-fallback">
-                {(user.username?.[0] || "G").toUpperCase()}
-              </span>
-            )}
-          </div>
-
-          <div className="home-topbar-user">
-            <div className="home-topbar-name">{user.username}</div>
-
-            <div className="home-topbar-rank">
-              <img
-                src={playerRank.image}
-                alt={playerRank.name}
-                className="home-topbar-rank-icon"
-                draggable={false}
-              />
-              <span className="home-topbar-rank-text">{playerRank.name}</span>
-            </div>
+      <div className="home-topbar home-topbar-minimal">
+        <div className="home-topbar-left">
+          <div className="home-topbar-balance">
+            <img src="/ui/star.PNG" className="home-topbar-balance-icon" alt="" />
+            <span>{user?.balance ?? 0}</span>
           </div>
         </div>
 
         <div className="home-topbar-right">
-          <div className="home-topbar-balance">
-            <img src="/ui/star.PNG" className="home-topbar-balance-icon" alt="" />
-            <span>{user.balance}</span>
-          </div>
-
           <button
             type="button"
             className="home-topbar-plus"
@@ -219,37 +181,54 @@ function Bonus() {
               {isSavingReward
                 ? "Сохраняем..."
                 : hasReservedReward
-                ? "Подарок уже в инвентаре"
-                : "Получить подарок"}
+                  ? "Подарок уже в инвентаре"
+                  : "Получить подарок"}
             </button>
           )}
         </div>
       </div>
 
-      <div className="bottom-nav">
-        <div className="nav-item active">
-          Награды
+      <div className="bottom-nav-shell">
+        <div className="bottom-nav">
+          <div className="nav-item active">
+            <img src="/ui/cupnav.PNG" alt="" className="nav-icon" />
+            <span>Награды</span>
+          </div>
+
+          <div
+            className="nav-item"
+            onClick={() => navigate("/giveaways")}
+          >
+            <img src="/ui/frnav.PNG" alt="" className="nav-icon" />
+            <span>Друзья</span>
+          </div>
+
+          <div
+            className="nav-item"
+            onClick={() => navigate("/")}
+          >
+            <img src="/ui/main.PNG" alt="" className="nav-icon" />
+            <span>Главная</span>
+          </div>
         </div>
 
         <div
-          className="nav-item"
-          onClick={() => navigate("/giveaways")}
-        >
-          Друзья
-        </div>
-
-        <div
-          className="nav-item"
-          onClick={() => navigate("/")}
-        >
-          Главная
-        </div>
-
-        <div
-          className="nav-item"
+          className="floating-profile"
           onClick={() => navigate("/profile")}
         >
-          Профиль
+          {user?.photoUrl ? (
+            <img
+              src={user.photoUrl}
+              alt={user.username}
+              className="floating-profile-image"
+              draggable={false}
+              referrerPolicy="no-referrer"
+            />
+          ) : (
+            <span className="floating-profile-fallback">
+              {(user?.username?.[0] || "G").toUpperCase()}
+            </span>
+          )}
         </div>
       </div>
 
