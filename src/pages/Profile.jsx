@@ -467,8 +467,8 @@ function Profile() {
                           {isLockedBonus
                             ? "Продать"
                             : sellingItemId === item.id
-                            ? "..."
-                            : "Продать"}
+                              ? "..."
+                              : "Продать"}
                         </button>
                       </div>
                     </div>
@@ -589,38 +589,57 @@ function Profile() {
         </div>
       )}
 
-      <div className="bottom-nav">
-        <div
-          className="nav-item"
-          onClick={() => {
-            triggerHaptic("light")
-            navigate("/bonus")
-          }}
-        >
-          Награды
+      <div className="bottom-nav-shell">
+        <div className="bottom-nav">
+          <div
+            className="nav-item"
+            onClick={() => {
+              triggerHaptic("light")
+              navigate("/bonus")
+            }}
+          >
+            <img src="/ui/cupnav.PNG" alt="" className="nav-icon" />
+            <span>Награды</span>
+          </div>
+
+          <div
+            className="nav-item"
+            onClick={() => {
+              triggerHaptic("light")
+              navigate("/giveaways")
+            }}
+          >
+            <img src="/ui/frnav.PNG" alt="" className="nav-icon" />
+            <span>Друзья</span>
+          </div>
+
+          <div
+            className="nav-item"
+            onClick={() => {
+              triggerHaptic("light")
+              navigate("/")
+            }}
+          >
+            <img src="/ui/main.PNG" alt="" className="nav-icon" />
+            <span>Главная</span>
+          </div>
         </div>
 
-        <div
-          className="nav-item"
-          onClick={() => {
-            triggerHaptic("light")
-            navigate("/giveaways")
-          }}
-        >
-          Друзья
+        <div className="floating-profile active">
+          {user?.photoUrl ? (
+            <img
+              src={user.photoUrl}
+              alt={user.username}
+              className="floating-profile-image"
+              draggable={false}
+              referrerPolicy="no-referrer"
+            />
+          ) : (
+            <span className="floating-profile-fallback">
+              {(user?.username?.[0] || "G").toUpperCase()}
+            </span>
+          )}
         </div>
-
-        <div
-          className="nav-item"
-          onClick={() => {
-            triggerHaptic("light")
-            navigate("/")
-          }}
-        >
-          Главная
-        </div>
-
-        <div className="nav-item active">Профиль</div>
       </div>
 
       <DepositMenu
