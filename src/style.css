@@ -327,20 +327,6 @@ body::after {
   height: 100%;
 }
 
-/* ============================= */
-/* CASES SECTION */
-/* ============================= */
-
-.cases-section {
-  width: 90%;
-  max-width: 920px;
-
-  margin-top: 40px;
-
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 22px;
-}
 
 /* ============================= */
 /* CASE CARD */
@@ -801,6 +787,22 @@ body::after {
     height: 54px;
   }
 }
+
+/* ============================= */
+/* CASES SECTION */
+/* ============================= */
+
+.cases-section {
+  width: 90%;
+  max-width: 920px;
+
+  margin-top: 40px;
+
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 22px;
+}
+
 
 /* ============================= */
 /* PROFILE PAGE */
