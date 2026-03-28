@@ -604,10 +604,10 @@ body::after {
   left: 50%;
   transform: translateX(-50%);
 
-  width: calc(100% - 96px);
-  max-width: 460px;
+  width: calc(100% - 132px);
+  max-width: 428px;
   height: 72px;
-  padding: 0 10px;
+  padding: 0 12px;
 
   background: linear-gradient(
     145deg,
@@ -634,7 +634,7 @@ body::after {
 
 .nav-item {
   position: relative;
-  min-width: 108px;
+  min-width: 94px;
   height: 56px;
   padding: 0 10px;
 
@@ -642,7 +642,7 @@ body::after {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 5px;
 
   font-size: 14px;
   font-weight: 600;
@@ -680,16 +680,17 @@ body::after {
 }
 
 .nav-icon {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   object-fit: contain;
   display: block;
   flex-shrink: 0;
-  opacity: 0.96;
+  opacity: 0.98;
 }
 
 .nav-item span {
   line-height: 1;
+  white-space: nowrap;
 }
 
 /* ============================= */
@@ -763,21 +764,23 @@ body::after {
 
 @media (max-width: 640px) {
   .bottom-nav {
-    width: calc(100% - 92px);
+    width: calc(100% - 122px);
+    max-width: 404px;
     height: 68px;
+    padding: 0 10px;
     border-radius: 32px;
   }
 
   .nav-item {
-    min-width: 96px;
+    min-width: 86px;
     height: 52px;
     font-size: 13px;
-    gap: 3px;
+    gap: 4px;
   }
 
   .nav-icon {
-    width: 22px;
-    height: 22px;
+    width: 26px;
+    height: 26px;
   }
 
   .floating-profile {
