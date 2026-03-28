@@ -38,7 +38,7 @@ function Giveaways() {
           type="button"
           className="friends-hero-badge"
         >
-          ЗАРАБАТЫВАЙ С UFOMO
+          ЗАРАБАТЫВАЙ С GIFTON
         </button>
 
         <div className="friends-hero-visual">
@@ -51,7 +51,7 @@ function Giveaways() {
         </div>
 
         <div className="friends-hero-text">
-          Приглашай друзей и получай 15% с их пополнения на свой баланс
+          Приглашай друзей и получай 15% с их пополнений на свой баланс!
         </div>
 
         <button
