@@ -598,24 +598,12 @@ body::after {
 /* BOTTOM NAVIGATION */
 /* ============================= */
 
-.bottom-nav-shell {
-  position: fixed;
-  left: 50%;
-  bottom: 18px;
-  transform: translateX(-50%);
-
-  width: calc(100% - 40px);
-  max-width: 520px;
-
-  display: flex;
-  align-items: center;
-  gap: 12px;
-
-  z-index: 100;
-}
-
 .bottom-nav {
-  flex: 1;
+  position: fixed;
+  left: 20px;
+  right: 104px;
+  bottom: 18px;
+
   height: 72px;
   padding: 0 10px;
 
@@ -632,8 +620,11 @@ body::after {
   border: 1px solid rgba(255,255,255,0.18);
 
   display: flex;
-  justify-content: space-around;
   align-items: center;
+  justify-content: space-around;
+  gap: 6px;
+
+  z-index: 100;
 
   box-shadow:
     0 16px 44px rgba(0,0,0,0.34),
@@ -651,14 +642,15 @@ body::after {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 5px;
+  gap: 4px;
 
-  font-size: 14px;
+  border-radius: 999px;
+
+  font-size: 13px;
   font-weight: 600;
   color: rgba(255,255,255,0.86);
   text-shadow: 0 8px 18px rgba(0,0,0,0.18);
 
-  border-radius: 999px;
   transition:
     color 0.18s ease,
     background 0.18s ease,
@@ -697,14 +689,13 @@ body::after {
   opacity: 0.98;
 
   filter:
-    drop-shadow(0 0 6px rgba(255,255,255,0.20))
+    drop-shadow(0 0 6px rgba(255,255,255,0.18))
     drop-shadow(0 1px 3px rgba(255,255,255,0.10));
 }
 
 .nav-item span {
   line-height: 1;
   white-space: nowrap;
-  font-size: 13px;
 }
 
 /* ============================= */
@@ -712,9 +703,12 @@ body::after {
 /* ============================= */
 
 .floating-profile {
+  position: fixed;
+  right: 20px;
+  bottom: 18px;
+
   width: 72px;
   height: 72px;
-  flex-shrink: 0;
 
   border-radius: 50%;
   border: 1px solid rgba(255,255,255,0.18);
@@ -731,6 +725,8 @@ body::after {
   display: flex;
   align-items: center;
   justify-content: center;
+
+  z-index: 101;
 
   box-shadow:
     0 16px 44px rgba(0,0,0,0.34),
@@ -772,22 +768,22 @@ body::after {
 }
 
 @media (max-width: 640px) {
-  .bottom-nav-shell {
-    width: calc(100% - 28px);
-    gap: 10px;
-    bottom: 18px;
-  }
-
   .bottom-nav {
+    left: 14px;
+    right: 90px;
+    bottom: 18px;
+
     height: 68px;
     padding: 0 8px;
     border-radius: 32px;
+    gap: 4px;
   }
 
   .nav-item {
     height: 52px;
-    gap: 4px;
     padding: 0 6px;
+    gap: 3px;
+    font-size: 12px;
   }
 
   .nav-icon {
@@ -795,11 +791,9 @@ body::after {
     height: 28px;
   }
 
-  .nav-item span {
-    font-size: 12px;
-  }
-
   .floating-profile {
+    right: 14px;
+    bottom: 18px;
     width: 68px;
     height: 68px;
   }
@@ -810,6 +804,7 @@ body::after {
     height: 56px;
   }
 }
+
 /* ============================= */
 /* PROFILE PAGE */
 /* ============================= */
