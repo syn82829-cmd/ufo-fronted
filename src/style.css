@@ -584,14 +584,14 @@ body::after {
 /* BOTTOM NAVIGATION */
 /* ============================= */
 
-.bottom-nav-wrap {
+.bottom-nav-shell {
   position: fixed;
-  bottom: 18px;
   left: 50%;
+  bottom: 18px;
   transform: translateX(-50%);
 
-  width: 90%;
-  max-width: 920px;
+  width: calc(100% - 40px);
+  max-width: 520px;
 
   display: flex;
   align-items: center;
@@ -602,10 +602,10 @@ body::after {
 }
 
 .bottom-nav {
-  flex: 1;
-  min-width: 0;
-  height: 74px;
-  padding: 0 12px;
+  position: relative;
+  width: calc(100% - 80px);
+  height: 72px;
+  padding: 0 10px;
 
   background: linear-gradient(
     145deg,
@@ -616,13 +616,13 @@ body::after {
   backdrop-filter: blur(6px) saturate(155%);
   -webkit-backdrop-filter: blur(6px) saturate(155%);
 
-  border-radius: 32px;
+  border-radius: 30px;
   border: 1px solid rgba(255,255,255,0.18);
 
   display: flex;
   justify-content: space-around;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
 
   box-shadow:
     0 16px 44px rgba(0,0,0,0.34),
@@ -640,7 +640,7 @@ body::after {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 5px;
 
   font-size: 14px;
   font-weight: 600;
@@ -662,11 +662,13 @@ body::after {
 
 .nav-item.active {
   color: #fff;
+
   background: linear-gradient(
     145deg,
     rgba(255,255,255,0.085),
     rgba(255,255,255,0.028)
   );
+
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.18),
     0 8px 22px rgba(0,0,0,0.14);
@@ -677,15 +679,16 @@ body::after {
 }
 
 .nav-icon {
-  width: 27px;
-  height: 27px;
+  width: 26px;
+  height: 26px;
   object-fit: contain;
   display: block;
   flex-shrink: 0;
   opacity: 0.98;
+
   filter:
-    drop-shadow(0 0 6px rgba(255,255,255,0.18))
-    drop-shadow(0 1px 2px rgba(255,255,255,0.10));
+    drop-shadow(0 0 6px rgba(255,255,255,0.14))
+    drop-shadow(0 1px 2px rgba(255,255,255,0.08));
 }
 
 .nav-item span {
@@ -693,9 +696,14 @@ body::after {
   white-space: nowrap;
 }
 
+/* ============================= */
+/* FLOATING PROFILE */
+/* ============================= */
+
 .floating-profile {
-  width: 74px;
-  height: 74px;
+  position: relative;
+  width: 72px;
+  height: 72px;
   flex-shrink: 0;
 
   border-radius: 50%;
@@ -743,7 +751,7 @@ body::after {
   justify-content: center;
 
   color: white;
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 700;
 
   background: linear-gradient(
@@ -754,37 +762,39 @@ body::after {
 }
 
 @media (max-width: 640px) {
-  .bottom-nav-wrap {
-    width: 90%;
+  .bottom-nav-shell {
+    width: calc(100% - 28px);
     gap: 10px;
+    bottom: 18px;
   }
 
   .bottom-nav {
-    height: 72px;
-    padding: 0 10px;
-    border-radius: 30px;
+    width: calc(100% - 76px);
+    height: 68px;
+    padding: 0 8px;
+    border-radius: 28px;
   }
 
   .nav-item {
-    height: 56px;
+    height: 54px;
     font-size: 13px;
-    padding: 0 6px;
+    gap: 4px;
   }
 
   .nav-icon {
-    width: 25px;
-    height: 25px;
+    width: 24px;
+    height: 24px;
   }
 
   .floating-profile {
-    width: 72px;
-    height: 72px;
+    width: 66px;
+    height: 66px;
   }
 
   .floating-profile-image,
   .floating-profile-fallback {
-    width: 58px;
-    height: 58px;
+    width: 54px;
+    height: 54px;
   }
 }
 
