@@ -212,57 +212,56 @@ function Home() {
         ))}
       </div>
 
-      <div className="bottom-nav-shell">
-  <div className="bottom-nav">
-    <div
-      className="nav-item"
-      onClick={() => {
-        triggerHaptic("light")
-        navigate("/bonus")
-      }}
-    >
-      <img src="/ui/cupnav.PNG" alt="" className="nav-icon" />
-      <span>Награды</span>
-    </div>
-
-    <div
-      className="nav-item"
-      onClick={() => {
-        triggerHaptic("light")
-        navigate("/giveaways")
-      }}
-    >
-      <img src="/ui/frnav.PNG" alt="" className="nav-icon" />
-      <span>Друзья</span>
-    </div>
-
-    <div className="nav-item active">
-      <img src="/ui/main.PNG" alt="" className="nav-icon" />
-      <span>Главная</span>
-    </div>
+      <div className="bottom-nav">
+  <div
+    className="nav-item"
+    onClick={() => {
+      triggerHaptic("light")
+      navigate("/bonus")
+    }}
+  >
+    <img src="/ui/cupnav.PNG" alt="" className="nav-icon" />
+    <span>Награды</span>
   </div>
 
   <div
-    className="floating-profile"
+    className="nav-item"
     onClick={() => {
       triggerHaptic("light")
-      navigate("/profile")
+      navigate("/giveaways")
     }}
   >
-    {user?.photoUrl ? (
-      <img
-        src={user.photoUrl}
-        alt={user.username}
-        className="floating-profile-image"
-        draggable={false}
-        referrerPolicy="no-referrer"
-      />
-    ) : (
-      <span className="floating-profile-fallback">
-        {(user?.username?.[0] || "G").toUpperCase()}
-      </span>
-    )}
+    <img src="/ui/frnav.PNG" alt="" className="nav-icon" />
+    <span>Друзья</span>
   </div>
+
+  <div className="nav-item active">
+    <img src="/ui/main.PNG" alt="" className="nav-icon" />
+    <span>Главная</span>
+  </div>
+</div>
+
+<div
+  className="floating-profile"
+  onClick={() => {
+    triggerHaptic("light")
+    navigate("/profile")
+  }}
+>
+  {user?.photoUrl ? (
+    <img
+      src={user.photoUrl}
+      alt={user.username}
+      className="floating-profile-image"
+      draggable={false}
+      referrerPolicy="no-referrer"
+    />
+  ) : (
+    <span className="floating-profile-fallback">
+      {(user?.username?.[0] || "G").toUpperCase()}
+    </span>
+  )}
+</div>
 </div>
 
       <DepositMenu
