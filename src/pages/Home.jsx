@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom"
 import Lottie from "lottie-react"
 
 import { useUser } from "../context/UserContext"
-import { getPlayerRank } from "../utils/playerRank"
 import { triggerHaptic } from "../utils/haptics"
 import { socket } from "../socket"
 import CaseCard from "../components/CaseCard"
@@ -33,13 +32,6 @@ function Home() {
     { id: "randomcase", image: "/cases/case8.png.PNG", name: "Random Case", price: 999, free: false },
     { id: "3friends", image: "/cases/3friends.PNG", name: "For 3 Friends", price: null, free: true },
   ]
-
-  const playerRank = useMemo(() => {
-    return getPlayerRank(
-      Number(user?.casesOpened || 0),
-      Number(user?.crashGamesPlayed || 0)
-    )
-  }, [user?.casesOpened, user?.crashGamesPlayed])
 
   useEffect(() => {
     let cancelled = false
@@ -100,7 +92,9 @@ function Home() {
     }
 
     const sorted = [...cases].sort((a, b) =>
-      casesFilter === "expensive" ? b.price - a.price : a.price - b.price
+      casesFilter === "expensive"
+        ? (b.price ?? -1) - (a.price ?? -1)
+        : (a.price ?? 999999) - (b.price ?? 999999)
     )
 
     return sorted
@@ -145,7 +139,7 @@ function Home() {
         <div className="home-topbar-left">
           <div className="home-topbar-balance">
             <img src="/ui/star.PNG" className="home-topbar-balance-icon" alt="" />
-            <span>{user.balance}</span>
+            <span>{user?.balance ?? 0}</span>
           </div>
         </div>
 
@@ -172,9 +166,7 @@ function Home() {
       >
         <div className="crash-title">Rocket Crash</div>
 
-        <div className={crashMainClass}>
-          {crashMainValue}
-        </div>
+        <div className={crashMainClass}>{crashMainValue}</div>
 
         {!!crashSubText && (
           <div className="home-crash-subtext">
@@ -252,7 +244,7 @@ function Home() {
           {user?.photoUrl ? (
             <img
               src={user.photoUrl}
-              alt={user.username}
+              alt={user.username || "Profile"}
               className="floating-profile-image"
               draggable={false}
               referrerPolicy="no-referrer"
