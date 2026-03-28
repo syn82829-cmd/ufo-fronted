@@ -91,8 +91,8 @@ function Home() {
     casesFilter === "expensive"
       ? "По цене ↓"
       : casesFilter === "cheap"
-        ? "По цене ↑"
-        : "Бесплатные >"
+      ? "По цене ↑"
+      : "Бесплатные >"
 
   const visibleCases = useMemo(() => {
     if (casesFilter === "free") {
@@ -120,72 +120,36 @@ function Home() {
   const crashMainValue = isFlying
     ? `x${multiplier.toFixed(2)}`
     : showCountdown
-      ? String(countdown)
-      : showStart
-        ? "Start!"
-        : isCrashed
-          ? `x${multiplier.toFixed(2)}`
-          : "5"
+    ? String(countdown)
+    : showStart
+    ? "Start!"
+    : isCrashed
+    ? `x${multiplier.toFixed(2)}`
+    : "5"
 
   const crashSubText = showCountdown
     ? "Ожидание игроков"
     : showStart
-      ? "Start!"
-      : ""
+    ? "Start!"
+    : ""
 
   const crashMainClass = isCrashed
     ? "multiplier crashed"
     : isFlying
-      ? "multiplier flying"
-      : "multiplier waiting"
+    ? "multiplier flying"
+    : "multiplier waiting"
 
   return (
     <div className="app">
-      <div className="home-topbar">
-        <div
-          className="home-topbar-left"
-          onClick={() => {
-            triggerHaptic("light")
-            navigate("/profile")
-          }}
-        >
-          <div className="home-topbar-avatar">
-            {user.photoUrl ? (
-              <img
-                src={user.photoUrl}
-                alt={user.username}
-                className="home-topbar-avatar-image"
-                draggable={false}
-                referrerPolicy="no-referrer"
-              />
-            ) : (
-              <span className="home-topbar-avatar-fallback">
-                {(user.username?.[0] || "G").toUpperCase()}
-              </span>
-            )}
-          </div>
-
-          <div className="home-topbar-user">
-            <div className="home-topbar-name">{user.username}</div>
-
-            <div className="home-topbar-rank">
-              <img
-                src={playerRank.image}
-                alt={playerRank.name}
-                className="home-topbar-rank-icon"
-                draggable={false}
-              />
-              <span className="home-topbar-rank-text">{playerRank.name}</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="home-topbar-right">
+      <div className="home-topbar home-topbar-minimal">
+        <div className="home-topbar-left">
           <div className="home-topbar-balance">
             <img src="/ui/star.PNG" className="home-topbar-balance-icon" alt="" />
             <span>{user.balance}</span>
           </div>
+        </div>
 
+        <div className="home-topbar-right">
           <button
             type="button"
             className="home-topbar-plus"
@@ -248,55 +212,57 @@ function Home() {
         ))}
       </div>
 
-      <div className="bottom-nav">
-        <div
-          className="nav-item"
-          onClick={() => {
-            triggerHaptic("light")
-            navigate("/bonus")
-          }}
-        >
-          <img src="/ui/cupnav.PNG" alt="" className="nav-icon" />
-          <span>Награды</span>
+      <div className="bottom-nav-shell">
+        <div className="bottom-nav">
+          <div
+            className="nav-item"
+            onClick={() => {
+              triggerHaptic("light")
+              navigate("/bonus")
+            }}
+          >
+            <img src="/ui/cupnav.PNG" alt="" className="nav-icon" />
+            <span>Награды</span>
+          </div>
+
+          <div
+            className="nav-item"
+            onClick={() => {
+              triggerHaptic("light")
+              navigate("/giveaways")
+            }}
+          >
+            <img src="/ui/frnav.PNG" alt="" className="nav-icon" />
+            <span>Друзья</span>
+          </div>
+
+          <div className="nav-item active">
+            <img src="/ui/main.PNG" alt="" className="nav-icon" />
+            <span>Главная</span>
+          </div>
         </div>
 
         <div
-          className="nav-item"
+          className="floating-profile"
           onClick={() => {
             triggerHaptic("light")
-            navigate("/giveaways")
+            navigate("/profile")
           }}
         >
-          <img src="/ui/frnav.PNG" alt="" className="nav-icon" />
-          <span>Друзья</span>
+          {user?.photoUrl ? (
+            <img
+              src={user.photoUrl}
+              alt={user.username}
+              className="floating-profile-image"
+              draggable={false}
+              referrerPolicy="no-referrer"
+            />
+          ) : (
+            <span className="floating-profile-fallback">
+              {(user?.username?.[0] || "G").toUpperCase()}
+            </span>
+          )}
         </div>
-
-        <div className="nav-item active">
-          <img src="/ui/main.PNG" alt="" className="nav-icon" />
-          <span>Главная</span>
-        </div>
-      </div>
-
-      <div
-        className="floating-profile"
-        onClick={() => {
-          triggerHaptic("light")
-          navigate("/profile")
-        }}
-      >
-        {user?.photoUrl ? (
-          <img
-            src={user.photoUrl}
-            alt={user.username}
-            className="floating-profile-image"
-            draggable={false}
-            referrerPolicy="no-referrer"
-          />
-        ) : (
-          <span className="floating-profile-fallback">
-            {(user?.username?.[0] || "G").toUpperCase()}
-          </span>
-        )}
       </div>
 
       <DepositMenu
