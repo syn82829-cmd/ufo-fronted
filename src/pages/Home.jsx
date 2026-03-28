@@ -141,51 +141,15 @@ function Home() {
 
   return (
     <div className="app">
-      <div className="home-topbar">
-        <div
-          className="home-topbar-left"
-          onClick={() => {
-            triggerHaptic("light")
-            navigate("/profile")
-          }}
-        >
-          <div className="home-topbar-avatar">
-            {user.photoUrl ? (
-              <img
-                src={user.photoUrl}
-                alt={user.username}
-                className="home-topbar-avatar-image"
-                draggable={false}
-                referrerPolicy="no-referrer"
-              />
-            ) : (
-              <span className="home-topbar-avatar-fallback">
-                {(user.username?.[0] || "G").toUpperCase()}
-              </span>
-            )}
-          </div>
-
-          <div className="home-topbar-user">
-            <div className="home-topbar-name">{user.username}</div>
-
-            <div className="home-topbar-rank">
-              <img
-                src={playerRank.image}
-                alt={playerRank.name}
-                className="home-topbar-rank-icon"
-                draggable={false}
-              />
-              <span className="home-topbar-rank-text">{playerRank.name}</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="home-topbar-right">
+      <div className="home-topbar home-topbar-minimal">
+        <div className="home-topbar-left">
           <div className="home-topbar-balance">
             <img src="/ui/star.PNG" className="home-topbar-balance-icon" alt="" />
             <span>{user.balance}</span>
           </div>
+        </div>
 
+        <div className="home-topbar-right">
           <button
             type="button"
             className="home-topbar-plus"
@@ -256,7 +220,7 @@ function Home() {
             navigate("/bonus")
           }}
         >
-          Награды 
+          Награды
         </div>
 
         <div
@@ -269,17 +233,31 @@ function Home() {
           Друзья
         </div>
 
-        <div className="nav-item active">Главная</div>
-
-        <div
-          className="nav-item"
-          onClick={() => {
-            triggerHaptic("light")
-            navigate("/profile")
-          }}
-        >
-          Профиль
+        <div className="nav-item active">
+          Главная
         </div>
+      </div>
+
+      <div
+        className="floating-profile"
+        onClick={() => {
+          triggerHaptic("light")
+          navigate("/profile")
+        }}
+      >
+        {user?.photoUrl ? (
+          <img
+            src={user.photoUrl}
+            alt={user.username}
+            className="floating-profile-image"
+            draggable={false}
+            referrerPolicy="no-referrer"
+          />
+        ) : (
+          <span className="floating-profile-fallback">
+            {(user?.username?.[0] || "G").toUpperCase()}
+          </span>
+        )}
       </div>
 
       <DepositMenu
