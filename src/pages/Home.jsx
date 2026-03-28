@@ -212,7 +212,7 @@ function Home() {
         ))}
       </div>
 
-            <div className="bottom-nav">
+      <div className="bottom-nav">
         <div
           className="nav-item"
           onClick={() => {
@@ -220,8 +220,7 @@ function Home() {
             navigate("/bonus")
           }}
         >
-          <img src="/ui/cupnav.PNG" alt="" className="nav-icon" />
-          <span>Награды</span>
+          Награды
         </div>
 
         <div
@@ -231,13 +230,11 @@ function Home() {
             navigate("/giveaways")
           }}
         >
-          <img src="/ui/frnav.PNG" alt="" className="nav-icon" />
-          <span>Друзья</span>
+          Друзья
         </div>
 
         <div className="nav-item active">
-          <img src="/ui/main.PNG" alt="" className="nav-icon" />
-          <span>Главная</span>
+          Главная
         </div>
       </div>
 
