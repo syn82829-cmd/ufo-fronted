@@ -1,44 +1,26 @@
-import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import Lottie from "lottie-react"
 
 import { useUser } from "../context/UserContext"
-import DepositMenu from "../components/DepositMenu"
 import friendsAnimation from "../assets/animations/frms.json"
+import zarAnimation from "../assets/animations/zar.json"
+import vivAnimation from "../assets/animations/viv.json"
 import "../style.css"
 
 function Giveaways() {
   const navigate = useNavigate()
   const { user } = useUser()
-  const [isDepositOpen, setIsDepositOpen] = useState(false)
 
   return (
     <div className="app">
-      <div className="home-topbar home-topbar-minimal">
-        <div className="home-topbar-left">
-          <div className="home-topbar-balance">
-            <img src="/ui/star.PNG" className="home-topbar-balance-icon" alt="" />
-            <span>{user?.balance ?? 0}</span>
-          </div>
-        </div>
-
-        <div className="home-topbar-right">
-          <button
-            type="button"
-            className="home-topbar-plus"
-            onClick={() => setIsDepositOpen(true)}
-          >
-            +
-          </button>
-        </div>
-      </div>
-
       <div className="friends-page">
         <button
           type="button"
           className="friends-hero-badge"
         >
-          ЗАРАБАТЫВАЙ С GIFTON
+          <span className="friends-hero-badge-text">
+            ЗАРАБАТЫВАЙ С GIFTON
+          </span>
         </button>
 
         <div className="friends-hero-visual">
@@ -64,12 +46,15 @@ function Giveaways() {
         <div className="friends-stats-grid">
           <div className="friends-stat-card">
             <div className="friends-stat-top">
-              <img
-                src="/ui/ref-total.png"
-                alt=""
-                className="friends-stat-icon"
-                draggable={false}
-              />
+              <div className="friends-stat-lottie-wrap">
+                <Lottie
+                  animationData={zarAnimation}
+                  loop
+                  autoplay
+                  className="friends-stat-lottie"
+                />
+              </div>
+
               <span className="friends-stat-value">0</span>
             </div>
 
@@ -80,12 +65,15 @@ function Giveaways() {
 
           <div className="friends-stat-card">
             <div className="friends-stat-top">
-              <img
-                src="/ui/ref-withdrawn.png"
-                alt=""
-                className="friends-stat-icon"
-                draggable={false}
-              />
+              <div className="friends-stat-lottie-wrap">
+                <Lottie
+                  animationData={vivAnimation}
+                  loop
+                  autoplay
+                  className="friends-stat-lottie"
+                />
+              </div>
+
               <span className="friends-stat-value">0</span>
             </div>
 
@@ -165,11 +153,6 @@ function Giveaways() {
           )}
         </div>
       </div>
-
-      <DepositMenu
-        isOpen={isDepositOpen}
-        onClose={() => setIsDepositOpen(false)}
-      />
     </div>
   )
 }
