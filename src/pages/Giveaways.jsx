@@ -1,14 +1,38 @@
+import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import Lottie from "lottie-react"
 
+import { useUser } from "../context/UserContext"
+import DepositMenu from "../components/DepositMenu"
 import friendsAnimation from "../assets/animations/frms.json"
 import "../style.css"
 
 function Giveaways() {
   const navigate = useNavigate()
+  const { user } = useUser()
+  const [isDepositOpen, setIsDepositOpen] = useState(false)
 
   return (
     <div className="app">
+      <div className="home-topbar home-topbar-minimal">
+        <div className="home-topbar-left">
+          <div className="home-topbar-balance">
+            <img src="/ui/star.PNG" className="home-topbar-balance-icon" alt="" />
+            <span>{user?.balance ?? 0}</span>
+          </div>
+        </div>
+
+        <div className="home-topbar-right">
+          <button
+            type="button"
+            className="home-topbar-plus"
+            onClick={() => setIsDepositOpen(true)}
+          >
+            +
+          </button>
+        </div>
+      </div>
+
       <div className="friends-page">
         <button
           type="button"
@@ -98,32 +122,54 @@ function Giveaways() {
         </div>
       </div>
 
-      <div className="bottom-nav">
-        <div
-          className="nav-item"
-          onClick={() => navigate("/bonus")}
-        >
-          Награды
+      <div className="bottom-nav-shell">
+        <div className="bottom-nav">
+          <div
+            className="nav-item"
+            onClick={() => navigate("/bonus")}
+          >
+            <img src="/ui/cupnav.PNG" alt="" className="nav-icon" />
+            <span>Награды</span>
+          </div>
+
+          <div className="nav-item active">
+            <img src="/ui/frnav.PNG" alt="" className="nav-icon" />
+            <span>Друзья</span>
+          </div>
+
+          <div
+            className="nav-item"
+            onClick={() => navigate("/")}
+          >
+            <img src="/ui/main.PNG" alt="" className="nav-icon" />
+            <span>Главная</span>
+          </div>
         </div>
 
-        <div className="nav-item active">
-          Друзья
-        </div>
-
         <div
-          className="nav-item"
-          onClick={() => navigate("/")}
-        >
-          Главная
-        </div>
-
-        <div
-          className="nav-item"
+          className="floating-profile"
           onClick={() => navigate("/profile")}
         >
-          Профиль
+          {user?.photoUrl ? (
+            <img
+              src={user.photoUrl}
+              alt={user.username}
+              className="floating-profile-image"
+              draggable={false}
+              referrerPolicy="no-referrer"
+            />
+          ) : (
+            <span className="floating-profile-fallback">
+              {(user?.username?.[0] || "G").toUpperCase()}
+            </span>
+          )}
         </div>
       </div>
+
+      <DepositMenu
+        isOpen={isDepositOpen}
+        onClose={() => setIsDepositOpen(false)}
+      />
     </div>
   )
 }
