@@ -212,7 +212,7 @@ function Home() {
         ))}
       </div>
 
-      <div className="bottom-nav-shell">
+      <div className="bottom-nav-wrap">
         <div className="bottom-nav">
           <div
             className="nav-item"
