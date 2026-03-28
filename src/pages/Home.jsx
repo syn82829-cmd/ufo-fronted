@@ -219,7 +219,7 @@ function Home() {
         )}
 
         <button className="launch-btn" type="button">
-          Играть
+          Запустить
         </button>
 
         {ufoAnim && (
