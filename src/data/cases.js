@@ -241,7 +241,7 @@ export const cases = {
     drops: [
       {
       id: "pepe",
-      name: "Plush Pepe Spectrum",
+      name: "Plush Pepe Cold Heart",
       chance: 10,
       priceStars: "2.235.953",
       priceGems: "25.555",
@@ -358,9 +358,9 @@ export const cases = {
     drops: [
       {
       id: "pepe2",
-      name: "Plush Pepe Yellow Purp",
+      name: "Plush Pepe Two Face",
       chance: 10,
-      priceStars: "994.156",
+      priceStars: "1.272.205",
       priceGems: "11.111",
       png: "pepe2",
       lottie: "/animations/crash/pepe2.json",
