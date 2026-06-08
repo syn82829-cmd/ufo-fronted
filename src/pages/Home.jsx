@@ -84,7 +84,7 @@ function Home() {
       ? "По цене ↓"
       : casesFilter === "cheap"
         ? "По цене ↑"
-        : "Бесплатные >"
+        : "Бесплатно"
 
   const visibleCases = useMemo(() => {
     if (casesFilter === "free") {
