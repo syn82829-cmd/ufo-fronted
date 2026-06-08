@@ -235,9 +235,9 @@ function Crash() {
 
         {isSettingsOpen && (
           <div className="crash-settings-panel">
-            <div className="crash-settings-title">UFO Crash</div>
+            <div className="crash-settings-title">Rocket Crash</div>
             <div className="crash-settings-text">
-              Раунды идут автоматически, ставки и live теперь приходят с сервера
+              Demo-режим ставок будет позже
             </div>
           </div>
         )}
