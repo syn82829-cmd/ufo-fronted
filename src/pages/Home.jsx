@@ -228,6 +228,24 @@ useEffect(() => {
         </div>
       </div>
 
+      <div className="live-wins-bar">
+  <div className="live-label">
+    <span className="live-dot" />
+    LIVE
+  </div>
+
+  <div className="live-items">
+    {liveDrops.map((drop, index) => (
+      <div
+        className="live-drop"
+        key={`${drop}-${index}`}
+      >
+        <img src={drop} alt="" />
+      </div>
+    ))}
+  </div>
+</div>
+      
       <div
         className="crash-panel"
         onClick={() => {
@@ -257,24 +275,6 @@ useEffect(() => {
           </div>
         )}
       </div>
-
-      <div className="live-wins-bar">
-  <div className="live-label">
-    <span className="live-dot" />
-    LIVE
-  </div>
-
-  <div className="live-items">
-    {liveDrops.map((drop, index) => (
-      <div
-        className="live-drop"
-        key={`${drop}-${index}`}
-      >
-        <img src={drop} alt="" />
-      </div>
-    ))}
-  </div>
-</div>
       
       <div className="cases-toolbar">
         <button type="button" className="cases-filter-btn" onClick={cycleFilter}>
