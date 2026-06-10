@@ -6214,6 +6214,16 @@ button,
   width: 90%;
   max-width: 920px;
 
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  position: relative;
+  overflow: hidden;
+
+  margin: 0 auto 12px auto;
+  padding: 12px 16px;
+
   background:
     radial-gradient(circle at top left, rgba(255,255,255,0.065), transparent 34%),
     linear-gradient(
@@ -6229,17 +6239,11 @@ button,
   border-radius: 26px;
 
   box-shadow:
-    0 28px 80px rgba(0,0,0,0.48),
+    0 20px 55px rgba(0,0,0,0.34),
     inset 0 1px 0 rgba(255,255,255,0.12);
-
-  position: relative;
-
-  margin: 0 auto 14px auto;
-
-  padding: 14px 18px;
-
-  overflow: hidden;
 }
+
+/* LIVE */
 
 .live-label {
   display: flex;
@@ -6248,14 +6252,19 @@ button,
 
   flex-shrink: 0;
 
-  color: white;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 700;
+  letter-spacing: 0.12em;
+
+  color: rgba(255,255,255,0.82);
+
+  text-shadow:
+    0 4px 12px rgba(0,0,0,0.20);
 }
 
 .live-dot {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
 
   border-radius: 50%;
 
@@ -6266,34 +6275,36 @@ button,
 
 @keyframes livePulse {
   0% {
-    opacity: .4;
+    opacity: .45;
     box-shadow: 0 0 0 rgba(67,255,121,0);
   }
 
   50% {
     opacity: 1;
-    box-shadow: 0 0 14px rgba(67,255,121,.9);
+    box-shadow: 0 0 12px rgba(67,255,121,.75);
   }
 
   100% {
-    opacity: .4;
+    opacity: .45;
     box-shadow: 0 0 0 rgba(67,255,121,0);
   }
 }
+
+/* ITEMS */
 
 .live-items {
   display: flex;
   align-items: center;
   gap: 10px;
 
-  overflow: hidden;
-
   flex: 1;
+
+  overflow: hidden;
 }
 
 .live-drop {
-  width: 42px;
-  height: 42px;
+  width: 40px;
+  height: 40px;
 
   flex-shrink: 0;
 
@@ -6309,6 +6320,9 @@ button,
   height: 100%;
 
   object-fit: contain;
+
+  filter:
+    drop-shadow(0 4px 10px rgba(0,0,0,0.25));
 }
 
 @keyframes liveAppear {
@@ -6323,3 +6337,19 @@ button,
   }
 }
 
+/* лёгкий блик сверху */
+
+.live-wins-bar::before {
+  content: "";
+
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+
+  height: 1px;
+
+  background: rgba(255,255,255,0.12);
+
+  pointer-events: none;
+}
