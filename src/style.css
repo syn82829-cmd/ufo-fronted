@@ -6361,7 +6361,8 @@ button,
   align-items: center;
   gap: 24px;
 
-  margin: 18px 0 6px; /* уменьшили снизу */
+  /* чуть больше воздуха снизу */
+  margin: 18px 0 12px;
 }
 
 /* ===== TAB ===== */
@@ -6383,19 +6384,17 @@ button,
   transition: color 0.2s ease, transform 0.2s ease;
 }
 
-/* hover */
 .cases-tab:hover {
   color: rgba(255,255,255,0.75);
   transform: translateY(-1px);
 }
 
-/* active (ТОЛЬКО подсветка, без кружков/фонов) */
 .cases-tab.active {
   color: #ffffff;
   text-shadow: 0 0 6px rgba(83, 212, 255, 0.35);
 }
 
-/* underline (анимированный) */
+/* underline */
 .cases-tab::after {
   content: "";
   position: absolute;
@@ -6420,14 +6419,9 @@ button,
   width: 100%;
 }
 
-/* ===== IMPORTANT FIX: убираем лишний воздух ===== */
+/* ===== CASE SECTION SPACING CONTROL ===== */
 
 .cases-section {
-  margin-top: 0;
+  margin-top: 6px;  /* вот это даёт контролируемый зазор */
   padding-top: 0;
-}
-
-/* на случай если case card тянет отступ */
-.cases-section > *:first-child {
-  margin-top: 0;
 }
