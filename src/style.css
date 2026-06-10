@@ -6425,3 +6425,8 @@ button,
   margin-top: 6px;  /* вот это даёт контролируемый зазор */
   padding-top: 0;
 }
+.ufo-lottie {
+  transform: translateZ(0);
+  will-change: transform;
+  pointer-events: none;
+}
