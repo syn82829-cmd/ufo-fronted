@@ -6211,24 +6211,32 @@ button,
   }
 }
 .live-wins-bar {
-  width: calc(100% - 32px);
-  height: 58px;
+  width: 90%;
+  max-width: 920px;
 
-  margin: 14px auto 18px;
+  background:
+    radial-gradient(circle at top left, rgba(255,255,255,0.065), transparent 34%),
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,0.032),
+      rgba(255,255,255,0.010)
+    );
 
-  display: flex;
-  align-items: center;
-  gap: 14px;
+  backdrop-filter: blur(5px) saturate(138%);
+  -webkit-backdrop-filter: blur(5px) saturate(138%);
 
-  padding: 0 16px;
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 26px;
 
-  border-radius: 18px;
+  box-shadow:
+    0 28px 80px rgba(0,0,0,0.48),
+    inset 0 1px 0 rgba(255,255,255,0.12);
 
-  background: rgba(22, 45, 115, 0.45);
+  position: relative;
 
-  backdrop-filter: blur(18px);
+  margin: 0 auto 14px auto;
 
-  border: 1px solid rgba(255,255,255,.08);
+  padding: 14px 18px;
 
   overflow: hidden;
 }
