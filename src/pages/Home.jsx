@@ -5,6 +5,7 @@ import Lottie from "lottie-react"
 import { useUser } from "../context/UserContext"
 import { triggerHaptic } from "../utils/haptics"
 import { socket } from "../socket"
+import LiveDrops from "../components/LiveDrops"
 import CaseCard from "../components/CaseCard"
 import DepositMenu from "../components/DepositMenu"
 import DailyGiftPopup from "../components/DailyGiftPopup"
@@ -19,57 +20,7 @@ function Home() {
   const [casesFilter, setCasesFilter] = useState("expensive")
   const [crashState, setCrashState] = useState(null)
   const [isDepositOpen, setIsDepositOpen] = useState(false)
-  const LIVE_DROPS = [
-  "/drops/Baklajan.png",
-  "/drops/Dog.png",
-  "/drops/Fen.png",
-  "/drops/HeroicHelmet.png",
-  "/drops/IonicDryer.png",
-  "/drops/Klever.png",
-  "/drops/Kosak.png",
-  "/drops/LootBag.png",
-  "/drops/Lowrider.png",
-  "/drops/Mokey.png",
-  "/drops/Moon.png",
-  "/drops/Poo.png",
-  "/drops/Runa.png",
-  "/drops/SwissWatch.png",
-  "/drops/WestsideSign.png",
-  "/drops/astral.png",
-  "/drops/ball.png",
-  "/drops/batman.png",
-  "/drops/beer.png",
-  "/drops/bitsushka.png",
-  "/drops/book.png",
-  "/drops/pepebr.png",
-  "/drops/pepecat.png",
-  "/drops/podarok.png",
-  "/drops/poison.png",
-  "/drops/qksl.png",
-  "/drops/raketa.png",
-  "/drops/ring.png",
-  "/drops/rock.png",
-  "/drops/santa.png",
-  "/drops/shlapa.png",
-  "/drops/shlem.png",
-  "/drops/skull.png",
-  "/drops/soska.png",
-  "/drops/spfrog.png",
-  "/drops/spkos.png",
-  "/drops/spsoska.png",
-  "/drops/spwatch.png",
-  "/drops/star.png",
-  "/drops/tikva.png",
-  "/drops/ufopoo.png",
-  "/drops/unbear.png",
-]
-
-const [liveDrops, setLiveDrops] = useState(() =>
-  Array.from({ length: 6 }, () =>
-    LIVE_DROPS[Math.floor(Math.random() * LIVE_DROPS.length)]
-  )
-)
-
+  
   const cases = [
     { id: "firstpepe", image: "/cases/case1.png.PNG", name: "Pepe Case", price: 5999, free: false },
     { id: "crash", image: "/cases/case2.png.PNG", name: "All or Nothing", price: 3999, free: false },
@@ -120,28 +71,6 @@ const [liveDrops, setLiveDrops] = useState(() =>
       socket.off("crash:state", handleCrashState)
     }
   }, [])
-useEffect(() => {
-  let timeout
-
-  const addDrop = () => {
-    const randomDrop =
-      LIVE_DROPS[Math.floor(Math.random() * LIVE_DROPS.length)]
-
-    setLiveDrops((prev) => [
-      randomDrop,
-      ...prev.slice(0, 5),
-    ])
-
-    timeout = setTimeout(
-      addDrop,
-      2500 + Math.random() * 7000
-    )
-  }
-
-  timeout = setTimeout(addDrop, 4000)
-
-  return () => clearTimeout(timeout)
-}, [])
   
 
   const visibleCases = useMemo(() => {
