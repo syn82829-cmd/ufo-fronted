@@ -142,22 +142,7 @@ useEffect(() => {
 
   return () => clearTimeout(timeout)
 }, [])
-  const cycleFilter = () => {
-    triggerHaptic("light")
-
-    setCasesFilter((prev) => {
-      if (prev === "expensive") return "cheap"
-      if (prev === "cheap") return "free"
-      return "expensive"
-    })
-  }
-
-  const filterLabel =
-    casesFilter === "expensive"
-      ? "По цене ↓"
-      : casesFilter === "cheap"
-        ? "По цене ↑"
-        : "Бесплатно"
+  
 
   const visibleCases = useMemo(() => {
     if (casesFilter === "free") {
@@ -277,10 +262,45 @@ useEffect(() => {
       </div>
       
       <div className="cases-toolbar">
-        <button type="button" className="cases-filter-btn" onClick={cycleFilter}>
-          {filterLabel}
-        </button>
-      </div>
+  <button
+    type="button"
+    className={`cases-tab ${
+      casesFilter === "expensive" ? "active" : ""
+    }`}
+    onClick={() => {
+      triggerHaptic("light")
+      setCasesFilter("expensive")
+    }}
+  >
+    Дороже
+  </button>
+
+  <button
+    type="button"
+    className={`cases-tab ${
+      casesFilter === "cheap" ? "active" : ""
+    }`}
+    onClick={() => {
+      triggerHaptic("light")
+      setCasesFilter("cheap")
+    }}
+  >
+    Дешевле
+  </button>
+
+  <button
+    type="button"
+    className={`cases-tab ${
+      casesFilter === "free" ? "active" : ""
+    }`}
+    onClick={() => {
+      triggerHaptic("light")
+      setCasesFilter("free")
+    }}
+  >
+    Бесплатно
+  </button>
+</div>
 
       <div className="cases-section">
         {visibleCases.map((item) => (
