@@ -309,17 +309,18 @@ body::after {
   transform: scale(0.985);
 }
 
-/* UFO LOTTIE */
+/* ROCKET LOTTIE */
 
 .ufo-lottie {
   position: absolute;
   right: -8%;
   bottom: -8%;
+
   width: 52%;
   max-width: 480px;
-  filter:
-    drop-shadow(0 55px 90px rgba(0,0,0,0.72))
-    drop-shadow(0 0 18px rgba(110, 225, 255, 0.06));
+
+  overflow: visible;
+  pointer-events: none;
 }
 
 .ufo-lottie > * {
