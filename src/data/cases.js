@@ -115,7 +115,7 @@ export const cases = {
     },
     {
       id: "stars_1000",
-      name: "1000 Stars",
+      name: "ᅠ",
       chance: 8,
       priceStars: "1000",
       priceGems: null,
