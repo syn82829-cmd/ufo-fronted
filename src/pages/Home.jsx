@@ -142,22 +142,13 @@ function Home() {
         </div>
       </div>
 
-      <div className="live-wins-bar">
+     <div className="live-wins-bar">
   <div className="live-label">
     <span className="live-dot" />
     LIVE
   </div>
 
-  <div className="live-items">
-    {liveDrops.map((drop, index) => (
-      <div
-        className="live-drop"
-        key={`${drop}-${index}`}
-      >
-        <img src={drop} alt="" />
-      </div>
-    ))}
-  </div>
+  <LiveDrops />
 </div>
       
       <div
