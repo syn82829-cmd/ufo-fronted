@@ -6352,7 +6352,8 @@ button,
   background: rgba(255,255,255,0.12);
 
   pointer-events: none;
-}/* ===== CASE FILTER TABS ===== */
+}
+/* ===== CASE FILTER TABS ===== */
 
 .cases-toolbar {
   display: flex;
@@ -6360,7 +6361,7 @@ button,
   align-items: center;
   gap: 24px;
 
-  margin: 18px 0 8px;
+  margin: 18px 0 6px; /* уменьшили снизу */
 }
 
 /* ===== TAB ===== */
@@ -6382,26 +6383,19 @@ button,
   transition: color 0.2s ease, transform 0.2s ease;
 }
 
-/* hover state */
+/* hover */
 .cases-tab:hover {
   color: rgba(255,255,255,0.75);
   transform: translateY(-1px);
 }
 
-/* active state */
+/* active (ТОЛЬКО подсветка, без кружков/фонов) */
 .cases-tab.active {
   color: #ffffff;
   text-shadow: 0 0 6px rgba(83, 212, 255, 0.35);
-
-  padding: 8px 12px;
-  border-radius: 999px;
-
-  background: rgba(83, 212, 255, 0.08);
-  backdrop-filter: blur(6px);
 }
 
-/* ===== UNDERLINE ANIMATION ===== */
-
+/* underline (анимированный) */
 .cases-tab::after {
   content: "";
   position: absolute;
@@ -6426,9 +6420,14 @@ button,
   width: 100%;
 }
 
-/* ===== OPTIONAL: CASES BLOCK FIX ===== */
+/* ===== IMPORTANT FIX: убираем лишний воздух ===== */
 
-.cases-list {
+.cases-section {
   margin-top: 0;
   padding-top: 0;
+}
+
+/* на случай если case card тянет отступ */
+.cases-section > *:first-child {
+  margin-top: 0;
 }
