@@ -6352,52 +6352,83 @@ button,
   background: rgba(255,255,255,0.12);
 
   pointer-events: none;
-}
-/* ===== CASE FILTER TABS ===== */
+}/* ===== CASE FILTER TABS ===== */
 
 .cases-toolbar {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 28px;
-  margin: 20px 0;
+  gap: 24px;
+
+  margin: 18px 0 8px;
 }
 
+/* ===== TAB ===== */
+
 .cases-tab {
+  position: relative;
+
   background: transparent;
   border: none;
-  outline: none;
-  padding: 8px 2px;
+  cursor: pointer;
 
-  color: rgba(255,255,255,0.35);
+  padding: 8px 6px;
+
   font-size: 15px;
   font-weight: 600;
 
-  position: relative;
-  cursor: pointer;
+  color: rgba(255,255,255,0.35);
 
-  transition: all 0.2s ease;
+  transition: color 0.2s ease, transform 0.2s ease;
 }
 
+/* hover state */
+.cases-tab:hover {
+  color: rgba(255,255,255,0.75);
+  transform: translateY(-1px);
+}
+
+/* active state */
 .cases-tab.active {
   color: #ffffff;
-  text-shadow: 0 0 4px rgba(83, 212, 255, 0.45);
+  text-shadow: 0 0 6px rgba(83, 212, 255, 0.35);
+
+  padding: 8px 12px;
+  border-radius: 999px;
+
+  background: rgba(83, 212, 255, 0.08);
+  backdrop-filter: blur(6px);
 }
 
-.cases-tab.active::after {
+/* ===== UNDERLINE ANIMATION ===== */
+
+.cases-tab::after {
   content: "";
   position: absolute;
 
-  left: 0;
+  left: 50%;
   bottom: -2px;
 
-  width: 100%;
+  width: 0%;
   height: 2px;
+
+  transform: translateX(-50%);
 
   border-radius: 999px;
 
   background: #53d4ff;
-  box-shadow:
-    0 0 8px rgba(83,212,255,0.7),
-    0 0 16px rgba(83,212,255,0.35);
+  box-shadow: 0 0 10px rgba(83,212,255,0.5);
+
+  transition: width 0.25s ease;
+}
+
+.cases-tab.active::after {
+  width: 100%;
+}
+
+/* ===== OPTIONAL: CASES BLOCK FIX ===== */
+
+.cases-list {
+  margin-top: 0;
+  padding-top: 0;
 }
