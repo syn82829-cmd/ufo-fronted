@@ -30,6 +30,8 @@ function Home() {
     { id: "spacetrash", image: "/cases/case6.png.PNG", name: "Space Trash", price: 799, free: false },
     { id: "starfall", image: "/cases/case7.png.PNG", name: "Starfall", price: 499, free: false },
     { id: "randomcase", image: "/cases/case8.png.PNG", name: "Random Case", price: 999, free: false },
+    { id: "milkyway", image: "/cases/milkyway.PNG", name: "Milky Way", price: 100, free: false },
+    { id: "singularity", image: "/cases/singularity.PNG", name: "Singularity", price: 50, free: false },
     { id: "3friends", image: "/cases/3friends.PNG", name: "For 3 Friends", price: null, free: true },
   ]
 
