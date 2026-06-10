@@ -3,7 +3,7 @@ export const cases = {
     id: "spacevault",
     name: "Space Vault",
     image: "/cases/spacevault.PNG",
-    price: 5999,
+    price: 2999,
     drops: [
       {
       id: "locketun",
@@ -120,7 +120,7 @@ export const cases = {
     id: "darkmatter",
     name: "Crypto Punk",
     image: "/cases/case3.png.PNG",
-    price: 4999,
+    price: 2399,
     drops: [
       {
         id: "darkhelmet",
@@ -237,7 +237,7 @@ export const cases = {
     id: "firstpepe",
     name: "Pepe Case",
     image: "/cases/case1.png.PNG",
-    price: 9999,
+    price: 5999,
     drops: [
       {
       id: "pepe",
@@ -354,7 +354,7 @@ export const cases = {
     id: "crash",
     name: "All or Nothing",
     image: "/cases/case2.png.PNG",
-    price: 7999,
+    price: 3999,
     drops: [
       {
       id: "pepe2",
@@ -471,7 +471,7 @@ export const cases = {
     id: "godparticle",
     name: "Iced Memory",
     image: "/cases/case4.png.PNG",
-    price: 4499,
+    price: 1299,
     drops: [
       {
       id: "icearm",
@@ -588,7 +588,7 @@ export const cases = {
     id: "purplehole",
     name: "Purple Hole",
     image: "/cases/case5.png.PNG",
-    price: 1199,
+    price: 999,
     drops: [
       {
         id: "cat",
@@ -705,7 +705,7 @@ export const cases = {
     id: "spacetrash",
     name: "Space Trash",
     image: "/cases/case6.png.PNG",
-    price: 799,
+    price: 35,
     drops: [
       {
       id: "soska",
@@ -924,7 +924,7 @@ randomcase: {
   id: "randomcase",
   name: "Random Case",
   image: "/cases/case8.png.PNG",
-  price: 999,
+  price: 499,
   specialLayout: "info",
   infoImage: "/cases/random_preview.PNG",
   description: "Можно выиграть любой кейс: от Pepe Case до Space Trash.",
