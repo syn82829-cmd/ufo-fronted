@@ -115,7 +115,7 @@ export const cases = {
     },
     {
       id: "stars_1000",
-      name: "ᅠ",
+      name: "Stars",
       chance: 8,
       priceStars: "1000",
       priceGems: null,
@@ -124,7 +124,7 @@ export const cases = {
     },
     {
       id: "stars_500",
-      name: "500 Stars",
+      name: "Stars",
       chance: 8,
       priceStars: "500",
       priceGems: null,
@@ -250,7 +250,7 @@ export const cases = {
       },
       {
       id: "stars_1000",
-      name: "1000 Stars",
+      name: "Stars",
       chance: 8,
       priceStars: "1000",
       priceGems: null,
@@ -259,7 +259,7 @@ export const cases = {
     },
       {
       id: "stars_500",
-      name: "500 Stars",
+      name: "Stars",
       chance: 8,
       priceStars: "500",
       priceGems: null,
@@ -394,7 +394,7 @@ export const cases = {
     },
     {
       id: "stars_1000",
-      name: "1000 Stars",
+      name: "Stars",
       chance: 8,
       priceStars: "1000",
       priceGems: null,
@@ -637,7 +637,7 @@ export const cases = {
     },
     {
       id: "stars_500",
-      name: "500 Stars",
+      name: "Stars",
       chance: 8,
       priceStars: "500",
       priceGems: null,
@@ -646,7 +646,7 @@ export const cases = {
     },
     {
       id: "stars_250",
-      name: "250 Stars",
+      name: "Stars",
       chance: 8,
       priceStars: "250",
       priceGems: null,
@@ -772,7 +772,7 @@ export const cases = {
       },
       {
       id: "stars_250",
-      name: "250 Stars",
+      name: "Stars",
       chance: 8,
       priceStars: "250",
       priceGems: null,
@@ -781,7 +781,7 @@ export const cases = {
     },
     {
       id: "stars_100",
-      name: "100 Stars",
+      name: "Stars",
       chance: 8,
       priceStars: "100",
       priceGems: null,
@@ -907,7 +907,7 @@ export const cases = {
       },
       {
       id: "stars_15",
-      name: "15 Stars",
+      name: "Stars",
       chance: 8,
       priceStars: "15",
       priceGems: null,
@@ -916,7 +916,7 @@ export const cases = {
     },
     {
       id: "stars_5",
-      name: "5 Stars",
+      name: "Stars",
       chance: 8,
       priceStars: "5",
       priceGems: null,
