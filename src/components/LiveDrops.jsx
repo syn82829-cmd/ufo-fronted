@@ -11,6 +11,8 @@ export default function LiveDrops() {
 
     socket.on("live:drops", handleDrops)
 
+    socket.emit("live:drops:get")
+
     return () => {
       socket.off("live:drops", handleDrops)
     }
