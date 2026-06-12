@@ -1809,10 +1809,18 @@ body::after {
 }
 
 .result-title {
-  font-size: 30px;
+  font-size: 34px;
+  font-weight: 600;
+
   margin-bottom: 35px;
-  letter-spacing: 1.2px;
-  text-shadow: 0 4px 20px rgba(0,0,0,0.7);
+
+  letter-spacing: -0.04em;
+  line-height: 1;
+
+  color: rgba(255,255,255,0.98);
+
+  text-shadow:
+    0 1px 8px rgba(0,0,0,0.22);
 }
 
 .result-size {
@@ -1860,6 +1868,7 @@ body::after {
 /* ============================= */
 /* RESULT BUTTONS */
 /* ============================= */
+
 .result-buttons {
   display: flex;
   justify-content: center;
@@ -1868,88 +1877,64 @@ body::after {
 }
 
 .glass-btn {
-  position: relative;
-  overflow: hidden;
-
   min-width: 140px;
   padding: 15px 34px;
-  border-radius: 16px;
 
-  border: 1px solid rgba(255,255,255,0.22);
+  border-radius: 18px;
 
-  backdrop-filter: blur(10px) saturate(145%);
-  -webkit-backdrop-filter: blur(10px) saturate(145%);
+  border: 1px solid rgba(255,255,255,0.14);
+
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 
   font-size: 15px;
   font-weight: 600;
-  letter-spacing: 0.4px;
+  letter-spacing: -0.01em;
   line-height: 1.2;
 
-  color: white;
+  color: rgba(255,255,255,0.96);
   cursor: pointer;
 
-  transition: transform 0.25s ease, box-shadow 0.25s ease, opacity 0.25s ease;
-}
-
-.glass-btn::after {
-  content: "";
-  position: absolute;
-  top: -35%;
-  left: -55%;
-  width: 34%;
-  height: 170%;
-
-  background: linear-gradient(
-    120deg,
-    transparent 0%,
-    rgba(255,255,255,0.42) 45%,
-    rgba(255,255,255,0.16) 50%,
-    transparent 100%
-  );
-
-  transform: rotate(22deg);
-  animation: resultBtnShine 3.4s ease-in-out infinite;
-  pointer-events: none;
+  transition:
+    transform 0.18s ease,
+    opacity 0.18s ease,
+    border-color 0.18s ease;
 }
 
 .glass-btn:hover {
-  transform: translateY(-3px);
+  opacity: 0.96;
 }
+
+.glass-btn:active {
+  transform: scale(0.985);
+}
+
+/* Забрать */
 
 .sell {
   background: linear-gradient(
-    145deg,
-    rgba(95, 185, 255, 0.88),
-    rgba(35, 145, 235, 0.92)
+    135deg,
+    rgba(105, 185, 255, 0.72),
+    rgba(78, 165, 235, 0.66)
   );
 
   box-shadow:
-    0 10px 24px rgba(45,140,255,0.28),
-    inset 0 1px 0 rgba(255,255,255,0.26);
+    inset 0 1px 0 rgba(255,255,255,0.18),
+    0 8px 18px rgba(70,140,220,0.10);
 }
+
+/* Продать */
 
 .open {
   background: linear-gradient(
-    145deg,
-    rgba(95, 235, 170, 0.88),
-    rgba(28, 185, 120, 0.92)
+    135deg,
+    rgba(88, 205, 170, 0.72),
+    rgba(72, 182, 150, 0.66)
   );
 
   box-shadow:
-    0 10px 24px rgba(30,185,120,0.28),
-    inset 0 1px 0 rgba(255,255,255,0.26);
-}
-
-@keyframes resultBtnShine {
-  0% {
-    left: -55%;
-  }
-  58% {
-    left: 125%;
-  }
-  100% {
-    left: 125%;
-  }
+    inset 0 1px 0 rgba(255,255,255,0.18),
+    0 8px 18px rgba(60,170,130,0.10);
 }
 
 @keyframes resultOverlayFade {
