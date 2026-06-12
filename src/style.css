@@ -6362,7 +6362,6 @@ button,
   align-items: center;
   gap: 24px;
 
-  /* чуть больше воздуха снизу */
   margin: 18px 0 12px;
 }
 
@@ -6382,20 +6381,21 @@ button,
 
   color: rgba(255,255,255,0.35);
 
-  transition: color 0.2s ease, transform 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+
+  transition: color 0.15s ease;
 }
 
 .cases-tab:hover {
   color: rgba(255,255,255,0.75);
-  transform: translateY(-1px);
 }
 
 .cases-tab.active {
   color: #ffffff;
-  text-shadow: 0 0 6px rgba(83, 212, 255, 0.35);
 }
 
 /* underline */
+
 .cases-tab::after {
   content: "";
   position: absolute;
@@ -6403,7 +6403,7 @@ button,
   left: 50%;
   bottom: -2px;
 
-  width: 0%;
+  width: 0;
   height: 2px;
 
   transform: translateX(-50%);
@@ -6411,9 +6411,9 @@ button,
   border-radius: 999px;
 
   background: #53d4ff;
-  box-shadow: 0 0 10px rgba(83,212,255,0.5);
+  box-shadow: 0 0 8px rgba(83,212,255,0.45);
 
-  transition: width 0.25s ease;
+  transition: width 0.18s ease;
 }
 
 .cases-tab.active::after {
@@ -6423,6 +6423,6 @@ button,
 /* ===== CASE SECTION SPACING CONTROL ===== */
 
 .cases-section {
-  margin-top: 6px;  /* вот это даёт контролируемый зазор */
+  margin-top: 6px;
   padding-top: 0;
 }
