@@ -2458,79 +2458,34 @@ body::after {
 
 .casepage-topup-btn {
   position: relative;
-  overflow: hidden;
 
-  color: #ffffff;
+  color: rgba(255,255,255,0.98);
   cursor: pointer;
 
   background: linear-gradient(
-    145deg,
-    rgba(128, 210, 255, 0.94),
-    rgba(58, 166, 240, 0.92)
+    135deg,
+    rgba(95, 200, 255, 0.68),
+    rgba(62, 180, 245, 0.60),
+    rgba(92, 220, 255, 0.56)
   );
 
-  backdrop-filter: blur(30px) saturate(160%);
-  -webkit-backdrop-filter: blur(30px) saturate(160%);
-
-  border: 1px solid rgba(170, 232, 255, 0.38);
+  border: 1px solid rgba(170, 235, 255, 0.20);
 
   box-shadow:
-    0 8px 30px rgba(56, 156, 240, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.24);
+    0 10px 22px rgba(60,160,240,0.10),
+    inset 0 1px 0 rgba(255,255,255,0.22);
 
-  transition: 0.25s ease;
-}
-
-.casepage-topup-btn::after {
-  content: "";
-  position: absolute;
-  top: -30%;
-  left: -42%;
-  width: 24%;
-  height: 170%;
-  pointer-events: none;
-
-  background: linear-gradient(
-    120deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.18) 36%,
-    rgba(255, 255, 255, 0.42) 50%,
-    rgba(255, 255, 255, 0.14) 62%,
-    transparent 100%
-  );
-
-  transform: rotate(20deg);
-  animation: caseTopupShine 3.6s ease-in-out infinite;
+  transition:
+    transform 0.18s ease,
+    opacity 0.18s ease;
 }
 
 .casepage-topup-btn:hover {
-  transform: translateY(-3px) scale(1.04);
+  opacity: 0.96;
 }
 
 .casepage-topup-btn:active {
-  transform: scale(0.98);
-}
-
-@keyframes caseTopupShine {
-  0% {
-    left: -42%;
-    opacity: 0;
-  }
-  10% {
-    opacity: 1;
-  }
-  44% {
-    left: 118%;
-    opacity: 1;
-  }
-  55% {
-    left: 118%;
-    opacity: 0;
-  }
-  100% {
-    left: 118%;
-    opacity: 0;
-  }
+  transform: scale(0.985);
 }
 .profile-inventory-grid {
   width: 100%;
