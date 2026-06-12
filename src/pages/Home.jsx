@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useState, useRef } from "react"
 import { useNavigate } from "react-router-dom"
 import Lottie from "lottie-react"
 
@@ -17,6 +17,7 @@ function Home() {
   const { user } = useUser()
 
   const [ufoAnim, setUfoAnim] = useState(null)
+  const ufoRef = useRef()
   const [casesFilter, setCasesFilter] = useState("expensive")
   const [crashState, setCrashState] = useState(null)
   const [isDepositOpen, setIsDepositOpen] = useState(false)
@@ -59,6 +60,12 @@ function Home() {
       cancelled = true
     }
   }, [])
+
+  useEffect(() => {
+  if (ufoAnim && ufoRef.current) {
+    ufoRef.current.goToAndStop(0, true)
+  }
+}, [ufoAnim])
 
   useEffect(() => {
     const handleCrashState = (stateData) => {
@@ -176,7 +183,12 @@ function Home() {
 
         {ufoAnim && (
           <div className="ufo-lottie" aria-hidden="true">
-            <Lottie animationData={ufoAnim} loop autoplay />
+            <Lottie
+  lottieRef={ufoRef}
+  animationData={ufoAnim}
+  autoplay={false}
+  loop={false}
+/>
           </div>
         )}
       </div>
