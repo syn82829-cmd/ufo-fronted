@@ -5,18 +5,18 @@ export default function LiveDrops() {
   const [drops, setDrops] = useState([])
 
   useEffect(() => {
-    socket.on("live:drops", (live) => {
-      setDrops(live)
-    })
+    const handler = (data) => setDrops(data)
 
-    return () => socket.off("live:drops")
+    socket.on("live:drops", handler)
+
+    return () => socket.off("live:drops", handler)
   }, [])
 
   return (
     <div className="live-items">
-      {drops.map((drop, i) => (
-        <div className="live-drop" key={`${drop}-${i}`}>
-          <img src={drop} alt="" loading="lazy" />
+      {drops.map((d, i) => (
+        <div className="live-drop" key={`${d}-${i}`}>
+          <img src={d} alt="" />
         </div>
       ))}
     </div>
