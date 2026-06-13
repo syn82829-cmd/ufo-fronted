@@ -27,6 +27,7 @@ function Home() {
     { id: "crash", image: "/cases/case2.png.PNG", name: "All or Nothing", price: 3999, free: false },
     { id: "spacevault", image: "/cases/spacevault.PNG", name: "Space Vault", price: 2999, free: false },
     { id: "darkmatter", image: "/cases/case3.png.PNG", name: "Crypto Punk", price: 2399, free: false },
+    { id: "adultsworld", image: "/cases/adultsworld.PNG", name: "Adult's World", price: 1499, free: false },
     { id: "godparticle", image: "/cases/case4.png.PNG", name: "Iced Memory", price: 1299, free: false },
     { id: "purplehole", image: "/cases/case5.png.PNG", name: "Purple Hole", price: 999, free: false },
     { id: "spacetrash", image: "/cases/case6.png.PNG", name: "Space Trash", price: 35, free: false },
