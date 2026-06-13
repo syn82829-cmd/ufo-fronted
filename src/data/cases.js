@@ -411,6 +411,15 @@ export const cases = {
       lottie: "/animations/firstpepe/pepejack.json",
       },
       {
+      id: "stars_1500",
+      name: "1500 Stars",
+      chance: 8,
+      priceStars: "1500",
+      priceGems: null,
+      png: "star",
+      lottie: null,
+    },
+      {
       id: "pepeegg",
       name: "Easter Egg Boiled Pepe",
       chance: 10,
@@ -420,15 +429,6 @@ export const cases = {
       lottie: "/animations/firstpepe/pepeegg.json",
       },
       {
-      id: "stars_1500",
-      name: "1500 Stars",
-      chance: 8,
-      priceStars: "1500",
-      priceGems: null,
-      png: "star",
-      lottie: null,
-    },
-    {
       id: "stars_1000",
       name: "Stars",
       chance: 8,
