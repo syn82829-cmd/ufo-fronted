@@ -1037,8 +1037,8 @@ export const cases = {
       chance: 10,
       priceStars: "550",
       priceGems: "4,5",
-      png: "raketa",
-      lottie: "/animations/spacetrash/raketa.json",
+      png: "mtime",
+      lottie: "/animations/matrix/mtime.json",
       },
       {
       id: "stars_300",
