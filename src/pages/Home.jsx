@@ -35,7 +35,7 @@ function Home() {
     { id: "randomcase", image: "/cases/case8.png.PNG", name: "Random Case", price: 499, free: false },
     { id: "singularity", image: "/cases/singularity.PNG", name: "Singularity", price: 150, free: false },
     { id: "matrix", image: "/cases/matrix.PNG", name: "Matrix", price: 100, free: false },
-    { id: "milkyway", image: "/cases/milkyway.PNG", name: "Milky Way", price: 50, free: false },
+    { id: "bigbang", image: "/cases/bigbang.PNG", name: "Big Bang", price: 50, free: false },
     { id: "3friends", image: "/cases/3friends.PNG", name: "For 3 Friends", price: null, free: true },
   ]
 
