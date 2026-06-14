@@ -661,7 +661,7 @@ export const cases = {
       priceGems: "4,5",
       png: "apool",
       lottie: "/animations/adultsworld/apool.json",
-    }
+    },
     {
       id: "stars_350",
       name: "Stars",
