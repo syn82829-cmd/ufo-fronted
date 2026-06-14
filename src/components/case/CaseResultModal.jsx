@@ -8,7 +8,7 @@ function CaseResultModal({ resultDrop, pngSrcByDrop, sellItem, openAgain }) {
   return (
     <div className="result-overlay">
       <div className="result-card">
-        <div className="result-title">Поздравляем!</div>
+        <div className="result-title">Ваш выигрыш</div>
 
         <div className="drop-card result-size">
           <img
