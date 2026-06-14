@@ -33,7 +33,7 @@ function Home() {
     { id: "spacetrash", image: "/cases/case6.png.PNG", name: "Space Trash", price: 35, free: false },
     { id: "starfall", image: "/cases/case7.png.PNG", name: "Starfall", price: 399, free: false },
     { id: "randomcase", image: "/cases/case8.png.PNG", name: "Random Case", price: 499, free: false },
-    { id: "singularity", image: "/cases/singularity.PNG", name: "Dark Energy", price: 150, free: false },
+    { id: "darkenergy", image: "/cases/singularity.PNG", name: "Dark Energy", price: 150, free: false },
     { id: "matrix", image: "/cases/matrix.PNG", name: "The Matrix", price: 100, free: false },
     { id: "bigbang", image: "/cases/bigbang.PNG", name: "The Big Bang", price: 50, free: false },
     { id: "3friends", image: "/cases/3friends.PNG", name: "For 3 Friends", price: null, free: true },
