@@ -24,20 +24,20 @@ function Home() {
   const [showScrollTop, setShowScrollTop] = useState(false)
   
   const cases = [
-    { id: "firstpepe", image: "/cases/case1.png.PNG", name: "Pepe Case", price: 5999, free: false },
-    { id: "crash", image: "/cases/case2.png.PNG", name: "All or Nothing", price: 3999, free: false },
-    { id: "spacevault", image: "/cases/spacevault.PNG", name: "Space Vault", price: 2999, free: false },
-    { id: "darkmatter", image: "/cases/case3.png.PNG", name: "Crypto Punk", price: 2399, free: false },
-    { id: "adultsworld", image: "/cases/adultsworld.PNG", name: "Adult's World", price: 1199, free: false },
-    { id: "godparticle", image: "/cases/case4.png.PNG", name: "Iced Memory", price: 1499, free: false },
-    { id: "purplehole", image: "/cases/case5.png.PNG", name: "Purple Hole", price: 699, free: false },
-    { id: "spacetrash", image: "/cases/case6.png.PNG", name: "Space Trash", price: 35, free: false },
-    { id: "starfall", image: "/cases/case7.png.PNG", name: "Starfall", price: 399, free: false },
-    { id: "randomcase", image: "/cases/case8.png.PNG", name: "Random Case", price: 499, free: false },
-    { id: "darkenergy", image: "/cases/singularity.PNG", name: "Dark Energy", price: 150, free: false },
-    { id: "matrix", image: "/cases/matrix.PNG", name: "The Matrix", price: 100, free: false },
-    { id: "bigbang", image: "/cases/bigbang.PNG", name: "The Big Bang", price: 50, free: false },
-    { id: "3friends", image: "/cases/3friends.PNG", name: "For 3 Friends", price: null, free: true },
+    { id: "firstpepe", image: "/cases/case1.webp", name: "Pepe Case", price: 5999, free: false },
+    { id: "crash", image: "/cases/case2.webp", name: "All or Nothing", price: 3999, free: false },
+    { id: "spacevault", image: "/cases/spacevault.webp", name: "Space Vault", price: 2999, free: false },
+    { id: "darkmatter", image: "/cases/case3.webp", name: "Crypto Punk", price: 2399, free: false },
+    { id: "adultsworld", image: "/cases/adultsworld.webp", name: "Adult's World", price: 1199, free: false },
+    { id: "godparticle", image: "/cases/case4.webp", name: "Iced Memory", price: 1499, free: false },
+    { id: "purplehole", image: "/cases/case5.webp", name: "Purple Hole", price: 699, free: false },
+    { id: "spacetrash", image: "/cases/case6.webp", name: "Space Trash", price: 35, free: false },
+    { id: "starfall", image: "/cases/case7.webp", name: "Starfall", price: 399, free: false },
+    { id: "randomcase", image: "/cases/case8.webp", name: "Random Case", price: 499, free: false },
+    { id: "darkenergy", image: "/cases/singularity.webp", name: "Dark Energy", price: 150, free: false },
+    { id: "matrix", image: "/cases/matrix.webp", name: "The Matrix", price: 100, free: false },
+    { id: "bigbang", image: "/cases/bigbang.webp", name: "The Big Bang", price: 50, free: false },
+    { id: "3friends", image: "/cases/3friends.webp", name: "For 3 Friends", price: null, free: true },
   ]
 
   useEffect(() => {
