@@ -351,7 +351,6 @@ useEffect(() => {
   />
 </div>
         
-  )}
 </div>
 <DepositMenu
   isOpen={isDepositOpen}
