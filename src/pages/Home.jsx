@@ -296,6 +296,7 @@ function Home() {
     </div>
   </div>
 
+  {!showScrollTop ? (
   <div
     className="floating-profile"
     onClick={() => {
@@ -317,6 +318,21 @@ function Home() {
       </span>
     )}
   </div>
+) : (
+  <div
+    className="floating-profile"
+    onClick={() => {
+      triggerHaptic("light")
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      })
+    }}
+  >
+    <img src="/ui/top.PNG" alt="" />
+  </div>
+)}
 </div>
 
 <div
