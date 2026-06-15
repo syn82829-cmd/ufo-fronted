@@ -82,10 +82,18 @@ function Home() {
     }
   }, [])
 
-  useEffect(() => {
-  const handleScroll = () => {
-  setShowScrollTop(true)
-}
+useEffect(() => {
+  const test = () => {
+    console.log("BODY SCROLL")
+    setShowScrollTop(true)
+  }
+
+  document.body.addEventListener("scroll", test)
+
+  return () => {
+    document.body.removeEventListener("scroll", test)
+  }
+}, [])
 
   window.addEventListener("scroll", handleScroll)
 
