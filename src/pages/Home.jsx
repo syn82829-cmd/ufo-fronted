@@ -84,7 +84,9 @@ function Home() {
 
 useEffect(() => {
   const handleScroll = () => {
-    const scrollTop = document.body.scrollTop
+    const scrollTop =
+      document.body.scrollTop ||
+      document.documentElement.scrollTop
 
     setShowScrollTop(scrollTop > 600)
   }
@@ -348,7 +350,7 @@ useEffect(() => {
     objectFit: "contain",
   }}
 />
-      />
+
     </div>
   )}
 </div>
