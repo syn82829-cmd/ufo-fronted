@@ -5599,7 +5599,7 @@ button,
 }
 
 .bottom-nav-shell .bottom-nav.bottom-nav-hidden {
-  transform: translateY(120px) !important;
+  transform: translateY(120px);
   opacity: 0;
   pointer-events: none;
 }
@@ -6377,4 +6377,36 @@ button,
 .cases-section {
   margin-top: 6px;
   padding-top: 0;
+}
+
+.profile-avatar-wrapper,
+.scroll-top-icon {
+  position: absolute;
+
+  transition:
+    opacity .28s ease,
+    transform .28s ease;
+}
+
+.profile-avatar-wrapper {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.profile-avatar-wrapper.hidden {
+  opacity: 0;
+  transform: scale(.85);
+}
+
+.scroll-top-icon {
+  width: 44px;
+  height: 44px;
+
+  opacity: 0;
+  transform: scale(.85);
+}
+
+.scroll-top-icon.visible {
+  opacity: 1;
+  transform: scale(1);
 }
