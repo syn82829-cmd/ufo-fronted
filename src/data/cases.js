@@ -137,7 +137,7 @@ export const cases = {
   darkmatter: {
     id: "darkmatter",
     name: "Crypto Punk",
-    image: "/cases/case3.png.PNG",
+    image: "/cases/case3.webp",
     price: 2399,
     drops: [
       {
@@ -308,7 +308,7 @@ export const cases = {
   firstpepe: {
     id: "firstpepe",
     name: "Pepe Case",
-    image: "/cases/case1.png.PNG",
+    image: "/cases/case1.webp",
     price: 5999,
     drops: [
       {
@@ -479,7 +479,7 @@ export const cases = {
   crash: {
     id: "crash",
     name: "All or Nothing",
-    image: "/cases/case2.png.PNG",
+    image: "/cases/case2.webp",
     price: 3999,
     drops: [
       {
@@ -596,7 +596,7 @@ export const cases = {
   adultsworld: {
     id: "adultsworld",
     name: "Adult's World",
-    image: "/cases/adultsworld.PNG",
+    image: "/cases/adultsworld.webp",
     price: 1199,
     drops: [
       {
@@ -722,7 +722,7 @@ export const cases = {
   godparticle: {
     id: "godparticle",
     name: "Iced Memory",
-    image: "/cases/case4.png.PNG",
+    image: "/cases/case4.webp",
     price: 1499,
     drops: [
       {
@@ -857,7 +857,7 @@ export const cases = {
   purplehole: {
     id: "purplehole",
     name: "Purple Hole",
-    image: "/cases/case5.png.PNG",
+    image: "/cases/case5.webp",
     price: 999,
     drops: [
       {
@@ -992,7 +992,7 @@ export const cases = {
   spacetrash: {
     id: "spacetrash",
     name: "Space Trash",
-    image: "/cases/case6.png.PNG",
+    image: "/cases/case6.webp",
     price: 35,
     drops: [
       {
@@ -1127,7 +1127,7 @@ export const cases = {
 darkenergy: {
     id: "darkenergy",
     name: "Dark Energy",
-    image: "/cases/singularity.PNG",
+    image: "/cases/singularity.webp",
     price: 150,
     drops: [
       {
@@ -1280,7 +1280,7 @@ darkenergy: {
   matrix: {
     id: "matrix",
     name: "The Matrix",
-    image: "/cases/matrix.PNG",
+    image: "/cases/matrix.webp",
     price: 100,
     drops: [
       {
@@ -1433,7 +1433,7 @@ darkenergy: {
 bigbang: {
     id: "bigbang",
     name: "The Big Bang",
-    image: "/cases/bigbang.PNG",
+    image: "/cases/bigbang.webp",
     price: 50,
     drops: [
       {
@@ -1586,7 +1586,7 @@ bigbang: {
   starfall: {
   id: "starfall",
   name: "Starfall",
-  image: "/cases/case7.png.PNG",
+  image: "/cases/case7.webp",
   price: 399,
   specialLayout: "info",
   infoImage: "/ui/star.PNG",
@@ -1688,7 +1688,7 @@ bigbang: {
 randomcase: {
   id: "randomcase",
   name: "Random Case",
-  image: "/cases/case8.png.PNG",
+  image: "/cases/case8.webp",
   price: 499,
   specialLayout: "info",
   infoImage: "/cases/random_preview.PNG",
@@ -1763,7 +1763,7 @@ randomcase: {
   "3friends": {
   id: "3friends",
   name: "For 3 Friends",
-  image: "/cases/3friends.PNG",
+  image: "/cases/3friends.webp",
   price: 0,
   type: "invite",
   invitesRequired: 3,
