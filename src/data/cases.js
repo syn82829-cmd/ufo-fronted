@@ -2,7 +2,7 @@ export const cases = {
   spacevault: {
     id: "spacevault",
     name: "Space Vault",
-    image: "/cases/spacevault.PNG",
+    image: "/cases/spacevault.webp",
     price: 2999,
     drops: [
       {
