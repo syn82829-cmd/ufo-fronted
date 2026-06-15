@@ -21,6 +21,7 @@ function Home() {
   const [casesFilter, setCasesFilter] = useState("expensive")
   const [crashState, setCrashState] = useState(null)
   const [isDepositOpen, setIsDepositOpen] = useState(false)
+  const [showScrollTop, setShowScrollTop] = useState(false)
   
   const cases = [
     { id: "firstpepe", image: "/cases/case1.png.PNG", name: "Pepe Case", price: 5999, free: false },
@@ -80,6 +81,18 @@ function Home() {
       socket.off("crash:state", handleCrashState)
     }
   }, [])
+
+  useEffect(() => {
+  const handleScroll = () => {
+    setShowScrollTop(window.scrollY > 250)
+  }
+
+  window.addEventListener("scroll", handleScroll)
+
+  return () => {
+    window.removeEventListener("scroll", handleScroll)
+  }
+}, [])
   
 
   const visibleCases = useMemo(() => {
@@ -249,65 +262,85 @@ function Home() {
         ))}
       </div>
 
-      <div className="bottom-nav-shell">
-        <div className="bottom-nav">
-          <div
-            className="nav-item"
-            onClick={() => {
-              triggerHaptic("light")
-              navigate("/bonus")
-            }}
-          >
-            <img src="/ui/cupnav.PNG" alt="" className="nav-icon" />
-            <span>Награды</span>
-          </div>
+      <div
+  className={`bottom-nav-shell ${
+    showScrollTop ? "bottom-nav-hidden" : ""
+  }`}
+>
+  <div className="bottom-nav">
+    <div
+      className="nav-item"
+      onClick={() => {
+        triggerHaptic("light")
+        navigate("/bonus")
+      }}
+    >
+      <img src="/ui/cupnav.PNG" alt="" className="nav-icon" />
+      <span>Награды</span>
+    </div>
 
-          <div
-            className="nav-item"
-            onClick={() => {
-              triggerHaptic("light")
-              navigate("/giveaways")
-            }}
-          >
-            <img src="/ui/frnav.PNG" alt="" className="nav-icon" />
-            <span>Друзья</span>
-          </div>
+    <div
+      className="nav-item"
+      onClick={() => {
+        triggerHaptic("light")
+        navigate("/giveaways")
+      }}
+    >
+      <img src="/ui/frnav.PNG" alt="" className="nav-icon" />
+      <span>Друзья</span>
+    </div>
 
-          <div className="nav-item active">
-            <img src="/ui/main.PNG" alt="" className="nav-icon" />
-            <span>Главная</span>
-          </div>
-        </div>
+    <div className="nav-item active">
+      <img src="/ui/main.PNG" alt="" className="nav-icon" />
+      <span>Главная</span>
+    </div>
+  </div>
 
-        <div
-          className="floating-profile"
-          onClick={() => {
-            triggerHaptic("light")
-            navigate("/profile")
-          }}
-        >
-          {user?.photoUrl ? (
-            <img
-              src={user.photoUrl}
-              alt={user.username}
-              className="floating-profile-image"
-              draggable={false}
-              referrerPolicy="no-referrer"
-            />
-          ) : (
-            <span className="floating-profile-fallback">
-              {(user?.username?.[0] || "G").toUpperCase()}
-            </span>
-          )}
-        </div>
-      </div>
-
-      <DepositMenu
-        isOpen={isDepositOpen}
-        onClose={() => setIsDepositOpen(false)}
+  <div
+    className="floating-profile"
+    onClick={() => {
+      triggerHaptic("light")
+      navigate("/profile")
+    }}
+  >
+    {user?.photoUrl ? (
+      <img
+        src={user.photoUrl}
+        alt={user.username}
+        className="floating-profile-image"
+        draggable={false}
+        referrerPolicy="no-referrer"
       />
+    ) : (
+      <span className="floating-profile-fallback">
+        {(user?.username?.[0] || "G").toUpperCase()}
+      </span>
+    )}
+  </div>
+</div>
 
-      <DailyGiftPopup />
+<div
+  className={`scroll-top-btn ${
+    showScrollTop ? "visible" : ""
+  }`}
+  onClick={() => {
+    triggerHaptic("light")
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    })
+  }}
+>
+  <img src="/ui/top.PNG" alt="" />
+</div>
+
+<DepositMenu
+  isOpen={isDepositOpen}
+  onClose={() => setIsDepositOpen(false)}
+/>
+
+<DailyGiftPopup />
     </div>
   )
 }
