@@ -141,14 +141,32 @@ function Home() {
       : "multiplier waiting"
 
   return (
-    <div className="app">
-      <div className="home-topbar home-topbar-minimal">
-        <div className="home-topbar-left">
-          <div className="home-topbar-balance">
-            <img src="/ui/star.PNG" className="home-topbar-balance-icon" alt="" />
-            <span>{user?.balance ?? 0}</span>
-          </div>
+  <div className="app">
+    <div className="home-topbar home-topbar-minimal">
+
+      <div
+        style={{
+          position: "fixed",
+          top: "100px",
+          left: "20px",
+          zIndex: 99999,
+          color: "red",
+          fontSize: "30px",
+        }}
+      >
+        {String(showScrollTop)}
+      </div>
+
+      <div className="home-topbar-left">
+        <div className="home-topbar-balance">
+          <img
+            src="/ui/star.PNG"
+            className="home-topbar-balance-icon"
+            alt=""
+          />
+          <span>{user?.balance ?? 0}</span>
         </div>
+      </div>
 
         <div className="home-topbar-right">
           <button
