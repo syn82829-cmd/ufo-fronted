@@ -307,51 +307,50 @@ useEffect(() => {
     </div>
   </div>
 
-  {!showScrollTop ? (
-    <div
-      className="floating-profile"
-      onClick={() => {
-        triggerHaptic("light")
-        navigate("/profile")
-      }}
-    >
-      {user?.photoUrl ? (
-        <img
-          src={user.photoUrl}
-          alt={user.username}
-          className="floating-profile-image"
-          draggable={false}
-          referrerPolicy="no-referrer"
-        />
-      ) : (
-        <span className="floating-profile-fallback">
-          {(user?.username?.[0] || "G").toUpperCase()}
-        </span>
-      )}
-    </div>
-  ) : (
-    <div
-      className="floating-profile"
-      onClick={() => {
-        triggerHaptic("light")
+  <div
+  className="floating-profile"
+  onClick={() => {
+    triggerHaptic("light")
 
-        document.body.scrollTo({
-          top: 0,
-          behavior: "smooth",
-        })
-      }}
-    >
-      <img
-  src="/ui/top.PNG"
-  alt=""
-  style={{
-    width: "44px",
-    height: "44px",
-    objectFit: "contain",
+    if (showScrollTop) {
+      document.body.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      })
+    } else {
+      navigate("/profile")
+    }
   }}
-/>
+>
+  <div
+    className={`profile-avatar-wrapper ${
+      showScrollTop ? "hidden" : ""
+    }`}
+  >
+    {user?.photoUrl ? (
+      <img
+        src={user.photoUrl}
+        alt={user.username}
+        className="floating-profile-image"
+        draggable={false}
+        referrerPolicy="no-referrer"
+      />
+    ) : (
+      <span className="floating-profile-fallback">
+        {(user?.username?.[0] || "G").toUpperCase()}
+      </span>
+    )}
+  </div>
 
-    </div>
+  <img
+    src="/ui/top.PNG"
+    alt=""
+    className={`scroll-top-icon ${
+      showScrollTop ? "visible" : ""
+    }`}
+  />
+</div>
+        
   )}
 </div>
 <DepositMenu
