@@ -84,7 +84,7 @@ function Home() {
 
   useEffect(() => {
   const handleScroll = () => {
-    setShowScrollTop(window.scrollY > 250)
+    setShowScrollTop(window.scrollY > 600)
   }
 
   window.addEventListener("scroll", handleScroll)
