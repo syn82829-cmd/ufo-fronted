@@ -335,22 +335,6 @@ function Home() {
 )}
 </div>
 
-<div
-  className={`scroll-top-btn ${
-    showScrollTop ? "visible" : ""
-  }`}
-  onClick={() => {
-    triggerHaptic("light")
-
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    })
-  }}
->
-  <img src="/ui/top.PNG" alt="" />
-</div>
-
 <DepositMenu
   isOpen={isDepositOpen}
   onClose={() => setIsDepositOpen(false)}
