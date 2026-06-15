@@ -83,14 +83,18 @@ function Home() {
   }, [])
 
 useEffect(() => {
-  const test = () => {
-    setShowScrollTop(true)
+  const handleScroll = () => {
+    const scrollTop = document.body.scrollTop
+
+    setShowScrollTop(scrollTop > 600)
   }
 
-  document.body.addEventListener("scroll", test)
+  document.body.addEventListener("scroll", handleScroll, {
+    passive: true,
+  })
 
   return () => {
-    document.body.removeEventListener("scroll", test)
+    document.body.removeEventListener("scroll", handleScroll)
   }
 }, [])
   
@@ -143,19 +147,6 @@ useEffect(() => {
   return (
   <div className="app">
     <div className="home-topbar home-topbar-minimal">
-
-      <div
-        style={{
-          position: "fixed",
-          top: "100px",
-          left: "20px",
-          zIndex: 99999,
-          color: "red",
-          fontSize: "30px",
-        }}
-      >
-        {String(showScrollTop)}
-      </div>
 
       <div className="home-topbar-left">
         <div className="home-topbar-balance">
@@ -342,20 +333,21 @@ useEffect(() => {
       onClick={() => {
         triggerHaptic("light")
 
-        window.scrollTo({
+        document.body.scrollTo({
           top: 0,
           behavior: "smooth",
         })
       }}
     >
       <img
-        src="/ui/top.PNG"
-        alt=""
-        style={{
-          width: "28px",
-          height: "28px",
-          objectFit: "contain",
-        }}
+  src="/ui/top.PNG"
+  alt=""
+  style={{
+    width: "44px",
+    height: "44px",
+    objectFit: "contain",
+  }}
+/>
       />
     </div>
   )}
