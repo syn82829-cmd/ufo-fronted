@@ -5593,6 +5593,18 @@ button,
 }
 
 .bottom-nav-shell .bottom-nav {
+  transition:
+    transform .35s ease,
+    opacity .35s ease;
+}
+
+.bottom-nav-shell .bottom-nav.bottom-nav-hidden {
+  transform: translateY(120px) !important;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.bottom-nav-shell .bottom-nav {
   position: relative;
   left: auto;
   bottom: auto;
