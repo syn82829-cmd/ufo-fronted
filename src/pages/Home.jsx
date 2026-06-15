@@ -88,7 +88,7 @@ useEffect(() => {
       document.body.scrollTop ||
       document.documentElement.scrollTop
 
-    setShowScrollTop(scrollTop > 200)
+    setShowScrollTop(scrollTop > 150)
   }
 
   document.body.addEventListener("scroll", handleScroll, {
