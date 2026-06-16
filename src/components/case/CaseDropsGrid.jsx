@@ -26,7 +26,7 @@ function CaseDropsGrid({
               />
             ) : hasPng ? (
               <img
-                src={`/drops/${drop.png}.png`}
+                src={`/drops/${drop.png}.webp`}
                 alt={drop.name || drop.id}
                 className="drop-png"
                 draggable={false}
