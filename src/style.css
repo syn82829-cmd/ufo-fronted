@@ -6,21 +6,16 @@
 
 /* ===== ОСНОВА СКРОЛЛА ===== */
 
-html, body {
-  height: 100%;
-  overflow-x: hidden;
-}
-
+html,
+body,
 #root {
-  min-height: 100%;
+  height: 100%;
+  overflow: hidden;
 }
 
-/* ====== BACKGROUND (чище, ярче, дороже) ====== */
-body {
-  min-height: 100%;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+/* ====== BACKGROUND ====== */
 
+body {
   background-image:
     linear-gradient(
       rgba(255,255,255,0.03),
