@@ -6167,7 +6167,6 @@ button,
 .live-wins-bar {
   width: calc(100% - 28px);
   max-width: 920px;
-}
 
   display: flex;
   align-items: center;
