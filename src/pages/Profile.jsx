@@ -369,7 +369,7 @@ function Profile() {
                     >
                       <div className="profile-item-visual">
                         <img
-                          src={`/drops/${item.png}.png`}
+                          src={`/drops/${item.png}.webp`}
                           alt={item.dropName}
                           className="profile-item-image"
                           draggable={false}
