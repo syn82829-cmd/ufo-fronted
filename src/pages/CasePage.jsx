@@ -19,7 +19,7 @@ import CaseDropsGrid from "../components/case/CaseDropsGrid"
 import CaseResultModal from "../components/case/CaseResultModal"
 import CaseInfoBlock from "../components/case/CaseInfoBlock"
 
-const pngSrcByDrop = (drop) => `/drops/${drop?.png}.png`
+const pngSrcByDrop = (drop) => `/drops/${drop?.png}.webp`
 
 const formatStars = (value) => {
   const num = Number(value || 0)
