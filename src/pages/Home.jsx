@@ -22,7 +22,6 @@ function Home() {
   const [crashState, setCrashState] = useState(null)
   const [isDepositOpen, setIsDepositOpen] = useState(false)
   const [showScrollTop, setShowScrollTop] = useState(false)
-  const appRef = useRef(null)
   
   const cases = [
     { id: "firstpepe", image: "/cases/case1.webp", name: "Pepe Case", price: 5999, free: false },
@@ -84,20 +83,20 @@ function Home() {
   }, [])
 
 useEffect(() => {
-  const app = appRef.current
-
-  if (!app) return
-
   const handleScroll = () => {
-    setShowScrollTop(app.scrollTop > 150)
+    const scrollTop =
+      document.body.scrollTop ||
+      document.documentElement.scrollTop
+
+    setShowScrollTop(scrollTop > 150)
   }
 
-  app.addEventListener("scroll", handleScroll, {
+  document.body.addEventListener("scroll", handleScroll, {
     passive: true,
   })
 
   return () => {
-    app.removeEventListener("scroll", handleScroll)
+    document.body.removeEventListener("scroll", handleScroll)
   }
 }, [])
   
@@ -148,10 +147,7 @@ useEffect(() => {
       : "multiplier waiting"
 
   return (
-  <div
-  className="app"
-  ref={appRef}
->
+  <div className="app">
     <div className="home-topbar home-topbar-minimal">
 
       <div className="home-topbar-left">
@@ -317,10 +313,10 @@ useEffect(() => {
     triggerHaptic("light")
 
     if (showScrollTop) {
-      appRef.current?.scrollTo({
-  top: 0,
-  behavior: "smooth",
-})
+      document.body.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      })
     } else {
       navigate("/profile")
     }
