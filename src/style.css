@@ -6165,8 +6165,9 @@ button,
   }
 }
 .live-wins-bar {
-  width: 90%;
+  width: calc(100% - 28px);
   max-width: 920px;
+}
 
   display: flex;
   align-items: center;
