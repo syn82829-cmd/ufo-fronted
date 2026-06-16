@@ -6,16 +6,21 @@
 
 /* ===== ОСНОВА СКРОЛЛА ===== */
 
-html,
-body,
-#root {
+html, body {
   height: 100%;
-  overflow: hidden;
+  overflow-x: hidden;
 }
 
-/* ====== BACKGROUND ====== */
+#root {
+  min-height: 100%;
+}
 
+/* ====== BACKGROUND (чище, ярче, дороже) ====== */
 body {
+  min-height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+
   background-image:
     linear-gradient(
       rgba(255,255,255,0.03),
@@ -91,13 +96,7 @@ body::after {
 /* ===== MAIN CONTAINER ===== */
 
 .app {
-  height: 100vh;
-
-  overflow-y: auto;
-  overflow-x: hidden;
-
-  -webkit-overflow-scrolling: touch;
-
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -6165,7 +6164,7 @@ button,
   }
 }
 .live-wins-bar {
-  width: calc(100% - 28px);
+  width: 90%;
   max-width: 920px;
 
   display: flex;
