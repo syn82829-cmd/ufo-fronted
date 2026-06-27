@@ -1,12 +1,13 @@
-import { useEffect } from "react"
+import { lazy, Suspense, useEffect } from "react"
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 
 import Home from "./pages/Home"
-import Profile from "./pages/Profile"
-import Bonus from "./pages/Bonus"
-import Giveaways from "./pages/Giveaways"
-import CasePage from "./pages/CasePage"
-import Crash from "./pages/Crash"
+
+const Profile = lazy(() => import("./pages/Profile"))
+const Bonus = lazy(() => import("./pages/Bonus"))
+const Giveaways = lazy(() => import("./pages/Giveaways"))
+const CasePage = lazy(() => import("./pages/CasePage"))
+const Crash = lazy(() => import("./pages/Crash"))
 
 function App() {
   useEffect(() => {
@@ -29,14 +30,16 @@ function App() {
 
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/bonus" element={<Bonus />} />
-        <Route path="/giveaways" element={<Giveaways />} />
-        <Route path="/case/:id" element={<CasePage />} />
-        <Route path="/crash" element={<Crash />} />
-      </Routes>
+      <Suspense fallback={null}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/bonus" element={<Bonus />} />
+          <Route path="/giveaways" element={<Giveaways />} />
+          <Route path="/case/:id" element={<CasePage />} />
+          <Route path="/crash" element={<Crash />} />
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   )
 }
