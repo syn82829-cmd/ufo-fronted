@@ -9,6 +9,9 @@ const Giveaways = lazy(() => import("./pages/Giveaways"))
 const CasePage = lazy(() => import("./pages/CasePage"))
 const Crash = lazy(() => import("./pages/Crash"))
 
+const WAKE_REFRESH_AFTER_MS = 60 * 1000
+const WAKE_REFRESH_PARAM = "wake"
+
 function PageLoader() {
   return (
     <div className="route-loader">
@@ -23,6 +26,16 @@ function resetDocumentScroll() {
 
   document.documentElement.scrollTop = 0
   document.body.scrollTop = 0
+}
+
+function reloadMiniAppFresh() {
+  try {
+    const url = new URL(window.location.href)
+    url.searchParams.set(WAKE_REFRESH_PARAM, String(Date.now()))
+    window.location.replace(url.toString())
+  } catch {
+    window.location.reload()
+  }
 }
 
 function ScrollToTop() {
@@ -89,6 +102,57 @@ function App() {
       document.removeEventListener("cut", preventDefault)
       document.removeEventListener("dragstart", preventDefault)
       document.removeEventListener("selectstart", preventDefault)
+    }
+  }, [])
+
+  useEffect(() => {
+    let hiddenAt = 0
+    let isReloading = false
+
+    const rememberHiddenTime = () => {
+      hiddenAt = Date.now()
+    }
+
+    const refreshIfNeeded = () => {
+      if (isReloading || !hiddenAt) return
+
+      const hiddenForMs = Date.now() - hiddenAt
+      hiddenAt = 0
+
+      if (hiddenForMs >= WAKE_REFRESH_AFTER_MS) {
+        isReloading = true
+        reloadMiniAppFresh()
+      }
+    }
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        rememberHiddenTime()
+        return
+      }
+
+      if (document.visibilityState === "visible") {
+        refreshIfNeeded()
+      }
+    }
+
+    const handlePageShow = (event) => {
+      if (event.persisted) {
+        isReloading = true
+        reloadMiniAppFresh()
+      }
+    }
+
+    document.addEventListener("visibilitychange", handleVisibilityChange)
+    window.addEventListener("pagehide", rememberHiddenTime)
+    window.addEventListener("focus", refreshIfNeeded)
+    window.addEventListener("pageshow", handlePageShow)
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange)
+      window.removeEventListener("pagehide", rememberHiddenTime)
+      window.removeEventListener("focus", refreshIfNeeded)
+      window.removeEventListener("pageshow", handlePageShow)
     }
   }, [])
 
