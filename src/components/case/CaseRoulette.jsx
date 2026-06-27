@@ -23,6 +23,8 @@ function CaseRoulette({
                 src={pngSrcByDrop(drop)}
                 className="roulette-png"
                 alt=""
+                loading="eager"
+                decoding="async"
                 draggable={false}
               />
             </div>
