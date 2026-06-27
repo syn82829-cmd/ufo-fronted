@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { useNavigate } from "react-router-dom"
 
 import { useUser } from "../context/UserContext"
@@ -37,6 +37,12 @@ function getDocumentScrollTop() {
   )
 }
 
+function setDocumentScrollTop(top) {
+  window.scrollTo(0, top)
+  document.documentElement.scrollTop = top
+  document.body.scrollTop = top
+}
+
 function forceDocumentTop() {
   window.scrollTo(0, 0)
   window.scrollTo({ top: 0, left: 0, behavior: "auto" })
@@ -54,6 +60,7 @@ function forceDocumentTop() {
 function Home() {
   const navigate = useNavigate()
   const { user } = useUser()
+  const scrollAnimRef = useRef(null)
 
   const [casesFilter, setCasesFilter] = useState("expensive")
   const [isDepositOpen, setIsDepositOpen] = useState(false)
@@ -89,30 +96,48 @@ function Home() {
     return () => {
       window.removeEventListener("scroll", handleScroll)
       document.body.removeEventListener("scroll", handleScroll)
+
+      if (scrollAnimRef.current) {
+        cancelAnimationFrame(scrollAnimRef.current)
+      }
     }
   }, [])
 
   const scrollHomeToTop = () => {
-    setShowScrollTop(false)
-
-    window.scrollTo({
-      top: 0,
-      left: 0,
-      behavior: "smooth",
-    })
-
-    const finishScroll = () => {
-      forceDocumentTop()
-      setShowScrollTop(false)
+    if (scrollAnimRef.current) {
+      cancelAnimationFrame(scrollAnimRef.current)
     }
 
-    requestAnimationFrame(() => {
-      window.scrollTo({ top: 0, left: 0, behavior: "smooth" })
-    })
+    setShowScrollTop(false)
 
-    window.setTimeout(finishScroll, 320)
-    window.setTimeout(finishScroll, 620)
-    window.setTimeout(finishScroll, 940)
+    const startTop = getDocumentScrollTop()
+    const startedAt = performance.now()
+    const duration = Math.min(760, Math.max(420, startTop * 0.38))
+
+    const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3)
+
+    const tick = (now) => {
+      const progress = Math.min((now - startedAt) / duration, 1)
+      const nextTop = Math.round(startTop * (1 - easeOutCubic(progress)))
+
+      setDocumentScrollTop(nextTop)
+
+      if (progress < 1 && nextTop > 0) {
+        scrollAnimRef.current = requestAnimationFrame(tick)
+        return
+      }
+
+      forceDocumentTop()
+      setShowScrollTop(false)
+      scrollAnimRef.current = null
+
+      window.setTimeout(() => {
+        forceDocumentTop()
+        setShowScrollTop(false)
+      }, 120)
+    }
+
+    scrollAnimRef.current = requestAnimationFrame(tick)
   }
 
   const visibleCases = useMemo(() => {
