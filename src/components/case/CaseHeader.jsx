@@ -13,7 +13,14 @@ function CaseHeader({
           className="casepage-header-btn casepage-back-btn"
           onClick={() => navigate(-1)}
         >
-          <img src="/ui/back.PNG" className="casepage-header-icon" alt="" draggable={false} />
+          <img
+            src="/ui/back.PNG"
+            className="casepage-header-icon"
+            alt=""
+            loading="eager"
+            decoding="async"
+            draggable={false}
+          />
         </button>
 
         <div className="casepage-title">{caseData.name}</div>
@@ -23,7 +30,14 @@ function CaseHeader({
           className="casepage-header-btn casepage-settings-btn"
           onClick={onOpenSettings}
         >
-          <img src="/ui/settings.PNG" className="casepage-header-icon" alt="" draggable={false} />
+          <img
+            src="/ui/settings.PNG"
+            className="casepage-header-icon"
+            alt=""
+            loading="eager"
+            decoding="async"
+            draggable={false}
+          />
         </button>
       </div>
 
@@ -33,6 +47,9 @@ function CaseHeader({
           src={caseData.image}
           className={`casepage-case-image ${isSpinning ? "hidden-case" : ""}`}
           alt={caseData.name}
+          loading="eager"
+          decoding="async"
+          draggable={false}
         />
       </div>
     </div>
