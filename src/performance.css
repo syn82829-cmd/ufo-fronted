@@ -2,6 +2,21 @@
 /* PERFORMANCE OVERRIDES */
 /* ============================= */
 
+/* Hide the native scrollbar while keeping body-scroll stable on iOS/Telegram. */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+.app::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+html,
+body {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
 /*
   Transparent WebP/PNG/Lottie assets should stay clean.
   CSS filters on transparent assets create dirty rectangular halos
