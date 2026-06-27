@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect } from "react"
+import { lazy, Suspense, useEffect, useLayoutEffect } from "react"
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom"
 
 import Home from "./pages/Home"
@@ -17,26 +17,56 @@ function PageLoader() {
   )
 }
 
+function resetDocumentScroll() {
+  window.scrollTo(0, 0)
+  window.scrollTo({ top: 0, left: 0, behavior: "auto" })
+
+  document.documentElement.scrollTop = 0
+  document.body.scrollTop = 0
+}
+
 function ScrollToTop() {
   const location = useLocation()
 
-  useEffect(() => {
-    const scrollTop = () => {
-      window.scrollTo({ top: 0, left: 0, behavior: "auto" })
-      document.documentElement.scrollTop = 0
-      document.body.scrollTop = 0
-    }
+  useLayoutEffect(() => {
+    resetDocumentScroll()
 
-    scrollTop()
+    const frameOne = requestAnimationFrame(resetDocumentScroll)
+    const frameTwo = requestAnimationFrame(() => {
+      requestAnimationFrame(resetDocumentScroll)
+    })
 
-    const frame = requestAnimationFrame(scrollTop)
+    const timeoutOne = window.setTimeout(resetDocumentScroll, 60)
+    const timeoutTwo = window.setTimeout(resetDocumentScroll, 180)
+    const timeoutThree = window.setTimeout(resetDocumentScroll, 360)
 
     return () => {
-      cancelAnimationFrame(frame)
+      cancelAnimationFrame(frameOne)
+      cancelAnimationFrame(frameTwo)
+      window.clearTimeout(timeoutOne)
+      window.clearTimeout(timeoutTwo)
+      window.clearTimeout(timeoutThree)
     }
-  }, [location.pathname])
+  }, [location.pathname, location.search, location.key])
 
   return null
+}
+
+function AppRoutes() {
+  const location = useLocation()
+
+  return (
+    <Suspense fallback={<PageLoader />}>
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={<Home />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/bonus" element={<Bonus />} />
+        <Route path="/giveaways" element={<Giveaways />} />
+        <Route path="/case/:id" element={<CasePage />} />
+        <Route path="/crash" element={<Crash />} />
+      </Routes>
+    </Suspense>
+  )
 }
 
 function App() {
@@ -65,16 +95,7 @@ function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
-      <Suspense fallback={<PageLoader />}>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/bonus" element={<Bonus />} />
-          <Route path="/giveaways" element={<Giveaways />} />
-          <Route path="/case/:id" element={<CasePage />} />
-          <Route path="/crash" element={<Crash />} />
-        </Routes>
-      </Suspense>
+      <AppRoutes />
     </BrowserRouter>
   )
 }
