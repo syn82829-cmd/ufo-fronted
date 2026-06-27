@@ -15,7 +15,13 @@
 .roulette-png,
 .result-png,
 .case-info-image,
-.friends-hero-lottie {
+.profile-inventory-image,
+.profile-item-image,
+.profile-topbar-rank-icon,
+.crash-topbar-rank-icon,
+.friends-hero-lottie,
+.friends-hero-lottie svg,
+.friends-hero-image {
   filter: none !important;
 }
 
@@ -67,4 +73,50 @@
   box-shadow:
     0 10px 28px rgba(0,0,0,0.36),
     inset 0 1px 0 rgba(255,255,255,0.22) !important;
+}
+
+/* Profile lists: rows repeat a lot, so remove per-row backdrop blur. */
+.profile-item-row,
+.profile-history-row,
+.profile-inventory-card {
+  background: linear-gradient(
+    145deg,
+    rgba(255,255,255,0.075),
+    rgba(255,255,255,0.028)
+  ) !important;
+
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+
+  box-shadow:
+    0 4px 12px rgba(0,0,0,0.10),
+    inset 0 1px 0 rgba(255,255,255,0.12) !important;
+}
+
+.profile-item-action-btn,
+.profile-topbar-balance,
+.crash-topbar-balance,
+.crash-header-btn,
+.friends-hero-badge {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.profile-item-action-btn.primary,
+.profile-inventory-sell-btn,
+.profile-topbar-plus,
+.crash-topbar-plus {
+  box-shadow:
+    0 6px 14px rgba(60,150,255,0.14),
+    inset 0 1px 0 rgba(255,255,255,0.18) !important;
+}
+
+.profile-topbar-avatar,
+.crash-topbar-avatar,
+.profile-topbar-balance,
+.crash-topbar-balance,
+.friends-hero-badge {
+  box-shadow:
+    0 6px 16px rgba(0,0,0,0.12),
+    inset 0 1px 0 rgba(255,255,255,0.14) !important;
 }
