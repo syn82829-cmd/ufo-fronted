@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { useNavigate } from "react-router-dom"
 
 import { useUser } from "../context/UserContext"
@@ -51,9 +51,18 @@ function forceDocumentTop() {
   if (app) app.scrollTop = 0
 }
 
+function getHomeScrollVisualNodes() {
+  return Array.from(
+    document.querySelectorAll(
+      ".home-topbar, .live-wins-bar, .crash-panel, .cases-toolbar, .cases-section"
+    )
+  )
+}
+
 function Home() {
   const navigate = useNavigate()
   const { user } = useUser()
+  const topAnimationTimeoutRef = useRef(null)
 
   const [casesFilter, setCasesFilter] = useState("expensive")
   const [isDepositOpen, setIsDepositOpen] = useState(false)
@@ -89,43 +98,57 @@ function Home() {
     return () => {
       window.removeEventListener("scroll", handleScroll)
       document.body.removeEventListener("scroll", handleScroll)
+
+      if (topAnimationTimeoutRef.current) {
+        window.clearTimeout(topAnimationTimeoutRef.current)
+      }
     }
   }, [])
 
   const scrollHomeToTop = () => {
-    const beforeTop = getDocumentScrollTop()
+    const startTop = getDocumentScrollTop()
 
-    document.body.scrollTo({
-      top: 0,
-      left: 0,
-      behavior: "smooth",
+    if (startTop <= 8) {
+      forceDocumentTop()
+      setShowScrollTop(false)
+      return
+    }
+
+    const nodes = getHomeScrollVisualNodes()
+    const duration = Math.min(720, Math.max(460, startTop * 0.32))
+
+    if (topAnimationTimeoutRef.current) {
+      window.clearTimeout(topAnimationTimeoutRef.current)
+    }
+
+    setShowScrollTop(false)
+
+    nodes.forEach((node) => {
+      node.style.transition = "none"
+      node.style.transform = `translate3d(0, -${startTop}px, 0)`
+      node.style.willChange = "transform"
     })
 
-    const lockWhenReachedTop = () => {
-      if (getDocumentScrollTop() <= 8) {
-        forceDocumentTop()
-        setShowScrollTop(false)
-        return
-      }
+    forceDocumentTop()
 
-      requestAnimationFrame(lockWhenReachedTop)
-    }
+    requestAnimationFrame(() => {
+      nodes.forEach((node) => {
+        node.style.transition = `transform ${duration}ms cubic-bezier(0.16, 1, 0.3, 1)`
+        node.style.transform = "translate3d(0, 0, 0)"
+      })
+    })
 
-    const fallbackIfBodyDidNotMove = () => {
-      const currentTop = getDocumentScrollTop()
-      const barelyMoved = Math.abs(currentTop - beforeTop) < 4
+    topAnimationTimeoutRef.current = window.setTimeout(() => {
+      nodes.forEach((node) => {
+        node.style.transition = ""
+        node.style.transform = ""
+        node.style.willChange = ""
+      })
 
-      if (currentTop > 8 && barelyMoved) {
-        window.scrollTo({
-          top: 0,
-          left: 0,
-          behavior: "smooth",
-        })
-      }
-    }
-
-    requestAnimationFrame(lockWhenReachedTop)
-    window.setTimeout(fallbackIfBodyDidNotMove, 120)
+      forceDocumentTop()
+      setShowScrollTop(false)
+      topAnimationTimeoutRef.current = null
+    }, duration + 80)
   }
 
   const visibleCases = useMemo(() => {
