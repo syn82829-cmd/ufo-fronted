@@ -15,6 +15,8 @@ function CaseResultModal({ resultDrop, pngSrcByDrop, sellItem, openAgain }) {
             src={pngSrcByDrop(resultDrop)}
             className="result-png"
             alt={resultDrop.name}
+            loading="eager"
+            decoding="async"
             draggable={false}
           />
 
@@ -24,14 +26,28 @@ function CaseResultModal({ resultDrop, pngSrcByDrop, sellItem, openAgain }) {
             <div className="drop-prices">
               {showStars && (
                 <span className="drop-price-item">
-                  <img src="/ui/star.PNG" className="price-icon" alt="" />
+                  <img
+                    src="/ui/star.PNG"
+                    className="price-icon"
+                    alt=""
+                    loading="eager"
+                    decoding="async"
+                    draggable={false}
+                  />
                   <span>{resultDrop.priceStars || "0"}</span>
                 </span>
               )}
 
               {showGems && (
                 <span className="drop-price-item">
-                  <img src="/ui/ton.PNG" className="price-icon" alt="" />
+                  <img
+                    src="/ui/ton.PNG"
+                    className="price-icon"
+                    alt=""
+                    loading="eager"
+                    decoding="async"
+                    draggable={false}
+                  />
                   <span>{resultDrop.priceGems}</span>
                 </span>
               )}
