@@ -4,7 +4,6 @@ import Lottie from "lottie-react"
 
 import { getBonusState } from "../api"
 import { useUser } from "../context/UserContext"
-import podarokAnimation from "../assets/animations/podarok.json"
 
 function DailyGiftPopup() {
   const navigate = useNavigate()
@@ -13,8 +12,11 @@ function DailyGiftPopup() {
   const [isOpen, setIsOpen] = useState(false)
   const [dontShowToday, setDontShowToday] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [giftAnimation, setGiftAnimation] = useState(null)
 
   useEffect(() => {
+    let cancelled = false
+
     async function loadBonusPopup() {
       if (!user?.id || user.id === "—") {
         setIsLoading(false)
@@ -26,6 +28,8 @@ function DailyGiftPopup() {
 
         const hiddenToday =
           localStorage.getItem("ufomo_hide_daily_gift_popup_date") === today
+
+        if (cancelled) return
 
         setDontShowToday(hiddenToday)
 
@@ -46,17 +50,28 @@ function DailyGiftPopup() {
 
         await getBonusState(user.id)
 
+        const animationModule = await import("../assets/animations/podarok.json")
+
+        if (cancelled) return
+
+        setGiftAnimation(animationModule.default || animationModule)
         setIsOpen(true)
         sessionStorage.setItem("ufomo_daily_gift_popup_shown", "true")
       } catch (error) {
         console.error("DAILY GIFT POPUP ERROR:", error)
         setIsOpen(false)
       } finally {
-        setIsLoading(false)
+        if (!cancelled) {
+          setIsLoading(false)
+        }
       }
     }
 
     loadBonusPopup()
+
+    return () => {
+      cancelled = true
+    }
   }, [user?.id])
 
   const handleToggleDontShowToday = () => {
@@ -87,12 +102,14 @@ function DailyGiftPopup() {
     <div className="daily-gift-overlay" onClick={handleClose}>
       <div className="daily-gift-popup" onClick={(e) => e.stopPropagation()}>
         <div className="daily-gift-visual">
-          <Lottie
-            animationData={podarokAnimation}
-            loop
-            autoplay
-            className="daily-gift-lottie"
-          />
+          {giftAnimation && (
+            <Lottie
+              animationData={giftAnimation}
+              loop
+              autoplay
+              className="daily-gift-lottie"
+            />
+          )}
         </div>
 
         <div className="daily-gift-title">
