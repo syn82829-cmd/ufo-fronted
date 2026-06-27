@@ -4,7 +4,6 @@ import Lottie from "lottie-react"
 function CaseDropsGrid({
   drops,
   activeDrop,
-  animationsById,
   handleClick,
 }) {
   const [activeAnimationState, setActiveAnimationState] = useState({
@@ -27,16 +26,6 @@ function CaseDropsGrid({
       })
 
       if (!activeDropConfig?.lottie || !currentDropId) {
-        return
-      }
-
-      const cachedAnimation = animationsById?.[currentDropId]
-
-      if (cachedAnimation) {
-        setActiveAnimationState({
-          dropId: currentDropId,
-          animation: cachedAnimation,
-        })
         return
       }
 
@@ -71,7 +60,7 @@ function CaseDropsGrid({
     return () => {
       cancelled = true
     }
-  }, [activeDropConfig, animationsById])
+  }, [activeDropConfig])
 
   return (
     <div className="casepage-drops">
