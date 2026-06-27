@@ -95,25 +95,34 @@ function Home() {
   const scrollHomeToTop = () => {
     setShowScrollTop(false)
 
-    window.scrollTo({
+    const scroller = document.scrollingElement || document.documentElement || document.body
+
+    scroller.scrollTo({
       top: 0,
       left: 0,
       behavior: "smooth",
     })
 
-    const lockTop = () => {
-      if (getDocumentScrollTop() <= 12) {
+    const lockOnlyWhenAlreadyTop = () => {
+      if (getDocumentScrollTop() <= 8) {
         forceDocumentTop()
         setShowScrollTop(false)
       }
     }
 
-    window.setTimeout(lockTop, 720)
-    window.setTimeout(lockTop, 1050)
-    window.setTimeout(() => {
-      forceDocumentTop()
-      setShowScrollTop(false)
-    }, 1400)
+    const watchUntilTop = () => {
+      if (getDocumentScrollTop() <= 8) {
+        forceDocumentTop()
+        setShowScrollTop(false)
+        return
+      }
+
+      requestAnimationFrame(watchUntilTop)
+    }
+
+    requestAnimationFrame(watchUntilTop)
+    window.setTimeout(lockOnlyWhenAlreadyTop, 900)
+    window.setTimeout(lockOnlyWhenAlreadyTop, 1400)
   }
 
   const visibleCases = useMemo(() => {
