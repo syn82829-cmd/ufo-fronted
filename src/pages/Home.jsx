@@ -63,6 +63,7 @@ function Home() {
   const navigate = useNavigate()
   const { user } = useUser()
   const topAnimationTimeoutRef = useRef(null)
+  const topNavTimeoutRef = useRef(null)
 
   const [casesFilter, setCasesFilter] = useState("expensive")
   const [isDepositOpen, setIsDepositOpen] = useState(false)
@@ -102,6 +103,10 @@ function Home() {
       if (topAnimationTimeoutRef.current) {
         window.clearTimeout(topAnimationTimeoutRef.current)
       }
+
+      if (topNavTimeoutRef.current) {
+        window.clearTimeout(topNavTimeoutRef.current)
+      }
     }
   }, [])
 
@@ -115,13 +120,15 @@ function Home() {
     }
 
     const nodes = getHomeScrollVisualNodes()
-    const duration = Math.min(720, Math.max(460, startTop * 0.32))
+    const duration = Math.min(1180, Math.max(780, startTop * 0.56))
 
     if (topAnimationTimeoutRef.current) {
       window.clearTimeout(topAnimationTimeoutRef.current)
     }
 
-    setShowScrollTop(false)
+    if (topNavTimeoutRef.current) {
+      window.clearTimeout(topNavTimeoutRef.current)
+    }
 
     nodes.forEach((node) => {
       node.style.transition = "none"
@@ -133,10 +140,15 @@ function Home() {
 
     requestAnimationFrame(() => {
       nodes.forEach((node) => {
-        node.style.transition = `transform ${duration}ms cubic-bezier(0.16, 1, 0.3, 1)`
+        node.style.transition = `transform ${duration}ms cubic-bezier(0.25, 0.1, 0.25, 1)`
         node.style.transform = "translate3d(0, 0, 0)"
       })
     })
+
+    topNavTimeoutRef.current = window.setTimeout(() => {
+      setShowScrollTop(false)
+      topNavTimeoutRef.current = null
+    }, Math.max(360, duration - 260))
 
     topAnimationTimeoutRef.current = window.setTimeout(() => {
       nodes.forEach((node) => {
@@ -148,7 +160,7 @@ function Home() {
       forceDocumentTop()
       setShowScrollTop(false)
       topAnimationTimeoutRef.current = null
-    }, duration + 80)
+    }, duration + 100)
   }
 
   const visibleCases = useMemo(() => {
