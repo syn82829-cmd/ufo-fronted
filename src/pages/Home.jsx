@@ -28,6 +28,29 @@ const HOME_CASES = [
   { id: "3friends", image: "/cases/3friends.webp", name: "For 3 Friends", price: null, free: true },
 ]
 
+function getDocumentScrollTop() {
+  return (
+    window.scrollY ||
+    document.documentElement.scrollTop ||
+    document.body.scrollTop ||
+    0
+  )
+}
+
+function forceDocumentTop() {
+  window.scrollTo(0, 0)
+  window.scrollTo({ top: 0, left: 0, behavior: "auto" })
+
+  document.documentElement.scrollTop = 0
+  document.body.scrollTop = 0
+
+  const root = document.getElementById("root")
+  if (root) root.scrollTop = 0
+
+  const app = document.querySelector(".app")
+  if (app) app.scrollTop = 0
+}
+
 function Home() {
   const navigate = useNavigate()
   const { user } = useUser()
@@ -50,21 +73,47 @@ function Home() {
 
   useEffect(() => {
     const handleScroll = () => {
-      const scrollTop =
-        document.body.scrollTop ||
-        document.documentElement.scrollTop
-
-      setShowScrollTop(scrollTop > 150)
+      setShowScrollTop(getDocumentScrollTop() > 150)
     }
+
+    window.addEventListener("scroll", handleScroll, {
+      passive: true,
+    })
 
     document.body.addEventListener("scroll", handleScroll, {
       passive: true,
     })
 
+    handleScroll()
+
     return () => {
+      window.removeEventListener("scroll", handleScroll)
       document.body.removeEventListener("scroll", handleScroll)
     }
   }, [])
+
+  const scrollHomeToTop = () => {
+    setShowScrollTop(false)
+
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: "smooth",
+    })
+
+    const finishScroll = () => {
+      forceDocumentTop()
+      setShowScrollTop(false)
+    }
+
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: "smooth" })
+    })
+
+    window.setTimeout(finishScroll, 320)
+    window.setTimeout(finishScroll, 620)
+    window.setTimeout(finishScroll, 940)
+  }
 
   const visibleCases = useMemo(() => {
     if (casesFilter === "free") {
@@ -207,10 +256,7 @@ function Home() {
             triggerHaptic("light")
 
             if (showScrollTop) {
-              document.body.scrollTo({
-                top: 0,
-                behavior: "smooth",
-              })
+              scrollHomeToTop()
             } else {
               navigate("/profile")
             }
