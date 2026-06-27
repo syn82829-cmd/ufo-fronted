@@ -9,6 +9,14 @@ const Giveaways = lazy(() => import("./pages/Giveaways"))
 const CasePage = lazy(() => import("./pages/CasePage"))
 const Crash = lazy(() => import("./pages/Crash"))
 
+function PageLoader() {
+  return (
+    <div className="route-loader">
+      Загрузка…
+    </div>
+  )
+}
+
 function App() {
   useEffect(() => {
     const preventDefault = (e) => e.preventDefault()
@@ -30,7 +38,7 @@ function App() {
 
   return (
     <BrowserRouter>
-      <Suspense fallback={null}>
+      <Suspense fallback={<PageLoader />}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/profile" element={<Profile />} />
