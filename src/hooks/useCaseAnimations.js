@@ -1,47 +1,52 @@
 import { useEffect, useState } from "react"
 
-function useCaseAnimations(drops) {
+function useCaseAnimations(drops, activeDropId) {
   const [animationsById, setAnimationsById] = useState({})
 
   useEffect(() => {
     let cancelled = false
 
-    async function loadAnimations() {
-      const dropsWithLottie = (drops || []).filter((drop) => Boolean(drop.lottie))
-
-      if (!dropsWithLottie.length) {
+    async function loadActiveAnimation() {
+      if (!activeDropId) {
         setAnimationsById({})
         return
       }
 
-      const entries = await Promise.all(
-        dropsWithLottie.map(async (drop) => {
-          try {
-            const res = await fetch(drop.lottie)
-            if (!res.ok) {
-              throw new Error(`Failed to load ${drop.lottie}`)
-            }
+      const activeDrop = (drops || []).find((drop) => drop?.id === activeDropId)
 
-            const json = await res.json()
-            return [drop.id, json]
-          } catch (err) {
-            console.error(`LOTTIE LOAD ERROR [${drop.id}]`, err)
-            return [drop.id, null]
-          }
-        })
-      )
+      if (!activeDrop?.lottie) {
+        setAnimationsById({})
+        return
+      }
 
-      if (!cancelled) {
-        setAnimationsById(Object.fromEntries(entries))
+      try {
+        const res = await fetch(activeDrop.lottie)
+        if (!res.ok) {
+          throw new Error(`Failed to load ${activeDrop.lottie}`)
+        }
+
+        const json = await res.json()
+
+        if (!cancelled) {
+          setAnimationsById({
+            [activeDrop.id]: json,
+          })
+        }
+      } catch (err) {
+        console.error(`LOTTIE LOAD ERROR [${activeDrop.id}]`, err)
+
+        if (!cancelled) {
+          setAnimationsById({})
+        }
       }
     }
 
-    loadAnimations()
+    loadActiveAnimation()
 
     return () => {
       cancelled = true
     }
-  }, [drops])
+  }, [drops, activeDropId])
 
   return animationsById
 }
