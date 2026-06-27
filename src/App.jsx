@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect } from "react"
-import { BrowserRouter, Routes, Route } from "react-router-dom"
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom"
 
 import Home from "./pages/Home"
 
@@ -17,8 +17,34 @@ function PageLoader() {
   )
 }
 
+function ScrollToTop() {
+  const location = useLocation()
+
+  useEffect(() => {
+    const scrollTop = () => {
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" })
+      document.documentElement.scrollTop = 0
+      document.body.scrollTop = 0
+    }
+
+    scrollTop()
+
+    const frame = requestAnimationFrame(scrollTop)
+
+    return () => {
+      cancelAnimationFrame(frame)
+    }
+  }, [location.pathname])
+
+  return null
+}
+
 function App() {
   useEffect(() => {
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual"
+    }
+
     const preventDefault = (e) => e.preventDefault()
 
     document.addEventListener("contextmenu", preventDefault)
@@ -38,6 +64,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Suspense fallback={<PageLoader />}>
         <Routes>
           <Route path="/" element={<Home />} />
