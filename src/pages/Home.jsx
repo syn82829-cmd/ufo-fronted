@@ -1,12 +1,11 @@
-import { useEffect, useMemo, useState, useRef } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import Lottie from "lottie-react"
 
 import { useUser } from "../context/UserContext"
 import { triggerHaptic } from "../utils/haptics"
-import { socket } from "../socket"
 import LiveDrops from "../components/LiveDrops"
 import CaseCard from "../components/CaseCard"
+import HomeCrashPanel from "../components/home/HomeCrashPanel"
 import DepositMenu from "../components/DepositMenu"
 import DailyGiftPopup from "../components/DailyGiftPopup"
 
@@ -33,10 +32,7 @@ function Home() {
   const navigate = useNavigate()
   const { user } = useUser()
 
-  const [ufoAnim, setUfoAnim] = useState(null)
-  const ufoRef = useRef()
   const [casesFilter, setCasesFilter] = useState("expensive")
-  const [crashState, setCrashState] = useState(null)
   const [isDepositOpen, setIsDepositOpen] = useState(false)
   const [showScrollTop, setShowScrollTop] = useState(false)
 
@@ -50,48 +46,6 @@ function Home() {
     const star = new Image()
     star.decoding = "async"
     star.src = "/ui/star.PNG"
-  }, [])
-
-  useEffect(() => {
-    let cancelled = false
-
-    async function loadUfoAnim() {
-      try {
-        const res = await fetch("/animations/ufo.json")
-        if (!res.ok) throw new Error(`Failed to load /animations/ufo.json: ${res.status}`)
-        const data = await res.json()
-
-        if (!cancelled) {
-          setUfoAnim(data)
-        }
-      } catch (err) {
-        console.error("UFO LOTTIE LOAD ERROR:", err)
-      }
-    }
-
-    loadUfoAnim()
-
-    return () => {
-      cancelled = true
-    }
-  }, [])
-
-  useEffect(() => {
-    if (ufoAnim && ufoRef.current) {
-      ufoRef.current.goToAndStop(0, true)
-    }
-  }, [ufoAnim])
-
-  useEffect(() => {
-    const handleCrashState = (stateData) => {
-      setCrashState(stateData)
-    }
-
-    socket.on("crash:state", handleCrashState)
-
-    return () => {
-      socket.off("crash:state", handleCrashState)
-    }
   }, [])
 
   useEffect(() => {
@@ -123,39 +77,6 @@ function Home() {
         : (a.price ?? 0) - (b.price ?? 0)
     )
   }, [casesFilter])
-
-  const status = crashState?.status || "waiting"
-  const multiplier = Number(crashState?.multiplier || 1)
-  const countdown = crashState?.countdown ?? 5
-
-  const isWaiting = status === "waiting"
-  const isFlying = status === "flying"
-  const isCrashed = status === "crashed"
-
-  const showStart = isWaiting && countdown === 0
-  const showCountdown = isWaiting && countdown > 0
-
-  const crashMainValue = isFlying
-    ? `x${multiplier.toFixed(2)}`
-    : showCountdown
-      ? String(countdown)
-      : showStart
-        ? "Start!"
-        : isCrashed
-          ? `x${multiplier.toFixed(2)}`
-          : "5"
-
-  const crashSubText = showCountdown
-    ? "Ожидание игроков"
-    : showStart
-      ? "Start!"
-      : ""
-
-  const crashMainClass = isCrashed
-    ? "multiplier crashed"
-    : isFlying
-      ? "multiplier flying"
-      : "multiplier waiting"
 
   return (
     <div className="app">
@@ -194,40 +115,7 @@ function Home() {
         <LiveDrops />
       </div>
 
-      <div
-        className="crash-panel"
-        onClick={() => {
-          triggerHaptic("light")
-          navigate("/crash")
-        }}
-      >
-        <div className="crash-title">Rocket Crash</div>
-
-        <div className={crashMainClass}>
-          {crashMainValue}
-        </div>
-
-        {!!crashSubText && (
-          <div className="home-crash-subtext">
-            {crashSubText}
-          </div>
-        )}
-
-        <button className="launch-btn" type="button">
-          Запустить
-        </button>
-
-        {ufoAnim && (
-          <div className="ufo-lottie" aria-hidden="true">
-            <Lottie
-              lottieRef={ufoRef}
-              animationData={ufoAnim}
-              autoplay={false}
-              loop={false}
-            />
-          </div>
-        )}
-      </div>
+      <HomeCrashPanel />
 
       <div className="cases-toolbar">
         <button
