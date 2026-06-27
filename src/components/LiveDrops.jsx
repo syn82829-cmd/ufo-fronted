@@ -1,12 +1,12 @@
-import { useEffect, useState } from "react"
+import { memo, useEffect, useState } from "react"
 import { socket } from "../socket"
 
-export default function LiveDrops() {
+function LiveDrops() {
   const [drops, setDrops] = useState([])
 
   useEffect(() => {
     const handleDrops = (items) => {
-      setDrops(items)
+      setDrops(Array.isArray(items) ? items : [])
     }
 
     socket.on("live:drops", handleDrops)
@@ -23,15 +23,19 @@ export default function LiveDrops() {
       {drops.map((drop, i) => (
         <div
           className="live-drop"
-          key={i}
+          key={`${drop.image || "drop"}-${drop.name || ""}-${drop.price || ""}-${i}`}
         >
           <img
             src={drop.image}
             alt=""
-            loading="lazy"
+            loading="eager"
+            decoding="async"
+            draggable={false}
           />
         </div>
       ))}
     </div>
   )
 }
+
+export default memo(LiveDrops)
