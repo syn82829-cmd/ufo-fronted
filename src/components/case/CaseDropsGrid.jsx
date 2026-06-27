@@ -7,7 +7,10 @@ function CaseDropsGrid({
   animationsById,
   handleClick,
 }) {
-  const [activeAnimation, setActiveAnimation] = useState(null)
+  const [activeAnimationState, setActiveAnimationState] = useState({
+    dropId: null,
+    animation: null,
+  })
 
   const activeDropConfig = useMemo(() => {
     return (drops || []).find((drop) => drop?.id === activeDrop) || null
@@ -15,17 +18,25 @@ function CaseDropsGrid({
 
   useEffect(() => {
     let cancelled = false
+    const currentDropId = activeDropConfig?.id || null
 
     async function loadActiveAnimation() {
-      if (!activeDropConfig?.lottie) {
-        setActiveAnimation(null)
+      setActiveAnimationState({
+        dropId: currentDropId,
+        animation: null,
+      })
+
+      if (!activeDropConfig?.lottie || !currentDropId) {
         return
       }
 
-      const cachedAnimation = animationsById?.[activeDropConfig.id]
+      const cachedAnimation = animationsById?.[currentDropId]
 
       if (cachedAnimation) {
-        setActiveAnimation(cachedAnimation)
+        setActiveAnimationState({
+          dropId: currentDropId,
+          animation: cachedAnimation,
+        })
         return
       }
 
@@ -38,13 +49,19 @@ function CaseDropsGrid({
         const json = await res.json()
 
         if (!cancelled) {
-          setActiveAnimation(json)
+          setActiveAnimationState({
+            dropId: currentDropId,
+            animation: json,
+          })
         }
       } catch (err) {
-        console.error(`LOTTIE LOAD ERROR [${activeDropConfig.id}]`, err)
+        console.error(`LOTTIE LOAD ERROR [${currentDropId}]`, err)
 
         if (!cancelled) {
-          setActiveAnimation(null)
+          setActiveAnimationState({
+            dropId: currentDropId,
+            animation: null,
+          })
         }
       }
     }
@@ -60,7 +77,10 @@ function CaseDropsGrid({
     <div className="casepage-drops">
       {drops.map((drop) => {
         const isActive = activeDrop === drop.id
-        const anim = isActive ? activeAnimation : null
+        const anim =
+          isActive && activeAnimationState.dropId === drop.id
+            ? activeAnimationState.animation
+            : null
         const hasLottie = Boolean(drop.lottie && anim)
         const hasPng = Boolean(drop.png)
 
