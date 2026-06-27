@@ -93,36 +93,39 @@ function Home() {
   }, [])
 
   const scrollHomeToTop = () => {
-    setShowScrollTop(false)
+    const beforeTop = getDocumentScrollTop()
 
-    const scroller = document.scrollingElement || document.documentElement || document.body
-
-    scroller.scrollTo({
+    document.body.scrollTo({
       top: 0,
       left: 0,
       behavior: "smooth",
     })
 
-    const lockOnlyWhenAlreadyTop = () => {
-      if (getDocumentScrollTop() <= 8) {
-        forceDocumentTop()
-        setShowScrollTop(false)
-      }
-    }
-
-    const watchUntilTop = () => {
+    const lockWhenReachedTop = () => {
       if (getDocumentScrollTop() <= 8) {
         forceDocumentTop()
         setShowScrollTop(false)
         return
       }
 
-      requestAnimationFrame(watchUntilTop)
+      requestAnimationFrame(lockWhenReachedTop)
     }
 
-    requestAnimationFrame(watchUntilTop)
-    window.setTimeout(lockOnlyWhenAlreadyTop, 900)
-    window.setTimeout(lockOnlyWhenAlreadyTop, 1400)
+    const fallbackIfBodyDidNotMove = () => {
+      const currentTop = getDocumentScrollTop()
+      const barelyMoved = Math.abs(currentTop - beforeTop) < 4
+
+      if (currentTop > 8 && barelyMoved) {
+        window.scrollTo({
+          top: 0,
+          left: 0,
+          behavior: "smooth",
+        })
+      }
+    }
+
+    requestAnimationFrame(lockWhenReachedTop)
+    window.setTimeout(fallbackIfBodyDidNotMove, 120)
   }
 
   const visibleCases = useMemo(() => {
