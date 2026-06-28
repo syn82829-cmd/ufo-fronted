@@ -1,12 +1,40 @@
 const API_URL = "https://ufo-backend-1.onrender.com"
 
+function getTelegramInitData() {
+  return window.Telegram?.WebApp?.initData || ""
+}
+
+function getApiHeaders(extra = {}) {
+  const initData = getTelegramInitData()
+
+  return {
+    ...extra,
+    ...(initData ? { "X-Telegram-Init-Data": initData } : {}),
+  }
+}
+
+async function apiFetch(path, options = {}) {
+  const res = await fetch(`${API_URL}${path}`, {
+    ...options,
+    headers: getApiHeaders(options.headers || {}),
+  })
+
+  const data = await res.json()
+
+  if (!res.ok) {
+    throw new Error(data?.error || "API request failed")
+  }
+
+  return data
+}
+
 // СОЗДАНИЕ / ПОЛУЧЕНИЕ ПОЛЬЗОВАТЕЛЯ
 export async function createUser(userData) {
   if (!userData || !userData.id) {
     throw new Error("Invalid user data")
   }
 
-  const res = await fetch(`${API_URL}/user`, {
+  return apiFetch("/user", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -16,14 +44,6 @@ export async function createUser(userData) {
       username: userData.username || "",
     }),
   })
-
-  const data = await res.json()
-
-  if (!res.ok) {
-    throw new Error(data?.error || "Failed to create user")
-  }
-
-  return data
 }
 
 // ПОЛУЧЕНИЕ БАЛАНСА
@@ -32,14 +52,7 @@ export async function getBalance(userId) {
     throw new Error("User ID required")
   }
 
-  const res = await fetch(`${API_URL}/balance/${userId}`)
-  const data = await res.json()
-
-  if (!res.ok) {
-    throw new Error(data?.error || "Failed to fetch balance")
-  }
-
-  return data
+  return apiFetch(`/balance/${userId}`)
 }
 
 // ОТКРЫТИЕ КЕЙСА
@@ -48,7 +61,7 @@ export async function openCaseRequest({ telegram_id, caseId }) {
     throw new Error("telegram_id and caseId are required")
   }
 
-  const res = await fetch(`${API_URL}/case/open`, {
+  return apiFetch("/case/open", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -58,14 +71,6 @@ export async function openCaseRequest({ telegram_id, caseId }) {
       caseId,
     }),
   })
-
-  const data = await res.json()
-
-  if (!res.ok) {
-    throw new Error(data?.error || "Failed to open case")
-  }
-
-  return data
 }
 
 // =============================
@@ -77,17 +82,9 @@ export async function getFreeCaseState({ telegram_id, caseId }) {
     throw new Error("telegram_id and caseId are required")
   }
 
-  const res = await fetch(
-    `${API_URL}/case/free-state?telegram_id=${encodeURIComponent(telegram_id)}&caseId=${encodeURIComponent(caseId)}`
+  return apiFetch(
+    `/case/free-state?telegram_id=${encodeURIComponent(telegram_id)}&caseId=${encodeURIComponent(caseId)}`
   )
-
-  const data = await res.json()
-
-  if (!res.ok) {
-    throw new Error(data?.error || "Failed to fetch free case state")
-  }
-
-  return data
 }
 
 // =============================
@@ -99,7 +96,7 @@ export async function openFreeCase({ telegram_id, caseId }) {
     throw new Error("telegram_id and caseId are required")
   }
 
-  const res = await fetch(`${API_URL}/case/free-open`, {
+  return apiFetch("/case/free-open", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -109,14 +106,6 @@ export async function openFreeCase({ telegram_id, caseId }) {
       caseId,
     }),
   })
-
-  const data = await res.json()
-
-  if (!res.ok) {
-    throw new Error(data?.error || "Failed to open free case")
-  }
-
-  return data
 }
 
 // ПОЛУЧЕНИЕ ИНВЕНТАРЯ
@@ -125,13 +114,7 @@ export async function getInventory(telegram_id) {
     throw new Error("telegram_id is required")
   }
 
-  const res = await fetch(`${API_URL}/inventory/${telegram_id}`)
-  const data = await res.json()
-
-  if (!res.ok) {
-    throw new Error(data?.error || "Failed to fetch inventory")
-  }
-
+  const data = await apiFetch(`/inventory/${telegram_id}`)
   return Array.isArray(data) ? data : []
 }
 
@@ -141,7 +124,7 @@ export async function sellInventoryItem({ telegram_id, inventoryItemId }) {
     throw new Error("telegram_id and inventoryItemId are required")
   }
 
-  const res = await fetch(`${API_URL}/inventory/sell`, {
+  return apiFetch("/inventory/sell", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -151,14 +134,6 @@ export async function sellInventoryItem({ telegram_id, inventoryItemId }) {
       inventoryItemId,
     }),
   })
-
-  const data = await res.json()
-
-  if (!res.ok) {
-    throw new Error(data?.error || "Failed to sell inventory item")
-  }
-
-  return data
 }
 
 // ИСТОРИЯ ТРАНЗАКЦИЙ
@@ -167,13 +142,7 @@ export async function getTransactions(telegram_id) {
     throw new Error("telegram_id is required")
   }
 
-  const res = await fetch(`${API_URL}/transactions/${telegram_id}`)
-  const data = await res.json()
-
-  if (!res.ok) {
-    throw new Error(data?.error || "Failed to fetch transactions")
-  }
-
+  const data = await apiFetch(`/transactions/${telegram_id}`)
   return Array.isArray(data) ? data : []
 }
 
@@ -186,7 +155,7 @@ export async function createStarsInvoice({ telegram_id, amount }) {
     throw new Error("telegram_id and valid amount are required")
   }
 
-  const res = await fetch(`${API_URL}/stars/invoice`, {
+  return apiFetch("/stars/invoice", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -196,14 +165,6 @@ export async function createStarsInvoice({ telegram_id, amount }) {
       amount: Number(amount),
     }),
   })
-
-  const data = await res.json()
-
-  if (!res.ok) {
-    throw new Error(data?.error || "Failed to create stars invoice")
-  }
-
-  return data
 }
 
 // =============================
@@ -215,17 +176,9 @@ export async function getCrashState(telegram_id) {
     throw new Error("telegram_id is required")
   }
 
-  const res = await fetch(
-    `${API_URL}/crash/state?telegram_id=${encodeURIComponent(telegram_id)}`
+  return apiFetch(
+    `/crash/state?telegram_id=${encodeURIComponent(telegram_id)}`
   )
-
-  const data = await res.json()
-
-  if (!res.ok) {
-    throw new Error(data?.error || "Failed to fetch crash state")
-  }
-
-  return data
 }
 
 // =============================
@@ -233,13 +186,7 @@ export async function getCrashState(telegram_id) {
 // =============================
 
 export async function getCrashLive() {
-  const res = await fetch(`${API_URL}/crash/live`)
-  const data = await res.json()
-
-  if (!res.ok) {
-    throw new Error(data?.error || "Failed to fetch crash live bets")
-  }
-
+  const data = await apiFetch("/crash/live")
   return Array.isArray(data) ? data : []
 }
 
@@ -252,7 +199,7 @@ export async function placeCrashBet({ telegram_id, amount }) {
     throw new Error("telegram_id and valid amount are required")
   }
 
-  const res = await fetch(`${API_URL}/crash/bet`, {
+  return apiFetch("/crash/bet", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -262,14 +209,6 @@ export async function placeCrashBet({ telegram_id, amount }) {
       amount: Number(amount),
     }),
   })
-
-  const data = await res.json()
-
-  if (!res.ok) {
-    throw new Error(data?.error || "Failed to place crash bet")
-  }
-
-  return data
 }
 
 // =============================
@@ -281,7 +220,7 @@ export async function cashoutCrash({ telegram_id }) {
     throw new Error("telegram_id is required")
   }
 
-  const res = await fetch(`${API_URL}/crash/cashout`, {
+  return apiFetch("/crash/cashout", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -290,14 +229,6 @@ export async function cashoutCrash({ telegram_id }) {
       telegram_id,
     }),
   })
-
-  const data = await res.json()
-
-  if (!res.ok) {
-    throw new Error(data?.error || "Failed to cash out crash")
-  }
-
-  return data
 }
 
 // =============================
@@ -309,14 +240,7 @@ export async function getBonusState(telegram_id) {
     throw new Error("telegram_id is required")
   }
 
-  const res = await fetch(`${API_URL}/bonus/state/${telegram_id}`)
-  const data = await res.json()
-
-  if (!res.ok) {
-    throw new Error(data?.error || "Failed to fetch bonus state")
-  }
-
-  return data
+  return apiFetch(`/bonus/state/${telegram_id}`)
 }
 
 // =============================
@@ -324,7 +248,7 @@ export async function getBonusState(telegram_id) {
 // =============================
 
 export async function checkBonusChannel(telegram_id) {
-  const res = await fetch(`${API_URL}/bonus/check-channel`, {
+  return apiFetch("/bonus/check-channel", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -333,14 +257,6 @@ export async function checkBonusChannel(telegram_id) {
       telegram_id,
     }),
   })
-
-  const data = await res.json()
-
-  if (!res.ok) {
-    throw new Error(data?.error || "Failed to check channel")
-  }
-
-  return data
 }
 
 // =============================
@@ -348,7 +264,7 @@ export async function checkBonusChannel(telegram_id) {
 // =============================
 
 export async function markFriendInvited(telegram_id) {
-  const res = await fetch(`${API_URL}/bonus/friend`, {
+  return apiFetch("/bonus/friend", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -357,14 +273,6 @@ export async function markFriendInvited(telegram_id) {
       telegram_id,
     }),
   })
-
-  const data = await res.json()
-
-  if (!res.ok) {
-    throw new Error(data?.error || "Failed to mark friend invited")
-  }
-
-  return data
 }
 
 // =============================
@@ -372,7 +280,7 @@ export async function markFriendInvited(telegram_id) {
 // =============================
 
 export async function claimBonus(telegram_id) {
-  const res = await fetch(`${API_URL}/bonus/claim`, {
+  return apiFetch("/bonus/claim", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -381,12 +289,4 @@ export async function claimBonus(telegram_id) {
       telegram_id,
     }),
   })
-
-  const data = await res.json()
-
-  if (!res.ok) {
-    throw new Error(data?.error || "Failed to claim bonus")
-  }
-
-  return data
 }
