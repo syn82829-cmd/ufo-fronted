@@ -317,3 +317,95 @@ body {
     0 0 12px rgba(88,230,255,0.46),
     0 8px 18px rgba(0,0,0,0.18) !important;
 }
+
+/* Softer iOS-like bottom navigation active state. */
+.bottom-nav {
+  overflow: hidden !important;
+  isolation: isolate !important;
+}
+
+.nav-item {
+  min-width: 30% !important;
+  height: 52px !important;
+  padding: 7px 12px 6px !important;
+  box-sizing: border-box !important;
+
+  display: inline-flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+
+  border-radius: 22px !important;
+  overflow: hidden !important;
+
+  color: rgba(230,242,255,0.70) !important;
+  transform: translateZ(0) scale(0.98) !important;
+
+  transition:
+    color .32s cubic-bezier(.2,.8,.2,1),
+    opacity .32s cubic-bezier(.2,.8,.2,1),
+    transform .36s cubic-bezier(.2,.8,.2,1) !important;
+}
+
+.nav-item::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+
+  border-radius: inherit;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255,255,255,0.18), rgba(255,255,255,0.00) 48%),
+    linear-gradient(145deg, rgba(105,170,255,0.24), rgba(80,145,245,0.10));
+  border: 1px solid rgba(150,205,255,0.22);
+
+  opacity: 0;
+  transform: scaleX(.72) scaleY(.86);
+
+  transition:
+    opacity .34s cubic-bezier(.2,.8,.2,1),
+    transform .42s cubic-bezier(.18,1,.28,1) !important;
+
+  box-shadow:
+    0 8px 22px rgba(60,140,255,0.16),
+    inset 0 1px 0 rgba(255,255,255,0.18);
+}
+
+.nav-item.active {
+  color: #fff !important;
+  transform: translateZ(0) scale(1) !important;
+}
+
+.nav-item.active::before {
+  opacity: 1;
+  transform: scaleX(1) scaleY(1);
+}
+
+.nav-item.active::after {
+  display: none !important;
+}
+
+.nav-icon {
+  transform: translateZ(0);
+  transition:
+    transform .36s cubic-bezier(.2,.8,.2,1),
+    opacity .32s ease,
+    filter .32s ease !important;
+}
+
+.nav-item.active .nav-icon {
+  transform: translate3d(0, -1px, 0) scale(1.08);
+  filter: drop-shadow(0 0 10px rgba(95,210,255,0.50));
+}
+
+.nav-item span {
+  transition:
+    transform .36s cubic-bezier(.2,.8,.2,1),
+    opacity .32s ease !important;
+}
+
+.nav-item.active span {
+  transform: translate3d(0, 1px, 0);
+}
