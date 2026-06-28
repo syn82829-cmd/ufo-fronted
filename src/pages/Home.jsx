@@ -28,6 +28,12 @@ const HOME_CASES = [
   { id: "3friends", image: "/cases/3friends.webp", name: "For 3 Friends", price: null, free: true },
 ]
 
+const HOME_CASES_BY_FILTER = {
+  expensive: [...HOME_CASES].sort((a, b) => (b.price ?? 0) - (a.price ?? 0)),
+  cheap: [...HOME_CASES].sort((a, b) => (a.price ?? 0) - (b.price ?? 0)),
+  free: HOME_CASES.filter((item) => item.free),
+}
+
 function getDocumentScrollTop() {
   return (
     window.scrollY ||
@@ -64,8 +70,10 @@ function Home() {
   const { user } = useUser()
   const topAnimationTimeoutRef = useRef(null)
   const topNavTimeoutRef = useRef(null)
+  const filterApplyTimeoutRef = useRef(null)
 
   const [casesFilter, setCasesFilter] = useState("expensive")
+  const [renderedCasesFilter, setRenderedCasesFilter] = useState("expensive")
   const [isDepositOpen, setIsDepositOpen] = useState(false)
   const [showScrollTop, setShowScrollTop] = useState(false)
 
@@ -107,8 +115,30 @@ function Home() {
       if (topNavTimeoutRef.current) {
         window.clearTimeout(topNavTimeoutRef.current)
       }
+
+      if (filterApplyTimeoutRef.current) {
+        window.clearTimeout(filterApplyTimeoutRef.current)
+      }
     }
   }, [])
+
+  const handleCasesFilterChange = (nextFilter) => {
+    triggerHaptic("light")
+
+    if (nextFilter === casesFilter) return
+
+    setCasesFilter(nextFilter)
+
+    if (filterApplyTimeoutRef.current) {
+      window.clearTimeout(filterApplyTimeoutRef.current)
+    }
+
+    filterApplyTimeoutRef.current = window.setTimeout(() => {
+      requestAnimationFrame(() => {
+        setRenderedCasesFilter(nextFilter)
+      })
+    }, 90)
+  }
 
   const scrollHomeToTop = () => {
     const startTop = getDocumentScrollTop()
@@ -164,16 +194,8 @@ function Home() {
   }
 
   const visibleCases = useMemo(() => {
-    if (casesFilter === "free") {
-      return HOME_CASES.filter((item) => item.free)
-    }
-
-    return [...HOME_CASES].sort((a, b) =>
-      casesFilter === "expensive"
-        ? (b.price ?? 0) - (a.price ?? 0)
-        : (a.price ?? 0) - (b.price ?? 0)
-    )
-  }, [casesFilter])
+    return HOME_CASES_BY_FILTER[renderedCasesFilter] || HOME_CASES_BY_FILTER.expensive
+  }, [renderedCasesFilter])
 
   return (
     <div className="app">
@@ -220,10 +242,7 @@ function Home() {
           className={`cases-tab ${
             casesFilter === "expensive" ? "active" : ""
           }`}
-          onClick={() => {
-            triggerHaptic("light")
-            setCasesFilter("expensive")
-          }}
+          onClick={() => handleCasesFilterChange("expensive")}
         >
           Дороже
         </button>
@@ -233,10 +252,7 @@ function Home() {
           className={`cases-tab ${
             casesFilter === "cheap" ? "active" : ""
           }`}
-          onClick={() => {
-            triggerHaptic("light")
-            setCasesFilter("cheap")
-          }}
+          onClick={() => handleCasesFilterChange("cheap")}
         >
           Дешевле
         </button>
@@ -246,10 +262,7 @@ function Home() {
           className={`cases-tab ${
             casesFilter === "free" ? "active" : ""
           }`}
-          onClick={() => {
-            triggerHaptic("light")
-            setCasesFilter("free")
-          }}
+          onClick={() => handleCasesFilterChange("free")}
         >
           Бесплатно
         </button>
