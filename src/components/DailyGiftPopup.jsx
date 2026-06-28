@@ -5,6 +5,17 @@ import Lottie from "lottie-react"
 import { getBonusState } from "../api"
 import { useUser } from "../context/UserContext"
 
+const HIDE_DAILY_GIFT_KEY = "ufomo_hide_daily_gift_popup_date"
+const DAILY_GIFT_SESSION_KEY = "ufomo_daily_gift_popup_shown"
+
+function getTodayKey() {
+  return new Date().toISOString().slice(0, 10)
+}
+
+function hideDailyGiftForToday() {
+  localStorage.setItem(HIDE_DAILY_GIFT_KEY, getTodayKey())
+}
+
 function DailyGiftPopup() {
   const navigate = useNavigate()
   const { user } = useUser()
@@ -24,10 +35,10 @@ function DailyGiftPopup() {
       }
 
       try {
-        const today = new Date().toISOString().slice(0, 10)
+        const today = getTodayKey()
 
         const hiddenToday =
-          localStorage.getItem("ufomo_hide_daily_gift_popup_date") === today
+          localStorage.getItem(HIDE_DAILY_GIFT_KEY) === today
 
         if (cancelled) return
 
@@ -40,7 +51,7 @@ function DailyGiftPopup() {
         }
 
         const sessionShown =
-          sessionStorage.getItem("ufomo_daily_gift_popup_shown") === "true"
+          sessionStorage.getItem(DAILY_GIFT_SESSION_KEY) === "true"
 
         if (sessionShown) {
           setIsOpen(false)
@@ -56,7 +67,7 @@ function DailyGiftPopup() {
 
         setGiftAnimation(animationModule.default || animationModule)
         setIsOpen(true)
-        sessionStorage.setItem("ufomo_daily_gift_popup_shown", "true")
+        sessionStorage.setItem(DAILY_GIFT_SESSION_KEY, "true")
       } catch (error) {
         console.error("DAILY GIFT POPUP ERROR:", error)
         setIsOpen(false)
@@ -75,23 +86,32 @@ function DailyGiftPopup() {
   }, [user?.id])
 
   const handleToggleDontShowToday = () => {
-    const today = new Date().toISOString().slice(0, 10)
     const nextValue = !dontShowToday
 
     setDontShowToday(nextValue)
 
     if (nextValue) {
-      localStorage.setItem("ufomo_hide_daily_gift_popup_date", today)
+      hideDailyGiftForToday()
     } else {
-      localStorage.removeItem("ufomo_hide_daily_gift_popup_date")
+      localStorage.removeItem(HIDE_DAILY_GIFT_KEY)
     }
   }
 
   const handleClose = () => {
+    if (dontShowToday) {
+      hideDailyGiftForToday()
+    }
+
     setIsOpen(false)
   }
 
-  const handleClaimClick = () => {
+  const handleMainAction = () => {
+    if (dontShowToday) {
+      hideDailyGiftForToday()
+      setIsOpen(false)
+      return
+    }
+
     setIsOpen(false)
     navigate("/bonus")
   }
@@ -125,20 +145,25 @@ function DailyGiftPopup() {
             type="button"
             className={`daily-gift-checkbox ${dontShowToday ? "active" : ""}`}
             onClick={handleToggleDontShowToday}
+            aria-label="Не показывать сегодня"
           >
             {dontShowToday ? "✓" : ""}
           </button>
 
-          <div className="daily-gift-checkbox-label">
+          <button
+            type="button"
+            className="daily-gift-checkbox-label"
+            onClick={handleToggleDontShowToday}
+          >
             Не показывать сегодня
-          </div>
+          </button>
 
           <button
             type="button"
             className="daily-gift-claim-btn"
-            onClick={handleClaimClick}
+            onClick={handleMainAction}
           >
-            Забрать
+            {dontShowToday ? "Готово" : "Забрать"}
           </button>
         </div>
       </div>
