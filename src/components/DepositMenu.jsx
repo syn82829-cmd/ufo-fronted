@@ -3,10 +3,13 @@ import { createStarsInvoice } from "../api"
 import { useUser } from "../context/UserContext"
 import { triggerHaptic } from "../utils/haptics"
 
+const wait = (ms) => new Promise((resolve) => window.setTimeout(resolve, ms))
+
 function DepositMenu({ isOpen, onClose }) {
   const { user, refreshUser } = useUser()
 
   const [isLoading, setIsLoading] = useState(false)
+  const [paymentStatus, setPaymentStatus] = useState("idle")
   const [amount, setAmount] = useState("")
 
   const depositOptions = useMemo(() => [100, 250, 500, 1000, 2500, 5000], [])
@@ -18,19 +21,38 @@ function DepositMenu({ isOpen, onClose }) {
 
   const handleOptionClick = (value) => {
     triggerHaptic("light")
+    setPaymentStatus("idle")
     setAmount(String(value))
   }
 
   const handleChange = (e) => {
     triggerHaptic("light")
+    setPaymentStatus("idle")
     const digitsOnly = e.target.value.replace(/[^\d]/g, "")
     setAmount(digitsOnly)
+  }
+
+  const closeSheet = () => {
+    setPaymentStatus("idle")
+    onClose()
+  }
+
+  const refreshUserAfterPayment = async () => {
+    const delays = [0, 700, 1400, 2400]
+
+    for (const delay of delays) {
+      if (delay > 0) {
+        await wait(delay)
+      }
+
+      await refreshUser().catch(() => {})
+    }
   }
 
   const handleMainAction = async () => {
     if (!canDeposit) {
       triggerHaptic("light")
-      onClose()
+      closeSheet()
       return
     }
 
@@ -40,6 +62,7 @@ function DepositMenu({ isOpen, onClose }) {
       triggerHaptic("medium")
 
       setIsLoading(true)
+      setPaymentStatus("creating")
 
       const result = await createStarsInvoice({
         telegram_id: user.id,
@@ -52,37 +75,65 @@ function DepositMenu({ isOpen, onClose }) {
         throw new Error("Telegram invoice is not available")
       }
 
+      setPaymentStatus("invoice")
+
       tg.openInvoice(result.invoiceLink, async (status) => {
         if (status === "paid") {
           triggerHaptic("success")
+          setIsLoading(true)
+          setPaymentStatus("refreshing")
 
-          await refreshUser().catch(() => {})
+          await refreshUserAfterPayment()
+
           setAmount("")
-          onClose()
+          setPaymentStatus("done")
+
+          window.setTimeout(() => {
+            setIsLoading(false)
+            closeSheet()
+          }, 450)
+
+          return
         }
 
         if (status === "cancelled") {
           triggerHaptic("light")
+          setPaymentStatus("idle")
         }
 
         if (status === "failed") {
           triggerHaptic("error")
+          setPaymentStatus("failed")
         }
+
+        setIsLoading(false)
       })
     } catch (err) {
       triggerHaptic("error")
       console.error("STARS INVOICE ERROR:", err)
-    } finally {
+      setPaymentStatus("failed")
       setIsLoading(false)
     }
   }
+
+  const mainButtonText = (() => {
+    if (paymentStatus === "creating") return "Готовим оплату…"
+    if (paymentStatus === "invoice") return "Подтвердите в Telegram…"
+    if (paymentStatus === "refreshing") return "Платёж принят, обновляем баланс…"
+    if (paymentStatus === "done") return "Баланс обновлён"
+    if (paymentStatus === "failed") return "Попробовать ещё раз"
+    if (isLoading) return "Загрузка…"
+    return canDeposit ? "Пополнить" : "Закрыть"
+  })()
 
   return (
     <div
       className="deposit-overlay"
       onClick={() => {
+        if (isLoading) return
+
         triggerHaptic("light")
-        onClose()
+        closeSheet()
       }}
     >
       <div className="deposit-sheet" onClick={(e) => e.stopPropagation()}>
@@ -117,12 +168,18 @@ function DepositMenu({ isOpen, onClose }) {
           ))}
         </div>
 
+        {paymentStatus === "refreshing" && (
+          <div className="deposit-status-text">
+            Stars списались, ждём подтверждение от Telegram…
+          </div>
+        )}
+
         <button
           className="deposit-close"
           onClick={handleMainAction}
-          disabled={isLoading}
+          disabled={isLoading && paymentStatus !== "failed"}
         >
-          {isLoading ? "Загрузка..." : canDeposit ? "Пополнить" : "Закрыть"}
+          {mainButtonText}
         </button>
       </div>
     </div>
