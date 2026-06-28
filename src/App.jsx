@@ -1,7 +1,9 @@
-import { lazy, Suspense, useEffect, useLayoutEffect } from "react"
+import { lazy, Suspense, useEffect, useLayoutEffect, useState } from "react"
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom"
 
 import Home from "./pages/Home"
+import DepositMenu from "./components/DepositMenu"
+import { triggerHaptic } from "./utils/haptics"
 
 const Profile = lazy(() => import("./pages/Profile"))
 const Bonus = lazy(() => import("./pages/Bonus"))
@@ -83,6 +85,8 @@ function AppRoutes() {
 }
 
 function App() {
+  const [isGlobalDepositOpen, setIsGlobalDepositOpen] = useState(false)
+
   useEffect(() => {
     if ("scrollRestoration" in window.history) {
       window.history.scrollRestoration = "manual"
@@ -102,6 +106,26 @@ function App() {
       document.removeEventListener("cut", preventDefault)
       document.removeEventListener("dragstart", preventDefault)
       document.removeEventListener("selectstart", preventDefault)
+    }
+  }, [])
+
+  useEffect(() => {
+    const handleDepositClick = (event) => {
+      const depositTrigger = event.target?.closest?.(".casepage-topup-btn, .crash-topbar-plus")
+
+      if (!depositTrigger) return
+
+      event.preventDefault()
+      event.stopPropagation()
+
+      triggerHaptic("light")
+      setIsGlobalDepositOpen(true)
+    }
+
+    document.addEventListener("click", handleDepositClick, true)
+
+    return () => {
+      document.removeEventListener("click", handleDepositClick, true)
     }
   }, [])
 
@@ -160,6 +184,10 @@ function App() {
     <BrowserRouter>
       <ScrollToTop />
       <AppRoutes />
+      <DepositMenu
+        isOpen={isGlobalDepositOpen}
+        onClose={() => setIsGlobalDepositOpen(false)}
+      />
     </BrowserRouter>
   )
 }
