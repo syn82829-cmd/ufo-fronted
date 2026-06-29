@@ -291,7 +291,12 @@ function Crash() {
 
           {showBoom && (
             <div className="crash-boom-lottie">
-              <Lottie animationData={boomAnim} loop={false} autoplay />
+              <Lottie
+                animationData={boomAnim}
+                loop={false}
+                autoplay
+                initialSegment={[0, 90]}
+              />
             </div>
           )}
 
