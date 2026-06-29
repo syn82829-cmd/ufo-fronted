@@ -1,15 +1,80 @@
+import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import Lottie from "lottie-react"
 
+import { getReferralState } from "../api"
 import { useUser } from "../context/UserContext"
+import { triggerHaptic } from "../utils/haptics"
 import friendsAnimation from "../assets/animations/frms.json"
 import zarAnimation from "../assets/animations/zar.json"
 import vivAnimation from "../assets/animations/viv.json"
 import "../style.css"
 
+function formatNumber(value) {
+  return String(Number(value || 0))
+}
+
 function Giveaways() {
   const navigate = useNavigate()
   const { user } = useUser()
+  const [referralState, setReferralState] = useState(null)
+  const [copied, setCopied] = useState(false)
+
+  const referralCode = referralState?.referralCode || "--------"
+  const totalEarned = formatNumber(referralState?.totalEarned)
+  const withdrawn = formatNumber(referralState?.withdrawn)
+  const available = formatNumber(referralState?.available)
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function loadReferralState() {
+      if (!user?.id || user.id === "—") return
+
+      try {
+        const data = await getReferralState(user.id)
+        if (!cancelled) {
+          setReferralState(data)
+        }
+      } catch (error) {
+        console.error("REFERRAL STATE LOAD ERROR:", error)
+      }
+    }
+
+    loadReferralState()
+
+    return () => {
+      cancelled = true
+    }
+  }, [user?.id])
+
+  const copyReferralCode = async () => {
+    if (!referralCode || referralCode === "--------") return
+
+    try {
+      triggerHaptic("light")
+      await navigator.clipboard?.writeText(referralCode)
+      setCopied(true)
+      window.setTimeout(() => setCopied(false), 1400)
+    } catch (error) {
+      console.error("COPY REFERRAL CODE ERROR:", error)
+    }
+  }
+
+  const inviteFriend = () => {
+    triggerHaptic("light")
+
+    const text = `Залетай в UFO и используй мой промокод ${referralCode}`
+    const shareUrl = `https://t.me/share/url?text=${encodeURIComponent(text)}`
+    const tg = window.Telegram?.WebApp
+
+    if (tg?.openTelegramLink) {
+      tg.openTelegramLink(shareUrl)
+      return
+    }
+
+    window.open(shareUrl, "_blank")
+  }
 
   return (
     <div className="app">
@@ -39,6 +104,7 @@ function Giveaways() {
         <button
           type="button"
           className="friends-invite-btn"
+          onClick={inviteFriend}
         >
           Пригласить друга
         </button>
@@ -55,7 +121,7 @@ function Giveaways() {
                 />
               </div>
 
-              <span className="friends-stat-value">0</span>
+              <span className="friends-stat-value">{totalEarned}</span>
             </div>
 
             <div className="friends-stat-label">
@@ -74,7 +140,7 @@ function Giveaways() {
                 />
               </div>
 
-              <span className="friends-stat-value">0</span>
+              <span className="friends-stat-value">{withdrawn}</span>
             </div>
 
             <div className="friends-stat-label">
@@ -92,7 +158,7 @@ function Giveaways() {
                 className="friends-withdraw-star"
                 draggable={false}
               />
-              <span className="friends-withdraw-value">0</span>
+              <span className="friends-withdraw-value">{available}</span>
             </div>
 
             <div className="friends-withdraw-label">
@@ -107,6 +173,36 @@ function Giveaways() {
           >
             Вывести
           </button>
+        </div>
+
+        <div className="friends-referral-section">
+          <div className="friends-referral-title">
+            Реферальный промокод
+          </div>
+
+          <div className="friends-referral-card">
+            <button
+              type="button"
+              className="friends-referral-code-row"
+              onClick={copyReferralCode}
+            >
+              <span className="friends-referral-code">
+                {referralCode}
+              </span>
+
+              <span className="friends-referral-edit" aria-hidden="true">
+                ✎
+              </span>
+            </button>
+
+            <div className="friends-referral-bonus">
+              При оплате с вашим промокодом друг получит +50⭐ и станет вашим рефералом
+            </div>
+
+            <div className="friends-referral-hint">
+              {copied ? "Промокод скопирован" : "Нажмите на код, чтобы скопировать"}
+            </div>
+          </div>
         </div>
       </div>
 
