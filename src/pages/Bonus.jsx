@@ -13,21 +13,21 @@ const BONUS_REWARD_STORAGE_KEY = "ufo_bonus_reserved_reward"
 const bonusTasks = [
   {
     id: "invite_friend",
-    title: "Пригласить друга",
+    title: "Пригласите друга",
     reward: 3,
-    icon: "+",
+    iconSrc: "/ui/ref.webp",
   },
   {
     id: "subscribe_channel",
-    title: "Подписаться на канал",
+    title: "Подпишитесь на канал",
     reward: 2,
-    icon: "✈",
+    iconSrc: "/ui/ch.webp",
   },
   {
     id: "vote_channel",
     title: "Проголосуйте за канал",
     reward: 2,
-    icon: "ϟ",
+    iconSrc: "/ui/golos.webp",
   },
 ]
 
@@ -219,9 +219,12 @@ function Bonus() {
               type="button"
               className="bonus-task-card"
             >
-              <span className="bonus-task-icon">
-                {task.icon}
-              </span>
+              <img
+                src={task.iconSrc}
+                alt=""
+                className="bonus-task-icon"
+                draggable={false}
+              />
 
               <span className="bonus-task-title">
                 {task.title}
