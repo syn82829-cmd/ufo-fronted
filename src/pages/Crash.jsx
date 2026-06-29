@@ -105,6 +105,7 @@ function Crash() {
   const status = crashState?.status || "waiting"
   const multiplier = Number(displayMultiplier || 1)
   const myBet = crashState?.myBet || null
+  const cashedOutProfit = Number(profit || myBet?.profit || 0)
 
   const isWaiting = status === "waiting"
   const isFlying = status === "flying"
@@ -150,12 +151,19 @@ function Crash() {
     triggerHaptic("error")
   }
 
-  const mainButtonText = (() => {
+  const mainButtonContent = (() => {
     if (isBetLoading) return "Ставка..."
     if (isCashoutLoading) return "Вывод..."
     if (canCashout) return "Забрать"
     if (myBet && myBet.status === "active" && isWaiting) return "Ставка принята"
-    if (myBet && myBet.status === "cashed_out") return "Выведено"
+    if (myBet && myBet.status === "cashed_out") {
+      return (
+        <span className="crash-cashout-profit-label">
+          <span>+{formatStars(cashedOutProfit)}</span>
+          <img src="/ui/star.webp" alt="" className="crash-cashout-profit-star" draggable={false} />
+        </span>
+      )
+    }
     if (isWaiting) return "Сделать ставку"
     if (isFlying && !myBet) return "Раунд идет"
     if (isCrashed) return "Ожидание..."
@@ -216,12 +224,6 @@ function Crash() {
                 <img src="/ui/star.PNG" className="crash-topbar-balance-icon" alt="" />
                 <span>{user.balance}</span>
               </div>
-
-              {profit > 0 && (
-                <div className="crash-balance-profit">
-                  +{formatStars(profit)} ⭐
-                </div>
-              )}
             </div>
 
             <button
@@ -293,7 +295,7 @@ function Crash() {
                 animationData={boomAnim}
                 loop={false}
                 autoplay
-                initialSegment={[0, 80]}
+                initialSegment={[0, 78]}
               />
             </div>
           )}
@@ -339,7 +341,7 @@ function Crash() {
               onClick={handleMainAction}
               disabled={!canPlaceBet && !canCashout}
             >
-              {mainButtonText}
+              {mainButtonContent}
             </button>
           </div>
         </div>
