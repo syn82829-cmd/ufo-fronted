@@ -6,21 +6,37 @@
 .friends-withdraw-card,
 .friends-referral-card {
   background:
-    radial-gradient(circle at 18% 0%, rgba(74, 145, 255, 0.18), rgba(74, 145, 255, 0.00) 42%),
+    radial-gradient(circle at 18% 0%, rgba(74, 145, 255, 0.22), rgba(74, 145, 255, 0.00) 42%),
     linear-gradient(
       145deg,
-      rgba(35, 82, 165, 0.48),
-      rgba(12, 34, 82, 0.38)
+      rgba(35, 82, 165, 0.54),
+      rgba(12, 34, 82, 0.43)
     ) !important;
 
-  border-color: rgba(120, 170, 255, 0.28) !important;
+  border-color: rgba(120, 170, 255, 0.32) !important;
 
   box-shadow:
-    0 10px 26px rgba(0,0,0,0.22),
-    inset 0 1px 0 rgba(255,255,255,0.13) !important;
+    0 10px 26px rgba(0,0,0,0.23),
+    inset 0 1px 0 rgba(255,255,255,0.15) !important;
 
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
+}
+
+.friends-hero-text,
+.friends-referral-title {
+  color: rgba(255,255,255,0.96) !important;
+  font-size: 22px !important;
+  font-weight: 760 !important;
+  line-height: 1.16 !important;
+  letter-spacing: -0.035em !important;
+  text-shadow:
+    0 8px 22px rgba(0,0,0,0.20),
+    0 0 14px rgba(120,210,255,0.08) !important;
+}
+
+.friends-hero-text {
+  margin-bottom: 22px !important;
 }
 
 .friends-stat-top,
@@ -77,13 +93,7 @@
 }
 
 .friends-referral-title {
-  margin: 0 0 12px;
-  color: rgba(255,255,255,0.94);
-  font-size: 22px;
-  font-weight: 720;
-  line-height: 1.12;
-  letter-spacing: -0.035em;
-  text-shadow: 0 6px 18px rgba(0,0,0,0.16);
+  margin: 0 0 12px !important;
 }
 
 .friends-referral-card {
@@ -91,7 +101,7 @@
   box-sizing: border-box;
   padding: 18px 14px 18px;
   border-radius: 22px;
-  border: 1px solid rgba(120,170,255,0.28);
+  border: 1px solid rgba(120,170,255,0.32);
 }
 
 .friends-referral-code-row {
@@ -106,14 +116,14 @@
   gap: 10px;
 
   border-radius: 16px;
-  border: 1px solid rgba(145,190,255,0.26);
+  border: 1px solid rgba(145,190,255,0.30);
   background:
-    radial-gradient(circle at 18% 0%, rgba(255,255,255,0.10), rgba(255,255,255,0.00) 44%),
-    linear-gradient(145deg, rgba(255,255,255,0.082), rgba(255,255,255,0.028));
+    radial-gradient(circle at 18% 0%, rgba(255,255,255,0.12), rgba(255,255,255,0.00) 44%),
+    linear-gradient(145deg, rgba(255,255,255,0.105), rgba(255,255,255,0.036));
 
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.15),
-    0 6px 14px rgba(0,0,0,0.10);
+    inset 0 1px 0 rgba(255,255,255,0.16),
+    0 6px 14px rgba(0,0,0,0.11);
 
   color: rgba(255,255,255,0.96);
   -webkit-tap-highlight-color: transparent;
@@ -140,7 +150,7 @@
   justify-content: center;
 
   border-radius: 13px;
-  background: rgba(255,255,255,0.075);
+  background: rgba(255,255,255,0.085);
   color: rgba(235,245,255,0.66);
 
   font-size: 23px;
@@ -154,7 +164,8 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 3px;
+  column-gap: 3px;
+  row-gap: 4px;
 
   color: rgba(75,225,255,0.92);
   font-size: 16px;
@@ -192,8 +203,9 @@
     margin-top: 28px;
   }
 
+  .friends-hero-text,
   .friends-referral-title {
-    font-size: 21px;
+    font-size: 21px !important;
   }
 }
 
@@ -211,8 +223,9 @@
     font-size: 27px !important;
   }
 
+  .friends-hero-text,
   .friends-referral-title {
-    font-size: 20px;
+    font-size: 20px !important;
   }
 
   .friends-referral-card {
