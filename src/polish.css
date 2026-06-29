@@ -14,7 +14,13 @@
 }
 
 .case-settings-panel {
-  margin: 0 auto 14px !important;
+  position: absolute !important;
+  left: 50% !important;
+  top: 300px !important;
+  z-index: 6 !important;
+  transform: translateX(-50%) !important;
+
+  margin: 0 !important;
   padding: 10px 14px !important;
 
   background:
@@ -64,7 +70,8 @@
 
 .casepage-action-stack {
   gap: 8px !important;
-  margin-bottom: 16px !important;
+  margin-top: -4px !important;
+  margin-bottom: 12px !important;
 }
 
 .casepage-balance-warning-btn,
@@ -136,6 +143,14 @@
     width: 76% !important;
     max-width: 292px !important;
     min-height: 48px !important;
+  }
+
+  .case-settings-panel {
+    top: 286px !important;
+  }
+
+  .casepage-action-stack {
+    margin-top: -8px !important;
   }
 
   .casepage-balance-warning-btn,
