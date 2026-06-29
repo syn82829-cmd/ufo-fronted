@@ -1,6 +1,11 @@
 import { useEffect, useMemo, useState } from "react"
 import Lottie from "lottie-react"
 
+function cleanPrice(value) {
+  if (value == null || value === "") return "0"
+  return String(value).replace(/[.\s]/g, "")
+}
+
 function CaseDropsGrid({
   drops,
   activeDrop,
@@ -108,7 +113,7 @@ function CaseDropsGrid({
                   decoding="async"
                   draggable={false}
                 />
-                <span>{drop.priceStars || "0"}</span>
+                <span>{cleanPrice(drop.priceStars)}</span>
               </span>
 
               {drop.priceGems && (
@@ -121,7 +126,7 @@ function CaseDropsGrid({
                     decoding="async"
                     draggable={false}
                   />
-                  <span>{drop.priceGems}</span>
+                  <span>{cleanPrice(drop.priceGems)}</span>
                 </span>
               )}
             </div>
