@@ -3,8 +3,8 @@
 /* ============================= */
 
 .friends-page {
-  width: 100% !important;
-  max-width: 340px !important;
+  width: calc(100% - 40px) !important;
+  max-width: 390px !important;
   margin: 0 auto !important;
 }
 
@@ -30,9 +30,17 @@
 }
 
 .friends-hero-badge {
-  width: 70% !important;
-  max-width: 236px !important;
-  min-width: 214px !important;
+  width: 82% !important;
+  max-width: 330px !important;
+  min-width: 286px !important;
+  padding-left: 18px !important;
+  padding-right: 18px !important;
+}
+
+.friends-hero-badge-text {
+  white-space: nowrap !important;
+  font-size: 16px !important;
+  letter-spacing: -0.02em !important;
 }
 
 .friends-hero-visual {
@@ -89,14 +97,14 @@
 .friends-stats-grid,
 .friends-withdraw-card,
 .friends-referral-section {
-  width: 94% !important;
-  max-width: 320px !important;
+  width: 100% !important;
+  max-width: none !important;
   margin-left: auto !important;
   margin-right: auto !important;
 }
 
 .friends-stats-grid {
-  gap: 12px !important;
+  gap: 18px !important;
 }
 
 .friends-stat-card {
@@ -272,20 +280,19 @@
   letter-spacing: -0.01em;
 }
 
-@media (max-width: 640px) {
-  .friends-page {
-    max-width: 340px !important;
-  }
-}
-
 @media (max-width: 420px) {
   .friends-page {
-    max-width: 334px !important;
+    width: calc(100% - 36px) !important;
+    max-width: 390px !important;
   }
 
   .friends-hero-badge {
-    width: 72% !important;
-    min-width: 220px !important;
+    width: 86% !important;
+    min-width: 288px !important;
+  }
+
+  .friends-hero-badge-text {
+    font-size: 15px !important;
   }
 
   .friends-hero-visual {
@@ -305,6 +312,10 @@
   .friends-hero-text,
   .friends-referral-title {
     font-size: 19px !important;
+  }
+
+  .friends-stats-grid {
+    gap: 16px !important;
   }
 
   .friends-stat-lottie-wrap,
