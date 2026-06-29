@@ -2,10 +2,11 @@
 /* FINAL POLISH OVERRIDES */
 /* ============================= */
 
-/* Case page: demo panel and insufficient-balance controls. */
+/* Case page: demo panel and case action controls. */
 .case-settings-panel,
 .casepage-balance-warning-btn,
-.casepage-topup-btn {
+.casepage-topup-btn,
+.casepage-open-btn {
   width: 78% !important;
   max-width: 300px !important;
   min-height: 50px !important;
@@ -42,36 +43,42 @@
 }
 
 .case-settings-row {
-  position: relative !important;
   min-height: 30px !important;
   display: flex !important;
   align-items: center !important;
-  justify-content: flex-end !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
 }
 
 .case-settings-copy {
-  position: absolute !important;
-  left: 50% !important;
-  top: 50% !important;
-  transform: translate(-50%, -50%) !important;
+  position: static !important;
+  transform: none !important;
 
-  width: max-content !important;
-  max-width: calc(100% - 72px) !important;
-  gap: 0 !important;
-  text-align: center !important;
-  pointer-events: none !important;
+  min-width: 0 !important;
+  width: auto !important;
+  max-width: none !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+  text-align: left !important;
+  pointer-events: auto !important;
 }
 
 .case-settings-title {
-  font-size: 17px !important;
+  font-size: 16px !important;
   font-weight: 760 !important;
   letter-spacing: -0.02em !important;
-  text-align: center !important;
+  text-align: left !important;
   white-space: nowrap !important;
 }
 
 .case-settings-text {
-  display: none !important;
+  display: block !important;
+  font-size: 13px !important;
+  font-weight: 560 !important;
+  line-height: 1.22 !important;
+  color: rgba(235,245,255,0.72) !important;
 }
 
 .case-settings-toggle {
@@ -95,7 +102,8 @@
 }
 
 .casepage-balance-warning-btn,
-.casepage-topup-btn {
+.casepage-topup-btn,
+.casepage-open-btn {
   padding: 0 18px !important;
 
   display: flex !important;
@@ -135,7 +143,10 @@
   flex: 0 0 20px !important;
 }
 
-.casepage-topup-btn {
+.casepage-topup-btn,
+.casepage-open-btn {
+  margin-top: 0 !important;
+
   background: linear-gradient(
     135deg,
     rgba(95, 200, 255, 0.68),
@@ -152,14 +163,20 @@
   transition: transform .18s ease, opacity .18s ease !important;
 }
 
-.casepage-topup-btn:active {
+.casepage-topup-btn:active,
+.casepage-open-btn:active {
   transform: scale(0.985) !important;
+}
+
+.casepage-open-btn:disabled {
+  opacity: 0.68 !important;
 }
 
 @media (max-width: 430px) {
   .case-settings-panel,
   .casepage-balance-warning-btn,
-  .casepage-topup-btn {
+  .casepage-topup-btn,
+  .casepage-open-btn {
     width: 76% !important;
     max-width: 292px !important;
     min-height: 48px !important;
@@ -179,7 +196,8 @@
   }
 
   .casepage-balance-warning-btn,
-  .casepage-topup-btn {
+  .casepage-topup-btn,
+  .casepage-open-btn {
     font-size: 16px !important;
     padding: 0 16px !important;
   }
