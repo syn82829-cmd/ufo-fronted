@@ -5,6 +5,13 @@
 .crash-flight-zone {
   position: relative !important;
   overflow: visible !important;
+  min-height: 288px !important;
+  margin-bottom: 38px !important;
+}
+
+.crash-settings-btn {
+  pointer-events: none !important;
+  cursor: default !important;
 }
 
 .crash-multiplier {
@@ -19,10 +26,10 @@
 
 .crash-flight-scene {
   position: absolute;
-  left: 54%;
-  top: 67%;
-  width: 286px;
-  height: 252px;
+  left: 56%;
+  top: 58%;
+  width: 296px;
+  height: 258px;
   pointer-events: none;
   transform: translate(-50%, -50%);
   animation: crashSceneFloat 3.8s ease-in-out infinite;
@@ -30,11 +37,11 @@
 
 .crash-flight-scene .crash-ufo-lottie {
   position: absolute !important;
-  left: 50% !important;
-  top: 66% !important;
-  width: 236px !important;
-  height: 236px !important;
-  max-width: 236px !important;
+  left: 53% !important;
+  top: 58% !important;
+  width: 246px !important;
+  height: 246px !important;
+  max-width: 246px !important;
   transform: translate(-50%, -50%) !important;
   z-index: 4;
 
@@ -45,16 +52,16 @@
 
 .crash-flight-scene .crash-ufo-lottie > div,
 .crash-flight-scene .crash-ufo-lottie svg {
-  width: 236px !important;
-  height: 236px !important;
+  width: 246px !important;
+  height: 246px !important;
 }
 
 .crash-moon-lottie {
   position: absolute;
-  left: 22%;
-  top: 0%;
-  width: 140px;
-  height: 140px;
+  left: 20%;
+  top: -3%;
+  width: 154px;
+  height: 154px;
   z-index: 1;
   opacity: 0.92;
   pointer-events: none;
@@ -68,16 +75,16 @@
 
 .crash-moon-lottie > div,
 .crash-moon-lottie svg {
-  width: 140px !important;
-  height: 140px !important;
+  width: 154px !important;
+  height: 154px !important;
 }
 
 .crash-boom-lottie {
   position: absolute;
-  left: 54%;
-  top: 67%;
-  width: 236px;
-  height: 236px;
+  left: 56%;
+  top: 58%;
+  width: 246px;
+  height: 246px;
   z-index: 5;
   pointer-events: none;
   transform: translate(-50%, -50%);
@@ -89,8 +96,43 @@
 
 .crash-boom-lottie > div,
 .crash-boom-lottie svg {
-  width: 236px !important;
-  height: 236px !important;
+  width: 246px !important;
+  height: 246px !important;
+}
+
+.crash-bet-zone {
+  margin-top: 10px !important;
+  margin-bottom: 26px !important;
+}
+
+.crash-bet-controls {
+  width: 100% !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+  align-items: stretch !important;
+  gap: 14px !important;
+}
+
+.crash-bet-input-wrap,
+.crash-bet-btn {
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 56px !important;
+  min-height: 56px !important;
+  box-sizing: border-box !important;
+  border-radius: 22px !important;
+}
+
+.crash-bet-input-wrap {
+  padding: 0 16px !important;
+}
+
+.crash-bet-btn {
+  padding: 0 14px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  white-space: nowrap !important;
 }
 
 @keyframes crashSceneFloat {
@@ -143,47 +185,63 @@
 }
 
 @media (max-width: 430px) {
+  .crash-flight-zone {
+    min-height: 280px !important;
+    margin-bottom: 36px !important;
+  }
+
   .crash-multiplier {
     top: -62px !important;
     font-size: 31px !important;
   }
 
   .crash-flight-scene {
-    left: 54%;
-    top: 68%;
-    width: 264px;
-    height: 236px;
+    left: 56%;
+    top: 58%;
+    width: 274px;
+    height: 240px;
   }
 
   .crash-flight-scene .crash-ufo-lottie,
   .crash-flight-scene .crash-ufo-lottie > div,
   .crash-flight-scene .crash-ufo-lottie svg {
-    width: 216px !important;
-    height: 216px !important;
-    max-width: 216px !important;
+    width: 226px !important;
+    height: 226px !important;
+    max-width: 226px !important;
   }
 
   .crash-moon-lottie,
   .crash-moon-lottie > div,
   .crash-moon-lottie svg {
-    width: 124px !important;
-    height: 124px !important;
+    width: 136px !important;
+    height: 136px !important;
   }
 
   .crash-moon-lottie {
-    left: 20%;
-    top: -1%;
+    left: 18%;
+    top: -4%;
   }
 
   .crash-boom-lottie,
   .crash-boom-lottie > div,
   .crash-boom-lottie svg {
-    width: 216px !important;
-    height: 216px !important;
+    width: 226px !important;
+    height: 226px !important;
   }
 
   .crash-boom-lottie {
-    left: 54%;
-    top: 68%;
+    left: 56%;
+    top: 58%;
+  }
+
+  .crash-bet-controls {
+    gap: 12px !important;
+  }
+
+  .crash-bet-input-wrap,
+  .crash-bet-btn {
+    height: 54px !important;
+    min-height: 54px !important;
+    border-radius: 21px !important;
   }
 }
