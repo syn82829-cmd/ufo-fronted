@@ -6,7 +6,8 @@
 .casepage-topup-btn,
 .casepage-open-btn,
 .bonus-open-sheet-btn,
-.daily-gift-claim-btn {
+.daily-gift-claim-btn,
+.glass-btn {
   background:
     radial-gradient(circle at 20% 0%, rgba(255,255,255,0.18), rgba(255,255,255,0.00) 46%),
     linear-gradient(
@@ -36,7 +37,8 @@
 .casepage-topup-btn:active,
 .casepage-open-btn:active,
 .bonus-open-sheet-btn:active,
-.daily-gift-claim-btn:active {
+.daily-gift-claim-btn:active,
+.glass-btn:active {
   transform: scale(0.985) !important;
 }
 
@@ -58,6 +60,13 @@
 
 .casepage-header:has(+ .case-settings-panel) .case-image-wrapper {
   margin-top: 72px !important;
+}
+
+.casepage-header-btn:disabled,
+.casepage-header-btn[aria-disabled="true"] {
+  pointer-events: none !important;
+  opacity: 0.54 !important;
+  transform: translateY(-50%) scale(0.96) !important;
 }
 
 .case-settings-panel {
@@ -208,6 +217,62 @@
   font-size: 16px !important;
 }
 
+/* Result modal polish. */
+.result-title {
+  margin-bottom: 28px !important;
+  color: rgba(255,255,255,0.94) !important;
+  font-size: 31px !important;
+  font-weight: 540 !important;
+  letter-spacing: -0.045em !important;
+  text-shadow:
+    0 8px 28px rgba(0,0,0,0.22),
+    0 0 18px rgba(120,210,255,0.10) !important;
+}
+
+.result-size {
+  width: 204px !important;
+  min-height: 246px !important;
+  padding: 18px 16px !important;
+  border-radius: 28px !important;
+
+  background:
+    radial-gradient(circle at 50% 0%, rgba(115,215,255,0.14), rgba(255,255,255,0.00) 46%),
+    linear-gradient(145deg, rgba(255,255,255,0.115), rgba(255,255,255,0.045)) !important;
+
+  box-shadow:
+    0 0 34px rgba(75,175,255,0.18),
+    0 18px 44px rgba(0,0,0,0.34),
+    inset 0 1px 0 rgba(255,255,255,0.22) !important;
+}
+
+.result-png {
+  width: 116px !important;
+  height: 116px !important;
+}
+
+.result-buttons {
+  gap: 18px !important;
+  margin-top: 30px !important;
+}
+
+.glass-btn {
+  min-width: 136px !important;
+  height: 50px !important;
+  padding: 0 24px !important;
+  font-size: 16px !important;
+}
+
+.glass-btn.open,
+.glass-btn.sell {
+  background:
+    radial-gradient(circle at 20% 0%, rgba(255,255,255,0.18), rgba(255,255,255,0.00) 46%),
+    linear-gradient(135deg, rgba(95, 200, 255, 0.68), rgba(62, 180, 245, 0.60), rgba(92, 220, 255, 0.56)) !important;
+  border-color: rgba(170,235,255,0.20) !important;
+  box-shadow:
+    0 10px 22px rgba(60,160,240,0.10),
+    inset 0 1px 0 rgba(255,255,255,0.22) !important;
+}
+
 @media (max-width: 430px) {
   .case-settings-panel,
   .casepage-balance-warning-btn,
@@ -252,5 +317,30 @@
     min-width: 104px !important;
     height: 46px !important;
     padding: 0 16px !important;
+  }
+
+  .result-title {
+    font-size: 29px !important;
+    margin-bottom: 26px !important;
+  }
+
+  .result-size {
+    width: 198px !important;
+    min-height: 238px !important;
+  }
+
+  .result-png {
+    width: 112px !important;
+    height: 112px !important;
+  }
+
+  .result-buttons {
+    gap: 14px !important;
+  }
+
+  .glass-btn {
+    min-width: 124px !important;
+    height: 48px !important;
+    padding: 0 18px !important;
   }
 }
