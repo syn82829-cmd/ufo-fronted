@@ -4,6 +4,7 @@ function CaseHeader({
   imgRef,
   navigate,
   onOpenSettings,
+  settingsPanel = null,
 }) {
   return (
     <div className="casepage-header">
@@ -40,6 +41,8 @@ function CaseHeader({
           />
         </button>
       </div>
+
+      {settingsPanel}
 
       <div className="case-image-wrapper">
         <img
