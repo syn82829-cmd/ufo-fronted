@@ -3,8 +3,8 @@
 /* ============================= */
 
 .friends-page {
-  width: calc(100% - 28px) !important;
-  max-width: 420px !important;
+  width: calc(100% - 18px) !important;
+  max-width: 430px !important;
   margin: 0 auto !important;
 }
 
@@ -232,11 +232,13 @@
 }
 
 .friends-referral-bonus {
-  margin-top: 14px;
+  width: 100%;
+  max-width: 330px;
+  margin: 14px auto 0;
 
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   gap: 3px;
 
   color: rgba(75,225,255,0.92);
@@ -244,6 +246,7 @@
   font-weight: 670;
   line-height: 1.22;
   letter-spacing: -0.02em;
+  text-align: center;
 
   text-shadow:
     0 0 16px rgba(75,225,255,0.12),
@@ -278,12 +281,13 @@
   font-weight: 520;
   line-height: 1.25;
   letter-spacing: -0.01em;
+  text-align: center;
 }
 
 @media (max-width: 420px) {
   .friends-page {
-    width: calc(100% - 26px) !important;
-    max-width: 420px !important;
+    width: calc(100% - 18px) !important;
+    max-width: 430px !important;
   }
 
   .friends-hero-badge {
@@ -344,6 +348,7 @@
   }
 
   .friends-referral-bonus {
+    max-width: 300px;
     font-size: 14px;
   }
 
