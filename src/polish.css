@@ -2,6 +2,44 @@
 /* FINAL POLISH OVERRIDES */
 /* ============================= */
 
+/* Shared transparent glass CTA, matched to “Пополнить баланс” / “Пригласить друга”. */
+.casepage-topup-btn,
+.casepage-open-btn,
+.bonus-open-sheet-btn,
+.daily-gift-claim-btn {
+  background:
+    radial-gradient(circle at 20% 0%, rgba(255,255,255,0.18), rgba(255,255,255,0.00) 46%),
+    linear-gradient(
+      135deg,
+      rgba(95, 200, 255, 0.68),
+      rgba(62, 180, 245, 0.60),
+      rgba(92, 220, 255, 0.56)
+    ) !important;
+
+  border: 1px solid rgba(170, 235, 255, 0.20) !important;
+  border-radius: 999px !important;
+
+  color: rgba(255,255,255,0.98) !important;
+  font-weight: 740 !important;
+  letter-spacing: -0.02em !important;
+
+  box-shadow:
+    0 10px 22px rgba(60,160,240,0.10),
+    inset 0 1px 0 rgba(255,255,255,0.22) !important;
+
+  transition:
+    transform .18s ease,
+    box-shadow .18s ease,
+    opacity .18s ease !important;
+}
+
+.casepage-topup-btn:active,
+.casepage-open-btn:active,
+.bonus-open-sheet-btn:active,
+.daily-gift-claim-btn:active {
+  transform: scale(0.985) !important;
+}
+
 /* Case page: demo panel and case action controls. */
 .case-settings-panel,
 .casepage-balance-warning-btn,
@@ -146,30 +184,24 @@
 .casepage-topup-btn,
 .casepage-open-btn {
   margin-top: 0 !important;
-
-  background: linear-gradient(
-    135deg,
-    rgba(95, 200, 255, 0.68),
-    rgba(62, 180, 245, 0.60),
-    rgba(92, 220, 255, 0.56)
-  ) !important;
-  border: 1px solid rgba(170, 235, 255, 0.20) !important;
-  color: rgba(255,255,255,0.98) !important;
-
-  box-shadow:
-    0 10px 22px rgba(60,160,240,0.10),
-    inset 0 1px 0 rgba(255,255,255,0.22) !important;
-
-  transition: transform .18s ease, opacity .18s ease !important;
 }
 
-.casepage-topup-btn:active,
-.casepage-open-btn:active {
-  transform: scale(0.985) !important;
-}
-
-.casepage-open-btn:disabled {
+.casepage-open-btn:disabled,
+.bonus-open-sheet-btn:disabled,
+.daily-gift-claim-btn:disabled {
   opacity: 0.68 !important;
+}
+
+.bonus-open-sheet-btn {
+  height: 54px !important;
+  font-size: 18px !important;
+}
+
+.daily-gift-claim-btn {
+  min-width: 118px !important;
+  height: 48px !important;
+  padding: 0 18px !important;
+  font-size: 16px !important;
 }
 
 @media (max-width: 430px) {
@@ -206,5 +238,11 @@
     width: 19px !important;
     height: 19px !important;
     flex-basis: 19px !important;
+  }
+
+  .daily-gift-claim-btn {
+    min-width: 104px !important;
+    height: 46px !important;
+    padding: 0 16px !important;
   }
 }
