@@ -10,11 +10,23 @@ import { useUser } from "../context/UserContext"
 import { getPlayerRank } from "../utils/playerRank"
 import "../style.css"
 
+async function loadLottieJson(path) {
+  const res = await fetch(path)
+
+  if (!res.ok) {
+    throw new Error(`Failed to load ${path}: ${res.status}`)
+  }
+
+  return res.json()
+}
+
 function Crash() {
   const navigate = useNavigate()
   const { user, refreshUser, incrementBalance, decrementBalance } = useUser()
 
   const [ufoAnim, setUfoAnim] = useState(null)
+  const [boomAnim, setBoomAnim] = useState(null)
+  const [moonAnim, setMoonAnim] = useState(null)
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [betAmount, setBetAmount] = useState("100")
 
@@ -50,24 +62,39 @@ function Crash() {
   useEffect(() => {
     let cancelled = false
 
-    async function loadUfoAnim() {
+    async function loadCrashAnimations() {
       try {
-        const res = await fetch("/animations/ufo.json")
-        if (!res.ok) {
-          throw new Error(`Failed to load /animations/ufo.json: ${res.status}`)
+        const [ufoData, boomData, moonData] = await Promise.allSettled([
+          loadLottieJson("/animations/ufo.json"),
+          loadLottieJson("/animations/boom.json"),
+          loadLottieJson("/animations/moon.json"),
+        ])
+
+        if (cancelled) return
+
+        if (ufoData.status === "fulfilled") {
+          setUfoAnim(ufoData.value)
+        } else {
+          console.error("CRASH UFO LOTTIE LOAD ERROR:", ufoData.reason)
         }
 
-        const data = await res.json()
+        if (boomData.status === "fulfilled") {
+          setBoomAnim(boomData.value)
+        } else {
+          console.error("CRASH BOOM LOTTIE LOAD ERROR:", boomData.reason)
+        }
 
-        if (!cancelled) {
-          setUfoAnim(data)
+        if (moonData.status === "fulfilled") {
+          setMoonAnim(moonData.value)
+        } else {
+          console.error("CRASH MOON LOTTIE LOAD ERROR:", moonData.reason)
         }
       } catch (err) {
-        console.error("CRASH UFO LOTTIE LOAD ERROR:", err)
+        console.error("CRASH LOTTIE LOAD ERROR:", err)
       }
     }
 
-    loadUfoAnim()
+    loadCrashAnimations()
 
     return () => {
       cancelled = true
@@ -136,7 +163,8 @@ function Crash() {
   })()
 
   const showUfo = isFlying
-  const showCrashText = isCrashed
+  const showBoom = isCrashed && boomAnim
+  const showCrashText = isCrashed && !boomAnim
   const showCountdown = isWaiting && displayCountdown !== null && displayCountdown > 0
   const showStart = isWaiting && showStartText
 
@@ -248,8 +276,22 @@ function Crash() {
           </div>
 
           {showUfo && ufoAnim && (
-            <div className="crash-ufo-lottie flying">
-              <Lottie animationData={ufoAnim} loop autoplay />
+            <div className="crash-flight-scene">
+              {moonAnim && (
+                <div className="crash-moon-lottie">
+                  <Lottie animationData={moonAnim} loop autoplay />
+                </div>
+              )}
+
+              <div className="crash-ufo-lottie flying">
+                <Lottie animationData={ufoAnim} loop autoplay />
+              </div>
+            </div>
+          )}
+
+          {showBoom && (
+            <div className="crash-boom-lottie">
+              <Lottie animationData={boomAnim} loop={false} autoplay />
             </div>
           )}
 
