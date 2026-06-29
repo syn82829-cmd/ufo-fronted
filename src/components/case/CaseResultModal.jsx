@@ -1,3 +1,8 @@
+function cleanPrice(value) {
+  if (value == null || value === "") return "0"
+  return String(value).replace(/[.\s]/g, "")
+}
+
 function CaseResultModal({ resultDrop, pngSrcByDrop, sellItem, openAgain }) {
   if (!resultDrop) return null
 
@@ -34,7 +39,7 @@ function CaseResultModal({ resultDrop, pngSrcByDrop, sellItem, openAgain }) {
                     decoding="async"
                     draggable={false}
                   />
-                  <span>{resultDrop.priceStars || "0"}</span>
+                  <span>{cleanPrice(resultDrop.priceStars)}</span>
                 </span>
               )}
 
@@ -48,7 +53,7 @@ function CaseResultModal({ resultDrop, pngSrcByDrop, sellItem, openAgain }) {
                     decoding="async"
                     draggable={false}
                   />
-                  <span>{resultDrop.priceGems}</span>
+                  <span>{cleanPrice(resultDrop.priceGems)}</span>
                 </span>
               )}
             </div>
