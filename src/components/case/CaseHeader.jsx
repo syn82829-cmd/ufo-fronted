@@ -13,6 +13,8 @@ function CaseHeader({
           type="button"
           className="casepage-header-btn casepage-back-btn"
           onClick={() => navigate(-1)}
+          disabled={isSpinning}
+          aria-disabled={isSpinning}
         >
           <img
             src="/ui/back.PNG"
@@ -30,6 +32,8 @@ function CaseHeader({
           type="button"
           className="casepage-header-btn casepage-settings-btn"
           onClick={onOpenSettings}
+          disabled={isSpinning}
+          aria-disabled={isSpinning}
         >
           <img
             src="/ui/settings.PNG"
