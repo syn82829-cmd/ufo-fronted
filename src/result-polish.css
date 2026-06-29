@@ -2,6 +2,11 @@
 /* RESULT MODAL DEEP POLISH */
 /* ============================= */
 
+.result-overlay {
+  overscroll-behavior: contain !important;
+  touch-action: none !important;
+}
+
 .result-card {
   position: relative !important;
   isolation: isolate !important;
@@ -12,56 +17,55 @@
   content: "";
   position: absolute;
   left: 50%;
-  top: 44%;
-  width: 410px;
-  height: 410px;
-  z-index: -3;
+  top: 43%;
+  width: 430px;
+  height: 430px;
+  z-index: -4;
   pointer-events: none;
 
   background:
     conic-gradient(
-      from 12deg,
+      from 10deg,
       rgba(70, 185, 255, 0.00) 0deg,
-      rgba(90, 205, 255, 0.52) 8deg,
-      rgba(70, 185, 255, 0.00) 21deg,
-      rgba(120, 230, 255, 0.26) 38deg,
-      rgba(70, 185, 255, 0.00) 65deg,
-      rgba(55, 155, 255, 0.48) 92deg,
+      rgba(90, 205, 255, 0.64) 7deg,
+      rgba(70, 185, 255, 0.00) 18deg,
+      rgba(125, 235, 255, 0.30) 37deg,
+      rgba(70, 185, 255, 0.00) 62deg,
+      rgba(55, 155, 255, 0.56) 94deg,
       rgba(70, 185, 255, 0.00) 112deg,
-      rgba(150, 245, 255, 0.30) 144deg,
-      rgba(70, 185, 255, 0.00) 180deg,
-      rgba(80, 195, 255, 0.46) 218deg,
-      rgba(70, 185, 255, 0.00) 244deg,
-      rgba(130, 235, 255, 0.24) 280deg,
-      rgba(70, 185, 255, 0.00) 318deg,
-      rgba(105, 220, 255, 0.42) 346deg,
+      rgba(145, 250, 255, 0.34) 146deg,
+      rgba(70, 185, 255, 0.00) 178deg,
+      rgba(70, 190, 255, 0.60) 218deg,
+      rgba(70, 185, 255, 0.00) 242deg,
+      rgba(145, 245, 255, 0.30) 282deg,
+      rgba(70, 185, 255, 0.00) 320deg,
+      rgba(115, 225, 255, 0.54) 347deg,
       rgba(70, 185, 255, 0.00) 360deg
     );
 
   opacity: 1;
-  filter: blur(12px);
-  transform: translate(-50%, -50%) scaleX(1.18) scaleY(0.82) rotate(-7deg);
+  filter: blur(6px);
+  transform: translate(-50%, -50%) scaleX(1.22) scaleY(0.82) rotate(-8deg);
+  animation: resultAuroraSpin 8s ease-in-out infinite alternate;
 }
 
 .result-card::after {
   content: "";
   position: absolute;
   left: 50%;
-  top: 44%;
-  width: 260px;
-  height: 260px;
-  z-index: -2;
+  top: 43%;
+  width: 310px;
+  height: 310px;
+  z-index: -3;
   pointer-events: none;
 
   background:
-    radial-gradient(circle at center,
-      rgba(80, 200, 255, 0.46) 0%,
-      rgba(80, 200, 255, 0.20) 38%,
-      rgba(80, 200, 255, 0.00) 72%
-    );
+    radial-gradient(circle at 44% 46%, rgba(70, 205, 255, 0.54), rgba(60, 180, 255, 0.18) 34%, rgba(60, 180, 255, 0.00) 70%),
+    linear-gradient(105deg, rgba(65, 205, 255, 0.00), rgba(85, 220, 255, 0.36), rgba(65, 205, 255, 0.00));
 
-  filter: blur(14px);
-  transform: translate(-50%, -50%);
+  filter: blur(8px);
+  transform: translate(-50%, -50%) rotate(0deg);
+  animation: resultAuroraFlow 6.8s ease-in-out infinite alternate;
 }
 
 .result-size {
@@ -70,7 +74,7 @@
   overflow: visible !important;
 
   box-shadow:
-    0 0 46px rgba(80,190,255,0.34),
+    0 0 54px rgba(80,200,255,0.40),
     0 18px 44px rgba(0,0,0,0.34),
     inset 0 1px 0 rgba(255,255,255,0.22) !important;
 }
@@ -78,7 +82,7 @@
 .result-size::before {
   content: "";
   position: absolute;
-  inset: -64px -74px;
+  inset: -58px -68px;
   z-index: -2;
   pointer-events: none;
 
@@ -86,36 +90,47 @@
     conic-gradient(
       from 18deg,
       rgba(82, 188, 255, 0.00) 0deg,
-      rgba(82, 188, 255, 0.42) 14deg,
-      rgba(82, 188, 255, 0.00) 33deg,
-      rgba(120, 220, 255, 0.28) 54deg,
+      rgba(95, 210, 255, 0.58) 12deg,
+      rgba(82, 188, 255, 0.00) 29deg,
+      rgba(130, 235, 255, 0.34) 55deg,
       rgba(82, 188, 255, 0.00) 78deg,
-      rgba(55, 150, 255, 0.40) 106deg,
+      rgba(65, 165, 255, 0.54) 108deg,
       rgba(82, 188, 255, 0.00) 132deg,
-      rgba(135, 235, 255, 0.30) 171deg,
+      rgba(140, 245, 255, 0.40) 172deg,
       rgba(82, 188, 255, 0.00) 206deg,
-      rgba(75, 175, 255, 0.38) 247deg,
+      rgba(75, 190, 255, 0.52) 248deg,
       rgba(82, 188, 255, 0.00) 286deg,
-      rgba(155, 240, 255, 0.24) 320deg,
+      rgba(160, 250, 255, 0.32) 320deg,
       rgba(82, 188, 255, 0.00) 360deg
     );
 
   opacity: 1;
-  filter: blur(10px);
-  transform: scaleX(1.14) scaleY(0.9) rotate(5deg);
+  filter: blur(5px);
+  transform: scaleX(1.16) scaleY(0.90) rotate(3deg);
+  animation: resultAuroraSpin 7.2s ease-in-out infinite alternate-reverse;
 }
 
 .result-size::after {
   content: "";
   position: absolute;
-  inset: -38px -46px;
+  inset: 8px;
   z-index: -1;
   pointer-events: none;
 
+  border-radius: 24px;
   background:
-    radial-gradient(circle at 50% 48%, rgba(92, 205, 255, 0.42), rgba(72, 170, 255, 0.16) 38%, rgba(72, 170, 255, 0.00) 70%);
+    linear-gradient(105deg,
+      rgba(60, 190, 255, 0.00) 0%,
+      rgba(88, 220, 255, 0.30) 28%,
+      rgba(120, 240, 255, 0.16) 52%,
+      rgba(65, 175, 255, 0.28) 74%,
+      rgba(60, 190, 255, 0.00) 100%
+    );
 
-  filter: blur(9px);
+  filter: blur(13px);
+  opacity: 0.92;
+  transform: translateX(-8px);
+  animation: resultAuroraInside 5.6s ease-in-out infinite alternate;
 }
 
 .result-buttons .glass-btn {
@@ -153,23 +168,68 @@
 
 .result-buttons .glass-btn.open {
   background:
-    radial-gradient(circle at 20% 0%, rgba(255,255,255,0.14), rgba(255,255,255,0.00) 46%),
+    radial-gradient(circle at 20% 0%, rgba(255,255,255,0.17), rgba(255,255,255,0.00) 46%),
     linear-gradient(
       135deg,
-      rgba(83, 185, 145, 0.56),
-      rgba(47, 135, 105, 0.48),
-      rgba(105, 205, 160, 0.42)
+      rgba(86, 230, 160, 0.68),
+      rgba(35, 172, 105, 0.60),
+      rgba(105, 235, 175, 0.52)
     ) !important;
-  border-color: rgba(160, 235, 205, 0.18) !important;
+  border-color: rgba(160, 245, 205, 0.24) !important;
   box-shadow:
-    0 10px 22px rgba(60,160,120,0.08),
-    inset 0 1px 0 rgba(255,255,255,0.20) !important;
+    0 10px 22px rgba(45,185,120,0.12),
+    inset 0 1px 0 rgba(255,255,255,0.22) !important;
+}
+
+@keyframes resultAuroraSpin {
+  0% {
+    opacity: 0.76;
+    transform: translate(-50%, -50%) scaleX(1.10) scaleY(0.78) rotate(-14deg);
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0.88;
+    transform: translate(-50%, -50%) scaleX(1.28) scaleY(0.88) rotate(16deg);
+  }
+}
+
+@keyframes resultAuroraFlow {
+  0% {
+    opacity: 0.58;
+    transform: translate(-56%, -50%) rotate(-8deg) scaleX(0.95);
+  }
+
+  100% {
+    opacity: 0.96;
+    transform: translate(-44%, -50%) rotate(10deg) scaleX(1.18);
+  }
+}
+
+@keyframes resultAuroraInside {
+  0% {
+    opacity: 0.48;
+    transform: translateX(-18px) rotate(-5deg) scaleX(0.95);
+  }
+
+  100% {
+    opacity: 0.92;
+    transform: translateX(18px) rotate(5deg) scaleX(1.12);
+  }
 }
 
 @media (max-width: 430px) {
   .result-card::before {
-    width: 360px;
-    height: 360px;
+    width: 370px;
+    height: 370px;
+  }
+
+  .result-card::after {
+    width: 280px;
+    height: 280px;
   }
 
   .result-buttons .glass-btn {
