@@ -22,8 +22,8 @@ import CaseInfoBlock from "../components/case/CaseInfoBlock"
 const pngSrcByDrop = (drop) => `/drops/${drop?.png}.webp`
 
 const formatStars = (value) => {
-  const num = Number(value || 0)
-  return new Intl.NumberFormat("ru-RU").format(num)
+  if (value == null || value === "") return "0"
+  return String(value).replace(/[.\s]/g, "")
 }
 
 function CasePage() {
