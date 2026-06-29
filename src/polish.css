@@ -139,6 +139,10 @@
   margin-bottom: 30px !important;
 }
 
+.casepage-action-stack:has(.casepage-open-btn:disabled) {
+  margin-top: 52px !important;
+}
+
 .casepage-balance-warning-btn,
 .casepage-topup-btn,
 .casepage-open-btn {
@@ -225,6 +229,10 @@
   .casepage-action-stack {
     margin-top: -20px !important;
     margin-bottom: 28px !important;
+  }
+
+  .casepage-action-stack:has(.casepage-open-btn:disabled) {
+    margin-top: 48px !important;
   }
 
   .casepage-balance-warning-btn,
