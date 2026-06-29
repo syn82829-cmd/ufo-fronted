@@ -150,13 +150,13 @@ function DailyGiftPopup() {
             {dontShowToday ? "✓" : ""}
           </button>
 
-          <button
-            type="button"
+          <div
             className="daily-gift-checkbox-label"
             onClick={handleToggleDontShowToday}
+            role="button"
           >
             Не показывать сегодня
-          </button>
+          </div>
 
           <button
             type="button"
