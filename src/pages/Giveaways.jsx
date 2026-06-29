@@ -196,7 +196,14 @@ function Giveaways() {
             </button>
 
             <div className="friends-referral-bonus">
-              При оплате с вашим промокодом друг получит +50⭐ и станет вашим рефералом
+              <span>При оплате с вашим промокодом друг получит +50</span>
+              <img
+                src="/ui/star.webp"
+                alt=""
+                className="friends-referral-star"
+                draggable={false}
+              />
+              <span>и станет вашим рефералом</span>
             </div>
 
             <div className="friends-referral-hint">
