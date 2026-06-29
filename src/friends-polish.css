@@ -1,0 +1,218 @@
+/* ============================= */
+/* FRIENDS / REFERRAL POLISH */
+/* ============================= */
+
+.friends-stat-card,
+.friends-withdraw-card,
+.friends-referral-card {
+  background:
+    radial-gradient(circle at 18% 0%, rgba(255,255,255,0.075), rgba(255,255,255,0.00) 44%),
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,0.052),
+      rgba(255,255,255,0.018)
+    ) !important;
+
+  border-color: rgba(170,215,255,0.13) !important;
+
+  box-shadow:
+    0 10px 24px rgba(0,0,0,0.10),
+    inset 0 1px 0 rgba(255,255,255,0.13) !important;
+
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.friends-stat-top,
+.friends-withdraw-title-row {
+  gap: 6px !important;
+}
+
+.friends-stat-lottie-wrap {
+  width: 30px !important;
+  height: 30px !important;
+  flex: 0 0 30px !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.friends-stat-lottie {
+  width: 30px !important;
+  height: 30px !important;
+}
+
+.friends-stat-value,
+.friends-withdraw-value {
+  font-size: 30px !important;
+  font-weight: 560 !important;
+  letter-spacing: -0.045em !important;
+  line-height: 1 !important;
+  color: rgba(255,255,255,0.94) !important;
+}
+
+.friends-withdraw-star {
+  width: 30px !important;
+  height: 30px !important;
+  flex: 0 0 30px !important;
+}
+
+.friends-stat-label,
+.friends-withdraw-label {
+  color: rgba(235,245,255,0.62) !important;
+  font-size: 14px !important;
+  font-weight: 520 !important;
+  letter-spacing: -0.015em !important;
+}
+
+.friends-withdraw-btn {
+  font-weight: 650 !important;
+}
+
+.friends-referral-section {
+  width: 100%;
+  max-width: 610px;
+  margin-top: 30px;
+}
+
+.friends-referral-title {
+  margin: 0 0 12px;
+  color: rgba(255,255,255,0.94);
+  font-size: 22px;
+  font-weight: 720;
+  line-height: 1.12;
+  letter-spacing: -0.035em;
+  text-shadow: 0 6px 18px rgba(0,0,0,0.16);
+}
+
+.friends-referral-card {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 18px 14px 18px;
+  border-radius: 22px;
+  border: 1px solid rgba(170,215,255,0.13);
+}
+
+.friends-referral-code-row {
+  width: 100%;
+  height: 52px;
+  padding: 0 12px 0 16px;
+  box-sizing: border-box;
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 42px;
+  align-items: center;
+  gap: 10px;
+
+  border-radius: 16px;
+  border: 1px solid rgba(175,210,255,0.18);
+  background:
+    linear-gradient(145deg, rgba(255,255,255,0.055), rgba(255,255,255,0.018));
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.12),
+    0 6px 14px rgba(0,0,0,0.08);
+
+  color: rgba(255,255,255,0.96);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.friends-referral-code {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  text-align: left;
+  font-size: 18px;
+  font-weight: 760;
+  letter-spacing: 0.12em;
+  line-height: 1;
+}
+
+.friends-referral-edit {
+  width: 42px;
+  height: 36px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 13px;
+  background: rgba(255,255,255,0.055);
+  color: rgba(235,245,255,0.62);
+
+  font-size: 23px;
+  font-weight: 520;
+  line-height: 1;
+}
+
+.friends-referral-bonus {
+  margin-top: 14px;
+
+  color: rgba(75,225,255,0.92);
+  font-size: 16px;
+  font-weight: 680;
+  line-height: 1.24;
+  letter-spacing: -0.02em;
+
+  text-shadow:
+    0 0 16px rgba(75,225,255,0.12),
+    0 7px 18px rgba(0,0,0,0.14);
+}
+
+.friends-referral-hint {
+  margin-top: 12px;
+
+  color: rgba(235,245,255,0.55);
+  font-size: 14px;
+  font-weight: 520;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+@media (max-width: 640px) {
+  .friends-referral-section {
+    max-width: 560px;
+    margin-top: 28px;
+  }
+
+  .friends-referral-title {
+    font-size: 21px;
+  }
+}
+
+@media (max-width: 420px) {
+  .friends-stat-lottie-wrap,
+  .friends-stat-lottie,
+  .friends-withdraw-star {
+    width: 27px !important;
+    height: 27px !important;
+    flex-basis: 27px !important;
+  }
+
+  .friends-stat-value,
+  .friends-withdraw-value {
+    font-size: 27px !important;
+  }
+
+  .friends-referral-title {
+    font-size: 20px;
+  }
+
+  .friends-referral-card {
+    padding: 16px 12px 16px;
+  }
+
+  .friends-referral-code-row {
+    height: 50px;
+  }
+
+  .friends-referral-code {
+    font-size: 16px;
+  }
+
+  .friends-referral-bonus {
+    font-size: 15px;
+  }
+}
