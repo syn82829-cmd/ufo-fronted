@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import Lottie from "lottie-react"
 
@@ -9,6 +9,8 @@ import { triggerHaptic } from "../utils/haptics"
 import { useUser } from "../context/UserContext"
 import { getPlayerRank } from "../utils/playerRank"
 import "../style.css"
+
+const CRASH_BET_STORAGE_KEY = "ufo_crash_last_bet"
 
 async function loadLottieJson(path) {
   const res = await fetch(path)
@@ -24,11 +26,23 @@ function Crash() {
   const navigate = useNavigate()
   const { user, refreshUser, incrementBalance, decrementBalance } = useUser()
 
+  const savedCrashBet = useMemo(() => {
+    try {
+      return localStorage.getItem(CRASH_BET_STORAGE_KEY) || ""
+    } catch {
+      return ""
+    }
+  }, [])
+
+  const betInputRef = useRef(null)
+
   const [ufoAnim, setUfoAnim] = useState(null)
   const [boomAnim, setBoomAnim] = useState(null)
   const [moonAnim, setMoonAnim] = useState(null)
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
-  const [betAmount, setBetAmount] = useState("100")
+  const [betAmount, setBetAmount] = useState(savedCrashBet || "100")
+  const [isInitialDefaultBet, setIsInitialDefaultBet] = useState(!savedCrashBet)
+  const [isBetInputFocused, setIsBetInputFocused] = useState(false)
 
   const {
     crashState,
@@ -123,6 +137,36 @@ function Crash() {
     !isCashoutLoading &&
     !isBetLoading
 
+  const handleBetFocus = () => {
+    setIsBetInputFocused(true)
+
+    if (isInitialDefaultBet && betAmount === "100") {
+      setBetAmount("")
+      setIsInitialDefaultBet(false)
+    }
+  }
+
+  const handleBetBlur = () => {
+    setIsBetInputFocused(false)
+  }
+
+  const handleBetChange = (event) => {
+    const nextValue = event.target.value
+
+    setBetAmount(nextValue)
+    setIsInitialDefaultBet(false)
+
+    try {
+      if (String(nextValue).trim()) {
+        localStorage.setItem(CRASH_BET_STORAGE_KEY, nextValue)
+      } else {
+        localStorage.removeItem(CRASH_BET_STORAGE_KEY)
+      }
+    } catch {
+      // localStorage may be unavailable inside some webviews
+    }
+  }
+
   const handleMainAction = async () => {
     if (!user?.id || user.id === "—") return
 
@@ -158,8 +202,9 @@ function Crash() {
     if (myBet && myBet.status === "cashed_out") {
       return (
         <span className="crash-cashout-profit-label">
-          <span>+{formatStars(cashedOutProfit)}</span>
-          <img src="/ui/star.webp" alt="" className="crash-cashout-profit-star" draggable={false} />
+          <span>+</span>
+          <img src="/ui/star.PNG" alt="" className="crash-cashout-profit-star" draggable={false} />
+          <span>{formatStars(cashedOutProfit)}</span>
         </span>
       )
     }
@@ -177,7 +222,7 @@ function Crash() {
   const showCountdown = isWaiting && displayCountdown !== null && displayCountdown > 0
 
   return (
-    <div className="app">
+    <div className={`app ${isBetInputFocused ? "crash-input-focused" : ""}`}>
       <div className="crash-page">
         <div className="crash-topbar">
           <div
@@ -320,12 +365,15 @@ function Crash() {
             <div className="crash-bet-input-wrap">
               <img src="/ui/star.PNG" className="crash-bet-input-icon" alt="" />
               <input
+                ref={betInputRef}
                 type="number"
                 min="1"
                 inputMode="numeric"
                 className="crash-bet-input"
                 value={betAmount}
-                onChange={(e) => setBetAmount(e.target.value)}
+                onFocus={handleBetFocus}
+                onBlur={handleBetBlur}
+                onChange={handleBetChange}
                 disabled={!isWaiting || !!myBet || isBetLoading}
                 placeholder="Ставка"
               />
@@ -388,7 +436,7 @@ function Crash() {
         </div>
       </div>
 
-      <div className="bottom-nav-shell">
+      <div className={`bottom-nav-shell ${isBetInputFocused ? "crash-keyboard-hidden" : ""}`}>
         <div className="bottom-nav">
           <div
             className="nav-item"
