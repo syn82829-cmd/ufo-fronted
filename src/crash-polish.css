@@ -10,17 +10,19 @@
 .crash-multiplier {
   position: absolute !important;
   left: 50% !important;
-  top: -52px !important;
+  top: -66px !important;
   z-index: 6 !important;
   transform: translateX(-50%) !important;
+  font-size: 34px !important;
+  letter-spacing: -0.045em !important;
 }
 
 .crash-flight-scene {
   position: absolute;
-  left: 50%;
-  top: 62%;
-  width: 268px;
-  height: 238px;
+  left: 54%;
+  top: 67%;
+  width: 286px;
+  height: 252px;
   pointer-events: none;
   transform: translate(-50%, -50%);
   animation: crashSceneFloat 3.8s ease-in-out infinite;
@@ -28,11 +30,11 @@
 
 .crash-flight-scene .crash-ufo-lottie {
   position: absolute !important;
-  left: 47% !important;
-  top: 61% !important;
-  width: 218px !important;
-  height: 218px !important;
-  max-width: 218px !important;
+  left: 50% !important;
+  top: 66% !important;
+  width: 236px !important;
+  height: 236px !important;
+  max-width: 236px !important;
   transform: translate(-50%, -50%) !important;
   z-index: 4;
 
@@ -43,8 +45,8 @@
 
 .crash-flight-scene .crash-ufo-lottie > div,
 .crash-flight-scene .crash-ufo-lottie svg {
-  width: 218px !important;
-  height: 218px !important;
+  width: 236px !important;
+  height: 236px !important;
 }
 
 .crash-moon-lottie {
@@ -72,10 +74,10 @@
 
 .crash-boom-lottie {
   position: absolute;
-  left: 50%;
-  top: 62%;
-  width: 218px;
-  height: 218px;
+  left: 54%;
+  top: 67%;
+  width: 236px;
+  height: 236px;
   z-index: 5;
   pointer-events: none;
   transform: translate(-50%, -50%);
@@ -87,8 +89,8 @@
 
 .crash-boom-lottie > div,
 .crash-boom-lottie svg {
-  width: 218px !important;
-  height: 218px !important;
+  width: 236px !important;
+  height: 236px !important;
 }
 
 @keyframes crashSceneFloat {
@@ -142,21 +144,23 @@
 
 @media (max-width: 430px) {
   .crash-multiplier {
-    top: -48px !important;
+    top: -62px !important;
+    font-size: 31px !important;
   }
 
   .crash-flight-scene {
-    width: 246px;
-    height: 220px;
-    top: 63%;
+    left: 54%;
+    top: 68%;
+    width: 264px;
+    height: 236px;
   }
 
   .crash-flight-scene .crash-ufo-lottie,
   .crash-flight-scene .crash-ufo-lottie > div,
   .crash-flight-scene .crash-ufo-lottie svg {
-    width: 198px !important;
-    height: 198px !important;
-    max-width: 198px !important;
+    width: 216px !important;
+    height: 216px !important;
+    max-width: 216px !important;
   }
 
   .crash-moon-lottie,
@@ -174,11 +178,12 @@
   .crash-boom-lottie,
   .crash-boom-lottie > div,
   .crash-boom-lottie svg {
-    width: 198px !important;
-    height: 198px !important;
+    width: 216px !important;
+    height: 216px !important;
   }
 
   .crash-boom-lottie {
-    top: 63%;
+    left: 54%;
+    top: 68%;
   }
 }
