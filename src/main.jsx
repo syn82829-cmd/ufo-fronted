@@ -1,6 +1,7 @@
 import "./style.css"
 import "./performance.css"
 import "./polish.css"
+import "./result-polish.css"
 import React from "react"
 import ReactDOM from "react-dom/client"
 import App from "./App"
