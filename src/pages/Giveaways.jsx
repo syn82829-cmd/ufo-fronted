@@ -196,14 +196,24 @@ function Giveaways() {
             </button>
 
             <div className="friends-referral-bonus">
-              <span>При оплате с вашим промокодом друг получит +50</span>
-              <img
-                src="/ui/star.PNG"
-                alt=""
-                className="friends-referral-star"
-                draggable={false}
-              />
-              <span>и станет вашим рефералом</span>
+              <span className="friends-referral-bonus-line">
+                При оплате с вашим промокодом
+              </span>
+              <span className="friends-referral-bonus-line">
+                друг получит
+                <span className="friends-referral-star-bonus">
+                  +50
+                  <img
+                    src="/ui/star.PNG"
+                    alt=""
+                    className="friends-referral-star"
+                    draggable={false}
+                  />
+                </span>
+              </span>
+              <span className="friends-referral-bonus-line">
+                и станет вашим рефералом
+              </span>
             </div>
 
             <div className="friends-referral-hint">
