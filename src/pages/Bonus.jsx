@@ -10,6 +10,27 @@ import "../style.css"
 
 const BONUS_REWARD_STORAGE_KEY = "ufo_bonus_reserved_reward"
 
+const bonusTasks = [
+  {
+    id: "invite_friend",
+    title: "Пригласить друга",
+    reward: 3,
+    icon: "+",
+  },
+  {
+    id: "subscribe_channel",
+    title: "Подписаться на канал",
+    reward: 2,
+    icon: "✈",
+  },
+  {
+    id: "vote_channel",
+    title: "Проголосуйте за канал",
+    reward: 2,
+    icon: "ϟ",
+  },
+]
+
 function Bonus() {
   const navigate = useNavigate()
   const { user } = useUser()
@@ -133,8 +154,8 @@ function Bonus() {
       </div>
 
       <div className="bonus-page">
-        <div className="case-drops-heading">
-          Награды
+        <div className="bonus-section-heading">
+          Ежедневный подарок
         </div>
 
         <div className="bonus-card">
@@ -185,6 +206,38 @@ function Bonus() {
                   : "Получить подарок"}
             </button>
           )}
+        </div>
+
+        <div className="bonus-section-heading bonus-tasks-heading">
+          Задания
+        </div>
+
+        <div className="bonus-tasks-list">
+          {bonusTasks.map((task) => (
+            <button
+              key={task.id}
+              type="button"
+              className="bonus-task-card"
+            >
+              <span className="bonus-task-icon">
+                {task.icon}
+              </span>
+
+              <span className="bonus-task-title">
+                {task.title}
+              </span>
+
+              <span className="bonus-task-reward">
+                <img
+                  src="/ui/star.PNG"
+                  alt=""
+                  className="bonus-task-star"
+                  draggable={false}
+                />
+                <span>+{task.reward}</span>
+              </span>
+            </button>
+          ))}
         </div>
       </div>
 
