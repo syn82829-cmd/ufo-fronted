@@ -13,10 +13,18 @@
   border-radius: 999px !important;
 }
 
+.casepage-header {
+  margin-bottom: -8px !important;
+}
+
+.casepage-header:has(+ .case-settings-panel) .case-image-wrapper {
+  margin-top: 72px !important;
+}
+
 .case-settings-panel {
   position: absolute !important;
   left: 50% !important;
-  top: 300px !important;
+  top: 220px !important;
   z-index: 6 !important;
   transform: translateX(-50%) !important;
 
@@ -34,24 +42,36 @@
 }
 
 .case-settings-row {
+  position: relative !important;
   min-height: 30px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
 }
 
 .case-settings-copy {
-  gap: 2px !important;
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+
+  width: max-content !important;
+  max-width: calc(100% - 72px) !important;
+  gap: 0 !important;
+  text-align: center !important;
+  pointer-events: none !important;
 }
 
 .case-settings-title {
-  font-size: 16px !important;
+  font-size: 17px !important;
   font-weight: 760 !important;
   letter-spacing: -0.02em !important;
+  text-align: center !important;
+  white-space: nowrap !important;
 }
 
 .case-settings-text {
-  font-size: 13px !important;
-  font-weight: 560 !important;
-  line-height: 1.22 !important;
-  color: rgba(235,245,255,0.72) !important;
+  display: none !important;
 }
 
 .case-settings-toggle {
@@ -70,8 +90,8 @@
 
 .casepage-action-stack {
   gap: 8px !important;
-  margin-top: -4px !important;
-  margin-bottom: 12px !important;
+  margin-top: -16px !important;
+  margin-bottom: 30px !important;
 }
 
 .casepage-balance-warning-btn,
@@ -146,11 +166,16 @@
   }
 
   .case-settings-panel {
-    top: 286px !important;
+    top: 212px !important;
+  }
+
+  .casepage-header:has(+ .case-settings-panel) .case-image-wrapper {
+    margin-top: 68px !important;
   }
 
   .casepage-action-stack {
-    margin-top: -8px !important;
+    margin-top: -20px !important;
+    margin-bottom: 28px !important;
   }
 
   .casepage-balance-warning-btn,
