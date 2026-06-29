@@ -1,0 +1,241 @@
+/* ============================= */
+/* BONUS PAGE POLISH */
+/* ============================= */
+
+.bonus-page {
+  width: calc(100% - 36px) !important;
+  max-width: 390px !important;
+  margin: 0 auto !important;
+  padding: 0 0 132px !important;
+  box-sizing: border-box !important;
+}
+
+.bonus-section-heading {
+  width: 100% !important;
+  margin: 0 0 12px !important;
+  padding: 0 !important;
+
+  color: rgba(255,255,255,0.96) !important;
+  font-size: 20px !important;
+  font-weight: 760 !important;
+  line-height: 1.16 !important;
+  letter-spacing: -0.035em !important;
+  text-align: left !important;
+
+  text-shadow:
+    0 8px 22px rgba(0,0,0,0.20),
+    0 0 14px rgba(120,210,255,0.08) !important;
+}
+
+.bonus-card,
+.bonus-task-card {
+  background:
+    radial-gradient(circle at 18% 0%, rgba(74, 145, 255, 0.24), rgba(74, 145, 255, 0.00) 42%),
+    linear-gradient(
+      145deg,
+      rgba(35, 82, 165, 0.58),
+      rgba(12, 34, 82, 0.46)
+    ) !important;
+
+  border: 1px solid rgba(120, 170, 255, 0.34) !important;
+
+  box-shadow:
+    0 10px 26px rgba(0,0,0,0.23),
+    inset 0 1px 0 rgba(255,255,255,0.16) !important;
+
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.bonus-card {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  border-radius: 24px !important;
+  padding: 20px 16px 18px !important;
+}
+
+.bonus-card-visual {
+  height: 150px !important;
+  margin-bottom: 8px !important;
+}
+
+.bonus-gift-lottie,
+.bonus-gift-lottie svg {
+  width: 150px !important;
+  height: 150px !important;
+}
+
+.bonus-open-sheet-btn {
+  width: 76% !important;
+  max-width: 292px !important;
+  min-height: 48px !important;
+  height: 48px !important;
+  margin: 0 auto !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  border-radius: 999px !important;
+  border: 1px solid rgba(170, 235, 255, 0.20) !important;
+
+  background:
+    radial-gradient(circle at 20% 0%, rgba(255,255,255,0.18), rgba(255,255,255,0.00) 46%),
+    linear-gradient(
+      135deg,
+      rgba(95, 200, 255, 0.68),
+      rgba(62, 180, 245, 0.60),
+      rgba(92, 220, 255, 0.56)
+    ) !important;
+
+  color: rgba(255,255,255,0.98) !important;
+  font-size: 16px !important;
+  font-weight: 740 !important;
+  letter-spacing: -0.02em !important;
+
+  box-shadow:
+    0 10px 22px rgba(60,160,240,0.10),
+    inset 0 1px 0 rgba(255,255,255,0.22) !important;
+}
+
+.bonus-open-sheet-btn:disabled {
+  opacity: 0.62 !important;
+}
+
+.bonus-tasks-heading {
+  margin-top: 28px !important;
+}
+
+.bonus-tasks-list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.bonus-task-card {
+  width: 100%;
+  min-height: 82px;
+  padding: 12px 14px;
+  box-sizing: border-box;
+
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+
+  border-radius: 24px;
+  color: rgba(255,255,255,0.96);
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.bonus-task-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background:
+    radial-gradient(circle at 24% 0%, rgba(120, 220, 255, 0.28), rgba(120, 220, 255, 0.00) 48%),
+    linear-gradient(145deg, rgba(55, 145, 255, 0.42), rgba(30, 95, 175, 0.34));
+  border: 1px solid rgba(125,205,255,0.20);
+
+  color: rgba(120,190,255,0.98);
+  font-size: 31px;
+  font-weight: 640;
+  line-height: 1;
+
+  box-shadow:
+    0 8px 18px rgba(0,0,0,0.12),
+    inset 0 1px 0 rgba(255,255,255,0.16);
+}
+
+.bonus-task-title {
+  min-width: 0;
+  color: rgba(255,255,255,0.95);
+  font-size: 18px;
+  font-weight: 720;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+}
+
+.bonus-task-reward {
+  min-width: 74px;
+  height: 34px;
+  padding: 0 11px;
+  box-sizing: border-box;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+
+  border-radius: 999px;
+  border: 1px solid rgba(255,210,82,0.28);
+  background: rgba(255,210,82,0.10);
+
+  color: rgba(255,218,92,0.98);
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1;
+
+  box-shadow:
+    0 6px 14px rgba(0,0,0,0.10),
+    inset 0 1px 0 rgba(255,255,255,0.14);
+}
+
+.bonus-task-star {
+  width: 23px;
+  height: 23px;
+  object-fit: contain;
+  flex: 0 0 23px;
+}
+
+@media (max-width: 430px) {
+  .bonus-page {
+    width: calc(100% - 36px) !important;
+    max-width: 390px !important;
+  }
+
+  .bonus-section-heading {
+    font-size: 19px !important;
+  }
+
+  .bonus-card {
+    padding: 18px 14px 17px !important;
+  }
+
+  .bonus-task-card {
+    min-height: 78px;
+    grid-template-columns: 50px minmax(0, 1fr) auto;
+    gap: 11px;
+    padding: 12px;
+  }
+
+  .bonus-task-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 17px;
+    font-size: 29px;
+  }
+
+  .bonus-task-title {
+    font-size: 17px;
+  }
+
+  .bonus-task-reward {
+    min-width: 70px;
+    height: 32px;
+    font-size: 17px;
+  }
+
+  .bonus-task-star {
+    width: 22px;
+    height: 22px;
+    flex-basis: 22px;
+  }
+}
