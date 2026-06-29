@@ -49,7 +49,6 @@ function Crash() {
   const {
     displayMultiplier,
     displayCountdown,
-    showStartText,
   } = useCrashDisplay(crashState)
 
   const playerRank = useMemo(() => {
@@ -171,10 +170,11 @@ function Crash() {
   })()
 
   const showUfo = isFlying
+  const showMoon = (isFlying || isCrashed) && moonAnim
+  const showCrashScene = showUfo || showMoon
   const showBoom = isCrashed && boomAnim
   const showCrashText = isCrashed && !boomAnim
   const showCountdown = isWaiting && displayCountdown !== null && displayCountdown > 0
-  const showStart = isWaiting && showStartText
 
   return (
     <div className="app">
@@ -275,17 +275,19 @@ function Crash() {
             x{multiplier.toFixed(2)}
           </div>
 
-          {showUfo && ufoAnim && (
+          {showCrashScene && (
             <div className="crash-flight-scene">
-              {moonAnim && (
+              {showMoon && (
                 <div className="crash-moon-lottie">
                   <Lottie animationData={moonAnim} loop autoplay />
                 </div>
               )}
 
-              <div className="crash-ufo-lottie flying">
-                <Lottie animationData={ufoAnim} loop autoplay />
-              </div>
+              {showUfo && ufoAnim && (
+                <div className="crash-ufo-lottie flying">
+                  <Lottie animationData={ufoAnim} loop autoplay />
+                </div>
+              )}
             </div>
           )}
 
@@ -295,7 +297,7 @@ function Crash() {
                 animationData={boomAnim}
                 loop={false}
                 autoplay
-                initialSegment={[0, 78]}
+                initialSegment={[0, 75]}
               />
             </div>
           )}
@@ -309,12 +311,6 @@ function Crash() {
           {showCountdown && (
             <div className="crash-center-text crash-countdown">
               {displayCountdown}
-            </div>
-          )}
-
-          {showStart && (
-            <div className="crash-center-text crash-word crash-start-word">
-              Start!
             </div>
           )}
         </div>
