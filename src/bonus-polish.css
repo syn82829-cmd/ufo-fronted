@@ -51,18 +51,35 @@
   width: 100% !important;
   box-sizing: border-box !important;
   border-radius: 24px !important;
-  padding: 14px 16px 16px !important;
+  padding: 22px 16px 16px !important;
 }
 
 .bonus-card-visual {
-  height: 112px !important;
-  margin-bottom: 4px !important;
+  width: 136px !important;
+  height: 136px !important;
+  margin: 0 auto 18px !important;
+  box-sizing: border-box !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  border-radius: 26px !important;
+  border: 1px solid rgba(255,255,255,0.16) !important;
+
+  background:
+    radial-gradient(circle at 50% 0%, rgba(115,215,255,0.14), rgba(255,255,255,0.00) 46%),
+    linear-gradient(145deg, rgba(255,255,255,0.115), rgba(255,255,255,0.045)) !important;
+
+  box-shadow:
+    0 14px 34px rgba(0,0,0,0.24),
+    inset 0 1px 0 rgba(255,255,255,0.22) !important;
 }
 
 .bonus-gift-lottie,
 .bonus-gift-lottie svg {
-  width: 112px !important;
-  height: 112px !important;
+  width: 104px !important;
+  height: 104px !important;
 }
 
 .bonus-event-title {
@@ -212,18 +229,20 @@
   }
 
   .bonus-card {
-    padding: 13px 14px 15px !important;
+    padding: 20px 14px 15px !important;
   }
 
   .bonus-card-visual {
-    height: 104px !important;
-    margin-bottom: 3px !important;
+    width: 128px !important;
+    height: 128px !important;
+    margin-bottom: 16px !important;
+    border-radius: 25px !important;
   }
 
   .bonus-gift-lottie,
   .bonus-gift-lottie svg {
-    width: 104px !important;
-    height: 104px !important;
+    width: 98px !important;
+    height: 98px !important;
   }
 
   .bonus-event-subtitle {
