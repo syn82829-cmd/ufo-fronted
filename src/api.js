@@ -290,3 +290,36 @@ export async function claimBonus(telegram_id) {
     }),
   })
 }
+
+// =============================
+// REFERRAL STATE
+// =============================
+
+export async function getReferralState(telegram_id) {
+  if (!telegram_id) {
+    throw new Error("telegram_id is required")
+  }
+
+  return apiFetch(`/referral/state/${telegram_id}`)
+}
+
+// =============================
+// REFERRAL APPLY
+// =============================
+
+export async function applyReferralCode({ telegram_id, code }) {
+  if (!telegram_id || !code) {
+    throw new Error("telegram_id and code are required")
+  }
+
+  return apiFetch("/referral/apply", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      telegram_id,
+      code,
+    }),
+  })
+}
