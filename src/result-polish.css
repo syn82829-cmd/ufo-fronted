@@ -2,13 +2,75 @@
 /* RESULT MODAL DEEP POLISH */
 /* ============================= */
 
+.result-card {
+  position: relative !important;
+  isolation: isolate !important;
+  overflow: visible !important;
+}
+
+.result-card::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 44%;
+  width: 410px;
+  height: 410px;
+  z-index: -3;
+  pointer-events: none;
+
+  background:
+    conic-gradient(
+      from 12deg,
+      rgba(70, 185, 255, 0.00) 0deg,
+      rgba(90, 205, 255, 0.52) 8deg,
+      rgba(70, 185, 255, 0.00) 21deg,
+      rgba(120, 230, 255, 0.26) 38deg,
+      rgba(70, 185, 255, 0.00) 65deg,
+      rgba(55, 155, 255, 0.48) 92deg,
+      rgba(70, 185, 255, 0.00) 112deg,
+      rgba(150, 245, 255, 0.30) 144deg,
+      rgba(70, 185, 255, 0.00) 180deg,
+      rgba(80, 195, 255, 0.46) 218deg,
+      rgba(70, 185, 255, 0.00) 244deg,
+      rgba(130, 235, 255, 0.24) 280deg,
+      rgba(70, 185, 255, 0.00) 318deg,
+      rgba(105, 220, 255, 0.42) 346deg,
+      rgba(70, 185, 255, 0.00) 360deg
+    );
+
+  opacity: 1;
+  filter: blur(12px);
+  transform: translate(-50%, -50%) scaleX(1.18) scaleY(0.82) rotate(-7deg);
+}
+
+.result-card::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 44%;
+  width: 260px;
+  height: 260px;
+  z-index: -2;
+  pointer-events: none;
+
+  background:
+    radial-gradient(circle at center,
+      rgba(80, 200, 255, 0.46) 0%,
+      rgba(80, 200, 255, 0.20) 38%,
+      rgba(80, 200, 255, 0.00) 72%
+    );
+
+  filter: blur(14px);
+  transform: translate(-50%, -50%);
+}
+
 .result-size {
   position: relative !important;
   isolation: isolate !important;
   overflow: visible !important;
 
   box-shadow:
-    0 0 34px rgba(75,175,255,0.22),
+    0 0 46px rgba(80,190,255,0.34),
     0 18px 44px rgba(0,0,0,0.34),
     inset 0 1px 0 rgba(255,255,255,0.22) !important;
 }
@@ -16,7 +78,7 @@
 .result-size::before {
   content: "";
   position: absolute;
-  inset: -58px -66px;
+  inset: -64px -74px;
   z-index: -2;
   pointer-events: none;
 
@@ -24,71 +86,95 @@
     conic-gradient(
       from 18deg,
       rgba(82, 188, 255, 0.00) 0deg,
-      rgba(82, 188, 255, 0.28) 14deg,
+      rgba(82, 188, 255, 0.42) 14deg,
       rgba(82, 188, 255, 0.00) 33deg,
-      rgba(120, 220, 255, 0.18) 54deg,
+      rgba(120, 220, 255, 0.28) 54deg,
       rgba(82, 188, 255, 0.00) 78deg,
-      rgba(55, 150, 255, 0.26) 106deg,
+      rgba(55, 150, 255, 0.40) 106deg,
       rgba(82, 188, 255, 0.00) 132deg,
-      rgba(135, 235, 255, 0.20) 171deg,
+      rgba(135, 235, 255, 0.30) 171deg,
       rgba(82, 188, 255, 0.00) 206deg,
-      rgba(75, 175, 255, 0.24) 247deg,
+      rgba(75, 175, 255, 0.38) 247deg,
       rgba(82, 188, 255, 0.00) 286deg,
-      rgba(155, 240, 255, 0.16) 320deg,
+      rgba(155, 240, 255, 0.24) 320deg,
       rgba(82, 188, 255, 0.00) 360deg
     );
 
-  opacity: 0.9;
-  filter: blur(18px);
-  transform: scaleX(1.08) scaleY(0.88);
+  opacity: 1;
+  filter: blur(10px);
+  transform: scaleX(1.14) scaleY(0.9) rotate(5deg);
 }
 
 .result-size::after {
   content: "";
   position: absolute;
-  inset: -34px -42px;
+  inset: -38px -46px;
   z-index: -1;
   pointer-events: none;
 
   background:
-    radial-gradient(circle at 50% 48%, rgba(92, 205, 255, 0.28), rgba(72, 170, 255, 0.10) 36%, rgba(72, 170, 255, 0.00) 68%);
+    radial-gradient(circle at 50% 48%, rgba(92, 205, 255, 0.42), rgba(72, 170, 255, 0.16) 38%, rgba(72, 170, 255, 0.00) 70%);
 
-  filter: blur(10px);
+  filter: blur(9px);
 }
 
 .result-buttons .glass-btn {
+  min-width: 136px !important;
+  height: 50px !important;
+  padding: 0 24px !important;
+
   border-radius: 999px !important;
-  border: 1px solid rgba(180, 235, 255, 0.20) !important;
+  border: 1px solid rgba(170, 235, 255, 0.20) !important;
 
-  color: rgba(255,255,255,0.96) !important;
+  color: rgba(255,255,255,0.98) !important;
+  font-size: 16px !important;
+  font-weight: 740 !important;
+  letter-spacing: -0.02em !important;
 
-  backdrop-filter: blur(10px) !important;
-  -webkit-backdrop-filter: blur(10px) !important;
+  backdrop-filter: blur(10px) saturate(145%) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(145%) !important;
 
   box-shadow:
-    0 8px 20px rgba(0,0,0,0.12),
+    0 10px 22px rgba(60,160,240,0.10),
     inset 0 1px 0 rgba(255,255,255,0.22) !important;
 }
 
 .result-buttons .glass-btn.sell {
   background:
-    radial-gradient(circle at 22% 0%, rgba(255,255,255,0.18), rgba(255,255,255,0.00) 48%),
+    radial-gradient(circle at 20% 0%, rgba(255,255,255,0.18), rgba(255,255,255,0.00) 46%),
     linear-gradient(
       135deg,
-      rgba(92, 200, 255, 0.34),
-      rgba(58, 170, 235, 0.26),
-      rgba(105, 220, 255, 0.22)
+      rgba(95, 200, 255, 0.68),
+      rgba(62, 180, 245, 0.60),
+      rgba(92, 220, 255, 0.56)
     ) !important;
+  border-color: rgba(170,235,255,0.20) !important;
 }
 
 .result-buttons .glass-btn.open {
   background:
-    radial-gradient(circle at 22% 0%, rgba(255,255,255,0.16), rgba(255,255,255,0.00) 48%),
+    radial-gradient(circle at 20% 0%, rgba(255,255,255,0.14), rgba(255,255,255,0.00) 46%),
     linear-gradient(
       135deg,
-      rgba(94, 210, 165, 0.34),
-      rgba(52, 155, 120, 0.25),
-      rgba(120, 225, 180, 0.20)
+      rgba(83, 185, 145, 0.56),
+      rgba(47, 135, 105, 0.48),
+      rgba(105, 205, 160, 0.42)
     ) !important;
   border-color: rgba(160, 235, 205, 0.18) !important;
+  box-shadow:
+    0 10px 22px rgba(60,160,120,0.08),
+    inset 0 1px 0 rgba(255,255,255,0.20) !important;
+}
+
+@media (max-width: 430px) {
+  .result-card::before {
+    width: 360px;
+    height: 360px;
+  }
+
+  .result-buttons .glass-btn {
+    min-width: 124px !important;
+    height: 48px !important;
+    padding: 0 18px !important;
+  }
 }
