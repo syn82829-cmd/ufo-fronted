@@ -51,18 +51,40 @@
   width: 100% !important;
   box-sizing: border-box !important;
   border-radius: 24px !important;
-  padding: 20px 16px 18px !important;
+  padding: 14px 16px 16px !important;
 }
 
 .bonus-card-visual {
-  height: 150px !important;
-  margin-bottom: 8px !important;
+  height: 112px !important;
+  margin-bottom: 4px !important;
 }
 
 .bonus-gift-lottie,
 .bonus-gift-lottie svg {
-  width: 150px !important;
-  height: 150px !important;
+  width: 112px !important;
+  height: 112px !important;
+}
+
+.bonus-event-title {
+  margin-bottom: 6px !important;
+  font-size: 16px !important;
+  line-height: 1.16 !important;
+}
+
+.bonus-event-subtitle {
+  margin-bottom: 12px !important;
+  font-size: 13px !important;
+  line-height: 1.32 !important;
+}
+
+.bonus-event-progress {
+  height: 8px !important;
+  margin-bottom: 8px !important;
+}
+
+.bonus-event-progress-meta {
+  margin-bottom: 14px !important;
+  font-size: 14px !important;
 }
 
 .bonus-open-sheet-btn {
@@ -103,70 +125,54 @@
 }
 
 .bonus-tasks-heading {
-  margin-top: 28px !important;
+  margin-top: 26px !important;
 }
 
 .bonus-tasks-list {
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .bonus-task-card {
   width: 100%;
-  min-height: 82px;
-  padding: 12px 14px;
+  min-height: 66px;
+  padding: 9px 13px;
   box-sizing: border-box;
 
   display: grid;
-  grid-template-columns: 52px minmax(0, 1fr) auto;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
   align-items: center;
   gap: 12px;
 
-  border-radius: 24px;
+  border-radius: 28px;
   color: rgba(255,255,255,0.96);
   text-align: left;
   -webkit-tap-highlight-color: transparent;
 }
 
 .bonus-task-icon {
-  width: 52px;
-  height: 52px;
-  border-radius: 18px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  background:
-    radial-gradient(circle at 24% 0%, rgba(120, 220, 255, 0.28), rgba(120, 220, 255, 0.00) 48%),
-    linear-gradient(145deg, rgba(55, 145, 255, 0.42), rgba(30, 95, 175, 0.34));
-  border: 1px solid rgba(125,205,255,0.20);
-
-  color: rgba(120,190,255,0.98);
-  font-size: 31px;
-  font-weight: 640;
-  line-height: 1;
-
-  box-shadow:
-    0 8px 18px rgba(0,0,0,0.12),
-    inset 0 1px 0 rgba(255,255,255,0.16);
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  flex: 0 0 42px;
+  display: block;
 }
 
 .bonus-task-title {
   min-width: 0;
-  color: rgba(255,255,255,0.95);
-  font-size: 18px;
-  font-weight: 720;
-  line-height: 1.15;
-  letter-spacing: -0.03em;
+  color: rgba(255,255,255,0.92);
+  font-size: 16px;
+  font-weight: 610;
+  line-height: 1.14;
+  letter-spacing: -0.026em;
 }
 
 .bonus-task-reward {
-  min-width: 74px;
-  height: 34px;
-  padding: 0 11px;
+  min-width: 68px;
+  height: 32px;
+  padding: 0 10px;
   box-sizing: border-box;
 
   display: inline-flex;
@@ -179,8 +185,8 @@
   background: rgba(255,210,82,0.10);
 
   color: rgba(255,218,92,0.98);
-  font-size: 18px;
-  font-weight: 800;
+  font-size: 17px;
+  font-weight: 760;
   line-height: 1;
 
   box-shadow:
@@ -189,10 +195,10 @@
 }
 
 .bonus-task-star {
-  width: 23px;
-  height: 23px;
+  width: 21px;
+  height: 21px;
   object-fit: contain;
-  flex: 0 0 23px;
+  flex: 0 0 21px;
 }
 
 @media (max-width: 430px) {
@@ -206,36 +212,56 @@
   }
 
   .bonus-card {
-    padding: 18px 14px 17px !important;
+    padding: 13px 14px 15px !important;
+  }
+
+  .bonus-card-visual {
+    height: 104px !important;
+    margin-bottom: 3px !important;
+  }
+
+  .bonus-gift-lottie,
+  .bonus-gift-lottie svg {
+    width: 104px !important;
+    height: 104px !important;
+  }
+
+  .bonus-event-subtitle {
+    margin-bottom: 11px !important;
+  }
+
+  .bonus-event-progress-meta {
+    margin-bottom: 13px !important;
   }
 
   .bonus-task-card {
-    min-height: 78px;
-    grid-template-columns: 50px minmax(0, 1fr) auto;
+    min-height: 64px;
+    grid-template-columns: 40px minmax(0, 1fr) auto;
     gap: 11px;
-    padding: 12px;
+    padding: 9px 12px;
+    border-radius: 27px;
   }
 
   .bonus-task-icon {
-    width: 50px;
-    height: 50px;
-    border-radius: 17px;
-    font-size: 29px;
+    width: 40px;
+    height: 40px;
+    flex-basis: 40px;
   }
 
   .bonus-task-title {
-    font-size: 17px;
+    font-size: 15px;
+    font-weight: 600;
   }
 
   .bonus-task-reward {
-    min-width: 70px;
-    height: 32px;
-    font-size: 17px;
+    min-width: 66px;
+    height: 31px;
+    font-size: 16px;
   }
 
   .bonus-task-star {
-    width: 22px;
-    height: 22px;
-    flex-basis: 22px;
+    width: 20px;
+    height: 20px;
+    flex-basis: 20px;
   }
 }
