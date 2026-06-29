@@ -252,10 +252,8 @@ function Crash() {
           <button
             type="button"
             className="crash-header-btn crash-settings-btn"
-            onClick={() => {
-              triggerHaptic("light")
-              setIsSettingsOpen((prev) => !prev)
-            }}
+            aria-disabled="true"
+            tabIndex={-1}
           >
             <img src="/ui/settings.PNG" className="crash-header-icon" alt="" draggable={false} />
           </button>
@@ -295,7 +293,7 @@ function Crash() {
                 animationData={boomAnim}
                 loop={false}
                 autoplay
-                initialSegment={[0, 90]}
+                initialSegment={[0, 80]}
               />
             </div>
           )}
