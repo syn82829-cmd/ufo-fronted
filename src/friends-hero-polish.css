@@ -3,32 +3,36 @@
 /* ============================= */
 
 .friends-hero-badge {
-  height: 44px !important;
-  min-height: 44px !important;
-  padding: 0 18px !important;
+  width: 84% !important;
+  max-width: 346px !important;
+  min-width: 304px !important;
+  height: 39px !important;
+  min-height: 39px !important;
+  padding: 0 20px !important;
 
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
 
   border-radius: 999px !important;
+  overflow: hidden !important;
 }
 
 .friends-hero-badge-text {
-  font-weight: 880 !important;
+  font-weight: 900 !important;
   font-size: 17.5px !important;
-  letter-spacing: -0.018em !important;
+  letter-spacing: -0.014em !important;
   line-height: 1 !important;
 
   text-shadow:
-    0 8px 18px rgba(0,0,0,0.20),
-    0 0 12px rgba(150,225,255,0.14) !important;
+    0 8px 18px rgba(0,0,0,0.22),
+    0 0 12px rgba(150,225,255,0.16) !important;
 }
 
 .friends-hero-visual {
-  height: 292px !important;
-  margin-top: 10px !important;
-  margin-bottom: 10px !important;
+  height: 282px !important;
+  margin-top: 7px !important;
+  margin-bottom: 8px !important;
 
   display: flex !important;
   align-items: center !important;
@@ -38,13 +42,13 @@
 }
 
 .friends-hero-lottie {
-  animation: friendsHeroPremiumFloat 3.8s ease-in-out infinite !important;
+  animation: friendsHeroPremiumFloat 4.4s cubic-bezier(.45, 0, .2, 1) infinite !important;
   transform-origin: 50% 58% !important;
   will-change: transform !important;
 
   filter:
-    drop-shadow(0 20px 34px rgba(0,0,0,0.24))
-    drop-shadow(0 0 18px rgba(80,205,255,0.12)) !important;
+    drop-shadow(0 20px 34px rgba(0,0,0,0.22))
+    drop-shadow(0 0 16px rgba(80,205,255,0.11)) !important;
 }
 
 .friends-hero-lottie,
@@ -57,37 +61,44 @@
 
 @keyframes friendsHeroPremiumFloat {
   0%, 100% {
-    transform: translate3d(0, 2px, 0) rotate(-1.2deg) scale(1.01);
+    transform: translate3d(-2px, 2px, 0) rotate(-0.8deg) scale(1.012);
   }
 
-  50% {
-    transform: translate3d(0, -9px, 0) rotate(1.4deg) scale(1.045);
+  34% {
+    transform: translate3d(3px, -7px, 0) rotate(0.9deg) scale(1.035);
+  }
+
+  68% {
+    transform: translate3d(-1px, -3px, 0) rotate(-0.35deg) scale(1.026);
   }
 }
 
 @media (max-width: 420px) {
   .friends-hero-badge {
-    height: 42px !important;
-    min-height: 42px !important;
-    padding: 0 16px !important;
+    width: 86% !important;
+    max-width: 334px !important;
+    min-width: 300px !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    padding: 0 18px !important;
   }
 
   .friends-hero-badge-text {
     font-size: 16.5px !important;
-    font-weight: 880 !important;
+    font-weight: 900 !important;
   }
 
   .friends-hero-visual {
-    height: 270px !important;
-    margin-top: 8px !important;
-    margin-bottom: 9px !important;
+    height: 262px !important;
+    margin-top: 6px !important;
+    margin-bottom: 7px !important;
   }
 
   .friends-hero-lottie,
   .friends-hero-lottie svg {
-    width: 298px !important;
-    height: 298px !important;
-    max-width: 298px !important;
-    max-height: 298px !important;
+    width: 296px !important;
+    height: 296px !important;
+    max-width: 296px !important;
+    max-height: 296px !important;
   }
 }
