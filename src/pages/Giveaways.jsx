@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import Lottie from "lottie-react"
 
-import { getReferralState } from "../api"
+import { getReferralState, prepareReferralShare } from "../api"
 import { useUser } from "../context/UserContext"
 import { triggerHaptic } from "../utils/haptics"
 import friendsAnimation from "../assets/animations/frms.json"
@@ -63,13 +63,9 @@ function Giveaways() {
     }
   }
 
-  const inviteFriend = () => {
-    if (!referralCode || referralCode === "--------") return
-
-    triggerHaptic("light")
-
+  const openFallbackShare = (fallbackText) => {
     const referralLink = `https://t.me/${BOT_USERNAME}?start=ref_${encodeURIComponent(referralCode)}`
-    const text = "Открывай бесплатный кейс каждый день!\n\nЗаходи и выбивай звёзды и подарки в бесплатном кейсе 💙"
+    const text = fallbackText || "Открывай бесплатный кейс каждый день!\n\nЗаходи и выбивай звёзды и подарки в бесплатном кейсе 💙"
     const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${encodeURIComponent(text)}`
     const tg = window.Telegram?.WebApp
 
@@ -79,6 +75,35 @@ function Giveaways() {
     }
 
     window.open(shareUrl, "_blank")
+  }
+
+  const inviteFriend = async () => {
+    if (!referralCode || referralCode === "--------") return
+
+    triggerHaptic("light")
+
+    const tg = window.Telegram?.WebApp
+
+    try {
+      if (tg?.shareMessage && user?.id) {
+        const prepared = await prepareReferralShare({
+          telegram_id: user.id,
+          referral_code: referralCode,
+        })
+
+        if (prepared?.ok && prepared?.preparedInlineMessageId) {
+          tg.shareMessage(prepared.preparedInlineMessageId)
+          return
+        }
+
+        openFallbackShare(prepared?.fallbackText)
+        return
+      }
+    } catch (error) {
+      console.error("PREPARED REFERRAL SHARE ERROR:", error)
+    }
+
+    openFallbackShare()
   }
 
   return (
