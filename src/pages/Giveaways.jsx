@@ -10,6 +10,8 @@ import zarAnimation from "../assets/animations/zar.json"
 import vivAnimation from "../assets/animations/viv.json"
 import "../style.css"
 
+const BOT_USERNAME = String(import.meta.env.VITE_BOT_USERNAME || "AuraCasesBot").replace(/^@/, "")
+
 function formatNumber(value) {
   return String(Number(value || 0))
 }
@@ -62,10 +64,13 @@ function Giveaways() {
   }
 
   const inviteFriend = () => {
+    if (!referralCode || referralCode === "--------") return
+
     triggerHaptic("light")
 
-    const text = `Залетай в UFO и используй мой промокод ${referralCode}`
-    const shareUrl = `https://t.me/share/url?text=${encodeURIComponent(text)}`
+    const referralLink = `https://t.me/${BOT_USERNAME}?start=ref_${encodeURIComponent(referralCode)}`
+    const text = "Открывай бесплатный кейс каждый день!\n\nЗаходи и выбивай звёзды и подарки в бесплатном кейсе 💙"
+    const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${encodeURIComponent(text)}`
     const tg = window.Telegram?.WebApp
 
     if (tg?.openTelegramLink) {
