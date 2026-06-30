@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 
 import {
   cashoutCrash,
+  getCrashHistory,
   getCrashState,
   placeCrashBet,
 } from "../api"
@@ -16,6 +17,7 @@ export function useCrashSocket({
 }) {
   const [crashState, setCrashState] = useState(null)
   const [livePlayers, setLivePlayers] = useState([])
+  const [crashHistory, setCrashHistory] = useState([])
   const [profit, setProfit] = useState(0)
 
   const [isBetLoading, setIsBetLoading] = useState(false)
@@ -27,6 +29,33 @@ export function useCrashSocket({
   const placedBetRoundRef = useRef(null)
   const cashoutInFlightRef = useRef(false)
   const cashedOutRoundRef = useRef(null)
+  const lastHistoryRoundRef = useRef(null)
+
+  const pushCrashHistory = useCallback((stateData) => {
+    const roundNumber = Number(stateData?.roundNumber || 0)
+    const multiplier = Number(stateData?.crashPoint || stateData?.multiplier || 0)
+
+    if (!roundNumber || !multiplier) return
+    if (lastHistoryRoundRef.current === roundNumber) return
+
+    lastHistoryRoundRef.current = roundNumber
+
+    setCrashHistory((prev) => {
+      const filtered = Array.isArray(prev)
+        ? prev.filter((item) => Number(item?.roundNumber) !== roundNumber)
+        : []
+
+      return [
+        {
+          id: stateData?.roundId || `round-${roundNumber}`,
+          roundNumber,
+          multiplier,
+          crashedAt: stateData?.crashedAt || new Date().toISOString(),
+        },
+        ...filtered,
+      ].slice(0, 14)
+    })
+  }, [])
 
   const mergeCrashState = useCallback((prev, next) => {
     if (!next) return prev
@@ -81,14 +110,33 @@ export function useCrashSocket({
     try {
       const stateData = await getCrashState(userId)
       setCrashState((prev) => mergeCrashState(prev, stateData))
+      if (stateData?.status === "crashed") {
+        pushCrashHistory(stateData)
+      }
     } catch (err) {
       console.error("REFRESH CRASH DATA ERROR:", err)
     }
-  }, [userId, mergeCrashState])
+  }, [userId, mergeCrashState, pushCrashHistory])
+
+  const refreshCrashHistory = useCallback(async () => {
+    try {
+      const history = await getCrashHistory(14)
+      setCrashHistory(Array.isArray(history) ? history : [])
+      const latest = Array.isArray(history) ? history[0] : null
+      if (latest?.roundNumber) {
+        lastHistoryRoundRef.current = Number(latest.roundNumber)
+      }
+    } catch (err) {
+      console.error("REFRESH CRASH HISTORY ERROR:", err)
+    }
+  }, [])
 
   useEffect(() => {
     const handleCrashState = (stateData) => {
       setCrashState((prev) => mergeCrashState(prev, stateData))
+      if (stateData?.status === "crashed") {
+        pushCrashHistory(stateData)
+      }
     }
 
     const handleCrashLive = (liveData) => {
@@ -136,12 +184,13 @@ export function useCrashSocket({
       socket.off("crash:state", handleCrashState)
       socket.off("crash:live", handleCrashLive)
     }
-  }, [mergeCrashState, userId])
+  }, [mergeCrashState, pushCrashHistory, userId])
 
   useEffect(() => {
     if (!userId || userId === "—") return
     refreshCrashData()
-  }, [userId, refreshCrashData])
+    refreshCrashHistory()
+  }, [userId, refreshCrashData, refreshCrashHistory])
 
   const placeBet = useCallback(async (amount) => {
     if (!userId || userId === "—") return
@@ -455,6 +504,7 @@ export function useCrashSocket({
   return {
     crashState,
     livePlayers,
+    crashHistory,
     profit,
     isBetLoading,
     isCashoutLoading,
