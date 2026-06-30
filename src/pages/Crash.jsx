@@ -143,6 +143,7 @@ function Crash() {
   }, [isBetInputFocused])
 
   const numericBet = Math.max(0, Number(betAmount || 0))
+  const userBalance = Number(user?.balance || 0)
   const status = crashState?.status || "waiting"
   const multiplier = Number(displayMultiplier || 1)
   const myBet = crashState?.myBet || null
@@ -151,6 +152,8 @@ function Crash() {
   const isWaiting = status === "waiting"
   const isFlying = status === "flying"
   const isCrashed = status === "crashed"
+  const hasEnoughBalance = numericBet <= userBalance
+  const isInsufficientBalance = isWaiting && numericBet > 0 && !myBet && !hasEnoughBalance
 
   const flightProgress = Math.min(
     Math.max(Math.log(Math.max(multiplier, 1)) / Math.log(7), 0),
@@ -175,6 +178,7 @@ function Crash() {
   const canPlaceBet =
     isWaiting &&
     numericBet > 0 &&
+    hasEnoughBalance &&
     !myBet &&
     !isBetLoading &&
     !isCashoutLoading
@@ -217,6 +221,12 @@ function Crash() {
   const handleMainAction = async () => {
     if (!user?.id || user.id === "—") return
 
+    if (isInsufficientBalance) {
+      triggerHaptic("light")
+      navigate("/profile")
+      return
+    }
+
     if (canPlaceBet) {
       try {
         triggerHaptic("medium")
@@ -254,6 +264,7 @@ function Crash() {
     if (isCashoutLoading) return "Вывод..."
     if (canCashout) return "Забрать"
     if (myBet && myBet.status === "active" && isWaiting) return "Ставка принята"
+    if (isInsufficientBalance) return "Пополнить"
     if (isBetLoading && !myBet) return "Ставка..."
     if (isWaiting) return "Сделать ставку"
     if (isFlying && !myBet) return "Раунд идет"
@@ -431,9 +442,9 @@ function Crash() {
 
             <button
               type="button"
-              className={`crash-bet-btn ${canCashout ? "cashout" : ""}`}
+              className={`crash-bet-btn ${canCashout ? "cashout" : ""} ${isInsufficientBalance ? "topup" : ""}`}
               onClick={handleMainAction}
-              disabled={!canPlaceBet && !canCashout}
+              disabled={!canPlaceBet && !canCashout && !isInsufficientBalance}
             >
               {mainButtonContent}
             </button>
