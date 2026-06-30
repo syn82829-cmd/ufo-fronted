@@ -232,11 +232,63 @@ export function useCrashSocket({
     incrementBalance,
   ])
 
-  const cashout = useCallback(async () => {
+  const cashout = useCallback(async (optimisticMultiplier) => {
     if (!userId || userId === "—") return
+
+    const currentBet = crashState?.myBet || null
+    const canApplyOptimisticCashout = currentBet?.status === "active"
+    const safeMultiplier = Math.max(1, Number(optimisticMultiplier || crashState?.multiplier || 1))
+    const optimisticPayout = canApplyOptimisticCashout
+      ? Math.floor(Number(currentBet.amount || 0) * safeMultiplier)
+      : 0
+    const optimisticProfit = canApplyOptimisticCashout
+      ? Math.max(optimisticPayout - Number(currentBet.amount || 0), 0)
+      : 0
+
+    const applyOptimisticCashout = () => {
+      if (!canApplyOptimisticCashout) return
+
+      setProfit(optimisticProfit)
+      incrementBalance?.(optimisticPayout)
+
+      setCrashState((prev) => {
+        if (!prev) return prev
+
+        return {
+          ...prev,
+          myBet: {
+            ...(prev?.myBet || {}),
+            cashout_multiplier: safeMultiplier,
+            payout: optimisticPayout,
+            profit: optimisticProfit,
+            status: "cashed_out",
+            isOptimisticCashout: true,
+          },
+        }
+      })
+
+      setLivePlayers((prev) => {
+        if (!Array.isArray(prev)) return prev
+
+        return prev.map((item) => {
+          if (String(item?.user?.telegram_id) !== String(userId)) {
+            return item
+          }
+
+          return {
+            ...item,
+            status: "cashed_out",
+            cashout_multiplier: safeMultiplier,
+            payout: optimisticPayout,
+            profit: optimisticProfit,
+          }
+        })
+      })
+    }
 
     try {
       setIsCashoutLoading(true)
+      applyOptimisticCashout()
 
       if (pendingBetPromiseRef.current) {
         await pendingBetPromiseRef.current
@@ -248,9 +300,19 @@ export function useCrashSocket({
 
       const payout = Number(result?.payout || 0)
       const nextProfit = Number(result?.profit || 0)
+      const payoutDelta = payout - optimisticPayout
 
       setProfit(nextProfit)
-      incrementBalance?.(payout)
+
+      if (canApplyOptimisticCashout) {
+        if (payoutDelta > 0) {
+          incrementBalance?.(payoutDelta)
+        } else if (payoutDelta < 0) {
+          decrementBalance?.(Math.abs(payoutDelta))
+        }
+      } else {
+        incrementBalance?.(payout)
+      }
 
       setCrashState((prev) => {
         if (!prev) return prev
@@ -262,6 +324,7 @@ export function useCrashSocket({
             ...(result?.bet || {}),
             status: "cashed_out",
             isOptimistic: false,
+            isOptimisticCashout: false,
           },
         }
       })
@@ -294,6 +357,24 @@ export function useCrashSocket({
 
       return result
     } catch (err) {
+      if (canApplyOptimisticCashout && optimisticPayout > 0) {
+        decrementBalance?.(optimisticPayout)
+        setProfit(0)
+
+        setCrashState((prev) => {
+          if (!prev) return prev
+
+          return {
+            ...prev,
+            myBet: {
+              ...currentBet,
+              status: "active",
+              isOptimisticCashout: false,
+            },
+          }
+        })
+      }
+
       console.error("CRASH CASHOUT ERROR:", err)
       await refreshUser?.().catch(() => {})
       await refreshCrashData().catch(() => {})
@@ -301,7 +382,14 @@ export function useCrashSocket({
     } finally {
       setIsCashoutLoading(false)
     }
-  }, [userId, refreshUser, refreshCrashData, incrementBalance])
+  }, [
+    userId,
+    crashState,
+    refreshUser,
+    refreshCrashData,
+    incrementBalance,
+    decrementBalance,
+  ])
 
   return {
     crashState,
