@@ -23,6 +23,8 @@ export function useCrashSocket({
 
   const pendingBetPromiseRef = useRef(null)
   const optimisticBetIdRef = useRef(null)
+  const betInFlightRef = useRef(false)
+  const placedBetRoundRef = useRef(null)
   const cashoutInFlightRef = useRef(false)
   const cashedOutRoundRef = useRef(null)
 
@@ -45,7 +47,9 @@ export function useCrashSocket({
       nextRoundId && cashedOutRoundRef.current === nextRoundId
 
     if (isNewRound) {
+      placedBetRoundRef.current = null
       cashedOutRoundRef.current = null
+      betInFlightRef.current = false
       cashoutInFlightRef.current = false
 
       return {
@@ -145,6 +149,18 @@ export function useCrashSocket({
     const numericAmount = Number(amount || 0)
     if (!numericAmount || numericAmount <= 0) return
 
+    const currentRoundId = crashState?.roundId || null
+
+    if (
+      betInFlightRef.current ||
+      (currentRoundId && placedBetRoundRef.current === currentRoundId)
+    ) {
+      return
+    }
+
+    betInFlightRef.current = true
+    placedBetRoundRef.current = currentRoundId
+
     const optimisticId = `optimistic-${userId}-${Date.now()}`
     optimisticBetIdRef.current = optimisticId
 
@@ -160,7 +176,7 @@ export function useCrashSocket({
           myBet: {
             ...(prev?.myBet || {}),
             id: optimisticId,
-            roundId: prev?.roundId || null,
+            roundId: prev?.roundId || currentRoundId,
             amount: numericAmount,
             status: "active",
             cashout_multiplier: null,
@@ -218,7 +234,7 @@ export function useCrashSocket({
           myBet: {
             ...(prev?.myBet || {}),
             ...(result?.bet || {}),
-            roundId: result?.roundId || prev?.roundId || null,
+            roundId: result?.roundId || prev?.roundId || currentRoundId || null,
             amount: numericAmount,
             status: "active",
             isOptimistic: false,
@@ -242,14 +258,6 @@ export function useCrashSocket({
         })
       })
 
-      refreshUser?.().catch((err) => {
-        console.error("REFRESH USER AFTER BET ERROR:", err)
-      })
-
-      refreshCrashData().catch((err) => {
-        console.error("REFRESH CRASH AFTER BET ERROR:", err)
-      })
-
       return result
     } catch (err) {
       incrementBalance?.(numericAmount)
@@ -268,12 +276,17 @@ export function useCrashSocket({
         return prev.filter((item) => item?.id !== optimisticId)
       })
 
+      if (placedBetRoundRef.current === currentRoundId) {
+        placedBetRoundRef.current = null
+      }
+
       console.error("PLACE CRASH BET ERROR:", err)
       await refreshUser?.().catch(() => {})
       await refreshCrashData().catch(() => {})
       throw err
     } finally {
       setIsBetLoading(false)
+      betInFlightRef.current = false
 
       if (pendingBetPromiseRef.current) {
         pendingBetPromiseRef.current = null
@@ -286,6 +299,7 @@ export function useCrashSocket({
   }, [
     userId,
     user,
+    crashState,
     refreshUser,
     refreshCrashData,
     decrementBalance,
@@ -406,14 +420,6 @@ export function useCrashSocket({
             profit: result?.profit ?? item?.profit ?? null,
           }
         })
-      })
-
-      refreshUser?.().catch((err) => {
-        console.error("REFRESH USER AFTER CASHOUT ERROR:", err)
-      })
-
-      refreshCrashData().catch((err) => {
-        console.error("REFRESH CRASH AFTER CASHOUT ERROR:", err)
       })
 
       return result
