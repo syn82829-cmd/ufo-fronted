@@ -226,6 +226,88 @@
   display: block !important;
 }
 
+.crash-live-block {
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.crash-live-title {
+  margin: 0 0 12px !important;
+  color: rgba(255,255,255,0.96) !important;
+  font-size: 20px !important;
+  font-weight: 760 !important;
+  line-height: 1.16 !important;
+  letter-spacing: -0.035em !important;
+  text-align: left !important;
+  text-shadow:
+    0 8px 22px rgba(0,0,0,0.20),
+    0 0 14px rgba(120,210,255,0.08) !important;
+}
+
+.crash-live-list {
+  gap: 10px !important;
+}
+
+.crash-live-row {
+  min-height: 66px !important;
+  padding: 9px 13px !important;
+  border-radius: 28px !important;
+
+  background:
+    radial-gradient(circle at 18% 0%, rgba(74, 145, 255, 0.24), rgba(74, 145, 255, 0.00) 42%),
+    linear-gradient(
+      145deg,
+      rgba(35, 82, 165, 0.58),
+      rgba(12, 34, 82, 0.46)
+    ) !important;
+
+  border: 1px solid rgba(120, 170, 255, 0.34) !important;
+  box-shadow:
+    0 10px 26px rgba(0,0,0,0.23),
+    inset 0 1px 0 rgba(255,255,255,0.16) !important;
+
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.crash-live-avatar {
+  width: 42px !important;
+  height: 42px !important;
+  flex: 0 0 42px !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.crash-live-rank-icon {
+  width: 18px !important;
+  height: 18px !important;
+}
+
+.crash-live-name {
+  color: rgba(255,255,255,0.96) !important;
+  font-size: 16px !important;
+  font-weight: 610 !important;
+  line-height: 1.12 !important;
+}
+
+.crash-live-bet {
+  min-width: 68px !important;
+  height: 32px !important;
+  border-radius: 999px !important;
+  background: rgba(255,255,255,0.08) !important;
+  border: 1px solid rgba(255,255,255,0.12) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.10) !important;
+}
+
+.crash-live-bet-icon {
+  width: 21px !important;
+  height: 21px !important;
+}
+
 @keyframes crashSceneFloat {
   0%, 100% {
     transform: translate(-50%, -50%) translate3d(0, 0, 0) rotate(-1.4deg);
@@ -347,5 +429,32 @@
     width: 19px !important;
     height: 19px !important;
     flex-basis: 19px !important;
+  }
+
+  .crash-live-row {
+    min-height: 64px !important;
+    padding: 9px 13px !important;
+    border-radius: 27px !important;
+  }
+
+  .crash-live-avatar {
+    width: 40px !important;
+    height: 40px !important;
+    flex-basis: 40px !important;
+  }
+
+  .crash-live-name {
+    font-size: 15px !important;
+    font-weight: 600 !important;
+  }
+
+  .crash-live-bet {
+    min-width: 66px !important;
+    height: 31px !important;
+  }
+
+  .crash-live-bet-icon {
+    width: 20px !important;
+    height: 20px !important;
   }
 }
