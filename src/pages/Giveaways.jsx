@@ -10,7 +10,7 @@ import zarAnimation from "../assets/animations/zar.json"
 import vivAnimation from "../assets/animations/viv.json"
 import "../style.css"
 
-const BOT_USERNAME = String(import.meta.env.VITE_BOT_USERNAME || "AuraCasesBot").replace(/^@/, "")
+const BOT_USERNAME = String(import.meta.env.VITE_BOT_USERNAME || "giftsonbot").replace(/^@/, "")
 
 function formatNumber(value) {
   return String(Number(value || 0))
