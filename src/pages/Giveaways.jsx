@@ -58,6 +58,16 @@ function Giveaways() {
     if (!user?.id || user.id === "—" || !referralCode || referralCode === "--------") return
     if (!window.Telegram?.WebApp?.shareMessage) return
 
+    const cacheKey = "gifton_prepared_" + referralCode
+
+    try {
+      const cached = JSON.parse(sessionStorage.getItem(cacheKey) || "null")
+      if (cached?.id) {
+        setPreparedShare(cached)
+        return
+      }
+    } catch {}
+
     let cancelled = false
     setIsPreparingShare(true)
 
@@ -73,14 +83,16 @@ function Giveaways() {
         if (cancelled) return
 
         if (prepared?.ok && prepared?.preparedInlineMessageId) {
-          setPreparedShare({
+          const share = {
             id: prepared.preparedInlineMessageId,
-            fallbackText: prepared.fallbackText,
-          })
+            fallbackText: prepared.fallbackText || "",
+          }
+          setPreparedShare(share)
+          try { sessionStorage.setItem(cacheKey, JSON.stringify(share)) } catch {}
         } else {
           setPreparedShare({
             id: null,
-            fallbackText: prepared?.fallbackText,
+            fallbackText: prepared?.fallbackText || "",
           })
         }
       })
