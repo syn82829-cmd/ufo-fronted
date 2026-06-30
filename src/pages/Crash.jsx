@@ -208,13 +208,14 @@ function Crash() {
     }
 
     if (canCashout) {
-      try {
-        triggerHaptic("medium")
-        await cashout(multiplier)
-        triggerHaptic("success")
-      } catch (err) {
-        triggerHaptic("error")
-      }
+      triggerHaptic("medium")
+      cashout(multiplier)
+        .then(() => {
+          triggerHaptic("success")
+        })
+        .catch(() => {
+          triggerHaptic("error")
+        })
       return
     }
 
@@ -368,7 +369,7 @@ function Crash() {
                 animationData={boomAnim}
                 loop={false}
                 autoplay
-                initialSegment={[0, 74]}
+                initialSegment={[0, 73]}
               />
             </div>
           )}
