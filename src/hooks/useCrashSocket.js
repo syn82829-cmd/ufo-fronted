@@ -23,6 +23,7 @@ export function useCrashSocket({
 
   const pendingBetPromiseRef = useRef(null)
   const optimisticBetIdRef = useRef(null)
+  const cashoutInFlightRef = useRef(false)
 
   const mergeCrashState = useCallback((prev, next) => {
     if (!next) return prev
@@ -233,7 +234,9 @@ export function useCrashSocket({
   ])
 
   const cashout = useCallback(async (optimisticMultiplier) => {
-    if (!userId || userId === "—") return
+    if (!userId || userId === "—" || cashoutInFlightRef.current) return
+
+    cashoutInFlightRef.current = true
 
     const currentBet = crashState?.myBet || null
     const canApplyOptimisticCashout = currentBet?.status === "active"
@@ -287,7 +290,6 @@ export function useCrashSocket({
     }
 
     try {
-      setIsCashoutLoading(true)
       applyOptimisticCashout()
 
       if (pendingBetPromiseRef.current) {
@@ -380,6 +382,7 @@ export function useCrashSocket({
       await refreshCrashData().catch(() => {})
       throw err
     } finally {
+      cashoutInFlightRef.current = false
       setIsCashoutLoading(false)
     }
   }, [
