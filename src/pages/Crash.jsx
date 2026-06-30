@@ -162,8 +162,7 @@ function Crash() {
   const canCashout =
     isFlying &&
     myBet?.status === "active" &&
-    !isCashoutLoading &&
-    !isBetLoading
+    !isCashoutLoading
 
   const handleBetFocus = () => {
     setIsBetInputFocused(true)
@@ -223,19 +222,18 @@ function Crash() {
   }
 
   const mainButtonContent = (() => {
-    if (isBetLoading) return "Ставка..."
-    if (isCashoutLoading) return "Вывод..."
-    if (canCashout) return "Забрать"
-    if (myBet && myBet.status === "active" && isWaiting) return "Ставка принята"
     if (myBet && myBet.status === "cashed_out") {
       return (
         <span className="crash-cashout-profit-label">
-          <span>+</span>
           <img src="/ui/star.PNG" alt="" className="crash-cashout-profit-star" draggable={false} />
           <span>{formatStars(cashedOutProfit)}</span>
         </span>
       )
     }
+    if (isCashoutLoading) return "Вывод..."
+    if (canCashout) return "Забрать"
+    if (myBet && myBet.status === "active" && isWaiting) return "Ставка принята"
+    if (isBetLoading && !myBet) return "Ставка..."
     if (isWaiting) return "Сделать ставку"
     if (isFlying && !myBet) return "Раунд идет"
     if (isCrashed) return "Ожидание..."
