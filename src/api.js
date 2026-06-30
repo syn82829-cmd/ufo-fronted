@@ -244,6 +244,26 @@ export async function getBonusState(telegram_id) {
 }
 
 // =============================
+// BONUS RESERVE DAILY GIFT
+// =============================
+
+export async function reserveBonusGift(telegram_id) {
+  if (!telegram_id) {
+    throw new Error("telegram_id is required")
+  }
+
+  return apiFetch("/bonus/reserve-gift", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      telegram_id,
+    }),
+  })
+}
+
+// =============================
 // BONUS CHECK CHANNEL
 // =============================
 
