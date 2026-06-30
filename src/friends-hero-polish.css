@@ -1,0 +1,93 @@
+/* ============================= */
+/* FRIENDS HERO MICRO POLISH */
+/* ============================= */
+
+.friends-hero-badge {
+  height: 44px !important;
+  min-height: 44px !important;
+  padding: 0 18px !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  border-radius: 999px !important;
+}
+
+.friends-hero-badge-text {
+  font-weight: 880 !important;
+  font-size: 17.5px !important;
+  letter-spacing: -0.018em !important;
+  line-height: 1 !important;
+
+  text-shadow:
+    0 8px 18px rgba(0,0,0,0.20),
+    0 0 12px rgba(150,225,255,0.14) !important;
+}
+
+.friends-hero-visual {
+  height: 292px !important;
+  margin-top: 10px !important;
+  margin-bottom: 10px !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  overflow: visible !important;
+}
+
+.friends-hero-lottie {
+  animation: friendsHeroPremiumFloat 3.8s ease-in-out infinite !important;
+  transform-origin: 50% 58% !important;
+  will-change: transform !important;
+
+  filter:
+    drop-shadow(0 20px 34px rgba(0,0,0,0.24))
+    drop-shadow(0 0 18px rgba(80,205,255,0.12)) !important;
+}
+
+.friends-hero-lottie,
+.friends-hero-lottie svg {
+  width: 318px !important;
+  height: 318px !important;
+  max-width: 318px !important;
+  max-height: 318px !important;
+}
+
+@keyframes friendsHeroPremiumFloat {
+  0%, 100% {
+    transform: translate3d(0, 2px, 0) rotate(-1.2deg) scale(1.01);
+  }
+
+  50% {
+    transform: translate3d(0, -9px, 0) rotate(1.4deg) scale(1.045);
+  }
+}
+
+@media (max-width: 420px) {
+  .friends-hero-badge {
+    height: 42px !important;
+    min-height: 42px !important;
+    padding: 0 16px !important;
+  }
+
+  .friends-hero-badge-text {
+    font-size: 16.5px !important;
+    font-weight: 880 !important;
+  }
+
+  .friends-hero-visual {
+    height: 270px !important;
+    margin-top: 8px !important;
+    margin-bottom: 9px !important;
+  }
+
+  .friends-hero-lottie,
+  .friends-hero-lottie svg {
+    width: 298px !important;
+    height: 298px !important;
+    max-width: 298px !important;
+    max-height: 298px !important;
+  }
+}
