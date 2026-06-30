@@ -369,7 +369,7 @@ function Crash() {
                 animationData={boomAnim}
                 loop={false}
                 autoplay
-                initialSegment={[0, 73]}
+                initialSegment={[0, 72]}
               />
             </div>
           )}
