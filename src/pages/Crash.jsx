@@ -152,6 +152,26 @@ function Crash() {
   const isFlying = status === "flying"
   const isCrashed = status === "crashed"
 
+  const flightProgress = Math.min(
+    Math.max(Math.log(Math.max(multiplier, 1)) / Math.log(7), 0),
+    1
+  )
+  const rocketX = Math.round(10 + flightProgress * 92)
+  const rocketY = Math.round(-4 - flightProgress * 96 - Math.sin(flightProgress * Math.PI) * 22)
+  const rocketRotation = Math.round(-10 + flightProgress * 28)
+  const rocketScale = (1 + flightProgress * 0.12).toFixed(3)
+  const moonX = Math.round(-flightProgress * 16)
+  const moonY = Math.round(flightProgress * 12)
+
+  const flightSceneStyle = {
+    "--rocket-x": `${rocketX}px`,
+    "--rocket-y": `${rocketY}px`,
+    "--rocket-rotate": `${rocketRotation}deg`,
+    "--rocket-scale": rocketScale,
+    "--moon-x": `${moonX}px`,
+    "--moon-y": `${moonY}px`,
+  }
+
   const canPlaceBet =
     isWaiting &&
     numericBet > 0 &&
@@ -348,7 +368,7 @@ function Crash() {
           </div>
 
           {showCrashScene && (
-            <div className="crash-flight-scene">
+            <div className="crash-flight-scene" style={flightSceneStyle}>
               {showMoon && (
                 <div className="crash-moon-lottie">
                   <Lottie animationData={moonAnim} loop autoplay />
@@ -356,15 +376,18 @@ function Crash() {
               )}
 
               {showUfo && ufoAnim && (
-                <div className="crash-ufo-lottie flying">
-                  <Lottie animationData={ufoAnim} loop autoplay />
-                </div>
+                <>
+                  <div className="crash-flight-trail" />
+                  <div className="crash-ufo-lottie flying">
+                    <Lottie animationData={ufoAnim} loop autoplay />
+                  </div>
+                </>
               )}
             </div>
           )}
 
           {showBoom && (
-            <div className="crash-boom-lottie">
+            <div className="crash-boom-lottie" style={flightSceneStyle}>
               <Lottie
                 animationData={boomAnim}
                 loop={false}
