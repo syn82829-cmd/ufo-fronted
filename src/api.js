@@ -324,6 +324,27 @@ export async function getReferralState(telegram_id) {
 }
 
 // =============================
+// REFERRAL PREPARED SHARE
+// =============================
+
+export async function prepareReferralShare({ telegram_id, referral_code }) {
+  if (!telegram_id || !referral_code) {
+    throw new Error("telegram_id and referral_code are required")
+  }
+
+  return apiFetch("/telegram/share/referral", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      telegram_id,
+      referral_code,
+    }),
+  })
+}
+
+// =============================
 // REFERRAL APPLY
 // =============================
 
