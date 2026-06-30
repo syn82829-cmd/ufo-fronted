@@ -329,7 +329,6 @@ export function useCrashSocket({
 
     const applyOptimisticCashout = () => {
       setProfit(optimisticProfit)
-      incrementBalance?.(optimisticPayout)
 
       setCrashState((prev) => {
         if (!prev) return prev
@@ -379,15 +378,9 @@ export function useCrashSocket({
 
       const payout = Number(result?.payout || 0)
       const nextProfit = Number(result?.profit || 0)
-      const payoutDelta = payout - optimisticPayout
 
       setProfit(nextProfit)
-
-      if (payoutDelta > 0) {
-        incrementBalance?.(payoutDelta)
-      } else if (payoutDelta < 0) {
-        decrementBalance?.(Math.abs(payoutDelta))
-      }
+      incrementBalance?.(payout)
 
       setCrashState((prev) => {
         if (!prev) return prev
@@ -424,23 +417,20 @@ export function useCrashSocket({
 
       return result
     } catch (err) {
-      if (optimisticPayout > 0) {
-        decrementBalance?.(optimisticPayout)
-        setProfit(0)
+      setProfit(0)
 
-        setCrashState((prev) => {
-          if (!prev) return prev
+      setCrashState((prev) => {
+        if (!prev) return prev
 
-          return {
-            ...prev,
-            myBet: {
-              ...currentBet,
-              status: "active",
-              isOptimisticCashout: false,
-            },
-          }
-        })
-      }
+        return {
+          ...prev,
+          myBet: {
+            ...currentBet,
+            status: "active",
+            isOptimisticCashout: false,
+          },
+        }
+      })
 
       if (cashedOutRoundRef.current === currentRoundId) {
         cashedOutRoundRef.current = null
@@ -460,7 +450,6 @@ export function useCrashSocket({
     refreshUser,
     refreshCrashData,
     incrementBalance,
-    decrementBalance,
   ])
 
   return {
