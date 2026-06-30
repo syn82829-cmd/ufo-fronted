@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import Lottie from "lottie-react"
 
@@ -19,13 +19,17 @@ function formatNumber(value) {
 function Giveaways() {
   const navigate = useNavigate()
   const { user } = useUser()
+  const prepareInFlightRef = useRef(null)
   const [referralState, setReferralState] = useState(null)
+  const [preparedShare, setPreparedShare] = useState(null)
+  const [isPreparingShare, setIsPreparingShare] = useState(false)
   const [copied, setCopied] = useState(false)
 
   const referralCode = referralState?.referralCode || "--------"
   const totalEarned = formatNumber(referralState?.totalEarned)
   const withdrawn = formatNumber(referralState?.withdrawn)
   const available = formatNumber(referralState?.available)
+  const isInviteReady = Boolean(preparedShare?.id) || !window.Telegram?.WebApp?.shareMessage
 
   useEffect(() => {
     let cancelled = false
@@ -49,6 +53,55 @@ function Giveaways() {
       cancelled = true
     }
   }, [user?.id])
+
+  useEffect(() => {
+    if (!user?.id || user.id === "—" || !referralCode || referralCode === "--------") return
+    if (!window.Telegram?.WebApp?.shareMessage) return
+
+    let cancelled = false
+    setIsPreparingShare(true)
+
+    const promise = prepareReferralShare({
+      telegram_id: user.id,
+      referral_code: referralCode,
+    })
+
+    prepareInFlightRef.current = promise
+
+    promise
+      .then((prepared) => {
+        if (cancelled) return
+
+        if (prepared?.ok && prepared?.preparedInlineMessageId) {
+          setPreparedShare({
+            id: prepared.preparedInlineMessageId,
+            fallbackText: prepared.fallbackText,
+          })
+        } else {
+          setPreparedShare({
+            id: null,
+            fallbackText: prepared?.fallbackText,
+          })
+        }
+      })
+      .catch((error) => {
+        if (!cancelled) {
+          console.error("PRELOAD REFERRAL SHARE ERROR:", error)
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setIsPreparingShare(false)
+        }
+        if (prepareInFlightRef.current === promise) {
+          prepareInFlightRef.current = null
+        }
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [user?.id, referralCode])
 
   const copyReferralCode = async () => {
     if (!referralCode || referralCode === "--------") return
@@ -77,54 +130,35 @@ function Giveaways() {
     window.open(shareUrl, "_blank")
   }
 
-  const inviteFriend = async () => {
+  const inviteFriend = () => {
     if (!referralCode || referralCode === "--------") return
+    if (window.Telegram?.WebApp?.shareMessage && !preparedShare?.id) return
 
     triggerHaptic("light")
 
     const tg = window.Telegram?.WebApp
 
     try {
-      if (tg?.shareMessage && user?.id) {
-        const prepared = await prepareReferralShare({
-          telegram_id: user.id,
-          referral_code: referralCode,
-        })
-
-        if (prepared?.ok && prepared?.preparedInlineMessageId) {
-          tg.shareMessage(prepared.preparedInlineMessageId)
-          return
-        }
-
-        openFallbackShare(prepared?.fallbackText)
+      if (tg?.shareMessage && preparedShare?.id) {
+        tg.shareMessage(preparedShare.id)
         return
       }
     } catch (error) {
       console.error("PREPARED REFERRAL SHARE ERROR:", error)
     }
 
-    openFallbackShare()
+    openFallbackShare(preparedShare?.fallbackText)
   }
 
   return (
     <div className="app">
       <div className="friends-page">
-        <button
-          type="button"
-          className="friends-hero-badge"
-        >
-          <span className="friends-hero-badge-text">
-            ЗАРАБАТЫВАЙ С GIFTON
-          </span>
+        <button type="button" className="friends-hero-badge">
+          <span className="friends-hero-badge-text">ЗАРАБАТЫВАЙ С GIFTON</span>
         </button>
 
         <div className="friends-hero-visual">
-          <Lottie
-            animationData={friendsAnimation}
-            loop
-            autoplay
-            className="friends-hero-lottie"
-          />
+          <Lottie animationData={friendsAnimation} loop autoplay className="friends-hero-lottie" />
         </div>
 
         <div className="friends-hero-text">
@@ -133,8 +167,9 @@ function Giveaways() {
 
         <button
           type="button"
-          className="friends-invite-btn"
+          className={`friends-invite-btn ${isInviteReady ? "ready" : "preparing"}`}
           onClick={inviteFriend}
+          disabled={!isInviteReady || isPreparingShare}
         >
           Пригласить друга
         </button>
@@ -143,107 +178,57 @@ function Giveaways() {
           <div className="friends-stat-card">
             <div className="friends-stat-top">
               <div className="friends-stat-lottie-wrap">
-                <Lottie
-                  animationData={zarAnimation}
-                  loop
-                  autoplay
-                  className="friends-stat-lottie"
-                />
+                <Lottie animationData={zarAnimation} loop autoplay className="friends-stat-lottie" />
               </div>
-
               <span className="friends-stat-value">{totalEarned}</span>
             </div>
-
-            <div className="friends-stat-label">
-              Всего заработано
-            </div>
+            <div className="friends-stat-label">Всего заработано</div>
           </div>
 
           <div className="friends-stat-card">
             <div className="friends-stat-top">
               <div className="friends-stat-lottie-wrap">
-                <Lottie
-                  animationData={vivAnimation}
-                  loop
-                  autoplay
-                  className="friends-stat-lottie"
-                />
+                <Lottie animationData={vivAnimation} loop autoplay className="friends-stat-lottie" />
               </div>
-
               <span className="friends-stat-value">{withdrawn}</span>
             </div>
-
-            <div className="friends-stat-label">
-              Выведено
-            </div>
+            <div className="friends-stat-label">Выведено</div>
           </div>
         </div>
 
         <div className="friends-withdraw-card">
           <div className="friends-withdraw-top">
             <div className="friends-withdraw-title-row">
-              <img
-                src="/ui/star.PNG"
-                alt=""
-                className="friends-withdraw-star"
-                draggable={false}
-              />
+              <img src="/ui/star.PNG" alt="" className="friends-withdraw-star" draggable={false} />
               <span className="friends-withdraw-value">{available}</span>
             </div>
-
-            <div className="friends-withdraw-label">
-              Доступно для вывода
-            </div>
+            <div className="friends-withdraw-label">Доступно для вывода</div>
           </div>
 
-          <button
-            type="button"
-            className="friends-withdraw-btn"
-            disabled
-          >
+          <button type="button" className="friends-withdraw-btn" disabled>
             Вывести
           </button>
         </div>
 
         <div className="friends-referral-section">
-          <div className="friends-referral-title">
-            Реферальный промокод
-          </div>
+          <div className="friends-referral-title">Реферальный промокод</div>
 
           <div className="friends-referral-card">
-            <button
-              type="button"
-              className="friends-referral-code-row"
-              onClick={copyReferralCode}
-            >
-              <span className="friends-referral-code">
-                {referralCode}
-              </span>
-
-              <span className="friends-referral-edit" aria-hidden="true">
-                ✎
-              </span>
+            <button type="button" className="friends-referral-code-row" onClick={copyReferralCode}>
+              <span className="friends-referral-code">{referralCode}</span>
+              <span className="friends-referral-edit" aria-hidden="true">✎</span>
             </button>
 
             <div className="friends-referral-bonus">
-              <span className="friends-referral-bonus-line">
-                При оплате с вашим промокодом
-              </span>
+              <span className="friends-referral-bonus-line">При оплате с вашим промокодом</span>
               <span className="friends-referral-bonus-line">
                 друг получит
                 <span className="friends-referral-star-bonus">
                   +50
-                  <img
-                    src="/ui/star.PNG"
-                    alt=""
-                    className="friends-referral-star"
-                    draggable={false}
-                  />
+                  <img src="/ui/star.PNG" alt="" className="friends-referral-star" draggable={false} />
                 </span>
               </span>
-              <span className="friends-referral-bonus-line">
-                и станет вашим рефералом
-              </span>
+              <span className="friends-referral-bonus-line">и станет вашим рефералом</span>
             </div>
 
             <div className="friends-referral-hint">
@@ -255,10 +240,7 @@ function Giveaways() {
 
       <div className="bottom-nav-shell">
         <div className="bottom-nav">
-          <div
-            className="nav-item"
-            onClick={() => navigate("/bonus")}
-          >
+          <div className="nav-item" onClick={() => navigate("/bonus")}>
             <img src="/ui/cupnav.PNG" alt="" className="nav-icon" />
             <span>Награды</span>
           </div>
@@ -268,19 +250,13 @@ function Giveaways() {
             <span>Друзья</span>
           </div>
 
-          <div
-            className="nav-item"
-            onClick={() => navigate("/")}
-          >
+          <div className="nav-item" onClick={() => navigate("/")}>
             <img src="/ui/main.PNG" alt="" className="nav-icon" />
             <span>Главная</span>
           </div>
         </div>
 
-        <div
-          className="floating-profile"
-          onClick={() => navigate("/profile")}
-        >
+        <div className="floating-profile" onClick={() => navigate("/profile")}>
           {user?.photoUrl ? (
             <img
               src={user.photoUrl}
