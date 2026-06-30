@@ -94,6 +94,19 @@
   letter-spacing: -0.02em !important;
 }
 
+.friends-invite-btn.preparing,
+.friends-invite-btn:disabled {
+  opacity: .58 !important;
+  filter: saturate(.72) brightness(.82) !important;
+  pointer-events: none !important;
+  transform: none !important;
+}
+
+.friends-invite-btn.ready {
+  opacity: 1 !important;
+  filter: none !important;
+}
+
 .friends-stats-grid,
 .friends-withdraw-card,
 .friends-referral-section {
