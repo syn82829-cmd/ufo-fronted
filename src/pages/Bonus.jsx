@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import Lottie from "lottie-react"
 
-import { getBonusState } from "../api"
+import { getBonusState, reserveBonusGift } from "../api"
 import { useUser } from "../context/UserContext"
 import DepositMenu from "../components/DepositMenu"
 import podarokAnimation from "../assets/animations/podarok.json"
@@ -82,6 +82,8 @@ function Bonus() {
     claimedLimit > 0 ? Math.min((claimedCount / claimedLimit) * 100, 100) : 0
 
   const hasReservedReward = (() => {
+    if (bonusState?.dailyGiftReservedToday) return true
+
     try {
       const raw = localStorage.getItem(BONUS_REWARD_STORAGE_KEY)
       if (!raw) return false
@@ -100,6 +102,15 @@ function Bonus() {
 
     try {
       setIsSavingReward(true)
+
+      const reserveResult = await reserveBonusGift(user.id)
+
+      setBonusState((prev) => ({
+        ...(prev || {}),
+        claimedCount: Number(reserveResult?.claimedCount ?? claimedCount),
+        claimedLimit: Number(reserveResult?.claimedLimit ?? claimedLimit),
+        dailyGiftReservedToday: true,
+      }))
 
       const now = Date.now()
       const reservedUntil = now + 24 * 60 * 60 * 1000
