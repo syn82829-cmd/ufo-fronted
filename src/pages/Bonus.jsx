@@ -2,13 +2,17 @@ import { useEffect, useRef, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import Lottie from "lottie-react"
 
-import { getBonusState, reserveBonusGift } from "../api"
+import { checkBonusChannel, getBonusState, getReferralState, prepareReferralShare, reserveBonusGift } from "../api"
 import { useUser } from "../context/UserContext"
+import { triggerHaptic } from "../utils/haptics"
 import DepositMenu from "../components/DepositMenu"
 import podarokAnimation from "../assets/animations/podarok.json"
 import "../style.css"
 
 const BONUS_REWARD_STORAGE_KEY = "ufo_bonus_reserved_reward"
+const BOT_USERNAME = String(import.meta.env.VITE_BOT_USERNAME || "giftsonbot").replace(/^@/, "")
+const CHANNEL_URL = "https://t.me/giftonchanneI"
+const SHARE_CACHE_PREFIX = "gifton_share_"
 
 const bonusTasks = [
   { id: "invite_friend", title: "Пригласите друга", reward: 3, iconSrc: "/ui/ref.webp" },
@@ -20,9 +24,13 @@ function Bonus() {
   const navigate = useNavigate()
   const { user } = useUser()
   const reserveInFlightRef = useRef(false)
+  const shareInFlightRef = useRef(null)
 
   const [bonusState, setBonusState] = useState(null)
+  const [referralCode, setReferralCode] = useState("")
+  const [preparedShare, setPreparedShare] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [isShareLoading, setIsShareLoading] = useState(false)
   const [isDepositOpen, setIsDepositOpen] = useState(false)
 
   useEffect(() => {
@@ -33,8 +41,13 @@ function Bonus() {
       }
 
       try {
-        const data = await getBonusState(user.id)
-        setBonusState(data)
+        const [bonusData, referralData] = await Promise.all([
+          getBonusState(user.id),
+          getReferralState(user.id),
+        ])
+
+        setBonusState(bonusData)
+        setReferralCode(referralData?.referralCode || "")
       } catch (err) {
         console.error("BONUS STATE LOAD ERROR:", err)
         setBonusState(null)
@@ -45,6 +58,49 @@ function Bonus() {
 
     loadBonusState()
   }, [user?.id])
+
+  useEffect(() => {
+    if (!user?.id || user.id === "—" || !referralCode) return
+    if (!window.Telegram?.WebApp?.shareMessage) return
+
+    try {
+      const cached = JSON.parse(localStorage.getItem(`${SHARE_CACHE_PREFIX}${referralCode}`) || "null")
+      if (cached?.id) {
+        setPreparedShare(cached)
+        return
+      }
+    } catch {}
+
+    let cancelled = false
+    setIsShareLoading(true)
+
+    const promise = prepareReferralShare({ telegram_id: user.id, referral_code: referralCode })
+    shareInFlightRef.current = promise
+
+    promise
+      .then((prepared) => {
+        if (cancelled) return
+
+        if (prepared?.ok && prepared?.preparedInlineMessageId) {
+          const share = { id: prepared.preparedInlineMessageId, fallbackText: prepared.fallbackText || "" }
+          setPreparedShare(share)
+          try {
+            localStorage.setItem(`${SHARE_CACHE_PREFIX}${referralCode}`, JSON.stringify(share))
+          } catch {}
+        } else {
+          setPreparedShare({ id: null, fallbackText: prepared?.fallbackText || "" })
+        }
+      })
+      .catch((err) => console.error("BONUS SHARE PRELOAD ERROR:", err))
+      .finally(() => {
+        if (!cancelled) setIsShareLoading(false)
+        if (shareInFlightRef.current === promise) shareInFlightRef.current = null
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [user?.id, referralCode])
 
   const claimedCount = Number(bonusState?.claimedCount ?? bonusState?.campaignClaimedCount ?? bonusState?.totalClaimed ?? 0) || 0
   const claimedLimit = Number(bonusState?.claimedLimit ?? bonusState?.campaignClaimedLimit ?? bonusState?.totalLimit ?? 500) || 500
@@ -120,6 +176,60 @@ function Bonus() {
       })
   }
 
+  const openInviteShare = () => {
+    if (!referralCode) return
+    if (window.Telegram?.WebApp?.shareMessage && !preparedShare?.id) return
+
+    triggerHaptic("light")
+
+    const tg = window.Telegram?.WebApp
+    if (tg?.shareMessage && preparedShare?.id) {
+      tg.shareMessage(preparedShare.id)
+      return
+    }
+
+    const referralLink = `https://t.me/${BOT_USERNAME}?start=ref_${encodeURIComponent(referralCode)}`
+    const text = preparedShare?.fallbackText || "Забирай бесплатный подарок каждый день!\n\nОткрывай кейсы и выигрывай NFT💙"
+    const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${encodeURIComponent(text)}`
+
+    if (tg?.openTelegramLink) tg.openTelegramLink(shareUrl)
+    else window.open(shareUrl, "_blank")
+  }
+
+  const checkChannelAfterOpen = () => {
+    if (!user?.id || user.id === "—") return
+
+    window.setTimeout(() => {
+      checkBonusChannel(user.id)
+        .then((result) => {
+          setBonusState((prev) => ({
+            ...(prev || {}),
+            channelSubscribed: Boolean(result?.channelSubscribed),
+          }))
+        })
+        .catch((err) => console.error("BONUS CHANNEL CHECK ERROR:", err))
+    }, 900)
+  }
+
+  const openChannelTask = () => {
+    triggerHaptic("light")
+    const tg = window.Telegram?.WebApp
+
+    if (tg?.openTelegramLink) tg.openTelegramLink(CHANNEL_URL)
+    else window.open(CHANNEL_URL, "_blank")
+
+    checkChannelAfterOpen()
+  }
+
+  const handleTaskClick = (taskId) => {
+    if (taskId === "invite_friend") {
+      openInviteShare()
+      return
+    }
+
+    openChannelTask()
+  }
+
   return (
     <div className="app">
       <div className="home-topbar home-topbar-minimal">
@@ -173,16 +283,26 @@ function Bonus() {
         <div className="bonus-section-heading bonus-tasks-heading">Задания</div>
 
         <div className="bonus-tasks-list">
-          {bonusTasks.map((task) => (
-            <button key={task.id} type="button" className="bonus-task-card">
-              <img src={task.iconSrc} alt="" className="bonus-task-icon" draggable={false} />
-              <span className="bonus-task-title">{task.title}</span>
-              <span className="bonus-task-reward">
-                <img src="/ui/star.PNG" alt="" className="bonus-task-star" draggable={false} />
-                <span>+{task.reward}</span>
-              </span>
-            </button>
-          ))}
+          {bonusTasks.map((task) => {
+            const disabled = task.id === "invite_friend" && window.Telegram?.WebApp?.shareMessage && (!preparedShare?.id || isShareLoading)
+
+            return (
+              <button
+                key={task.id}
+                type="button"
+                className={`bonus-task-card ${disabled ? "disabled" : ""}`}
+                onClick={() => handleTaskClick(task.id)}
+                disabled={disabled}
+              >
+                <img src={task.iconSrc} alt="" className="bonus-task-icon" draggable={false} />
+                <span className="bonus-task-title">{task.title}</span>
+                <span className="bonus-task-reward">
+                  <img src="/ui/star.PNG" alt="" className="bonus-task-star" draggable={false} />
+                  <span>+{task.reward}</span>
+                </span>
+              </button>
+            )
+          })}
         </div>
       </div>
 
