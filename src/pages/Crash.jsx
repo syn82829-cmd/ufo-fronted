@@ -210,7 +210,7 @@ function Crash() {
     if (canCashout) {
       try {
         triggerHaptic("medium")
-        await cashout()
+        await cashout(multiplier)
         triggerHaptic("success")
       } catch (err) {
         triggerHaptic("error")
