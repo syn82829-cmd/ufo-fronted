@@ -182,6 +182,15 @@ export async function getCrashState(telegram_id) {
 }
 
 // =============================
+// CRASH HISTORY
+// =============================
+
+export async function getCrashHistory(limit = 14) {
+  const data = await apiFetch(`/crash/history?limit=${encodeURIComponent(limit)}`)
+  return Array.isArray(data) ? data : []
+}
+
+// =============================
 // CRASH LIVE BETS
 // =============================
 
@@ -257,9 +266,7 @@ export async function reserveBonusGift(telegram_id) {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      telegram_id,
-    }),
+    body: JSON.stringify({ telegram_id }),
   })
 }
 
@@ -268,46 +275,16 @@ export async function reserveBonusGift(telegram_id) {
 // =============================
 
 export async function checkBonusChannel(telegram_id) {
+  if (!telegram_id) {
+    throw new Error("telegram_id is required")
+  }
+
   return apiFetch("/bonus/check-channel", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      telegram_id,
-    }),
-  })
-}
-
-// =============================
-// BONUS FRIEND INVITED
-// =============================
-
-export async function markFriendInvited(telegram_id) {
-  return apiFetch("/bonus/friend", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      telegram_id,
-    }),
-  })
-}
-
-// =============================
-// BONUS CLAIM
-// =============================
-
-export async function claimBonus(telegram_id) {
-  return apiFetch("/bonus/claim", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      telegram_id,
-    }),
+    body: JSON.stringify({ telegram_id }),
   })
 }
 
@@ -324,33 +301,12 @@ export async function getReferralState(telegram_id) {
 }
 
 // =============================
-// REFERRAL PREPARED SHARE
-// =============================
-
-export async function prepareReferralShare({ telegram_id, referral_code }) {
-  if (!telegram_id || !referral_code) {
-    throw new Error("telegram_id and referral_code are required")
-  }
-
-  return apiFetch("/telegram/share/referral", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      telegram_id,
-      referral_code,
-    }),
-  })
-}
-
-// =============================
 // REFERRAL APPLY
 // =============================
 
-export async function applyReferralCode({ telegram_id, code }) {
-  if (!telegram_id || !code) {
-    throw new Error("telegram_id and code are required")
+export async function applyReferralCode({ telegram_id, referral_code }) {
+  if (!telegram_id || !referral_code) {
+    throw new Error("telegram_id and referral_code are required")
   }
 
   return apiFetch("/referral/apply", {
@@ -358,9 +314,24 @@ export async function applyReferralCode({ telegram_id, code }) {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      telegram_id,
-      code,
-    }),
+    body: JSON.stringify({ telegram_id, referral_code }),
+  })
+}
+
+// =============================
+// TELEGRAM REFERRAL SHARE
+// =============================
+
+export async function prepareReferralShare({ telegram_id, referral_code }) {
+  if (!telegram_id) {
+    throw new Error("telegram_id is required")
+  }
+
+  return apiFetch("/telegram/share/referral", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ telegram_id, referral_code }),
   })
 }
