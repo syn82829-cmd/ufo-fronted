@@ -24,7 +24,7 @@
 }
 
 .app.crash-input-focused {
-  padding-bottom: 360px !important;
+  padding-bottom: 220px !important;
 }
 
 .crash-multiplier {
@@ -124,8 +124,8 @@
 .crash-bet-zone {
   margin-top: 10px !important;
   margin-bottom: 26px !important;
-  scroll-margin-top: 190px !important;
-  scroll-margin-bottom: 420px !important;
+  scroll-margin-top: 170px !important;
+  scroll-margin-bottom: 150px !important;
 }
 
 .crash-bet-controls {
@@ -279,6 +279,10 @@
   .crash-flight-zone {
     min-height: 280px !important;
     margin-bottom: 36px !important;
+  }
+
+  .app.crash-input-focused {
+    padding-bottom: 210px !important;
   }
 
   .crash-multiplier {
