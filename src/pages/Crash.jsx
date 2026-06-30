@@ -35,6 +35,7 @@ function Crash() {
   }, [])
 
   const betInputRef = useRef(null)
+  const betZoneRef = useRef(null)
 
   const [ufoAnim, setUfoAnim] = useState(null)
   const [boomAnim, setBoomAnim] = useState(null)
@@ -113,6 +114,39 @@ function Crash() {
       cancelled = true
     }
   }, [])
+
+  useEffect(() => {
+    if (!isBetInputFocused) return undefined
+
+    const scrollBetControlsIntoView = () => {
+      const target = betZoneRef.current
+      if (!target) return
+
+      try {
+        target.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+          inline: "nearest",
+        })
+      } catch {
+        target.scrollIntoView(false)
+      }
+    }
+
+    const timers = [60, 180, 340, 560, 820].map((delay) => {
+      return window.setTimeout(scrollBetControlsIntoView, delay)
+    })
+
+    const viewport = window.visualViewport
+    viewport?.addEventListener?.("resize", scrollBetControlsIntoView)
+    viewport?.addEventListener?.("scroll", scrollBetControlsIntoView)
+
+    return () => {
+      timers.forEach((timer) => window.clearTimeout(timer))
+      viewport?.removeEventListener?.("resize", scrollBetControlsIntoView)
+      viewport?.removeEventListener?.("scroll", scrollBetControlsIntoView)
+    }
+  }, [isBetInputFocused])
 
   const numericBet = Math.max(0, Number(betAmount || 0))
   const status = crashState?.status || "waiting"
@@ -360,7 +394,7 @@ function Crash() {
           )}
         </div>
 
-        <div className="crash-bet-zone">
+        <div className="crash-bet-zone" ref={betZoneRef}>
           <div className="crash-bet-controls">
             <div className="crash-bet-input-wrap">
               <img src="/ui/star.PNG" className="crash-bet-input-icon" alt="" />
