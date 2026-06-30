@@ -1,0 +1,183 @@
+/* ============================= */
+/* CRASH GLASS BG / TOPBAR / HISTORY */
+/* ============================= */
+
+.crash-page {
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.crash-page > *:not(.crash-page-glass-bg) {
+  position: relative;
+  z-index: 1;
+}
+
+.crash-page-glass-bg {
+  position: absolute;
+  inset: 76px 8px auto;
+  height: 360px;
+  z-index: 0;
+  pointer-events: none;
+
+  border-radius: 34px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background:
+    radial-gradient(circle at 50% 16%, rgba(80,170,255,0.12), rgba(80,170,255,0.00) 48%),
+    linear-gradient(145deg, rgba(255,255,255,0.030), rgba(255,255,255,0.010));
+
+  backdrop-filter: blur(7px) saturate(132%);
+  -webkit-backdrop-filter: blur(7px) saturate(132%);
+
+  box-shadow:
+    0 18px 46px rgba(0,0,0,0.12),
+    inset 0 1px 0 rgba(255,255,255,0.10);
+}
+
+.crash-topbar-balance {
+  height: 46px !important;
+  padding: 0 16px !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+
+  border-radius: 999px !important;
+  border: 1px solid rgba(255,255,255,0.16) !important;
+
+  background: linear-gradient(145deg, rgba(255,255,255,0.050), rgba(255,255,255,0.018)) !important;
+
+  backdrop-filter: blur(6px) saturate(145%) !important;
+  -webkit-backdrop-filter: blur(6px) saturate(145%) !important;
+
+  color: white !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+
+  box-shadow:
+    0 10px 22px rgba(0,0,0,0.18),
+    inset 0 1px 0 rgba(255,255,255,0.16) !important;
+}
+
+.crash-topbar-balance-icon {
+  width: 21px !important;
+  height: 21px !important;
+  object-fit: contain !important;
+}
+
+.crash-topbar-plus {
+  width: 46px !important;
+  height: 46px !important;
+  border-radius: 50% !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  color: #fff !important;
+  font-size: 24px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+
+  border: 1px solid rgba(170, 235, 255, 0.28) !important;
+
+  background: linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03)) !important;
+
+  backdrop-filter: blur(10px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(150%) !important;
+
+  box-shadow:
+    0 10px 24px rgba(0,0,0,0.16),
+    inset 0 1px 0 rgba(255,255,255,0.18) !important;
+}
+
+.crash-history-strip {
+  width: 100%;
+  min-height: 32px;
+  margin: 0 0 10px;
+
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 86%, rgba(0,0,0,0));
+  mask-image: linear-gradient(90deg, #000 0%, #000 86%, rgba(0,0,0,0));
+}
+
+.crash-history-chip {
+  min-width: 48px;
+  height: 30px;
+  padding: 0 9px;
+  box-sizing: border-box;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  flex: 0 0 auto;
+
+  border-radius: 11px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background:
+    radial-gradient(circle at 25% 0%, rgba(255,255,255,0.12), rgba(255,255,255,0.00) 50%),
+    linear-gradient(145deg, rgba(255,255,255,0.060), rgba(255,255,255,0.020));
+
+  color: rgba(255,255,255,0.88);
+  font-size: 13px;
+  font-weight: 760;
+  line-height: 1;
+  letter-spacing: -0.025em;
+
+  box-shadow:
+    0 7px 14px rgba(0,0,0,0.12),
+    inset 0 1px 0 rgba(255,255,255,0.12);
+
+  animation: crashHistoryAppear .24s ease both;
+}
+
+.crash-history-chip.low {
+  color: rgba(210,226,255,0.78);
+}
+
+.crash-history-chip.good {
+  color: rgba(75,225,255,0.90);
+  border-color: rgba(80,210,255,0.18);
+}
+
+.crash-history-chip.hot {
+  color: rgba(61,242,178,0.92);
+  border-color: rgba(61,242,178,0.20);
+}
+
+@keyframes crashHistoryAppear {
+  from {
+    opacity: 0;
+    transform: translateX(-10px) scale(.94);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@media (max-width: 430px) {
+  .crash-page-glass-bg {
+    inset: 72px 4px auto;
+    height: 346px;
+    border-radius: 32px;
+  }
+
+  .crash-history-strip {
+    gap: 6px;
+    margin-bottom: 9px;
+  }
+
+  .crash-history-chip {
+    min-width: 45px;
+    height: 29px;
+    padding: 0 8px;
+    border-radius: 10px;
+    font-size: 12.5px;
+  }
+}
