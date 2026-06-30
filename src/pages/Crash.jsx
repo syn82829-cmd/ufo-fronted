@@ -48,6 +48,7 @@ function Crash() {
   const {
     crashState,
     livePlayers,
+    crashHistory,
     profit,
     isBetLoading,
     isCashoutLoading,
@@ -86,23 +87,14 @@ function Crash() {
 
         if (cancelled) return
 
-        if (ufoData.status === "fulfilled") {
-          setUfoAnim(ufoData.value)
-        } else {
-          console.error("CRASH UFO LOTTIE LOAD ERROR:", ufoData.reason)
-        }
+        if (ufoData.status === "fulfilled") setUfoAnim(ufoData.value)
+        else console.error("CRASH UFO LOTTIE LOAD ERROR:", ufoData.reason)
 
-        if (boomData.status === "fulfilled") {
-          setBoomAnim(boomData.value)
-        } else {
-          console.error("CRASH BOOM LOTTIE LOAD ERROR:", boomData.reason)
-        }
+        if (boomData.status === "fulfilled") setBoomAnim(boomData.value)
+        else console.error("CRASH BOOM LOTTIE LOAD ERROR:", boomData.reason)
 
-        if (moonData.status === "fulfilled") {
-          setMoonAnim(moonData.value)
-        } else {
-          console.error("CRASH MOON LOTTIE LOAD ERROR:", moonData.reason)
-        }
+        if (moonData.status === "fulfilled") setMoonAnim(moonData.value)
+        else console.error("CRASH MOON LOTTIE LOAD ERROR:", moonData.reason)
       } catch (err) {
         console.error("CRASH LOTTIE LOAD ERROR:", err)
       }
@@ -123,19 +115,13 @@ function Crash() {
       if (!target) return
 
       try {
-        target.scrollIntoView({
-          behavior: "auto",
-          block: "end",
-          inline: "nearest",
-        })
+        target.scrollIntoView({ behavior: "auto", block: "end", inline: "nearest" })
       } catch {
         target.scrollIntoView(false)
       }
     }
 
-    const timers = [260, 520].map((delay) => {
-      return window.setTimeout(scrollBetControlsIntoView, delay)
-    })
+    const timers = [260, 520].map((delay) => window.setTimeout(scrollBetControlsIntoView, delay))
 
     return () => {
       timers.forEach((timer) => window.clearTimeout(timer))
@@ -155,10 +141,7 @@ function Crash() {
   const hasEnoughBalance = numericBet <= userBalance
   const isInsufficientBalance = isWaiting && numericBet > 0 && !myBet && !hasEnoughBalance
 
-  const flightProgress = Math.min(
-    Math.max(Math.log(Math.max(multiplier, 1)) / Math.log(7), 0),
-    1
-  )
+  const flightProgress = Math.min(Math.max(Math.log(Math.max(multiplier, 1)) / Math.log(7), 0), 1)
   const rocketX = Math.round(10 + flightProgress * 92)
   const rocketY = Math.round(-4 - flightProgress * 96 - Math.sin(flightProgress * Math.PI) * 22)
   const rocketRotation = Math.round(-10 + flightProgress * 28)
@@ -175,18 +158,8 @@ function Crash() {
     "--moon-y": `${moonY}px`,
   }
 
-  const canPlaceBet =
-    isWaiting &&
-    numericBet > 0 &&
-    hasEnoughBalance &&
-    !myBet &&
-    !isBetLoading &&
-    !isCashoutLoading
-
-  const canCashout =
-    isFlying &&
-    myBet?.status === "active" &&
-    !isCashoutLoading
+  const canPlaceBet = isWaiting && numericBet > 0 && hasEnoughBalance && !myBet && !isBetLoading && !isCashoutLoading
+  const canCashout = isFlying && myBet?.status === "active" && !isCashoutLoading
 
   const handleBetFocus = () => {
     setIsBetInputFocused(true)
@@ -197,9 +170,7 @@ function Crash() {
     }
   }
 
-  const handleBetBlur = () => {
-    setIsBetInputFocused(false)
-  }
+  const handleBetBlur = () => setIsBetInputFocused(false)
 
   const handleBetChange = (event) => {
     const nextValue = event.target.value
@@ -208,14 +179,9 @@ function Crash() {
     setIsInitialDefaultBet(false)
 
     try {
-      if (String(nextValue).trim()) {
-        localStorage.setItem(CRASH_BET_STORAGE_KEY, nextValue)
-      } else {
-        localStorage.removeItem(CRASH_BET_STORAGE_KEY)
-      }
-    } catch {
-      // localStorage may be unavailable inside some webviews
-    }
+      if (String(nextValue).trim()) localStorage.setItem(CRASH_BET_STORAGE_KEY, nextValue)
+      else localStorage.removeItem(CRASH_BET_STORAGE_KEY)
+    } catch {}
   }
 
   const handleMainAction = async () => {
@@ -239,13 +205,7 @@ function Crash() {
 
     if (canCashout) {
       triggerHaptic("medium")
-      cashout(multiplier)
-        .then(() => {
-          triggerHaptic("success")
-        })
-        .catch(() => {
-          triggerHaptic("error")
-        })
+      cashout(multiplier).then(() => triggerHaptic("success")).catch(() => triggerHaptic("error"))
       return
     }
 
@@ -282,40 +242,22 @@ function Crash() {
   return (
     <div className={`app ${isBetInputFocused ? "crash-input-focused" : ""}`}>
       <div className="crash-page">
+        <div className="crash-page-glass-bg" />
+
         <div className="crash-topbar">
-          <div
-            className="crash-topbar-left"
-            onClick={() => {
-              triggerHaptic("light")
-              navigate("/profile")
-            }}
-          >
+          <div className="crash-topbar-left" onClick={() => { triggerHaptic("light"); navigate("/profile") }}>
             <div className="crash-topbar-avatar">
               {user.photoUrl ? (
-                <img
-                  src={user.photoUrl}
-                  alt={user.username}
-                  className="crash-topbar-avatar-image"
-                  draggable={false}
-                  referrerPolicy="no-referrer"
-                />
+                <img src={user.photoUrl} alt={user.username} className="crash-topbar-avatar-image" draggable={false} referrerPolicy="no-referrer" />
               ) : (
-                <span className="crash-topbar-avatar-fallback">
-                  {(user.username?.[0] || "G").toUpperCase()}
-                </span>
+                <span className="crash-topbar-avatar-fallback">{(user.username?.[0] || "G").toUpperCase()}</span>
               )}
             </div>
 
             <div className="crash-topbar-user">
               <div className="crash-topbar-name">{user.username}</div>
-
               <div className="crash-topbar-rank">
-                <img
-                  src={playerRank.image}
-                  alt={playerRank.name}
-                  className="crash-topbar-rank-icon"
-                  draggable={false}
-                />
+                <img src={playerRank.image} alt={playerRank.name} className="crash-topbar-rank-icon" draggable={false} />
                 <span className="crash-topbar-rank-text">{playerRank.name}</span>
               </div>
             </div>
@@ -329,37 +271,18 @@ function Crash() {
               </div>
             </div>
 
-            <button
-              type="button"
-              className="crash-topbar-plus"
-              onClick={() => {
-                triggerHaptic("light")
-                navigate("/profile")
-              }}
-            >
+            <button type="button" className="crash-topbar-plus" onClick={() => { triggerHaptic("light"); navigate("/profile") }}>
               +
             </button>
           </div>
         </div>
 
         <div className="crash-header-actions">
-          <button
-            type="button"
-            className="crash-header-btn crash-back-btn"
-            onClick={() => {
-              triggerHaptic("light")
-              navigate(-1)
-            }}
-          >
+          <button type="button" className="crash-header-btn crash-back-btn" onClick={() => { triggerHaptic("light"); navigate(-1) }}>
             <img src="/ui/back.PNG" className="crash-header-icon" alt="" draggable={false} />
           </button>
 
-          <button
-            type="button"
-            className="crash-header-btn crash-settings-btn"
-            aria-disabled="true"
-            tabIndex={-1}
-          >
+          <button type="button" className="crash-header-btn crash-settings-btn" aria-disabled="true" tabIndex={-1}>
             <img src="/ui/settings.PNG" className="crash-header-icon" alt="" draggable={false} />
           </button>
         </div>
@@ -367,31 +290,23 @@ function Crash() {
         {isSettingsOpen && (
           <div className="crash-settings-panel">
             <div className="crash-settings-title">Rocket Crash</div>
-            <div className="crash-settings-text">
-              Demo-режим ставок будет позже
-            </div>
+            <div className="crash-settings-text">Demo-режим ставок будет позже</div>
           </div>
         )}
 
         <div className="crash-flight-zone">
-          <div className={`crash-multiplier ${isCrashed ? "crashed" : ""}`}>
-            x{multiplier.toFixed(2)}
-          </div>
+          <div className={`crash-multiplier ${isCrashed ? "crashed" : ""}`}>x{multiplier.toFixed(2)}</div>
 
           {showCrashScene && (
             <div className="crash-flight-scene" style={flightSceneStyle}>
               {showMoon && (
-                <div className="crash-moon-lottie">
-                  <Lottie animationData={moonAnim} loop autoplay />
-                </div>
+                <div className="crash-moon-lottie"><Lottie animationData={moonAnim} loop autoplay /></div>
               )}
 
               {showUfo && ufoAnim && (
                 <>
                   <div className="crash-flight-trail" />
-                  <div className="crash-ufo-lottie flying">
-                    <Lottie animationData={ufoAnim} loop autoplay />
-                  </div>
+                  <div className="crash-ufo-lottie flying"><Lottie animationData={ufoAnim} loop autoplay /></div>
                 </>
               )}
             </div>
@@ -399,29 +314,28 @@ function Crash() {
 
           {showBoom && (
             <div className="crash-boom-lottie" style={flightSceneStyle}>
-              <Lottie
-                animationData={boomAnim}
-                loop={false}
-                autoplay
-                initialSegment={[0, 72]}
-              />
+              <Lottie animationData={boomAnim} loop={false} autoplay initialSegment={[0, 72]} />
             </div>
           )}
 
-          {showCrashText && (
-            <div className="crash-center-text crash-word">
-              Crash!
-            </div>
-          )}
-
-          {showCountdown && (
-            <div className="crash-center-text crash-countdown">
-              {displayCountdown}
-            </div>
-          )}
+          {showCrashText && <div className="crash-center-text crash-word">Crash!</div>}
+          {showCountdown && <div className="crash-center-text crash-countdown">{displayCountdown}</div>}
         </div>
 
         <div className="crash-bet-zone" ref={betZoneRef}>
+          <div className="crash-history-strip">
+            {(crashHistory || []).map((round) => {
+              const value = Number(round?.multiplier || 1)
+              const tone = value >= 3 ? "hot" : value >= 2 ? "good" : "low"
+
+              return (
+                <div key={`${round.roundNumber}-${round.multiplier}`} className={`crash-history-chip ${tone}`}>
+                  x{value.toFixed(2)}
+                </div>
+              )
+            })}
+          </div>
+
           <div className="crash-bet-controls">
             <div className="crash-bet-input-wrap">
               <img src="/ui/star.PNG" className="crash-bet-input-icon" alt="" />
@@ -457,31 +371,17 @@ function Crash() {
           <div className="crash-live-list">
             {livePlayers.map((item) => {
               const liveUser = item.user || {}
-              const rank = getPlayerRank(
-                Number(liveUser.casesOpened || 0),
-                Number(liveUser.crashGamesPlayed || 0)
-              )
+              const rank = getPlayerRank(Number(liveUser.casesOpened || 0), Number(liveUser.crashGamesPlayed || 0))
 
               return (
                 <div key={item.id} className="crash-live-row">
                   <div className="crash-live-user">
-                    <div className="crash-live-avatar">
-                      <span className="crash-live-avatar-fallback">
-                        {(liveUser.username?.[0] || "G").toUpperCase()}
-                      </span>
-                    </div>
-
+                    <div className="crash-live-avatar"><span className="crash-live-avatar-fallback">{(liveUser.username?.[0] || "G").toUpperCase()}</span></div>
                     <div className="crash-live-meta">
                       <div className="crash-live-rank">
-                        <img
-                          src={rank.image}
-                          alt={rank.name}
-                          className="crash-live-rank-icon"
-                          draggable={false}
-                        />
+                        <img src={rank.image} alt={rank.name} className="crash-live-rank-icon" draggable={false} />
                         <span className="crash-live-rank-text">{rank.name}</span>
                       </div>
-
                       <div className="crash-live-name">{liveUser.username || "Unknown"}</div>
                     </div>
                   </div>
@@ -499,59 +399,27 @@ function Crash() {
 
       <div className={`bottom-nav-shell ${isBetInputFocused ? "crash-keyboard-hidden" : ""}`}>
         <div className="bottom-nav">
-          <div
-            className="nav-item"
-            onClick={() => {
-              triggerHaptic("light")
-              navigate("/bonus")
-            }}
-          >
+          <div className="nav-item" onClick={() => { triggerHaptic("light"); navigate("/bonus") }}>
             <img src="/ui/cupnav.PNG" alt="" className="nav-icon" />
             <span>Награды</span>
           </div>
 
-          <div
-            className="nav-item"
-            onClick={() => {
-              triggerHaptic("light")
-              navigate("/giveaways")
-            }}
-          >
+          <div className="nav-item" onClick={() => { triggerHaptic("light"); navigate("/giveaways") }}>
             <img src="/ui/frnav.PNG" alt="" className="nav-icon" />
             <span>Друзья</span>
           </div>
 
-          <div
-            className="nav-item"
-            onClick={() => {
-              triggerHaptic("light")
-              navigate("/")
-            }}
-          >
+          <div className="nav-item" onClick={() => { triggerHaptic("light"); navigate("/") }}>
             <img src="/ui/main.PNG" alt="" className="nav-icon" />
             <span>Главная</span>
           </div>
         </div>
 
-        <div
-          className="floating-profile"
-          onClick={() => {
-            triggerHaptic("light")
-            navigate("/profile")
-          }}
-        >
+        <div className="floating-profile" onClick={() => { triggerHaptic("light"); navigate("/profile") }}>
           {user?.photoUrl ? (
-            <img
-              src={user.photoUrl}
-              alt={user.username}
-              className="floating-profile-image"
-              draggable={false}
-              referrerPolicy="no-referrer"
-            />
+            <img src={user.photoUrl} alt={user.username} className="floating-profile-image" draggable={false} referrerPolicy="no-referrer" />
           ) : (
-            <span className="floating-profile-fallback">
-              {(user?.username?.[0] || "G").toUpperCase()}
-            </span>
+            <span className="floating-profile-fallback">{(user?.username?.[0] || "G").toUpperCase()}</span>
           )}
         </div>
       </div>
