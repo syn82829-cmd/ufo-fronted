@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
 import {
   cashoutCrash,
@@ -21,6 +21,9 @@ export function useCrashSocket({
   const [isBetLoading, setIsBetLoading] = useState(false)
   const [isCashoutLoading, setIsCashoutLoading] = useState(false)
 
+  const pendingBetPromiseRef = useRef(null)
+  const optimisticBetIdRef = useRef(null)
+
   const mergeCrashState = useCallback((prev, next) => {
     if (!next) return prev
     if (!prev) return next
@@ -33,10 +36,12 @@ export function useCrashSocket({
     }
 
     const isNewRound = nextRound > prevRound
+    const prevBet = prev?.myBet ?? null
+    const nextBet = next?.myBet ?? null
 
     return {
       ...next,
-      myBet: isNewRound ? null : (next?.myBet ?? prev?.myBet ?? null),
+      myBet: isNewRound ? null : (nextBet ?? prevBet ?? null),
     }
   }, [])
 
@@ -78,17 +83,14 @@ export function useCrashSocket({
     if (!userId || userId === "—") return
 
     const numericAmount = Number(amount || 0)
+    if (!numericAmount || numericAmount <= 0) return
 
-    try {
-      setIsBetLoading(true)
+    const optimisticId = `optimistic-${userId}-${Date.now()}`
+    optimisticBetIdRef.current = optimisticId
+
+    const applyOptimisticBet = () => {
       setProfit(0)
-
       decrementBalance?.(numericAmount)
-
-      const result = await placeCrashBet({
-        telegram_id: userId,
-        amount: numericAmount,
-      })
 
       setCrashState((prev) => {
         if (!prev) return prev
@@ -97,17 +99,21 @@ export function useCrashSocket({
           ...prev,
           myBet: {
             ...(prev?.myBet || {}),
-            ...(result?.bet || {}),
-            roundId: result?.roundId || prev?.roundId || null,
+            id: optimisticId,
+            roundId: prev?.roundId || null,
             amount: numericAmount,
             status: "active",
+            cashout_multiplier: null,
+            payout: null,
+            profit: null,
+            isOptimistic: true,
           },
         }
       })
 
       setLivePlayers((prev) => {
         const optimisticItem = {
-          id: result?.bet?.id || `optimistic-${userId}-${Date.now()}`,
+          id: optimisticId,
           amount: numericAmount,
           status: "active",
           cashout_multiplier: null,
@@ -130,6 +136,51 @@ export function useCrashSocket({
 
         return [optimisticItem, ...filtered]
       })
+    }
+
+    try {
+      setIsBetLoading(true)
+      applyOptimisticBet()
+
+      const requestPromise = placeCrashBet({
+        telegram_id: userId,
+        amount: numericAmount,
+      })
+
+      pendingBetPromiseRef.current = requestPromise
+      const result = await requestPromise
+
+      setCrashState((prev) => {
+        if (!prev) return prev
+
+        return {
+          ...prev,
+          myBet: {
+            ...(prev?.myBet || {}),
+            ...(result?.bet || {}),
+            roundId: result?.roundId || prev?.roundId || null,
+            amount: numericAmount,
+            status: "active",
+            isOptimistic: false,
+          },
+        }
+      })
+
+      setLivePlayers((prev) => {
+        if (!Array.isArray(prev)) return prev
+
+        return prev.map((item) => {
+          if (item?.id !== optimisticId) return item
+
+          return {
+            ...item,
+            ...(result?.bet || {}),
+            id: result?.bet?.id || item.id,
+            amount: numericAmount,
+            status: "active",
+          }
+        })
+      })
 
       refreshUser?.().catch((err) => {
         console.error("REFRESH USER AFTER BET ERROR:", err)
@@ -142,11 +193,35 @@ export function useCrashSocket({
       return result
     } catch (err) {
       incrementBalance?.(numericAmount)
+
+      setCrashState((prev) => {
+        if (!prev?.myBet || prev.myBet.id !== optimisticId) return prev
+
+        return {
+          ...prev,
+          myBet: null,
+        }
+      })
+
+      setLivePlayers((prev) => {
+        if (!Array.isArray(prev)) return prev
+        return prev.filter((item) => item?.id !== optimisticId)
+      })
+
       console.error("PLACE CRASH BET ERROR:", err)
       await refreshUser?.().catch(() => {})
+      await refreshCrashData().catch(() => {})
       throw err
     } finally {
       setIsBetLoading(false)
+
+      if (pendingBetPromiseRef.current) {
+        pendingBetPromiseRef.current = null
+      }
+
+      if (optimisticBetIdRef.current === optimisticId) {
+        optimisticBetIdRef.current = null
+      }
     }
   }, [
     userId,
@@ -162,6 +237,10 @@ export function useCrashSocket({
 
     try {
       setIsCashoutLoading(true)
+
+      if (pendingBetPromiseRef.current) {
+        await pendingBetPromiseRef.current
+      }
 
       const result = await cashoutCrash({
         telegram_id: userId,
@@ -182,6 +261,7 @@ export function useCrashSocket({
             ...(prev?.myBet || {}),
             ...(result?.bet || {}),
             status: "cashed_out",
+            isOptimistic: false,
           },
         }
       })
@@ -216,6 +296,7 @@ export function useCrashSocket({
     } catch (err) {
       console.error("CRASH CASHOUT ERROR:", err)
       await refreshUser?.().catch(() => {})
+      await refreshCrashData().catch(() => {})
       throw err
     } finally {
       setIsCashoutLoading(false)
