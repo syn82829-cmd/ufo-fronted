@@ -24,7 +24,7 @@
 }
 
 .app.crash-input-focused {
-  padding-bottom: 24px !important;
+  padding-bottom: 360px !important;
 }
 
 .crash-multiplier {
@@ -124,6 +124,8 @@
 .crash-bet-zone {
   margin-top: 10px !important;
   margin-bottom: 26px !important;
+  scroll-margin-top: 190px !important;
+  scroll-margin-bottom: 420px !important;
 }
 
 .crash-bet-controls {
