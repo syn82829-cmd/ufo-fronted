@@ -65,7 +65,7 @@ function Giveaways() {
 
   const openFallbackShare = (fallbackText) => {
     const referralLink = `https://t.me/${BOT_USERNAME}?start=ref_${encodeURIComponent(referralCode)}`
-    const text = fallbackText || "Открывай бесплатный кейс каждый день!\n\nЗаходи и выбивай звёзды и подарки в бесплатном кейсе 💙"
+    const text = fallbackText || "Забирай бесплатный подарок каждый день!\n\nОткрывай кейсы и выигрывай NFT💙"
     const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${encodeURIComponent(text)}`
     const tg = window.Telegram?.WebApp
 
