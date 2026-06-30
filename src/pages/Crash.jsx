@@ -124,8 +124,8 @@ function Crash() {
 
       try {
         target.scrollIntoView({
-          behavior: "smooth",
-          block: "center",
+          behavior: "auto",
+          block: "end",
           inline: "nearest",
         })
       } catch {
@@ -133,18 +133,12 @@ function Crash() {
       }
     }
 
-    const timers = [60, 180, 340, 560, 820].map((delay) => {
+    const timers = [260, 520].map((delay) => {
       return window.setTimeout(scrollBetControlsIntoView, delay)
     })
 
-    const viewport = window.visualViewport
-    viewport?.addEventListener?.("resize", scrollBetControlsIntoView)
-    viewport?.addEventListener?.("scroll", scrollBetControlsIntoView)
-
     return () => {
       timers.forEach((timer) => window.clearTimeout(timer))
-      viewport?.removeEventListener?.("resize", scrollBetControlsIntoView)
-      viewport?.removeEventListener?.("scroll", scrollBetControlsIntoView)
     }
   }, [isBetInputFocused])
 
@@ -376,7 +370,7 @@ function Crash() {
                 animationData={boomAnim}
                 loop={false}
                 autoplay
-                initialSegment={[0, 75]}
+                initialSegment={[0, 74]}
               />
             </div>
           )}
