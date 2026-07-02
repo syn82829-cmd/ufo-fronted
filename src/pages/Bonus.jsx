@@ -13,6 +13,11 @@ const BONUS_REWARD_STORAGE_KEY = "ufo_bonus_reserved_reward"
 const BOT_USERNAME = String(import.meta.env.VITE_BOT_USERNAME || "giftsonbot").replace(/^@/, "")
 const CHANNEL_URL = "https://t.me/giftonchanneI"
 const SHARE_CACHE_PREFIX = "gifton_share_"
+const DAILY_GIFT_LIMIT = 500
+const DAILY_GIFT_VISUAL_BASE = 237
+const DAILY_GIFT_VISUAL_DAILY_GROWTH = 15
+const DAILY_GIFT_VISUAL_START_AT = new Date("2026-07-02T00:00:00.000Z").getTime()
+const DAY_MS = 24 * 60 * 60 * 1000
 
 const bonusTasks = [
   { id: "invite_friend", title: "Пригласите друга", reward: 3, iconSrc: "/ui/ref.webp" },
@@ -20,25 +25,41 @@ const bonusTasks = [
   { id: "vote_channel", title: "Проголосуйте за канал", reward: 2, iconSrc: "/ui/golos.webp" },
 ]
 
+function getVisualDailyGiftCount() {
+  const now = Date.now()
+  const dayIndex = Math.max(0, Math.floor((now - DAILY_GIFT_VISUAL_START_AT) / DAY_MS))
+
+  if (dayIndex <= 0) return DAILY_GIFT_VISUAL_BASE
+
+  const currentDayStart = DAILY_GIFT_VISUAL_START_AT + dayIndex * DAY_MS
+  const currentDayProgress = Math.max(0, Math.min(now - currentDayStart, DAY_MS)) / DAY_MS
+  const previousDaysGrowth = Math.max(dayIndex - 1, 0) * DAILY_GIFT_VISUAL_DAILY_GROWTH
+  const todayGrowth = Math.floor(currentDayProgress * DAILY_GIFT_VISUAL_DAILY_GROWTH)
+
+  return Math.min(
+    DAILY_GIFT_LIMIT,
+    DAILY_GIFT_VISUAL_BASE + previousDaysGrowth + todayGrowth
+  )
+}
+
 function Bonus() {
   const navigate = useNavigate()
   const { user } = useUser()
   const reserveInFlightRef = useRef(false)
   const shareInFlightRef = useRef(null)
 
-  const [bonusState, setBonusState] = useState(null)
+  const [bonusState, setBonusState] = useState({
+    claimedCount: getVisualDailyGiftCount(),
+    claimedLimit: DAILY_GIFT_LIMIT,
+    dailyGiftReservedToday: false,
+  })
   const [referralCode, setReferralCode] = useState("")
   const [preparedShare, setPreparedShare] = useState(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [isShareLoading, setIsShareLoading] = useState(false)
   const [isDepositOpen, setIsDepositOpen] = useState(false)
 
   useEffect(() => {
     async function loadBonusState() {
-      if (!user?.id || user.id === "—") {
-        setIsLoading(false)
-        return
-      }
+      if (!user?.id || user.id === "—") return
 
       try {
         const [bonusData, referralData] = await Promise.all([
@@ -46,13 +67,20 @@ function Bonus() {
           getReferralState(user.id),
         ])
 
-        setBonusState(bonusData)
+        const visualCount = getVisualDailyGiftCount()
+        setBonusState({
+          ...bonusData,
+          claimedCount: Math.max(Number(bonusData?.claimedCount || 0), visualCount),
+          claimedLimit: Number(bonusData?.claimedLimit || DAILY_GIFT_LIMIT),
+        })
         setReferralCode(referralData?.referralCode || "")
       } catch (err) {
         console.error("BONUS STATE LOAD ERROR:", err)
-        setBonusState(null)
-      } finally {
-        setIsLoading(false)
+        setBonusState((prev) => ({
+          ...(prev || {}),
+          claimedCount: getVisualDailyGiftCount(),
+          claimedLimit: DAILY_GIFT_LIMIT,
+        }))
       }
     }
 
@@ -72,7 +100,6 @@ function Bonus() {
     } catch {}
 
     let cancelled = false
-    setIsShareLoading(true)
 
     const promise = prepareReferralShare({ telegram_id: user.id, referral_code: referralCode })
     shareInFlightRef.current = promise
@@ -93,7 +120,6 @@ function Bonus() {
       })
       .catch((err) => console.error("BONUS SHARE PRELOAD ERROR:", err))
       .finally(() => {
-        if (!cancelled) setIsShareLoading(false)
         if (shareInFlightRef.current === promise) shareInFlightRef.current = null
       })
 
@@ -102,8 +128,8 @@ function Bonus() {
     }
   }, [user?.id, referralCode])
 
-  const claimedCount = Number(bonusState?.claimedCount ?? bonusState?.campaignClaimedCount ?? bonusState?.totalClaimed ?? 0) || 0
-  const claimedLimit = Number(bonusState?.claimedLimit ?? bonusState?.campaignClaimedLimit ?? bonusState?.totalLimit ?? 500) || 500
+  const claimedCount = Number(bonusState?.claimedCount ?? DAILY_GIFT_VISUAL_BASE) || DAILY_GIFT_VISUAL_BASE
+  const claimedLimit = Number(bonusState?.claimedLimit ?? DAILY_GIFT_LIMIT) || DAILY_GIFT_LIMIT
   const progressPercent = claimedLimit > 0 ? Math.min((claimedCount / claimedLimit) * 100, 100) : 0
 
   const hasReservedReward = (() => {
@@ -163,7 +189,10 @@ function Bonus() {
       .then((reserveResult) => {
         setBonusState((prev) => ({
           ...(prev || {}),
-          claimedCount: Number(reserveResult?.claimedCount ?? claimedCount + 1),
+          claimedCount: Math.max(
+            Number(reserveResult?.claimedCount ?? claimedCount + 1),
+            getVisualDailyGiftCount()
+          ),
           claimedLimit: Number(reserveResult?.claimedLimit ?? claimedLimit),
           dailyGiftReservedToday: true,
         }))
@@ -178,7 +207,6 @@ function Bonus() {
 
   const openInviteShare = () => {
     if (!referralCode) return
-    if (window.Telegram?.WebApp?.shareMessage && !preparedShare?.id) return
 
     triggerHaptic("light")
 
@@ -274,7 +302,7 @@ function Bonus() {
             type="button"
             className="bonus-open-sheet-btn"
             onClick={handleReserveGift}
-            disabled={isLoading || hasReservedReward}
+            disabled={hasReservedReward}
           >
             {hasReservedReward ? "Подарок уже в инвентаре" : "Получить подарок"}
           </button>
@@ -284,15 +312,12 @@ function Bonus() {
 
         <div className="bonus-tasks-list">
           {bonusTasks.map((task) => {
-            const disabled = task.id === "invite_friend" && window.Telegram?.WebApp?.shareMessage && (!preparedShare?.id || isShareLoading)
-
             return (
               <button
                 key={task.id}
                 type="button"
-                className={`bonus-task-card ${disabled ? "disabled" : ""}`}
+                className="bonus-task-card"
                 onClick={() => handleTaskClick(task.id)}
-                disabled={disabled}
               >
                 <img src={task.iconSrc} alt="" className="bonus-task-icon" draggable={false} />
                 <span className="bonus-task-title">{task.title}</span>
