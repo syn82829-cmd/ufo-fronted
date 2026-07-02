@@ -11,6 +11,7 @@ import vivAnimation from "../assets/animations/viv.json"
 import "../style.css"
 
 const BOT_USERNAME = String(import.meta.env.VITE_BOT_USERNAME || "giftsonbot").replace(/^@/, "")
+const SHARE_CACHE_PREFIX = "gifton_share_"
 
 function formatNumber(value) {
   return String(Number(value || 0))
@@ -22,14 +23,12 @@ function Giveaways() {
   const prepareInFlightRef = useRef(null)
   const [referralState, setReferralState] = useState(null)
   const [preparedShare, setPreparedShare] = useState(null)
-  const [isPreparingShare, setIsPreparingShare] = useState(false)
   const [copied, setCopied] = useState(false)
 
   const referralCode = referralState?.referralCode || "--------"
   const totalEarned = formatNumber(referralState?.totalEarned)
   const withdrawn = formatNumber(referralState?.withdrawn)
   const available = formatNumber(referralState?.available)
-  const isInviteReady = Boolean(preparedShare?.id) || !window.Telegram?.WebApp?.shareMessage
 
   useEffect(() => {
     let cancelled = false
@@ -58,10 +57,10 @@ function Giveaways() {
     if (!user?.id || user.id === "—" || !referralCode || referralCode === "--------") return
     if (!window.Telegram?.WebApp?.shareMessage) return
 
-    const cacheKey = "gifton_prepared_" + referralCode
+    const cacheKey = `${SHARE_CACHE_PREFIX}${referralCode}`
 
     try {
-      const cached = JSON.parse(sessionStorage.getItem(cacheKey) || "null")
+      const cached = JSON.parse(localStorage.getItem(cacheKey) || "null")
       if (cached?.id) {
         setPreparedShare(cached)
         return
@@ -69,7 +68,6 @@ function Giveaways() {
     } catch {}
 
     let cancelled = false
-    setIsPreparingShare(true)
 
     const promise = prepareReferralShare({
       telegram_id: user.id,
@@ -88,7 +86,7 @@ function Giveaways() {
             fallbackText: prepared.fallbackText || "",
           }
           setPreparedShare(share)
-          try { sessionStorage.setItem(cacheKey, JSON.stringify(share)) } catch {}
+          try { localStorage.setItem(cacheKey, JSON.stringify(share)) } catch {}
         } else {
           setPreparedShare({
             id: null,
@@ -102,9 +100,6 @@ function Giveaways() {
         }
       })
       .finally(() => {
-        if (!cancelled) {
-          setIsPreparingShare(false)
-        }
         if (prepareInFlightRef.current === promise) {
           prepareInFlightRef.current = null
         }
@@ -144,7 +139,6 @@ function Giveaways() {
 
   const inviteFriend = () => {
     if (!referralCode || referralCode === "--------") return
-    if (window.Telegram?.WebApp?.shareMessage && !preparedShare?.id) return
 
     triggerHaptic("light")
 
@@ -179,9 +173,9 @@ function Giveaways() {
 
         <button
           type="button"
-          className={`friends-invite-btn ${isInviteReady ? "ready" : "preparing"}`}
+          className="friends-invite-btn ready"
           onClick={inviteFriend}
-          disabled={!isInviteReady || isPreparingShare}
+          disabled={!referralCode || referralCode === "--------"}
         >
           Пригласить друга
         </button>
