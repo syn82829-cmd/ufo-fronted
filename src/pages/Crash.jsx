@@ -142,9 +142,12 @@ function Crash() {
   const isInsufficientBalance = isWaiting && numericBet > 0 && !myBet && !hasEnoughBalance
 
   const flightProgress = Math.min(Math.max(Math.log(Math.max(multiplier, 1)) / Math.log(7), 0), 1)
-  const rocketX = Math.round(10 + flightProgress * 92)
-  const rocketY = Math.round(-4 - flightProgress * 96 - Math.sin(flightProgress * Math.PI) * 22)
-  const rocketRotation = Math.round(-10 + flightProgress * 28)
+  const earlyPush = Math.sin((Math.PI / 2) * flightProgress)
+  const lateLift = flightProgress ** 1.72
+  const arcLift = Math.sin(Math.PI * flightProgress) * 14
+  const rocketX = Math.round(8 + earlyPush * 102)
+  const rocketY = Math.round(-6 - lateLift * 116 - arcLift)
+  const rocketRotation = Math.round(-18 + flightProgress * 38)
   const rocketScale = (1 + flightProgress * 0.12).toFixed(3)
   const moonX = Math.round(-flightProgress * 16)
   const moonY = Math.round(flightProgress * 12)
