@@ -1,0 +1,160 @@
+/* Restrained depth for transparent case, drop and rocket artwork.
+   Glows sit behind the artwork; they are not broad glass overlays. */
+
+.case-card,
+.drop-card,
+.case-image-wrapper,
+.ufo-lottie {
+  isolation: isolate;
+}
+
+/* Home case cards: a small light source directly behind the case artwork. */
+.case-card::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 51%;
+  z-index: 0;
+  width: 72%;
+  height: 58%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(93, 190, 255, 0.16) 0%,
+    rgba(74, 151, 237, 0.055) 48%,
+    rgba(74, 151, 237, 0) 76%
+  );
+}
+
+.case-card .case-image {
+  position: relative;
+  z-index: 1;
+}
+
+.case-card .case-title,
+.case-card .case-price-badge {
+  z-index: 2;
+}
+
+/* Large case artwork on the case page. */
+.case-image-wrapper::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 52%;
+  z-index: 0;
+  width: min(76vw, 290px);
+  height: min(54vw, 205px);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0.82;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(91, 187, 255, 0.17) 0%,
+    rgba(73, 143, 232, 0.055) 50%,
+    rgba(73, 143, 232, 0) 76%
+  );
+  transition: opacity 0.15s ease;
+}
+
+.case-image-wrapper:has(.hidden-case)::before {
+  opacity: 0;
+}
+
+.casepage-case-image {
+  position: relative;
+  z-index: 1;
+}
+
+/* Drop cards: keep the glow compact so it stays under the asset only. */
+.drop-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.drop-card::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 36%;
+  z-index: 0;
+  width: 74%;
+  height: 43%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(93, 191, 255, 0.13) 0%,
+    rgba(76, 151, 234, 0.04) 50%,
+    rgba(76, 151, 234, 0) 76%
+  );
+}
+
+.drop-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Shape-aware shadows preserve transparent edges without rectangular halos. */
+.case-image,
+.casepage-case-image,
+.drop-png,
+.roulette-png,
+.result-png,
+.profile-inventory-image,
+.profile-item-image {
+  filter:
+    drop-shadow(0 9px 13px rgba(0, 0, 0, 0.20))
+    drop-shadow(0 0 10px rgba(91, 187, 255, 0.14)) !important;
+}
+
+.drop-lottie svg {
+  filter:
+    drop-shadow(0 8px 12px rgba(0, 0, 0, 0.18))
+    drop-shadow(0 0 9px rgba(91, 187, 255, 0.12)) !important;
+}
+
+/* Rocket glow remains attached to the animation rather than lighting the whole panel. */
+.ufo-lottie::before {
+  content: "";
+  position: absolute;
+  left: 52%;
+  top: 54%;
+  z-index: 0;
+  width: 82%;
+  height: 66%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(85, 194, 255, 0.16) 0%,
+    rgba(72, 145, 235, 0.05) 50%,
+    rgba(72, 145, 235, 0) 76%
+  );
+}
+
+.ufo-lottie > * {
+  position: relative;
+  z-index: 1;
+}
+
+.ufo-lottie svg {
+  filter:
+    drop-shadow(0 10px 16px rgba(0, 0, 0, 0.19))
+    drop-shadow(0 0 11px rgba(88, 194, 255, 0.13)) !important;
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .case-card::after,
+  .case-image-wrapper::before,
+  .drop-card::before,
+  .ufo-lottie::before {
+    opacity: 0.48;
+  }
+}
