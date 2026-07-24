@@ -11,3 +11,91 @@
   min-height: 0 !important;
   gap: 0 !important;
 }
+
+/* Match the roulette shell to the restrained crash panel glass. */
+.roulette-window--premium {
+  background:
+    radial-gradient(
+      circle at top left,
+      rgba(255,255,255,0.065),
+      rgba(255,255,255,0.00) 34%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,0.032),
+      rgba(255,255,255,0.010)
+    ) !important;
+
+  border: 1px solid rgba(255,255,255,0.10) !important;
+  backdrop-filter: blur(5px) saturate(138%) !important;
+  -webkit-backdrop-filter: blur(5px) saturate(138%) !important;
+
+  box-shadow:
+    0 24px 64px rgba(0,0,0,0.40),
+    inset 0 1px 0 rgba(255,255,255,0.12),
+    inset 0 -1px 0 rgba(0,0,0,0.10) !important;
+}
+
+.roulette-frame::before {
+  inset: 10px !important;
+  background:
+    radial-gradient(
+      circle at top left,
+      rgba(255,255,255,0.040),
+      rgba(255,255,255,0.00) 36%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,0.024),
+      rgba(255,255,255,0.008)
+    ) !important;
+
+  border: 1px solid rgba(255,255,255,0.075) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.075),
+    inset 0 -1px 0 rgba(0,0,0,0.08) !important;
+}
+
+.roulette-frame::after {
+  border-color: rgba(255,255,255,0.035) !important;
+}
+
+.roulette-frame-edge {
+  opacity: .34 !important;
+  background: rgba(226,244,255,0.24) !important;
+  box-shadow: none !important;
+}
+
+.roulette-item--premium {
+  background:
+    radial-gradient(
+      circle at top left,
+      rgba(255,255,255,0.060),
+      rgba(255,255,255,0.00) 36%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,0.046),
+      rgba(255,255,255,0.014)
+    ) !important;
+
+  border: 1px solid rgba(255,255,255,0.10) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+
+  box-shadow:
+    0 12px 28px rgba(0,0,0,0.28),
+    inset 0 1px 0 rgba(255,255,255,0.12),
+    inset 0 -1px 0 rgba(0,0,0,0.08) !important;
+}
+
+.roulette-item--premium::before {
+  border-color: rgba(255,255,255,0.025) !important;
+}
+
+.roulette-item--premium::after {
+  opacity: .72 !important;
+}
