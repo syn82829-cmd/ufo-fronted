@@ -1,223 +1,355 @@
-/* Premium presentation layer for the case roulette.
-   The reel transform and winner positioning remain controlled by CasePage. */
+/* Unified premium roulette shell.
+   Winner selection, reel transform and final centering stay controlled by CasePage. */
 
 .roulette-window--premium {
+  --roulette-slot-size: clamp(100px, 29vw, 132px);
+
+  width: min(calc(100vw - 18px), 560px) !important;
+  max-width: none !important;
+  height: 178px !important;
+
   isolation: isolate;
-  border-radius: 30px;
   contain: paint;
+  overflow: hidden;
+
+  border: 1px solid rgba(169, 220, 255, 0.24);
+  border-radius: 28px;
+
+  background:
+    radial-gradient(circle at 50% -28%, rgba(128, 211, 255, 0.20), transparent 52%),
+    linear-gradient(180deg, rgba(54, 104, 182, 0.20), rgba(8, 25, 61, 0.35));
+
+  box-shadow:
+    0 18px 50px rgba(0, 0, 0, 0.24),
+    0 0 34px rgba(66, 162, 255, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    inset 0 -1px 0 rgba(75, 153, 238, 0.12);
+
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+
+  animation: rouletteFrameEnter 0.36s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
-.roulette-window--premium::before {
+/* One continuous body instead of three separate blurred cards. */
+.roulette-frame {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: inherit;
+
+  background:
+    linear-gradient(90deg, rgba(255,255,255,0.025), transparent 20%, transparent 80%, rgba(255,255,255,0.025)),
+    linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.008) 42%, rgba(3,14,38,0.08));
+}
+
+.roulette-frame::before {
   content: "";
   position: absolute;
-  inset: 18px 0;
-  z-index: 0;
-  pointer-events: none;
-  border-radius: 28px;
-  border: 1px solid rgba(151, 214, 255, 0.14);
-  background:
-    radial-gradient(circle at 50% 18%, rgba(255,255,255,0.10), transparent 42%),
-    linear-gradient(180deg, rgba(80,155,255,0.055), rgba(5,16,40,0.09));
+  inset: 1px;
+  border-radius: 27px;
+  border: 1px solid rgba(255,255,255,0.045);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.12),
-    inset 0 -24px 50px rgba(4,12,32,0.16),
-    0 18px 55px rgba(0,0,0,0.20);
+    inset 0 14px 24px rgba(255,255,255,0.018),
+    inset 0 -18px 30px rgba(0,0,0,0.12);
 }
 
-.roulette-ambient-glow {
+/* Clearly visible horizontal top and bottom rails. */
+.roulette-frame-edge {
   position: absolute;
-  left: 50%;
-  top: 50%;
-  z-index: 0;
-  width: 176px;
-  height: 210px;
-  pointer-events: none;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  background: radial-gradient(
-    ellipse at center,
-    rgba(104, 210, 255, 0.20) 0%,
-    rgba(66, 145, 255, 0.08) 38%,
-    transparent 72%
-  );
-  opacity: 0.78;
-  animation: rouletteAmbientPulse 1.7s ease-in-out infinite;
-}
+  left: 18px;
+  right: 18px;
+  height: 1px;
+  z-index: 1;
 
-.roulette-speed-streaks {
-  position: absolute;
-  inset: 28px 0;
-  z-index: 2;
-  overflow: hidden;
-  pointer-events: none;
-  opacity: 0.34;
-  background: repeating-linear-gradient(
-    100deg,
-    transparent 0,
-    transparent 28px,
-    rgba(190, 229, 255, 0.07) 31px,
-    transparent 35px,
-    transparent 64px
-  );
-  transform: translate3d(-8%, 0, 0);
-  animation: rouletteStreakFlow 0.72s linear infinite;
-  -webkit-mask-image: linear-gradient(to right, transparent, #000 16%, #000 84%, transparent);
-  mask-image: linear-gradient(to right, transparent, #000 16%, #000 84%, transparent);
-}
-
-.roulette-center-focus {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  z-index: 3;
-  width: 150px;
-  height: 172px;
-  pointer-events: none;
-  transform: translate(-50%, -50%);
-  border-radius: 26px;
-  border: 1px solid rgba(175, 226, 255, 0.18);
   background: linear-gradient(
-    180deg,
-    rgba(255,255,255,0.055),
-    rgba(87,174,255,0.025) 52%,
-    rgba(255,255,255,0.04)
+    90deg,
+    rgba(122, 203, 255, 0),
+    rgba(163, 222, 255, 0.34) 14%,
+    rgba(232, 248, 255, 0.72) 50%,
+    rgba(163, 222, 255, 0.34) 86%,
+    rgba(122, 203, 255, 0)
   );
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.12),
-    0 0 34px rgba(76, 180, 255, 0.10);
+
+  box-shadow: 0 0 10px rgba(99, 190, 255, 0.20);
+}
+
+.roulette-frame-edge--top {
+  top: 10px;
+}
+
+.roulette-frame-edge--bottom {
+  bottom: 10px;
 }
 
 .roulette-reel--premium {
   position: relative;
-  z-index: 1;
+  z-index: 2;
+
+  height: 100%;
+  gap: 0 !important;
+  padding: 0;
 }
 
 .roulette-item--premium {
   position: relative;
   isolation: isolate;
-  border-color: rgba(171, 220, 255, 0.20);
-  background:
-    radial-gradient(circle at 30% 18%, rgba(255,255,255,0.13), transparent 38%),
-    linear-gradient(145deg, rgba(62,118,205,0.19), rgba(255,255,255,0.035));
+
+  width: var(--roulette-slot-size) !important;
+  height: 100% !important;
+  flex: 0 0 var(--roulette-slot-size) !important;
+
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  overflow: visible;
 }
 
+/* Subtle separators keep the track readable without turning slots into cards. */
 .roulette-item--premium::after {
   content: "";
   position: absolute;
-  inset: 0;
-  z-index: -1;
+  top: 30px;
+  right: 0;
+  bottom: 30px;
+  width: 1px;
+  z-index: 0;
   pointer-events: none;
-  border-radius: inherit;
-  background: linear-gradient(180deg, rgba(255,255,255,0.06), transparent 45%);
+
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(178, 223, 255, 0.12) 26%,
+    rgba(178, 223, 255, 0.16) 50%,
+    rgba(178, 223, 255, 0.12) 74%,
+    transparent
+  );
 }
 
-.roulette-item-sheen {
+.roulette-slot-light {
   position: absolute;
-  inset: 1px;
-  z-index: 2;
+  left: 50%;
+  top: 50%;
+  z-index: 0;
+
+  width: 94%;
+  height: 82%;
+  transform: translate(-50%, -50%);
+  border-radius: 42%;
   pointer-events: none;
-  border-radius: 21px;
-  background: linear-gradient(
-    118deg,
-    transparent 16%,
-    rgba(255,255,255,0.00) 38%,
-    rgba(255,255,255,0.11) 49%,
-    rgba(255,255,255,0.00) 60%,
-    transparent 84%
+
+  background: radial-gradient(
+    ellipse at center,
+    rgba(101, 183, 255, 0.075),
+    rgba(73, 135, 224, 0.024) 48%,
+    transparent 74%
   );
-  opacity: 0.72;
 }
 
 .roulette-png--premium {
   position: relative;
   z-index: 1;
+
+  width: clamp(72px, 21vw, 94px) !important;
+  height: clamp(72px, 21vw, 94px) !important;
+
   transform: translateZ(0) scale(1.02);
+  backface-visibility: hidden;
 }
 
+/* The selected slot is part of the same body, not a separate card. */
+.roulette-center-zone {
+  position: absolute;
+  left: 50%;
+  top: 10px;
+  bottom: 10px;
+  z-index: 3;
+
+  width: var(--roulette-slot-size);
+  transform: translateX(-50%);
+  pointer-events: none;
+
+  border-left: 1px solid rgba(164, 220, 255, 0.08);
+  border-right: 1px solid rgba(164, 220, 255, 0.08);
+
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(99, 200, 255, 0.13), transparent 68%),
+    linear-gradient(90deg, transparent, rgba(140, 216, 255, 0.035), transparent);
+
+  box-shadow:
+    inset 18px 0 28px -28px rgba(92, 190, 255, 0.36),
+    inset -18px 0 28px -28px rgba(92, 190, 255, 0.36);
+}
+
+/* Very light moving reflection; it does not cover side items. */
+.roulette-speed-light {
+  position: absolute;
+  top: 10px;
+  bottom: 10px;
+  left: -36%;
+  z-index: 4;
+
+  width: 26%;
+  pointer-events: none;
+  opacity: 0.24;
+
+  background: linear-gradient(
+    105deg,
+    transparent 20%,
+    rgba(207, 239, 255, 0.02) 38%,
+    rgba(225, 247, 255, 0.12) 50%,
+    rgba(207, 239, 255, 0.02) 62%,
+    transparent 80%
+  );
+
+  transform: skewX(-12deg);
+  animation: rouletteGlassSweep 1.45s linear infinite;
+}
+
+/* Marker is clipped to the roulette body and connects to both horizontal rails. */
 .roulette-line--premium {
-  width: 0;
-  height: 184px;
-  background: none;
-  box-shadow: none;
+  top: 50% !important;
+  z-index: 7;
+
+  width: 0 !important;
+  height: calc(100% - 20px) !important;
+
+  background: none !important;
+  box-shadow: none !important;
   overflow: visible;
 }
 
 .roulette-line-core {
   position: absolute;
   left: 50%;
-  top: 50%;
-  width: 3px;
-  height: 176px;
-  transform: translate(-50%, -50%);
-  border-radius: 999px;
-  background: linear-gradient(
-    to bottom,
-    rgba(255,255,255,0.22),
-    rgba(226, 248, 255, 0.98) 18%,
-    rgba(90, 205, 255, 0.98) 50%,
-    rgba(226, 248, 255, 0.98) 82%,
-    rgba(255,255,255,0.22)
-  );
-  box-shadow:
-    0 0 8px rgba(255,255,255,0.88),
-    0 0 22px rgba(84,194,255,0.74),
-    0 0 46px rgba(72,158,255,0.36);
-  animation: rouletteLinePulse 0.95s ease-in-out infinite;
-}
-
-.roulette-line-spark {
-  position: absolute;
-  left: 50%;
-  width: 9px;
-  height: 9px;
-  transform: translateX(-50%) rotate(45deg);
-  border-radius: 2px;
-  background: rgba(235, 251, 255, 0.98);
-  box-shadow:
-    0 0 8px rgba(255,255,255,0.95),
-    0 0 18px rgba(72,190,255,0.82);
-}
-
-.roulette-line-spark--top { top: 1px; }
-.roulette-line-spark--bottom { bottom: 1px; }
-
-.roulette-vignette {
-  position: absolute;
   top: 0;
   bottom: 0;
-  z-index: 4;
-  width: 72px;
+
+  width: 3px;
+  transform: translateX(-50%);
+  border-radius: 999px;
+
+  background: linear-gradient(
+    to bottom,
+    rgba(232, 249, 255, 0.72),
+    rgba(250, 254, 255, 1) 14%,
+    rgba(104, 210, 255, 1) 50%,
+    rgba(250, 254, 255, 1) 86%,
+    rgba(232, 249, 255, 0.72)
+  );
+
+  box-shadow:
+    0 0 6px rgba(255,255,255,0.92),
+    0 0 16px rgba(88,199,255,0.72),
+    0 0 32px rgba(65,155,255,0.30);
+
+  animation: rouletteMarkerPulse 1.05s ease-in-out infinite;
+}
+
+.roulette-line-cap {
+  position: absolute;
+  left: 50%;
+  z-index: 2;
+
+  width: 20px;
+  height: 3px;
+  transform: translateX(-50%);
+  border-radius: 999px;
+
+  background: linear-gradient(
+    90deg,
+    rgba(117, 205, 255, 0),
+    rgba(235, 250, 255, 0.98) 50%,
+    rgba(117, 205, 255, 0)
+  );
+
+  box-shadow: 0 0 10px rgba(92, 199, 255, 0.55);
+}
+
+.roulette-line-cap--top {
+  top: -1px;
+}
+
+.roulette-line-cap--bottom {
+  bottom: -1px;
+}
+
+/* Only a tiny edge falloff remains; no broad blur hiding the side prizes. */
+.roulette-edge-shade {
+  position: absolute;
+  top: 11px;
+  bottom: 11px;
+  z-index: 6;
+
+  width: 18px;
   pointer-events: none;
 }
 
-.roulette-vignette--left {
+.roulette-edge-shade--left {
   left: 0;
-  background: linear-gradient(to right, rgba(4,11,28,0.54), transparent);
+  background: linear-gradient(to right, rgba(5,18,46,0.34), transparent);
 }
 
-.roulette-vignette--right {
+.roulette-edge-shade--right {
   right: 0;
-  background: linear-gradient(to left, rgba(4,11,28,0.54), transparent);
+  background: linear-gradient(to left, rgba(5,18,46,0.34), transparent);
 }
 
-@keyframes rouletteAmbientPulse {
-  0%, 100% { opacity: 0.58; transform: translate(-50%, -50%) scale(0.94); }
-  50% { opacity: 0.88; transform: translate(-50%, -50%) scale(1.04); }
+@keyframes rouletteFrameEnter {
+  from {
+    opacity: 0;
+    transform: translateZ(0) scale(0.975);
+  }
+  to {
+    opacity: 1;
+    transform: translateZ(0) scale(1);
+  }
 }
 
-@keyframes rouletteStreakFlow {
-  from { transform: translate3d(-10%, 0, 0); }
-  to { transform: translate3d(10%, 0, 0); }
+@keyframes rouletteGlassSweep {
+  from {
+    transform: translate3d(0, 0, 0) skewX(-12deg);
+  }
+  to {
+    transform: translate3d(540%, 0, 0) skewX(-12deg);
+  }
 }
 
-@keyframes rouletteLinePulse {
-  0%, 100% { opacity: 0.84; transform: translate(-50%, -50%) scaleY(0.97); }
-  50% { opacity: 1; transform: translate(-50%, -50%) scaleY(1.02); }
+@keyframes rouletteMarkerPulse {
+  0%, 100% {
+    opacity: 0.84;
+    box-shadow:
+      0 0 5px rgba(255,255,255,0.82),
+      0 0 13px rgba(88,199,255,0.58),
+      0 0 26px rgba(65,155,255,0.22);
+  }
+  50% {
+    opacity: 1;
+    box-shadow:
+      0 0 7px rgba(255,255,255,1),
+      0 0 19px rgba(88,199,255,0.82),
+      0 0 38px rgba(65,155,255,0.34);
+  }
+}
+
+@media (max-width: 420px) {
+  .roulette-window--premium {
+    width: calc(100vw - 12px) !important;
+    height: 172px !important;
+    border-radius: 25px;
+  }
+
+  .roulette-frame::before {
+    border-radius: 24px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .roulette-ambient-glow,
-  .roulette-speed-streaks,
+  .roulette-window--premium,
+  .roulette-speed-light,
   .roulette-line-core {
     animation: none;
   }
