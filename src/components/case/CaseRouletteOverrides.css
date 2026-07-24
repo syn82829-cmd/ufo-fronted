@@ -1,0 +1,13 @@
+/* Roulette-only behavior overrides. */
+
+/* During preparation/spin, remove the disabled CTA and its layout gap entirely. */
+.casepage-action-stack > .casepage-open-btn:disabled {
+  display: none !important;
+}
+
+.casepage-action-stack:has(> .casepage-open-btn:only-child:disabled) {
+  display: none !important;
+  margin: 0 !important;
+  min-height: 0 !important;
+  gap: 0 !important;
+}
