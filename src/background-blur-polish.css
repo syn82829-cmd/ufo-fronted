@@ -1,0 +1,19 @@
+/* ============================= */
+/* GLOBAL SPACE BACKGROUND BLUR */
+/* ============================= */
+
+/* One lightweight fullscreen layer: it blurs only the fixed space background
+   because the application UI is rendered above it at z-index: 1. */
+body::before {
+  backdrop-filter: blur(2.4px) !important;
+  -webkit-backdrop-filter: blur(2.4px) !important;
+  transform: translateZ(0);
+  will-change: backdrop-filter;
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  body::before {
+    backdrop-filter: blur(1.5px) !important;
+    -webkit-backdrop-filter: blur(1.5px) !important;
+  }
+}
