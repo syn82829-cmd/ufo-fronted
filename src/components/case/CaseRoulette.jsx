@@ -19,8 +19,6 @@ function CaseRoulette({
         <span className="roulette-frame-edge roulette-frame-edge--bottom" />
       </div>
 
-      <div className="roulette-speed-light" aria-hidden="true" />
-
       <div ref={reelRef} className="roulette-reel roulette-reel--premium">
         {reelItems.map((dropId, index) => {
           const drop = dropMap[dropId]
@@ -28,7 +26,6 @@ function CaseRoulette({
 
           return (
             <div key={index} className="roulette-item roulette-item--premium" data-index={index}>
-              <span className="roulette-slot-light" aria-hidden="true" />
               <img
                 src={pngSrcByDrop(drop)}
                 className="roulette-png roulette-png--premium"
@@ -47,9 +44,6 @@ function CaseRoulette({
         <span className="roulette-line-core" />
         <span className="roulette-line-cap roulette-line-cap--bottom" />
       </div>
-
-      <div className="roulette-edge-shade roulette-edge-shade--left" aria-hidden="true" />
-      <div className="roulette-edge-shade roulette-edge-shade--right" aria-hidden="true" />
     </div>
   )
 }
