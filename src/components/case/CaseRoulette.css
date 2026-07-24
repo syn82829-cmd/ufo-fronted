@@ -1,4 +1,4 @@
-/* Geometric frosted-glass roulette.
+/* Transparent geometric glass roulette.
    Winner selection, reel transform and final centering remain controlled by CasePage. */
 
 .roulette-window--premium {
@@ -13,23 +13,26 @@
   contain: paint;
   overflow: hidden;
 
-  border: 1px solid rgba(224, 241, 255, 0.28) !important;
+  border: 1px solid rgba(226, 243, 255, 0.32) !important;
   border-radius: 26px !important;
 
-  background: rgba(127, 164, 208, 0.10) !important;
-  backdrop-filter: blur(8px) saturate(112%);
-  -webkit-backdrop-filter: blur(8px) saturate(112%);
+  background: rgba(151, 188, 224, 0.055) !important;
+  backdrop-filter: blur(10px) saturate(116%);
+  -webkit-backdrop-filter: blur(10px) saturate(116%);
 
   box-shadow:
-    0 12px 28px rgba(0, 0, 0, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.16),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.04) !important;
+    0 16px 36px rgba(0, 0, 0, 0.20),
+    0 2px 8px rgba(71, 156, 224, 0.055),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -12px 24px rgba(7, 23, 51, 0.075),
+    inset 1px 0 0 rgba(255, 255, 255, 0.045),
+    inset -1px 0 0 rgba(255, 255, 255, 0.035) !important;
 
   -webkit-mask-image: none !important;
   mask-image: none !important;
 }
 
-/* Stationary glass body, visually separate from the moving cards. */
+/* Stationary transparent glass body, visually separate from moving cards. */
 .roulette-frame {
   position: absolute;
   inset: 0;
@@ -45,14 +48,15 @@
   inset: 11px;
   border-radius: 18px;
 
-  border: 1px solid rgba(210, 233, 252, 0.14);
-  background: rgba(24, 48, 82, 0.16);
-  backdrop-filter: blur(5px) saturate(108%);
-  -webkit-backdrop-filter: blur(5px) saturate(108%);
+  border: 1px solid rgba(215, 237, 255, 0.15);
+  background: rgba(26, 53, 88, 0.075);
+  backdrop-filter: blur(7px) saturate(110%);
+  -webkit-backdrop-filter: blur(7px) saturate(110%);
 
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.055),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.08);
+    inset 0 1px 0 rgba(255, 255, 255, 0.075),
+    inset 0 10px 22px rgba(255, 255, 255, 0.012),
+    inset 0 -12px 24px rgba(0, 8, 28, 0.095);
 }
 
 .roulette-frame::after {
@@ -60,7 +64,10 @@
   position: absolute;
   inset: 1px;
   border-radius: 25px;
-  border: 1px solid rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.045);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.055),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.055);
 }
 
 /* Straight horizontal glass edges. */
@@ -71,8 +78,8 @@
   z-index: 3;
   height: 1px;
 
-  background: rgba(221, 241, 255, 0.34);
-  box-shadow: none;
+  background: rgba(226, 244, 255, 0.38);
+  box-shadow: 0 1px 0 rgba(7, 31, 64, 0.14);
 }
 
 .roulette-frame-edge--top {
@@ -94,25 +101,29 @@
   box-sizing: border-box;
 }
 
-/* Clear geometric frosted-glass cards. */
+/* Clear geometric transparent-glass cards. */
 .roulette-item--premium {
   position: relative;
+  isolation: isolate;
 
   width: var(--roulette-slot-size) !important;
   height: 144px !important;
   flex: 0 0 var(--roulette-slot-size) !important;
 
-  border: 1px solid rgba(222, 240, 255, 0.24) !important;
+  border: 1px solid rgba(225, 242, 255, 0.27) !important;
   border-radius: 18px !important;
 
-  background: rgba(183, 208, 234, 0.095) !important;
-  backdrop-filter: blur(6px) saturate(108%);
-  -webkit-backdrop-filter: blur(6px) saturate(108%);
+  background: rgba(191, 216, 239, 0.055) !important;
+  backdrop-filter: blur(8px) saturate(112%);
+  -webkit-backdrop-filter: blur(8px) saturate(112%);
 
   box-shadow:
-    0 5px 14px rgba(0, 0, 0, 0.16),
-    inset 0 1px 0 rgba(255, 255, 255, 0.13),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.025) !important;
+    0 8px 19px rgba(0, 0, 0, 0.18),
+    0 2px 5px rgba(74, 157, 221, 0.035),
+    inset 0 1px 0 rgba(255, 255, 255, 0.19),
+    inset 0 -10px 20px rgba(7, 25, 54, 0.075),
+    inset 1px 0 0 rgba(255, 255, 255, 0.025),
+    inset -1px 0 0 rgba(255, 255, 255, 0.02) !important;
 
   overflow: hidden;
   transform: translate3d(0, 0, 0);
@@ -123,14 +134,30 @@
   content: "";
   position: absolute;
   inset: 1px;
-  z-index: 0;
+  z-index: 2;
   pointer-events: none;
   border-radius: 17px;
-  border: 1px solid rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.03);
 }
 
+/* A restrained light source sits behind the transparent prize image. */
 .roulette-item--premium::after {
-  display: none !important;
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 0;
+  width: 76%;
+  height: 68%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(103, 194, 255, 0.12) 0%,
+    rgba(86, 164, 239, 0.045) 46%,
+    rgba(86, 164, 239, 0) 74%
+  );
 }
 
 .roulette-png--premium {
@@ -142,6 +169,9 @@
 
   transform: translateZ(0);
   backface-visibility: hidden;
+  filter:
+    drop-shadow(0 8px 12px rgba(0, 0, 0, 0.20))
+    drop-shadow(0 0 9px rgba(92, 190, 255, 0.15)) !important;
 }
 
 /* Structural winner marker, without a highlighted area behind it. */
@@ -167,10 +197,10 @@
   transform: translateX(-50%);
   border-radius: 999px;
 
-  background: rgba(232, 248, 255, 0.88);
+  background: rgba(235, 249, 255, 0.88);
   box-shadow:
-    0 0 4px rgba(255, 255, 255, 0.42),
-    0 0 8px rgba(112, 203, 255, 0.24);
+    0 0 3px rgba(255, 255, 255, 0.38),
+    0 0 7px rgba(112, 203, 255, 0.20);
 }
 
 .roulette-line-cap {
@@ -183,7 +213,7 @@
   transform: translateX(-50%);
   border-radius: 999px;
 
-  background: rgba(232, 248, 255, 0.72);
+  background: rgba(235, 249, 255, 0.72);
   box-shadow: none;
 }
 
