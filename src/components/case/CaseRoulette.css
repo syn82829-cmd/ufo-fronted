@@ -1,0 +1,356 @@
+/* Unified premium roulette shell.
+   Winner selection, reel transform and final centering stay controlled by CasePage. */
+
+.roulette-window--premium {
+  --roulette-slot-size: clamp(100px, 29vw, 132px);
+
+  width: min(calc(100vw - 18px), 560px) !important;
+  max-width: none !important;
+  height: 178px !important;
+
+  isolation: isolate;
+  contain: paint;
+  overflow: hidden;
+
+  border: 1px solid rgba(169, 220, 255, 0.24);
+  border-radius: 28px;
+
+  background:
+    radial-gradient(circle at 50% -28%, rgba(128, 211, 255, 0.20), transparent 52%),
+    linear-gradient(180deg, rgba(54, 104, 182, 0.20), rgba(8, 25, 61, 0.35));
+
+  box-shadow:
+    0 18px 50px rgba(0, 0, 0, 0.24),
+    0 0 34px rgba(66, 162, 255, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    inset 0 -1px 0 rgba(75, 153, 238, 0.12);
+
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+
+  animation: rouletteFrameEnter 0.36s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* One continuous body instead of three separate blurred cards. */
+.roulette-frame {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: inherit;
+
+  background:
+    linear-gradient(90deg, rgba(255,255,255,0.025), transparent 20%, transparent 80%, rgba(255,255,255,0.025)),
+    linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.008) 42%, rgba(3,14,38,0.08));
+}
+
+.roulette-frame::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: 27px;
+  border: 1px solid rgba(255,255,255,0.045);
+  box-shadow:
+    inset 0 14px 24px rgba(255,255,255,0.018),
+    inset 0 -18px 30px rgba(0,0,0,0.12);
+}
+
+/* Clearly visible horizontal top and bottom rails. */
+.roulette-frame-edge {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  height: 1px;
+  z-index: 1;
+
+  background: linear-gradient(
+    90deg,
+    rgba(122, 203, 255, 0),
+    rgba(163, 222, 255, 0.34) 14%,
+    rgba(232, 248, 255, 0.72) 50%,
+    rgba(163, 222, 255, 0.34) 86%,
+    rgba(122, 203, 255, 0)
+  );
+
+  box-shadow: 0 0 10px rgba(99, 190, 255, 0.20);
+}
+
+.roulette-frame-edge--top {
+  top: 10px;
+}
+
+.roulette-frame-edge--bottom {
+  bottom: 10px;
+}
+
+.roulette-reel--premium {
+  position: relative;
+  z-index: 2;
+
+  height: 100%;
+  gap: 0 !important;
+  padding: 0;
+}
+
+.roulette-item--premium {
+  position: relative;
+  isolation: isolate;
+
+  width: var(--roulette-slot-size) !important;
+  height: 100% !important;
+  flex: 0 0 var(--roulette-slot-size) !important;
+
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  overflow: visible;
+}
+
+/* Subtle separators keep the track readable without turning slots into cards. */
+.roulette-item--premium::after {
+  content: "";
+  position: absolute;
+  top: 30px;
+  right: 0;
+  bottom: 30px;
+  width: 1px;
+  z-index: 0;
+  pointer-events: none;
+
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(178, 223, 255, 0.12) 26%,
+    rgba(178, 223, 255, 0.16) 50%,
+    rgba(178, 223, 255, 0.12) 74%,
+    transparent
+  );
+}
+
+.roulette-slot-light {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 0;
+
+  width: 94%;
+  height: 82%;
+  transform: translate(-50%, -50%);
+  border-radius: 42%;
+  pointer-events: none;
+
+  background: radial-gradient(
+    ellipse at center,
+    rgba(101, 183, 255, 0.075),
+    rgba(73, 135, 224, 0.024) 48%,
+    transparent 74%
+  );
+}
+
+.roulette-png--premium {
+  position: relative;
+  z-index: 1;
+
+  width: clamp(72px, 21vw, 94px) !important;
+  height: clamp(72px, 21vw, 94px) !important;
+
+  transform: translateZ(0) scale(1.02);
+  backface-visibility: hidden;
+}
+
+/* The selected slot is part of the same body, not a separate card. */
+.roulette-center-zone {
+  position: absolute;
+  left: 50%;
+  top: 10px;
+  bottom: 10px;
+  z-index: 3;
+
+  width: var(--roulette-slot-size);
+  transform: translateX(-50%);
+  pointer-events: none;
+
+  border-left: 1px solid rgba(164, 220, 255, 0.08);
+  border-right: 1px solid rgba(164, 220, 255, 0.08);
+
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(99, 200, 255, 0.13), transparent 68%),
+    linear-gradient(90deg, transparent, rgba(140, 216, 255, 0.035), transparent);
+
+  box-shadow:
+    inset 18px 0 28px -28px rgba(92, 190, 255, 0.36),
+    inset -18px 0 28px -28px rgba(92, 190, 255, 0.36);
+}
+
+/* Very light moving reflection; it does not cover side items. */
+.roulette-speed-light {
+  position: absolute;
+  top: 10px;
+  bottom: 10px;
+  left: -36%;
+  z-index: 4;
+
+  width: 26%;
+  pointer-events: none;
+  opacity: 0.24;
+
+  background: linear-gradient(
+    105deg,
+    transparent 20%,
+    rgba(207, 239, 255, 0.02) 38%,
+    rgba(225, 247, 255, 0.12) 50%,
+    rgba(207, 239, 255, 0.02) 62%,
+    transparent 80%
+  );
+
+  transform: skewX(-12deg);
+  animation: rouletteGlassSweep 1.45s linear infinite;
+}
+
+/* Marker is clipped to the roulette body and connects to both horizontal rails. */
+.roulette-line--premium {
+  top: 50% !important;
+  z-index: 7;
+
+  width: 0 !important;
+  height: calc(100% - 20px) !important;
+
+  background: none !important;
+  box-shadow: none !important;
+  overflow: visible;
+}
+
+.roulette-line-core {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+
+  width: 3px;
+  transform: translateX(-50%);
+  border-radius: 999px;
+
+  background: linear-gradient(
+    to bottom,
+    rgba(232, 249, 255, 0.72),
+    rgba(250, 254, 255, 1) 14%,
+    rgba(104, 210, 255, 1) 50%,
+    rgba(250, 254, 255, 1) 86%,
+    rgba(232, 249, 255, 0.72)
+  );
+
+  box-shadow:
+    0 0 6px rgba(255,255,255,0.92),
+    0 0 16px rgba(88,199,255,0.72),
+    0 0 32px rgba(65,155,255,0.30);
+
+  animation: rouletteMarkerPulse 1.05s ease-in-out infinite;
+}
+
+.roulette-line-cap {
+  position: absolute;
+  left: 50%;
+  z-index: 2;
+
+  width: 20px;
+  height: 3px;
+  transform: translateX(-50%);
+  border-radius: 999px;
+
+  background: linear-gradient(
+    90deg,
+    rgba(117, 205, 255, 0),
+    rgba(235, 250, 255, 0.98) 50%,
+    rgba(117, 205, 255, 0)
+  );
+
+  box-shadow: 0 0 10px rgba(92, 199, 255, 0.55);
+}
+
+.roulette-line-cap--top {
+  top: -1px;
+}
+
+.roulette-line-cap--bottom {
+  bottom: -1px;
+}
+
+/* Only a tiny edge falloff remains; no broad blur hiding the side prizes. */
+.roulette-edge-shade {
+  position: absolute;
+  top: 11px;
+  bottom: 11px;
+  z-index: 6;
+
+  width: 18px;
+  pointer-events: none;
+}
+
+.roulette-edge-shade--left {
+  left: 0;
+  background: linear-gradient(to right, rgba(5,18,46,0.34), transparent);
+}
+
+.roulette-edge-shade--right {
+  right: 0;
+  background: linear-gradient(to left, rgba(5,18,46,0.34), transparent);
+}
+
+@keyframes rouletteFrameEnter {
+  from {
+    opacity: 0;
+    transform: translateZ(0) scale(0.975);
+  }
+  to {
+    opacity: 1;
+    transform: translateZ(0) scale(1);
+  }
+}
+
+@keyframes rouletteGlassSweep {
+  from {
+    transform: translate3d(0, 0, 0) skewX(-12deg);
+  }
+  to {
+    transform: translate3d(540%, 0, 0) skewX(-12deg);
+  }
+}
+
+@keyframes rouletteMarkerPulse {
+  0%, 100% {
+    opacity: 0.84;
+    box-shadow:
+      0 0 5px rgba(255,255,255,0.82),
+      0 0 13px rgba(88,199,255,0.58),
+      0 0 26px rgba(65,155,255,0.22);
+  }
+  50% {
+    opacity: 1;
+    box-shadow:
+      0 0 7px rgba(255,255,255,1),
+      0 0 19px rgba(88,199,255,0.82),
+      0 0 38px rgba(65,155,255,0.34);
+  }
+}
+
+@media (max-width: 420px) {
+  .roulette-window--premium {
+    width: calc(100vw - 12px) !important;
+    height: 172px !important;
+    border-radius: 25px;
+  }
+
+  .roulette-frame::before {
+    border-radius: 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .roulette-window--premium,
+  .roulette-speed-light,
+  .roulette-line-core {
+    animation: none;
+  }
+}
