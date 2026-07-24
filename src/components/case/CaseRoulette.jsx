@@ -13,15 +13,13 @@ function CaseRoulette({
 
   return (
     <div ref={wrapRef} className="roulette-window roulette-window--premium">
-      <div className="roulette-ambient-glow" aria-hidden="true" />
-      <div className="roulette-speed-streaks" aria-hidden="true" />
-      <div className="roulette-center-focus" aria-hidden="true" />
-
-      <div ref={lineRef} className="roulette-line roulette-line--premium">
-        <span className="roulette-line-core" />
-        <span className="roulette-line-spark roulette-line-spark--top" />
-        <span className="roulette-line-spark roulette-line-spark--bottom" />
+      <div className="roulette-frame" aria-hidden="true">
+        <span className="roulette-frame-edge roulette-frame-edge--top" />
+        <span className="roulette-frame-edge roulette-frame-edge--bottom" />
       </div>
+
+      <div className="roulette-center-zone" aria-hidden="true" />
+      <div className="roulette-speed-light" aria-hidden="true" />
 
       <div ref={reelRef} className="roulette-reel roulette-reel--premium">
         {reelItems.map((dropId, index) => {
@@ -30,7 +28,7 @@ function CaseRoulette({
 
           return (
             <div key={index} className="roulette-item roulette-item--premium" data-index={index}>
-              <span className="roulette-item-sheen" aria-hidden="true" />
+              <span className="roulette-slot-light" aria-hidden="true" />
               <img
                 src={pngSrcByDrop(drop)}
                 className="roulette-png roulette-png--premium"
@@ -44,8 +42,14 @@ function CaseRoulette({
         })}
       </div>
 
-      <div className="roulette-vignette roulette-vignette--left" aria-hidden="true" />
-      <div className="roulette-vignette roulette-vignette--right" aria-hidden="true" />
+      <div ref={lineRef} className="roulette-line roulette-line--premium">
+        <span className="roulette-line-cap roulette-line-cap--top" />
+        <span className="roulette-line-core" />
+        <span className="roulette-line-cap roulette-line-cap--bottom" />
+      </div>
+
+      <div className="roulette-edge-shade roulette-edge-shade--left" aria-hidden="true" />
+      <div className="roulette-edge-shade roulette-edge-shade--right" aria-hidden="true" />
     </div>
   )
 }
