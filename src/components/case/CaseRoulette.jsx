@@ -1,4 +1,5 @@
 import "./CaseRoulette.css"
+import "./CaseRouletteOverrides.css"
 
 function CaseRoulette({
   isSpinning,
@@ -18,7 +19,6 @@ function CaseRoulette({
         <span className="roulette-frame-edge roulette-frame-edge--bottom" />
       </div>
 
-      <div className="roulette-center-zone" aria-hidden="true" />
       <div className="roulette-speed-light" aria-hidden="true" />
 
       <div ref={reelRef} className="roulette-reel roulette-reel--premium">
