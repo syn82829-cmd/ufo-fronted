@@ -1,29 +1,30 @@
-/* Unified premium roulette shell.
+/* Premium roulette presentation layer.
    Winner selection, reel transform and final centering stay controlled by CasePage. */
 
 .roulette-window--premium {
-  --roulette-slot-size: clamp(100px, 29vw, 132px);
+  --roulette-slot-size: clamp(104px, 29vw, 128px);
+  --roulette-slot-gap: clamp(10px, 3vw, 14px);
 
   width: min(calc(100vw - 18px), 560px) !important;
   max-width: none !important;
-  height: 178px !important;
+  height: 184px !important;
 
   isolation: isolate;
   contain: paint;
   overflow: hidden;
 
-  border: 1px solid rgba(169, 220, 255, 0.24);
-  border-radius: 28px;
+  border: 1px solid rgba(174, 222, 255, 0.30);
+  border-radius: 30px;
 
   background:
-    radial-gradient(circle at 50% -28%, rgba(128, 211, 255, 0.20), transparent 52%),
-    linear-gradient(180deg, rgba(54, 104, 182, 0.20), rgba(8, 25, 61, 0.35));
+    radial-gradient(circle at 50% -32%, rgba(139, 216, 255, 0.22), transparent 52%),
+    linear-gradient(180deg, rgba(35, 78, 143, 0.42), rgba(5, 19, 49, 0.70));
 
   box-shadow:
-    0 18px 50px rgba(0, 0, 0, 0.24),
-    0 0 34px rgba(66, 162, 255, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15),
-    inset 0 -1px 0 rgba(75, 153, 238, 0.12);
+    0 20px 54px rgba(0, 0, 0, 0.28),
+    0 0 34px rgba(66, 162, 255, 0.09),
+    inset 0 1px 0 rgba(255, 255, 255, 0.20),
+    inset 0 -1px 0 rgba(75, 153, 238, 0.17);
 
   -webkit-mask-image: none !important;
   mask-image: none !important;
@@ -31,7 +32,7 @@
   animation: rouletteFrameEnter 0.36s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
-/* One continuous body instead of three separate blurred cards. */
+/* Fixed outer shell. It does not move with the prize cards. */
 .roulette-frame {
   position: absolute;
   inset: 0;
@@ -41,90 +42,134 @@
   border-radius: inherit;
 
   background:
-    linear-gradient(90deg, rgba(255,255,255,0.025), transparent 20%, transparent 80%, rgba(255,255,255,0.025)),
-    linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.008) 42%, rgba(3,14,38,0.08));
+    linear-gradient(90deg, rgba(255,255,255,0.04), transparent 18%, transparent 82%, rgba(255,255,255,0.04)),
+    linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.012) 38%, rgba(0,7,25,0.18));
 }
 
+/* Inner trough of the shell, behind the moving cards. */
 .roulette-frame::before {
   content: "";
   position: absolute;
-  inset: 1px;
-  border-radius: 27px;
-  border: 1px solid rgba(255,255,255,0.045);
+  inset: 13px 10px;
+  border-radius: 23px;
+
+  border: 1px solid rgba(121, 191, 244, 0.16);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(106, 189, 255, 0.09), transparent 56%),
+    linear-gradient(180deg, rgba(2, 13, 38, 0.34), rgba(7, 25, 58, 0.48));
+
   box-shadow:
-    inset 0 14px 24px rgba(255,255,255,0.018),
-    inset 0 -18px 30px rgba(0,0,0,0.12);
+    inset 0 12px 24px rgba(0,0,0,0.18),
+    inset 0 -10px 24px rgba(0,0,0,0.15),
+    inset 0 1px 0 rgba(255,255,255,0.045);
 }
 
-/* Clearly visible horizontal top and bottom rails. */
+.roulette-frame::after {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: 29px;
+  border: 1px solid rgba(255,255,255,0.055);
+  box-shadow:
+    inset 0 12px 24px rgba(255,255,255,0.018),
+    inset 0 -20px 34px rgba(0,0,0,0.14);
+}
+
+/* Horizontal rails belong to the fixed shell. */
 .roulette-frame-edge {
   position: absolute;
   left: 18px;
   right: 18px;
   height: 1px;
-  z-index: 1;
+  z-index: 2;
 
   background: linear-gradient(
     90deg,
     rgba(122, 203, 255, 0),
-    rgba(163, 222, 255, 0.34) 14%,
-    rgba(232, 248, 255, 0.72) 50%,
-    rgba(163, 222, 255, 0.34) 86%,
+    rgba(163, 222, 255, 0.40) 14%,
+    rgba(235, 250, 255, 0.82) 50%,
+    rgba(163, 222, 255, 0.40) 86%,
     rgba(122, 203, 255, 0)
   );
 
-  box-shadow: 0 0 10px rgba(99, 190, 255, 0.20);
+  box-shadow: 0 0 11px rgba(99, 190, 255, 0.24);
 }
 
 .roulette-frame-edge--top {
-  top: 10px;
+  top: 9px;
 }
 
 .roulette-frame-edge--bottom {
-  bottom: 10px;
+  bottom: 9px;
 }
 
+/* Moving reel lives inside the stationary shell. */
 .roulette-reel--premium {
   position: relative;
   z-index: 2;
 
   height: 100%;
-  gap: 0 !important;
-  padding: 0;
+  gap: var(--roulette-slot-gap) !important;
+  padding: 20px 14px;
+  box-sizing: border-box;
 }
 
+/* Each prize is once again its own separate card. */
 .roulette-item--premium {
   position: relative;
   isolation: isolate;
 
   width: var(--roulette-slot-size) !important;
-  height: 100% !important;
+  height: 144px !important;
   flex: 0 0 var(--roulette-slot-size) !important;
 
-  border: 0 !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  overflow: visible;
+  border: 1px solid rgba(176, 222, 255, 0.22) !important;
+  border-radius: 22px !important;
+
+  background:
+    radial-gradient(circle at 28% 12%, rgba(255,255,255,0.14), transparent 42%),
+    linear-gradient(145deg, rgba(56, 108, 181, 0.33), rgba(15, 42, 89, 0.44)) !important;
+
+  box-shadow:
+    0 9px 23px rgba(0,0,0,0.27),
+    inset 0 1px 0 rgba(255,255,255,0.17),
+    inset 0 -1px 0 rgba(91, 164, 238, 0.09) !important;
+
+  overflow: hidden;
+  transform: translate3d(0,0,0);
+  backface-visibility: hidden;
 }
 
-/* Subtle separators keep the track readable without turning slots into cards. */
+.roulette-item--premium::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  z-index: 1;
+  pointer-events: none;
+  border-radius: 21px;
+
+  background: linear-gradient(
+    180deg,
+    rgba(255,255,255,0.075),
+    transparent 39%,
+    rgba(0,0,0,0.055)
+  );
+}
+
 .roulette-item--premium::after {
   content: "";
   position: absolute;
-  top: 30px;
-  right: 0;
-  bottom: 30px;
-  width: 1px;
-  z-index: 0;
+  left: 12px;
+  right: 12px;
+  bottom: 7px;
+  height: 1px;
+  z-index: 1;
   pointer-events: none;
 
   background: linear-gradient(
-    to bottom,
+    90deg,
     transparent,
-    rgba(178, 223, 255, 0.12) 26%,
-    rgba(178, 223, 255, 0.16) 50%,
-    rgba(178, 223, 255, 0.12) 74%,
+    rgba(157, 215, 255, 0.19),
     transparent
   );
 }
@@ -132,59 +177,59 @@
 .roulette-slot-light {
   position: absolute;
   left: 50%;
-  top: 50%;
+  top: 48%;
   z-index: 0;
 
-  width: 94%;
-  height: 82%;
+  width: 92%;
+  height: 84%;
   transform: translate(-50%, -50%);
-  border-radius: 42%;
+  border-radius: 40%;
   pointer-events: none;
 
   background: radial-gradient(
     ellipse at center,
-    rgba(101, 183, 255, 0.075),
-    rgba(73, 135, 224, 0.024) 48%,
-    transparent 74%
+    rgba(113, 193, 255, 0.13),
+    rgba(73, 135, 224, 0.035) 50%,
+    transparent 75%
   );
 }
 
 .roulette-png--premium {
   position: relative;
-  z-index: 1;
+  z-index: 2;
 
-  width: clamp(72px, 21vw, 94px) !important;
-  height: clamp(72px, 21vw, 94px) !important;
+  width: clamp(72px, 21vw, 92px) !important;
+  height: clamp(72px, 21vw, 92px) !important;
 
   transform: translateZ(0) scale(1.02);
   backface-visibility: hidden;
 }
 
-/* The selected slot is part of the same body, not a separate card. */
+/* Fixed selector zone belongs to the shell, not to any moving card. */
 .roulette-center-zone {
   position: absolute;
   left: 50%;
-  top: 10px;
-  bottom: 10px;
+  top: 13px;
+  bottom: 13px;
   z-index: 3;
 
-  width: var(--roulette-slot-size);
+  width: calc(var(--roulette-slot-size) + 12px);
   transform: translateX(-50%);
   pointer-events: none;
 
-  border-left: 1px solid rgba(164, 220, 255, 0.08);
-  border-right: 1px solid rgba(164, 220, 255, 0.08);
+  border-left: 1px solid rgba(164, 220, 255, 0.07);
+  border-right: 1px solid rgba(164, 220, 255, 0.07);
 
   background:
-    radial-gradient(ellipse at 50% 50%, rgba(99, 200, 255, 0.13), transparent 68%),
-    linear-gradient(90deg, transparent, rgba(140, 216, 255, 0.035), transparent);
+    radial-gradient(ellipse at 50% 50%, rgba(99, 200, 255, 0.105), transparent 69%),
+    linear-gradient(90deg, transparent, rgba(140, 216, 255, 0.025), transparent);
 
   box-shadow:
-    inset 18px 0 28px -28px rgba(92, 190, 255, 0.36),
-    inset -18px 0 28px -28px rgba(92, 190, 255, 0.36);
+    inset 18px 0 28px -28px rgba(92, 190, 255, 0.32),
+    inset -18px 0 28px -28px rgba(92, 190, 255, 0.32);
 }
 
-/* Very light moving reflection; it does not cover side items. */
+/* Light reflection moves over the shell without hiding side cards. */
 .roulette-speed-light {
   position: absolute;
   top: 10px;
@@ -192,16 +237,16 @@
   left: -36%;
   z-index: 4;
 
-  width: 26%;
+  width: 25%;
   pointer-events: none;
-  opacity: 0.24;
+  opacity: 0.20;
 
   background: linear-gradient(
     105deg,
     transparent 20%,
-    rgba(207, 239, 255, 0.02) 38%,
-    rgba(225, 247, 255, 0.12) 50%,
-    rgba(207, 239, 255, 0.02) 62%,
+    rgba(207, 239, 255, 0.015) 38%,
+    rgba(225, 247, 255, 0.10) 50%,
+    rgba(207, 239, 255, 0.015) 62%,
     transparent 80%
   );
 
@@ -209,13 +254,13 @@
   animation: rouletteGlassSweep 1.45s linear infinite;
 }
 
-/* Marker is clipped to the roulette body and connects to both horizontal rails. */
+/* Marker is a structural part of the shell and joins both rails. */
 .roulette-line--premium {
   top: 50% !important;
   z-index: 7;
 
   width: 0 !important;
-  height: calc(100% - 20px) !important;
+  height: calc(100% - 18px) !important;
 
   background: none !important;
   box-shadow: none !important;
@@ -277,25 +322,25 @@
   bottom: -1px;
 }
 
-/* Only a tiny edge falloff remains; no broad blur hiding the side prizes. */
+/* Narrow shell-edge shading, without broad blur over the prizes. */
 .roulette-edge-shade {
   position: absolute;
-  top: 11px;
-  bottom: 11px;
+  top: 12px;
+  bottom: 12px;
   z-index: 6;
 
-  width: 18px;
+  width: 14px;
   pointer-events: none;
 }
 
 .roulette-edge-shade--left {
   left: 0;
-  background: linear-gradient(to right, rgba(5,18,46,0.34), transparent);
+  background: linear-gradient(to right, rgba(4,15,40,0.42), transparent);
 }
 
 .roulette-edge-shade--right {
   right: 0;
-  background: linear-gradient(to left, rgba(5,18,46,0.34), transparent);
+  background: linear-gradient(to left, rgba(4,15,40,0.42), transparent);
 }
 
 @keyframes rouletteFrameEnter {
@@ -338,12 +383,25 @@
 @media (max-width: 420px) {
   .roulette-window--premium {
     width: calc(100vw - 12px) !important;
-    height: 172px !important;
-    border-radius: 25px;
+    height: 178px !important;
+    border-radius: 27px;
   }
 
   .roulette-frame::before {
-    border-radius: 24px;
+    border-radius: 21px;
+  }
+
+  .roulette-frame::after {
+    border-radius: 26px;
+  }
+
+  .roulette-reel--premium {
+    padding-top: 19px;
+    padding-bottom: 19px;
+  }
+
+  .roulette-item--premium {
+    height: 140px !important;
   }
 }
 
