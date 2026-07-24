@@ -1,0 +1,224 @@
+/* Premium presentation layer for the case roulette.
+   The reel transform and winner positioning remain controlled by CasePage. */
+
+.roulette-window--premium {
+  isolation: isolate;
+  border-radius: 30px;
+  contain: paint;
+}
+
+.roulette-window--premium::before {
+  content: "";
+  position: absolute;
+  inset: 18px 0;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: 28px;
+  border: 1px solid rgba(151, 214, 255, 0.14);
+  background:
+    radial-gradient(circle at 50% 18%, rgba(255,255,255,0.10), transparent 42%),
+    linear-gradient(180deg, rgba(80,155,255,0.055), rgba(5,16,40,0.09));
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.12),
+    inset 0 -24px 50px rgba(4,12,32,0.16),
+    0 18px 55px rgba(0,0,0,0.20);
+}
+
+.roulette-ambient-glow {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 0;
+  width: 176px;
+  height: 210px;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(104, 210, 255, 0.20) 0%,
+    rgba(66, 145, 255, 0.08) 38%,
+    transparent 72%
+  );
+  opacity: 0.78;
+  animation: rouletteAmbientPulse 1.7s ease-in-out infinite;
+}
+
+.roulette-speed-streaks {
+  position: absolute;
+  inset: 28px 0;
+  z-index: 2;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0.34;
+  background: repeating-linear-gradient(
+    100deg,
+    transparent 0,
+    transparent 28px,
+    rgba(190, 229, 255, 0.07) 31px,
+    transparent 35px,
+    transparent 64px
+  );
+  transform: translate3d(-8%, 0, 0);
+  animation: rouletteStreakFlow 0.72s linear infinite;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 16%, #000 84%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 16%, #000 84%, transparent);
+}
+
+.roulette-center-focus {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 3;
+  width: 150px;
+  height: 172px;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  border-radius: 26px;
+  border: 1px solid rgba(175, 226, 255, 0.18);
+  background: linear-gradient(
+    180deg,
+    rgba(255,255,255,0.055),
+    rgba(87,174,255,0.025) 52%,
+    rgba(255,255,255,0.04)
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.12),
+    0 0 34px rgba(76, 180, 255, 0.10);
+}
+
+.roulette-reel--premium {
+  position: relative;
+  z-index: 1;
+}
+
+.roulette-item--premium {
+  position: relative;
+  isolation: isolate;
+  border-color: rgba(171, 220, 255, 0.20);
+  background:
+    radial-gradient(circle at 30% 18%, rgba(255,255,255,0.13), transparent 38%),
+    linear-gradient(145deg, rgba(62,118,205,0.19), rgba(255,255,255,0.035));
+}
+
+.roulette-item--premium::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255,255,255,0.06), transparent 45%);
+}
+
+.roulette-item-sheen {
+  position: absolute;
+  inset: 1px;
+  z-index: 2;
+  pointer-events: none;
+  border-radius: 21px;
+  background: linear-gradient(
+    118deg,
+    transparent 16%,
+    rgba(255,255,255,0.00) 38%,
+    rgba(255,255,255,0.11) 49%,
+    rgba(255,255,255,0.00) 60%,
+    transparent 84%
+  );
+  opacity: 0.72;
+}
+
+.roulette-png--premium {
+  position: relative;
+  z-index: 1;
+  transform: translateZ(0) scale(1.02);
+}
+
+.roulette-line--premium {
+  width: 0;
+  height: 184px;
+  background: none;
+  box-shadow: none;
+  overflow: visible;
+}
+
+.roulette-line-core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 3px;
+  height: 176px;
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  background: linear-gradient(
+    to bottom,
+    rgba(255,255,255,0.22),
+    rgba(226, 248, 255, 0.98) 18%,
+    rgba(90, 205, 255, 0.98) 50%,
+    rgba(226, 248, 255, 0.98) 82%,
+    rgba(255,255,255,0.22)
+  );
+  box-shadow:
+    0 0 8px rgba(255,255,255,0.88),
+    0 0 22px rgba(84,194,255,0.74),
+    0 0 46px rgba(72,158,255,0.36);
+  animation: rouletteLinePulse 0.95s ease-in-out infinite;
+}
+
+.roulette-line-spark {
+  position: absolute;
+  left: 50%;
+  width: 9px;
+  height: 9px;
+  transform: translateX(-50%) rotate(45deg);
+  border-radius: 2px;
+  background: rgba(235, 251, 255, 0.98);
+  box-shadow:
+    0 0 8px rgba(255,255,255,0.95),
+    0 0 18px rgba(72,190,255,0.82);
+}
+
+.roulette-line-spark--top { top: 1px; }
+.roulette-line-spark--bottom { bottom: 1px; }
+
+.roulette-vignette {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 4;
+  width: 72px;
+  pointer-events: none;
+}
+
+.roulette-vignette--left {
+  left: 0;
+  background: linear-gradient(to right, rgba(4,11,28,0.54), transparent);
+}
+
+.roulette-vignette--right {
+  right: 0;
+  background: linear-gradient(to left, rgba(4,11,28,0.54), transparent);
+}
+
+@keyframes rouletteAmbientPulse {
+  0%, 100% { opacity: 0.58; transform: translate(-50%, -50%) scale(0.94); }
+  50% { opacity: 0.88; transform: translate(-50%, -50%) scale(1.04); }
+}
+
+@keyframes rouletteStreakFlow {
+  from { transform: translate3d(-10%, 0, 0); }
+  to { transform: translate3d(10%, 0, 0); }
+}
+
+@keyframes rouletteLinePulse {
+  0%, 100% { opacity: 0.84; transform: translate(-50%, -50%) scaleY(0.97); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scaleY(1.02); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .roulette-ambient-glow,
+  .roulette-speed-streaks,
+  .roulette-line-core {
+    animation: none;
+  }
+}
