@@ -2,47 +2,69 @@
 /* CASES / DROPS — CRASH PANEL GLASS */
 /* ============================= */
 
-.case-card,
-.drop-card {
+.case-card {
   background:
     radial-gradient(
-      circle at top left,
-      rgba(255,255,255,0.065),
-      rgba(255,255,255,0.00) 34%
+      circle at 18% 12%,
+      rgba(94, 177, 255, 0.20),
+      rgba(94, 177, 255, 0.00) 40%
+    ),
+    radial-gradient(
+      circle at 84% 88%,
+      rgba(42, 104, 214, 0.13),
+      rgba(42, 104, 214, 0.00) 46%
     ),
     linear-gradient(
       145deg,
-      rgba(255,255,255,0.048),
-      rgba(255,255,255,0.014)
+      rgba(25, 73, 150, 0.58),
+      rgba(7, 30, 76, 0.54)
     ) !important;
 
-  border: 1px solid rgba(255,255,255,0.10) !important;
+  border: 1px solid rgba(115, 176, 255, 0.30) !important;
+  border-radius: 26px !important;
 
   box-shadow:
     0 18px 46px rgba(0,0,0,0.30),
-    inset 0 1px 0 rgba(255,255,255,0.12),
-    inset 0 -1px 0 rgba(0,0,0,0.10) !important;
+    inset 0 1px 0 rgba(255,255,255,0.14),
+    inset 0 -1px 0 rgba(0,0,0,0.12) !important;
 
   /* Repeated cards stay smooth on iPhone/Telegram. */
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
 }
 
-.case-card {
-  border-radius: 26px !important;
-}
-
 .drop-card {
+  background:
+    radial-gradient(
+      circle at 18% 12%,
+      rgba(94, 177, 255, 0.15),
+      rgba(94, 177, 255, 0.00) 40%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(23, 67, 137, 0.54),
+      rgba(7, 28, 70, 0.50)
+    ) !important;
+
+  border: 1px solid rgba(115, 176, 255, 0.25) !important;
   border-radius: 22px !important;
+
+  box-shadow:
+    0 14px 34px rgba(0,0,0,0.27),
+    inset 0 1px 0 rgba(255,255,255,0.12),
+    inset 0 -1px 0 rgba(0,0,0,0.10) !important;
+
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 .case-card::before {
   background: linear-gradient(
     180deg,
-    rgba(255,255,255,0.075),
-    rgba(255,255,255,0.00) 54%
+    rgba(175, 221, 255, 0.10),
+    rgba(255,255,255,0.00) 56%
   ) !important;
-  opacity: .46 !important;
+  opacity: .58 !important;
 }
 
 .case-card:active,
