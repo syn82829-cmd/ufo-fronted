@@ -5,6 +5,25 @@ import { triggerHaptic } from "../utils/haptics"
 
 const wait = (ms) => new Promise((resolve) => window.setTimeout(resolve, ms))
 
+const BONUS_TIERS = [
+  { minAmount: 5000, percent: 25 },
+  { minAmount: 2500, percent: 15 },
+  { minAmount: 1000, percent: 10 },
+  { minAmount: 500, percent: 5 },
+  { minAmount: 250, percent: 2 },
+]
+
+function getBonusPercent(amount) {
+  const numericAmount = Math.max(0, Math.floor(Number(amount) || 0))
+  return BONUS_TIERS.find((tier) => numericAmount >= tier.minAmount)?.percent || 0
+}
+
+function getCreditAmount(amount) {
+  const numericAmount = Math.max(0, Math.floor(Number(amount) || 0))
+  const bonusPercent = getBonusPercent(numericAmount)
+  return numericAmount + Math.floor((numericAmount * bonusPercent) / 100)
+}
+
 function DepositMenu({ isOpen, onClose }) {
   const { user, refreshUser } = useUser()
 
@@ -17,16 +36,18 @@ function DepositMenu({ isOpen, onClose }) {
     { value: 25 },
     { value: 50 },
     { value: 100 },
-    { value: 250, bonus: "+2%" },
-    { value: 500, bonus: "+5%" },
-    { value: 1000, bonus: "+10%" },
-    { value: 2500, bonus: "+15%" },
-    { value: 5000, bonus: "+25%" },
+    { value: 250, bonus: 2 },
+    { value: 500, bonus: 5 },
+    { value: 1000, bonus: 10 },
+    { value: 2500, bonus: 15 },
+    { value: 5000, bonus: 25 },
   ], [])
 
   if (!isOpen) return null
 
-  const numericAmount = Math.max(0, Number(amount || 0))
+  const numericAmount = Math.max(0, Math.floor(Number(amount || 0)))
+  const bonusPercent = getBonusPercent(numericAmount)
+  const creditAmount = getCreditAmount(numericAmount)
   const canDeposit = numericAmount > 0 && !isLoading && activeTab === "stars"
 
   const handleOptionClick = (value) => {
@@ -192,7 +213,7 @@ function DepositMenu({ isOpen, onClose }) {
 
         {activeTab === "stars" ? (
           <>
-            <div className="deposit-label">Введите сумму в звёздах:</div>
+            <div className="deposit-label">Сумма пополнения</div>
 
             <div className="deposit-input-wrap">
               <img src="/ui/star.PNG" className="deposit-input-icon" alt="" />
@@ -217,8 +238,12 @@ function DepositMenu({ isOpen, onClose }) {
             </div>
 
             <div className="deposit-receive-line">
-              Вы получите {numericAmount || 0}
+              <span>На баланс поступит</span>
+              <strong>{creditAmount || 0}</strong>
               <img src="/ui/star.PNG" className="deposit-receive-star" alt="" />
+              {bonusPercent > 0 && (
+                <span className="deposit-current-bonus">+{bonusPercent}%</span>
+              )}
             </div>
 
             <div className="deposit-options-scroll">
@@ -229,7 +254,9 @@ function DepositMenu({ isOpen, onClose }) {
                   onClick={() => handleOptionClick(option.value)}
                   disabled={isLoading}
                 >
-                  {option.bonus && <span className="deposit-option-bonus">{option.bonus}</span>}
+                  {option.bonus && (
+                    <span className="deposit-option-bonus">+{option.bonus}%</span>
+                  )}
                   <span>{option.value}</span>
                   <img src="/ui/star.PNG" className="deposit-star" alt="" />
                 </button>
